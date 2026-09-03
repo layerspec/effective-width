@@ -236,6 +236,127 @@ def trained_vs_random(layers: dict) -> str:
             "architectural and the paper's framing changes)\n" + "\n".join(lines))
 
 
+def depthwise_split(layers: dict) -> str:
+    """Shape of the profile with depthwise and dense convolutions separated.
+
+    Section III-D of the paper states that a depthwise convolution does not mix
+    channels and that its channel covariance therefore means something
+    different from a dense conv's.  The round-one analysis flagged those layers
+    but then pooled them into one depth-ordered curve anyway, which is
+    inconsistent with the stated method.  ConvNeXt-T is 18 depthwise layers
+    interleaved with 4 dense ones, and the two groups sit far enough apart that
+    the mixed curve's shape is partly an artefact of the interleaving.
+
+    This is a stratification of the pre-registered outcome by a covariate the
+    method already committed to recording -- not a new hypothesis, and not a
+    licence to pick whichever stratum reads better.  Both are reported.
+    """
+    lines = []
+    for model, df in sorted(layers.items()):
+        sub = conv_ok(df)
+        if sub.empty or "is_depthwise" not in sub.columns:
+            continue
+        dw = sub[sub["is_depthwise"].astype(bool)]
+        dn = sub[~sub["is_depthwise"].astype(bool)]
+        if dw.empty or len(dw) < 4:
+            continue        # nothing to separate
+        both = shape(sub[PRIMARY].to_numpy())
+        a = shape(dw[PRIMARY].to_numpy())
+        b = shape(dn[PRIMARY].to_numpy()) if len(dn) >= 4 else None
+        lines.append(f"    {model}")
+        lines.append(f"      mixed     n={both['n']:3d} median "
+                     f"{sub[PRIMARY].median():.3f}  {both['verdict']}")
+        lines.append(f"      depthwise n={a['n']:3d} median "
+                     f"{dw[PRIMARY].median():.3f}  {a['verdict']} "
+                     f"(late drop {a['late_drop']:+.3f})")
+        if b is not None:
+            lines.append(f"      dense     n={b['n']:3d} median "
+                         f"{dn[PRIMARY].median():.3f}  {b['verdict']} "
+                         f"(late drop {b['late_drop']:+.3f})")
+        else:
+            lines.append(f"      dense     n={len(dn):3d} median "
+                         f"{dn[PRIMARY].median():.3f}  (too few to shape-test)")
+    if not lines:
+        return ("  depthwise split: no architecture in this run has enough "
+                "depthwise conv layers to separate")
+    return ("  depthwise vs dense convolutions (stratification promised by the "
+            "method section;\n  a depthwise layer does not mix channels, so its "
+            "channel covariance is a different object)\n" + "\n".join(lines))
+
+
+RMAX = "k_star_rmax_0.95"
+
+
+def rank_bound(layers: dict) -> str:
+    """k* against the rank each layer could attain, not its channel count.
+
+    A conv layer's output at one spatial position is a linear map of its
+    receptive-field patch, so the channel covariance has rank at most
+    r_max = groups * min((C_in/groups)*kh*kw, C_out/groups).  Where r_max < C,
+    k*/C is bounded above by r_max/C no matter what the network learned, and
+    reporting k*/C alone charges the layer for width it never had.
+
+    This is not a hypothesis about the data; it is a property of the
+    architecture, and it changes how the primary outcome must be read.  The
+    check that matters is the last line: k*(0.999)/r_max must not exceed 1.
+    If it does, r_max is wrong.
+    """
+    lines = []
+    for model, df in sorted(layers.items()):
+        sub = conv_ok(df)
+        if sub.empty or "r_max" not in sub.columns or sub["r_max"].isna().all():
+            continue
+        bounded = sub[sub["r_max"] < sub["C"]]
+        if RMAX not in sub.columns:
+            continue
+        tight = sub["k_star_rmax_0.999"]
+        lines.append(
+            f"    {model:22s} bounded {len(bounded):2d}/{len(sub):2d} layers"
+            f"   median k*/C {sub[PRIMARY].median():.3f}"
+            f" -> k*/r_max {sub[RMAX].median():.3f}"
+            f"   max k*(.999)/r_max {tight.max():.3f}"
+        )
+    if not lines:
+        return "  rank bound: no r_max column (run backfill_rmax.py on old results)"
+    return ("  k* against attainable rank r_max rather than channel count C.\n"
+            "  Where the two medians differ, the gap is architectural and was "
+            "never the network's to close.\n" + "\n".join(lines))
+
+
+def width_profile(layers: dict) -> str:
+    """Median k*/C and k*/r_max grouped by nominal width, per model.
+
+    EXPLORATORY.  Found by reading the round-one numbers, not pre-registered.
+
+    The two columns must be read together.  Reading k*/C alone here is what
+    produced the round-one claim that ResNet-50's widest layers "use about a
+    tenth of their width": those layers are 1x1 expansions with C_in = C_out/4,
+    so k*/C could not have exceeded 0.25.  Against r_max they are as full as
+    every other layer in the network.
+    """
+    lines = []
+    for model, df in sorted(layers.items()):
+        sub = conv_ok(df)
+        if sub.empty or sub["C"].nunique() < 3:
+            continue
+        has_r = RMAX in sub.columns and not sub[RMAX].isna().all()
+        cells = "  ".join(
+            f"{int(C)}:{g[PRIMARY].median():.2f}"
+            + (f"/{g[RMAX].median():.2f}" if has_r else "")
+            for C, g in sub.groupby("C")
+        )
+        rho = spearmanr(sub["C"].to_numpy(),
+                        sub[PRIMARY].to_numpy()).correlation
+        rho_d = spearmanr(np.arange(len(sub)),
+                          sub[PRIMARY].to_numpy()).correlation
+        lines.append(f"    {model:22s} {cells}")
+        lines.append(f"    {'':22s} rho(C) {rho:+.3f}   rho(depth) {rho_d:+.3f}")
+    return ("  EXPLORATORY -- median k*/C / k*/r_max by nominal width.  Where "
+            "rho(C) and rho(depth)\n  are both large the two cannot be separated "
+            "in this data; say so rather than\n  choosing one.  rho is computed "
+            "on k*/C, the pre-registered statistic.\n" + "\n".join(lines))
+
+
 # ------------------------------------------------------------------- driver
 
 def report(results_dir: str) -> str:
@@ -272,6 +393,12 @@ def report(results_dir: str) -> str:
     out.append(h5_sampling(conv, layers))
     out.append("")
     out.append(trained_vs_random(layers))
+    out.append("")
+    out.append(depthwise_split(layers))
+    out.append("")
+    out.append(rank_bound(layers))
+    out.append("")
+    out.append(width_profile(layers))
     out.append("")
     out.append("-" * 72)
     out.append("H3 (class count) needs the CIFAR reproduction run; "

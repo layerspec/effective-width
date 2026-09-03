@@ -23,6 +23,15 @@ float32 after per-block centring (which keeps magnitudes small enough that
 float32 is adequate for one block).  Only the C-vector and C x C matrix cross
 back to the host, where the running accumulator is always float64.
 
+*Attainable rank.*  A conv layer's output at one spatial position is a linear
+map of its receptive-field patch, so the channel covariance has rank at most
+``min(C_in * kh * kw, C_out)`` -- and with ``groups > 1`` the weight matrix is
+block-diagonal, so the per-group bounds add.  Normalising k* by C_out alone
+charges a layer for width it could not have used: ResNet-50's 1x1 expansions
+have C_in = C_out/4, so k*/C cannot exceed 0.25 whatever the network learns.
+We record ``r_max`` per layer so the ratio can be taken against the rank that
+was actually available.
+
 *Depthwise convolutions.*  Flagged via ``groups``.  A depthwise conv does not
 mix channels, so its channel covariance means something different from a dense
 conv's; ConvNeXt is mostly depthwise and this must be visible in the output.
@@ -59,6 +68,11 @@ class LayerRecord:
     C: int
     groups: int = 1
     is_depthwise: bool = False
+    # Rank the channel covariance could attain given this layer's own weight
+    # matrix, before any question of what it learned: see the module
+    # docstring.  None for layers where it is not defined (Linear, and any
+    # activation, whose input rank is its predecessor's business).
+    r_max: int | None = None
     # Which invocation of this module within one forward pass this record is.
     # ResNet blocks reuse a single nn.ReLU for every activation in the block,
     # so the module NAME does not identify an activation site: a Bottleneck
@@ -89,6 +103,7 @@ class LayerRecord:
             "C": self.C,
             "groups": self.groups,
             "is_depthwise": self.is_depthwise,
+            "r_max": self.r_max,
             "call_index": self.call_index,
             "H": self.spatial[0] if self.spatial else None,
             "W": self.spatial[1] if self.spatial else None,
@@ -140,12 +155,20 @@ class SpectrumProbe:
         for name, module in self.model.named_modules():
             if isinstance(module, nn.Conv2d):
                 groups = module.groups
+                kh, kw = module.kernel_size
+                # Block-diagonal over groups, blocks with disjoint supports, so
+                # the ranks add.  For depthwise (g = C_in = C_out) this gives
+                # C_out and is therefore not binding; for a 1x1 expansion it
+                # gives C_in and is very binding.
+                per_group = min((module.in_channels // groups) * kh * kw,
+                                module.out_channels // groups)
                 self._register(
                     name,
                     module,
                     kind="conv",
                     groups=groups,
                     is_depthwise=(groups > 1 and groups == module.in_channels),
+                    r_max=groups * per_group,
                 )
             elif isinstance(module, nn.Linear) and self.include_linear:
                 self._register(name, module, kind="linear")
@@ -193,6 +216,7 @@ class SpectrumProbe:
                 C=C,
                 groups=extra.get("groups", 1),
                 is_depthwise=extra.get("is_depthwise", False),
+                r_max=extra.get("r_max"),
                 spatial=(H, W) if H is not None else None,
                 call_index=call_index,
                 acc=CovarianceAccumulator(C),

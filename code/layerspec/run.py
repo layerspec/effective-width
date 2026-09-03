@@ -80,6 +80,18 @@ def measure_one(
         # convergence file settle the rest.
         row["n_over_C_ok"] = bool(rec.acc.n >= args.min_n_over_C * rec.C)
 
+        # k* against the rank the layer could actually attain, not against its
+        # nominal channel count.  For most layers r_max == C and the two agree;
+        # where they do not, k*/C understates by exactly the factor the
+        # architecture imposed.  Both are written so the paper can show what
+        # the choice of denominator does.
+        if rec.r_max:
+            for tau in _metrics.DEFAULT_TAUS:
+                k = row.get(f"k_star_{tau}")
+                if k is not None:
+                    row[f"k_star_rmax_{tau}"] = k / rec.r_max
+            row["r_max_over_C"] = rec.r_max / rec.C
+
         # The globally-pooled estimator, carried alongside so the paper can test
         # whether the literature's disagreement is the pooling rather than the
         # metric.  It is inherently sample-poor -- n is the image count, so a
