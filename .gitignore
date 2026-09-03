@@ -5,5 +5,9 @@ __pycache__/
 data/
 *.pt
 *.pth
-# results are small enough to track, but raw spectra can get large
-results/**/*.npz
+# The raw eigenvalue spectra ARE tracked.  The rule that excluded them was
+# written defensively before the first run; they turned out to total 832K for
+# six models, and they are the one artefact in this repository that cannot be
+# regenerated without renting a GPU again.  The paper's reproducibility section
+# promises them, so they live in git.  Revisit only if a future run makes them
+# genuinely large -- and then archive them somewhere, do not just ignore them.
