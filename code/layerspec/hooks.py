@@ -40,6 +40,16 @@ from .accumulate import CovarianceAccumulator
 
 ACTIVATIONS = (nn.ReLU, nn.GELU, nn.SiLU, nn.Hardswish, nn.ELU)
 
+# Linear layers are hooked too, so the classifier head can be measured on the
+# same footing as the conv trunk.  This matters for one specific question: if
+# the terminal collapse that Garg et al. report is neural collapse, it should
+# appear in the layers that actually feed the classifier, not in the last conv
+# layer of a network whose head is three layers deep.  Their output is 2-D, so
+# there are no spatial positions to sample: one image is one sample, and n is
+# therefore the image count -- which is why a 4096-unit classifier layer cannot
+# clear the sample-size gate on a 50k validation set.  Measure it, flag it,
+# and say so.
+
 
 @dataclass
 class LayerRecord:
@@ -93,6 +103,7 @@ class SpectrumProbe:
         model: nn.Module,
         positions_per_image: int = 16,
         include_activations: bool = True,
+        include_linear: bool = True,
         max_channels: int | None = None,
         seed: int = 0,
         scatter_dtype: torch.dtype | None = None,
@@ -102,6 +113,7 @@ class SpectrumProbe:
         self.model = model
         self.positions_per_image = int(positions_per_image)
         self.include_activations = include_activations
+        self.include_linear = include_linear
         self.max_channels = max_channels
         self.scatter_dtype = scatter_dtype
         self.pooled = pooled
@@ -135,6 +147,8 @@ class SpectrumProbe:
                     groups=groups,
                     is_depthwise=(groups > 1 and groups == module.in_channels),
                 )
+            elif isinstance(module, nn.Linear) and self.include_linear:
+                self._register(name, module, kind="linear")
             elif self.include_activations and isinstance(module, ACTIVATIONS):
                 self._register(name, module, kind="act")
 
@@ -142,7 +156,7 @@ class SpectrumProbe:
         base = f"{name}::{kind}"
 
         def hook(_mod, _inp, out, _base=base, _name=name, _kind=kind, _extra=extra):
-            if not isinstance(out, torch.Tensor) or out.dim() != 4:
+            if not isinstance(out, torch.Tensor) or out.dim() not in (2, 4):
                 return
             idx = self._calls.get(_base, 0)
             self._calls[_base] = idx + 1
@@ -160,7 +174,13 @@ class SpectrumProbe:
 
     def _consume(self, key, name, kind, call_index, out: torch.Tensor,
                  extra: dict) -> None:
-        N, C, H, W = out.shape
+        if out.dim() == 2:
+            # (N, C): one sample per image, no spatial extent.  The pooled and
+            # position-sampled estimators coincide here, so only one is kept.
+            N, C = out.shape
+            H = W = None
+        else:
+            N, C, H, W = out.shape
         if self.max_channels is not None and C > self.max_channels:
             return
 
@@ -173,10 +193,11 @@ class SpectrumProbe:
                 C=C,
                 groups=extra.get("groups", 1),
                 is_depthwise=extra.get("is_depthwise", False),
-                spatial=(H, W),
+                spatial=(H, W) if H is not None else None,
                 call_index=call_index,
                 acc=CovarianceAccumulator(C),
-                acc_pooled=CovarianceAccumulator(C) if self.pooled else None,
+                acc_pooled=(CovarianceAccumulator(C)
+                            if self.pooled and H is not None else None),
             )
             self.layers[key] = rec
             self._order += 1
@@ -185,7 +206,8 @@ class SpectrumProbe:
             torch.float64 if out.device.type == "cpu" else torch.float32
         )
 
-        x = self._sample_positions(out, N, C, H, W).to(work_dtype)   # (m, C)
+        x = (out if H is None
+             else self._sample_positions(out, N, C, H, W)).to(work_dtype)
         self._fold(rec.acc, x)
         self._maybe_checkpoint(rec)
 

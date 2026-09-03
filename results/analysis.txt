@@ -1,0 +1,60 @@
+========================================================================
+PRE-REGISTERED ANALYSIS  --  primary outcome: k*(0.95)/C, conv layers, gate passed
+========================================================================
+
+Table 2  shape of each curve (rho vs depth; last third separately)
+               model     metric  n  rho_all  rho_late                   verdict
+       convnext_tiny k*/C (95%) 22   +0.309    -0.786 hunchback (late collapse)
+       convnext_tiny       PR/C 22   -0.120    -0.607 hunchback (late collapse)
+       convnext_tiny eff.rank/C 22   +0.021    -0.893 hunchback (late collapse)
+convnext_tiny_random k*/C (95%) 22   +0.758    +0.571            monotonic rise
+convnext_tiny_random       PR/C 22   +0.313    +0.643            no clear shape
+convnext_tiny_random eff.rank/C 22   +0.689    +0.571            monotonic rise
+            resnet18 k*/C (95%) 20   +0.144    -0.257            no clear shape
+            resnet18       PR/C 20   -0.320    -0.029            no clear shape
+            resnet18 eff.rank/C 20   -0.074    +0.143            no clear shape
+            resnet50 k*/C (95%) 53   +0.295    -0.126            no clear shape
+            resnet50       PR/C 53   -0.065    -0.206            no clear shape
+            resnet50 eff.rank/C 53   +0.153    -0.096            no clear shape
+     resnet50_random k*/C (95%) 53   -0.540    -0.410            no clear shape
+     resnet50_random       PR/C 53   -0.699    -0.326            no clear shape
+     resnet50_random eff.rank/C 53   -0.679    -0.336            no clear shape
+            vgg16_bn k*/C (95%) 13   +0.813    -0.800 hunchback (late collapse)
+            vgg16_bn       PR/C 13   -0.566    -0.800 hunchback (late collapse)
+            vgg16_bn eff.rank/C 13   -0.044    -0.800 hunchback (late collapse)
+
+------------------------------------------------------------------------
+HYPOTHESES
+------------------------------------------------------------------------
+  H1 metric definition: SUPPORTED -- the two statistics give different shapes on the same layers
+    convnext_tiny          k*: hunchback (late collapse) PR: hunchback (late collapse) -> agree
+    convnext_tiny_random   k*: monotonic rise           PR: no clear shape           -> DIFFER
+    resnet18               k*: no clear shape           PR: no clear shape           -> agree
+    resnet50               k*: no clear shape           PR: no clear shape           -> agree
+    resnet50_random        k*: no clear shape           PR: no clear shape           -> agree
+    vgg16_bn               k*: hunchback (late collapse) PR: hunchback (late collapse) -> agree
+
+  H2 estimator (pooled vs position-sampled): SUPPORTED -- pooling changes the shape
+    convnext_tiny          sampled: hunchback (late collapse) pooled: no clear shape           (pooled rows passing the gate: 22/22)
+    convnext_tiny_random   sampled: monotonic rise           pooled: no clear shape           (pooled rows passing the gate: 22/22)
+    resnet18               sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 20/20)
+    resnet50               sampled: no clear shape           pooled: no clear shape           (pooled rows passing the gate: 42/53)
+    resnet50_random        sampled: no clear shape           pooled: no clear shape           (pooled rows passing the gate: 42/53)
+    vgg16_bn               sampled: hunchback (late collapse) pooled: monotonic rise           (pooled rows passing the gate: 13/13)
+    NOTE pooled n is the image count, so wide layers are sample-poor by construction; read the gate column before believing a difference.
+
+  H5 sample size: layers whose k*/C has NOT flattened (these must not be reported)
+    convnext_tiny          0/22 layers still moving at the largest n/C
+    convnext_tiny_random   0/22 layers still moving at the largest n/C
+    resnet18               0/20 layers still moving at the largest n/C
+    resnet50               0/53 layers still moving at the largest n/C
+    resnet50_random        0/53 layers still moving at the largest n/C
+    vgg16_bn               1/13 layers still moving at the largest n/C
+
+  trained vs random-init (if indistinguishable, the profile is architectural and the paper's framing changes)
+    convnext_tiny          mean diff +0.085  max |diff| 0.234  layers where trained is higher: 17/22
+    resnet50               mean diff +0.108  max |diff| 0.469  layers where trained is higher: 44/53
+
+------------------------------------------------------------------------
+H3 (class count) needs the CIFAR reproduction run; H4 (truncation) is read off the profile figure.
+Anything not listed above is exploratory. Label it so.

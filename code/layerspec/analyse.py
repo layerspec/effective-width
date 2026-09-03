@@ -103,19 +103,35 @@ def shape_table(layers: dict) -> pd.DataFrame:
 # --------------------------------------------------------------- hypotheses
 
 def h1_metric(tab: pd.DataFrame) -> str:
-    """Do k* and PR disagree in shape on identical layers?"""
+    """Do k* and PR disagree in shape on identical layers?
+
+    Verdict is by MAJORITY, not by existence.  An earlier version flagged the
+    hypothesis SUPPORTED if any single model disagreed, which made one
+    dissenting random-init model outvote five agreeing ones.
+    """
     lines = []
-    disagree = 0
+    disagree = total = 0
     for model, g in tab.groupby("model"):
         v = dict(zip(g.metric, g.verdict))
         k, pr = v.get("k*/C (95%)"), v.get("PR/C")
         if k and pr:
-            mark = "DIFFER" if k != pr else "agree"
-            disagree += k != pr
-            lines.append(f"    {model:22s} k*: {k:24s} PR: {pr:24s} -> {mark}")
-    head = ("SUPPORTED -- the two statistics give different shapes on the same "
-            "layers" if disagree else
-            "NOT SUPPORTED -- both statistics give the same shape")
+            differs = k != pr
+            disagree += differs
+            total += 1
+            lines.append(f"    {model:22s} k*: {k:24s} PR: {pr:24s} "
+                         f"-> {'DIFFER' if differs else 'agree'}")
+    if not total:
+        head = "no comparable models"
+    elif disagree > total / 2:
+        head = (f"SUPPORTED -- the statistics disagree on {disagree}/{total} "
+                f"models, so the metric is a plausible explanation")
+    elif disagree == 0:
+        head = (f"NOT SUPPORTED -- the statistics agree on all {total} models; "
+                f"the metric does not explain the disagreement")
+    else:
+        head = (f"NOT SUPPORTED -- the statistics agree on "
+                f"{total - disagree}/{total} models; the {disagree} exception(s) "
+                f"are listed and should be discussed, not generalised")
     return f"  H1 metric definition: {head}\n" + "\n".join(lines)
 
 
@@ -140,8 +156,15 @@ def h2_estimator(layers: dict) -> str:
         )
     if not comparable:
         return "  H2 estimator: no pooled columns found"
-    head = ("SUPPORTED -- pooling changes the shape" if differ else
-            "NOT SUPPORTED -- both estimators give the same shape")
+    # Majority, for the same reason as H1.
+    if differ > comparable / 2:
+        head = (f"SUPPORTED -- pooling changes the shape on {differ}/{comparable} "
+                f"models")
+    elif differ == 0:
+        head = "NOT SUPPORTED -- both estimators give the same shape everywhere"
+    else:
+        head = (f"WEAK -- pooling changes the shape on only {differ}/{comparable} "
+                f"models; report per-model, do not generalise")
     return (f"  H2 estimator (pooled vs position-sampled): {head}\n"
             + "\n".join(lines)
             + "\n    NOTE pooled n is the image count, so wide layers are "

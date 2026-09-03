@@ -1,0 +1,28 @@
+[
+  {
+    "model": "resnet50_random",
+    "weights": "random_init",
+    "source": "imagenet_val[50000]",
+    "device": "cuda",
+    "positions_per_image": 16,
+    "batch_size": 64,
+    "image_size": 224,
+    "seed": 0,
+    "n_layers": 102,
+    "elapsed_sec": 756.5,
+    "torch": "2.8.0+cu128"
+  },
+  {
+    "model": "convnext_tiny_random",
+    "weights": "random_init",
+    "source": "imagenet_val[50000]",
+    "device": "cuda",
+    "positions_per_image": 16,
+    "batch_size": 64,
+    "image_size": 224,
+    "seed": 0,
+    "n_layers": 40,
+    "elapsed_sec": 95.5,
+    "torch": "2.8.0+cu128"
+  }
+]
