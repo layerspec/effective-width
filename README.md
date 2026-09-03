@@ -11,7 +11,7 @@
 > 點）。開工前請先讀 `CLAUDE.md` 與 `notes/review-2026-09-03.md`。
 > 下方「第一輪結果」一節已依審查修訂。
 
-## 現況（2026-09-03）
+## 現況（2026-09-04）
 
 | | 狀態 |
 |---|---|
@@ -37,16 +37,22 @@
   改用 r_max 後中位數 0.250 → 0.422，與 VGG（0.422）、ResNet-18（0.533）同級，
   「寬層只用一成寬度」那個說法是分母造成的假象，已撤回。
 
+### 第二輪結果（2026-09-03 跑，2026-09-04 分析；詳見 `notes/round2-2026-09-04.md`）
+
+22 組權重（含 6 個 ResNet-50 配方）、Garg 關卡、block 輸出。摘要：
+r_max 分母 14/14 模型成立；池化壓低 687/703；block 輸出超過 conv3 上界
+161/161；Garg 關卡 r=0.981 通過；trained≠random 只在 ResNet-50 成立，ConvNeXt
+分開 depthwise 後不顯著。數字由 `code/scripts/checkpoint_analysis.py` 產生。
+
 ### 下一步
 
-0. ~~查證 r_max 的文獻新穎性~~ —— 已查（2026-09-03）：上界已知（ReXNet 2021、Kim 2018），量測分母用法是我們的；見 `notes/rmax-novelty-2026-09-03.md`
-0. **量 15–20 個公開 checkpoint（約 US$3–5）** —— 解決 n=1，形狀主張才有
-   跨網路誤差棒。torchvision 的 ResNet-50 有 V1/V2，timm 上有幾十個
-1. **CIFAR 2×2（約 US$4）** —— `bash code/scripts/run_cifar_2x2.sh`
-   —— {CIFAR-10, CIFAR-100} × {小頭, 深頭}，把類別數與分類頭深度這兩個
-   混淆的解釋分開，同時補上真正的驗證關卡（目前一次都沒跑過）。
-2. 補完剩下的 12 個 TODO（摘要、Discussion、Conclusion、Table III）
-3. 取得 IEEEtran.cls（本機租來的環境裝不了；Overleaf 或 texlive-publishers）
+0. ~~查證 r_max 的文獻新穎性~~ —— 已查（2026-09-03），見 `notes/rmax-novelty-2026-09-03.md`
+0. ~~量 15–20 個公開 checkpoint~~ —— 已跑（2026-09-03），見 `notes/round2-2026-09-04.md`
+1. **依新框架重寫論文**：標題、摘要、§I／§II、§V。定位是「量測協定＋三個
+   陷阱」（r_max 分母、池化水準、conv 輸出 vs block 輸出）。
+2. 小補量測：隨機對照多個種子（init 已固定）；MobileNet 系列池化效果用 r_max 版。
+3. CIFAR 2×2（約 US$4，選配）—— `bash code/scripts/run_cifar_2x2.sh`
+4. 取得 IEEEtran.cls（Overleaf 或 texlive-publishers）
 
 跑法（機器上）：
 
