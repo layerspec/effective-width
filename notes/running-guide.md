@@ -1,0 +1,214 @@
+# 從零到有資料：租機器與取得 ImageNet
+
+寫給第一次租雲端 GPU 的人。全程約 5 小時，其中你需要在場的大概 30 分鐘，
+其餘是等它跑。花費約 **US$5–10**（含犯錯重來的餘裕）。
+
+---
+
+## 0. 先理解你在租什麼
+
+租來的是**一台別人機器上的 Linux 容器，附一張 GPU**。三件事要記住：
+
+1. **從它存在的那一刻開始計費**，不管你有沒有在用。忘記關掉是最常見的損失。
+2. **它是暫時的。** 你按下 destroy，上面所有東西都消失。
+3. 所以流程永遠是：**把資料弄進去 → 跑 → 把結果弄出來 → 銷毀。**
+
+## 平台選擇：這次用 RunPod，不要用 Vast.ai
+
+我先前推薦 Vast.ai 是著眼於它的競價實例便宜。**對第一篇這種只跑幾小時的工作，
+那個價差只有幾美元，不值得用介面複雜度去換。** RunPod 介面單純得多。
+
+Vast.ai 的競價實例留給第二篇（1,200 GPU-hours，那時價差才有意義）。
+
+---
+
+## 1. 出門前（在自己電腦上做，免費）
+
+### 1.1 Hugging Face 帳號與 ImageNet 授權
+
+1. 註冊 huggingface.co
+2. 瀏覽器打開 `https://huggingface.co/datasets/ILSVRC/imagenet-1k`
+3. 頁面上會要求同意 ImageNet 使用條款——**點下去就好，是即時的，不需審核**
+4. 到 Settings → Access Tokens，建立一個 **read** 權限的 token，複製起來
+
+那個 token 等一下要在租來的機器上用。**不要把它寫進任何會進 git 的檔案。**
+
+### 1.2 SSH 金鑰
+
+檢查你的 Mac 上有沒有：
+
+```bash
+ls ~/.ssh/id_ed25519.pub
+```
+
+沒有的話建一把：
+
+```bash
+ssh-keygen -t ed25519 -C "runpod"      # 一路按 Enter 即可
+cat ~/.ssh/id_ed25519.pub              # 複製這一整行，等下要貼
+```
+
+### 1.3 把程式碼打包好
+
+```bash
+cd ~/Downloads/effective-width-claude
+tar czf /tmp/layerspec.tar.gz --exclude=__pycache__ code/
+```
+
+---
+
+## 2. 租機器
+
+1. 註冊 runpod.io，儲值 **US$10**（預付制，用多少扣多少）
+2. Settings → SSH Public Keys，把 1.2 那一行貼進去
+3. Deploy 一台 Pod：
+
+| 項目 | 選什麼 | 為什麼 |
+|---|---|---|
+| 雲別 | **Community Cloud** | 便宜約一半，這個工作不需要企業級可靠度 |
+| GPU | **RTX 3090**（或 A5000、4090） | 純推論，24 GB 綽綽有餘；12 GB 其實就夠 |
+| 數量 | 1 | |
+| 模板 | 任何 **PyTorch** 官方模板 | 省去自己裝 CUDA |
+| **Container Disk** | **80 GB** | ⚠️ 見下方 |
+| Volume | 不需要 | 我們不需要跨 pod 保存 |
+
+⚠️ **磁碟大小是最容易出錯的地方，而且開機後很難改。** 需要的空間：
+parquet 快取 ~7 GB ＋ 解出的 JPEG ~7 GB ＋ 預訓練權重 ~2 GB ＋
+CIFAR-10 ＋ 結果檔，再加上映像檔本身。**80 GB 是安全值，不要省。**
+
+參考價位：Community Cloud 的 3090 大約 **US$0.22–0.30/hr**。
+
+4. 按下 Deploy，等一兩分鐘機器起來
+5. 面板上會給你一行 SSH 指令，長得像
+   `ssh root@123.45.67.89 -p 40022 -i ~/.ssh/id_ed25519`
+   **把主機位址和連接埠記下來**，等下 scp 要用
+
+（RunPod 介面偶爾改版，細節可能和上面不完全一樣，但這幾個欄位一定找得到。）
+
+---
+
+## 3. 進去、把程式碼送上去
+
+在你自己的 Mac 上：
+
+```bash
+# 用面板給你的 IP 和 port，注意 scp 的 -P 是大寫
+scp -P 40022 /tmp/layerspec.tar.gz root@123.45.67.89:/workspace/
+```
+
+然後連進去：
+
+```bash
+ssh root@123.45.67.89 -p 40022
+```
+
+進去之後：
+
+```bash
+cd /workspace && tar xzf layerspec.tar.gz && cd code
+pip install -q -r requirements.txt
+pip install -q huggingface_hub pyarrow pillow
+
+nvidia-smi                      # 確認 GPU 在
+PYTHONPATH=. python tests/test_core.py    # 應該 7/7 passed
+```
+
+**7/7 沒過就先停下來**，環境有問題，繼續跑只是浪費錢。
+
+---
+
+## 4. 抓資料
+
+```bash
+huggingface-cli login           # 貼上 1.1 那個 token
+```
+
+**先小試 2000 張**，確認整條路通：
+
+```bash
+python scripts/fetch_imagenet_val.py --out /workspace/imagenet_val --limit 2000
+python -m layerspec.run --data /workspace/imagenet_val \
+    --models resnet18 --limit 2000 --out /tmp/trial
+```
+
+跑得出東西（會警告取樣不足，正常，因為只有 2000 張）就繼續抓完整的：
+
+```bash
+python scripts/fetch_imagenet_val.py --out /workspace/imagenet_val
+```
+
+約 10–20 分鐘。結束時它會說寫了幾張，**應該是 50000**。
+
+---
+
+## 5. 正式跑
+
+用 `nohup` 讓它在背景跑，這樣 SSH 斷線也不會中斷：
+
+```bash
+cd /workspace/code
+nohup bash scripts/run_on_rented_gpu.sh /workspace/imagenet_val > run.log 2>&1 &
+tail -f run.log                 # Ctrl-C 只是停止看 log，不會停止工作
+```
+
+會依序跑：
+
+| 階段 | 時間 |
+|---|---|
+| 正確性測試、煙霧測試 | 2 分鐘 |
+| **Garg 重現關卡**（訓練 CIFAR VGG-16） | 約 1 小時 |
+| 四個預訓練模型 | 約 1.5 小時 |
+| 兩個隨機初始化對照 | 約 45 分鐘 |
+| 出圖、打包 | 2 分鐘 |
+
+**Garg 關卡跑完會印出判定**（Pearson r 與 MAD）。r < 0.7 就該停下來找原因，
+不要讓它繼續跑完——那代表管線或訓練有問題，後面的數字都不能用。
+要跳過這關重跑其餘部分：`SKIP_GARG=1 bash scripts/...`
+
+---
+
+## 6. 把結果帶走，然後銷毀機器
+
+腳本最後會印出一個 tarball 路徑。在你自己的 Mac 上：
+
+```bash
+scp -P 40022 root@123.45.67.89:/tmp/layerspec_results_*.tar.gz \
+    ~/Downloads/effective-width-claude/results/
+```
+
+確認檔案真的在你電腦上、而且解得開：
+
+```bash
+cd ~/Downloads/effective-width-claude/results && tar tzf layerspec_results_*.tar.gz | head
+```
+
+**然後回到 RunPod 面板，把 Pod 按 Terminate/Destroy。**
+
+⚠️ Stop 不等於 Destroy。停止的 pod 通常仍會收儲存費。要**銷毀**。
+
+最後看一眼帳單，確認沒有東西還在跑。
+
+---
+
+## 常見錯誤
+
+| 錯誤 | 後果 | 預防 |
+|---|---|---|
+| 忘記銷毀機器 | 持續扣款 | 拿到結果就立刻銷毀；設一個手機鬧鐘 |
+| Container disk 開太小 | 抓資料抓到一半爆掉，很難補救 | 開 80 GB |
+| 沒先用 `--limit 2000` 試 | 環境有問題時，浪費幾小時才發現 | 一定先小試 |
+| 用 Stop 而不是 Destroy | 還在收儲存費 | 看清楚按鈕 |
+| token 寫進檔案被 commit | 憑證外洩 | 只用 `huggingface-cli login` |
+| SSH 斷線導致工作中斷 | 前功盡棄 | 用 `nohup ... &` |
+
+---
+
+## 花費預估
+
+| 項目 | 金額 |
+|---|---|
+| 實際運算約 4–5 小時 × US$0.25/hr | ~US$1.25 |
+| 含犯錯、重跑、忘記關機的餘裕 | **編列 US$10** |
+
+第二篇（正交再評估，約 1,200 GPU-hours）到時候再談，那時才輪到 Vast.ai
+的競價實例，約 US$160。
