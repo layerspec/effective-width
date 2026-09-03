@@ -54,7 +54,7 @@
 
 | | 檢定 | 狀態 |
 |---|---|---|
-| r_max 是對的分母 | 用 C p=1.4e-9；用 r_max p=0.49 | **強烈倖存**（新穎性未查證） |
+| r_max 是對的分母 | 用 C p=1.4e-9；用 r_max p=0.49 | **強烈倖存**，但上界本身已知（Han 2021 ReXNet、Kim 2018）；我們的只有「當量測分母」這一步。見 `notes/rmax-novelty-2026-09-03.md` |
 | 池化一致壓低水準 | 108/108 層 | **強烈倖存** |
 | trained ≠ random | Wilcoxon p=6.3e-4 / 4.2e-6 | **倖存** |
 | 剖面的形狀（駝峰／上升） | 見規則 7 | **不倖存** |
@@ -63,10 +63,15 @@
 
 ## 下一步（依優先序）
 
-1. **查證 r_max 的文獻新穎性。** 「1×1 擴張的秩受 C_in 限制」在線性代數上
-   很淺顯；Transformer 那邊 Bhojanapalli 等人講過 attention head 的 rank
-   bottleneck，CNN 這邊很可能有人講過。**這決定了第一承重點還在不在。**
-2. 15–20 個公開 checkpoint 的量測（約 US$3–5），解決 n=1
+1. ~~查證 r_max 的文獻新穎性~~ —— 2026-09-03 已查：上界已知（ReXNet CVPR
+   2021 明講；Kim et al. 2018 有 min(C_in·k², C_out) 形式），量測分母的用法沒
+   人做過。引用已補進 `paper/`。**論文不得再寫成「發現分母錯了」**，要寫成
+   「文獻忽略了一個已知上界」。上界只在 conv 輸出（activation 前、殘差相加前）
+   成立，block 輸出不受限 —— 這是 Ansuini／Elmoznino 量 block 輸出而沒中招的
+   原因，也是論文必須講清楚量測點的原因。
+2. 15–20 個公開 checkpoint 的量測（約 US$3），解決 n=1。清單與程式已備：
+   `notes/checkpoints-2026-09-03.md`，`python -m layerspec.run --models tier1 tier2`
+   （timm 後端、`kind=block` 與 `kind=conv_gap` 已加，每個模型會印 r_max 檢查）。
 3. CIFAR 2×2：`bash code/scripts/run_cifar_2x2.sh`（分辨類別數 vs 分類頭深度，
    同時補上真正的驗證關卡）
 4. 依新排序重寫 §I／§II 框架

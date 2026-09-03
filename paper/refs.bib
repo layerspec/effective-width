@@ -190,6 +190,53 @@
                as if it were the channel covariance spectrum},
 }
 
+% ===== Rank bounds on expansion layers (prior art for r_max; see
+% notes/rmax-novelty-2026-09-03.md) ========================================
+
+@inproceedings{han2021rexnet,
+  author    = {Han, Dongyoon and Yun, Sangdoo and Heo, Byeongho and Yoo, YoungJoon},
+  title     = {Rethinking Channel Dimensions for Efficient Model Design},
+  booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year      = {2021},
+  note      = {arXiv:2007.00992 (ReXNet). Sec. 3.2: ``The rank is originally
+               bounded to the input dimension, but the subsequent nonlinear
+               function will increase the rank above the input dimension.''
+               Fig. 1 plots rank/C_out against C_in/C_out for 1x1, 3x3 and
+               inverted-bottleneck layers of random-weight networks; used as a
+               design rule (expansion ratio <= 6), not as a measurement
+               denominator},
+}
+
+@article{kim2018rank1,
+  author  = {Kim, Hyein and Yoon, Jungho and Jeong, Byeongseon and Lee, Sukho},
+  title   = {Rank-1 Convolutional Neural Network},
+  journal = {arXiv preprint arXiv:1808.04303},
+  year    = {2018},
+  note    = {Eqs. (28)--(37): output feature matrix Y = H[X] W in Hankel/im2col
+             form, rank(Y) <= min(C_in k_h k_w, C_out) for a standard
+             convolution. Preprint; the kernel-extent term in r_max is here},
+}
+
+@inproceedings{bhojanapalli2020lowRank,
+  author    = {Bhojanapalli, Srinadh and Yun, Chulhee and Rawat, Ankit Singh and
+               Reddi, Sashank J. and Kumar, Sanjiv},
+  title     = {Low-Rank Bottleneck in Multi-head Attention Models},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2020},
+  note      = {The Transformer form of the same bound: head size below sequence
+               length caps the rank of each attention head},
+}
+
+@inproceedings{yang2018softmax,
+  author    = {Yang, Zhilin and Dai, Zihang and Salakhutdinov, Ruslan and
+               Cohen, William W.},
+  title     = {Breaking the Softmax Bottleneck: A High-Rank {RNN} Language Model},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2018},
+  note      = {Logit matrix rank bounded by the hidden dimension; the source
+               Han et al. cite for the input-dimension bound},
+}
+
 @inproceedings{fang2023depgraph,
   author    = {Fang, Gongfan and Ma, Xinyin and Song, Mingli and
                Mi, Michael Bi and Wang, Xinchao},

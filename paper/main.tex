@@ -161,6 +161,7 @@ claim about manifold dimension, and where prior results are cited we name the
 quantity rather than the word.
 
 \subsection{Depth profiles of representation dimensionality}
+\label{sec:profiles}
 
 Several groups have reported how a dimensionality measure varies with depth,
 and the reported shape depends on the measure. Ansuini \emph{et al.}
@@ -188,6 +189,22 @@ Jacobian---a property of the map, not of the activation covariance. Similarly,
 the rank used by HRank \cite{lin2020hrank} is the singular-value rank of an
 individual $H\times W$ feature map for one channel and one image, which is a
 spatial quantity and not the channel covariance spectrum.
+
+The bound we use in Section~\ref{sec:stats} to normalise by attainable rather
+than nominal width is not new. That a layer's output rank cannot exceed its
+input dimension was made explicit for the softmax layer by Yang \emph{et al.}
+\cite{yang2018softmax}, for attention heads whose size is below the sequence
+length by Bhojanapalli \emph{et al.} \cite{bhojanapalli2020lowRank}, and for
+convolutional expansion layers by Han \emph{et al.} \cite{han2021rexnet},
+who plot the rank of $1\!\times\!1$, $3\!\times\!3$ and inverted-bottleneck
+outputs against $C_{\text{in}}/C_{\text{out}}$ in random-weight networks and
+turn the observation into a design rule (an expansion ratio of at most six).
+Kim \emph{et al.} \cite{kim2018rank1} write the standard-convolution form
+$\min(C_{\text{in}} k_h k_w,\, C_{\text{out}})$ in an im2col derivation.
+What none of these do, and what the measurement literature above has not done
+either, is carry the bound into the denominator of a depth profile measured on
+trained networks. Section~\ref{sec:rmax} shows that doing so removes an
+apparent two-population structure in ResNet-50.
 
 \subsection{Spectral decay, and why a Marchenko--Pastur threshold is unusable}
 \label{sec:mp}
@@ -298,6 +315,7 @@ Section~\ref{sec:samplesize}: under pooling, $n$ is the number of
 estimated at $n/C \approx 5$.
 
 \subsection{Summary statistics}
+\label{sec:stats}
 
 Let $\lambda_1 \ge \cdots \ge \lambda_C \ge 0$ be the eigenvalues of the
 estimated covariance. We report:
@@ -324,7 +342,11 @@ the question is what fraction of the available width is used.
 
 A layer's output at one spatial position is a linear map of its
 receptive-field patch, so the rank of $\hat{\Sigma}$ is bounded above by the
-rank of that map and not by $C$ alone. For a convolution with $C_{\text{in}}$
+rank of that map and not by $C$ alone
+\cite{kim2018rank1,han2021rexnet}. The bound holds at the point we record
+the convolution output---before any nonlinearity and before a residual
+addition; a subsequent ReLU or skip connection can raise the rank above it
+\cite{han2021rexnet}. For a convolution with $C_{\text{in}}$
 input channels, kernel $k_h \times k_w$ and $g$ groups, the weight matrix is
 block-diagonal with blocks of disjoint support, so the block ranks add and
 \begin{equation}
@@ -555,6 +577,14 @@ $0.23, 0.34, 0.42, 0.42, 0.43, 0.47$: flat, slightly rising, and with no
 collapse at the wide end. The median moves from $k^*/C = 0.250$ to
 $k^*/r_{\max} = 0.422$, in line with VGG-16 ($0.422$) and ResNet-18 ($0.533$).
 ResNet-50 is not an outlier; it was being asked the wrong question.
+
+The bound itself is known (Section~\ref{sec:profiles}); Han \emph{et al.}
+\cite{han2021rexnet} observed in random-weight networks that ``drastic
+channel expansion harms the rank''. What is added here is that in a trained
+network the expansion layers sit at $93\%$ of the bound, so the effect they
+describe is, for ResNet-50, accounted for by the bound alone, and that a
+profile which does not divide by it misreads the architecture as underused
+width.
 
 The correction is checkable rather than merely plausible: $k^*(0.999)/r_{\max}$
 must not exceed unity, and across all six runs its maximum is $0.973$ to
