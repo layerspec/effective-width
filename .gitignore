@@ -11,3 +11,4 @@ data/
 # regenerated without renting a GPU again.  The paper's reproducibility section
 # promises them, so they live in git.  Revisit only if a future run makes them
 # genuinely large -- and then archive them somewhere, do not just ignore them.
+archive/
