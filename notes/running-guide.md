@@ -121,14 +121,14 @@ ssh root@123.45.67.89 -p 40022
 進去之後：
 
 ```bash
-cd /workspace && tar xzf --no-same-owner layerspec.tar.gz && cd code
+cd /workspace && tar --no-same-owner -xzf layerspec.tar.gz && cd code
 pip install -q -r requirements.txt
 
 nvidia-smi
 PYTHONPATH=. python tests/test_core.py
 ```
 
-**7/7 沒過就先停下來**，環境有問題，繼續跑只是浪費錢。
+**12/12 沒過就先停下來**，環境有問題，繼續跑只是浪費錢。
 
 ---
 
@@ -173,12 +173,17 @@ tail -f run.log
 | 正確性測試、煙霧測試 | 2 分鐘 |
 | **Garg 重現關卡**（訓練 CIFAR VGG-16） | 約 1 小時 |
 | 四個預訓練模型 | 約 1.5 小時 |
+| **tier1 + tier2 共 16 個 timm checkpoint**（2026-09-03 新增） | 約 1 小時 |
 | 兩個隨機初始化對照 | 約 45 分鐘 |
 | 出圖、打包 | 2 分鐘 |
 
 **Garg 關卡跑完會印出判定**（Pearson r 與 MAD）。r < 0.7 就該停下來找原因，
 不要讓它繼續跑完——那代表管線或訓練有問題，後面的數字都不能用。
 要跳過這關重跑其餘部分：`SKIP_GARG=1 bash scripts/...`
+
+每個模型跑完會印 `r_max check: ... -> ok`；出現 **FAILED** 表示某種層的
+r_max 算錯了，把 run.log 帶回來，不用停整趟。只跑前十個 checkpoint：
+`TIERS=tier1 bash scripts/...`；不跑 checkpoint：`TIERS="" bash scripts/...`。
 
 ---
 
@@ -222,7 +227,7 @@ cd ~/Downloads/effective-width-claude/results && tar tzf layerspec_results_*.tar
 
 | 項目 | 金額 |
 |---|---|
-| 實際運算約 4–5 小時 × US$0.25/hr | ~US$1.25 |
+| 實際運算約 5–6 小時 × US$0.25/hr | ~US$1.50 |
 | 含犯錯、重跑、忘記關機的餘裕 | **編列 US$10** |
 
 第二篇（正交再評估，約 1,200 GPU-hours）到時候再談，那時才輪到 Vast.ai
