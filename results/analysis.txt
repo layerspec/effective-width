@@ -3,30 +3,35 @@ PRE-REGISTERED ANALYSIS  --  primary outcome: k*(0.95)/C, conv layers, gate pass
 ========================================================================
 
 Table 2  shape of each curve (rho vs depth; last third separately)
-               model     metric  n  rho_all  rho_late                   verdict
-       convnext_tiny k*/C (95%) 22   +0.309    -0.786 hunchback (late collapse)
-       convnext_tiny       PR/C 22   -0.120    -0.607 hunchback (late collapse)
-       convnext_tiny eff.rank/C 22   +0.021    -0.893 hunchback (late collapse)
-convnext_tiny_random k*/C (95%) 22   +0.758    +0.571            monotonic rise
-convnext_tiny_random       PR/C 22   +0.313    +0.643            no clear shape
-convnext_tiny_random eff.rank/C 22   +0.689    +0.571            monotonic rise
-            resnet18 k*/C (95%) 20   +0.144    -0.257            no clear shape
-            resnet18       PR/C 20   -0.320    -0.029            no clear shape
-            resnet18 eff.rank/C 20   -0.074    +0.143            no clear shape
-            resnet50 k*/C (95%) 53   +0.295    -0.126            no clear shape
-            resnet50       PR/C 53   -0.065    -0.206            no clear shape
-            resnet50 eff.rank/C 53   +0.153    -0.096            no clear shape
-     resnet50_random k*/C (95%) 53   -0.540    -0.410            no clear shape
-     resnet50_random       PR/C 53   -0.699    -0.326            no clear shape
-     resnet50_random eff.rank/C 53   -0.679    -0.336            no clear shape
-            vgg16_bn k*/C (95%) 13   +0.813    -0.800 hunchback (late collapse)
-            vgg16_bn       PR/C 13   -0.566    -0.800 hunchback (late collapse)
-            vgg16_bn eff.rank/C 13   -0.044    -0.800 hunchback (late collapse)
+               model     metric  n  rho_all  rho_late  late_drop  peak_to_end                   verdict
+       convnext_tiny k*/C (95%) 22   +0.309    -0.786     +0.246       +0.246 hunchback (late collapse)
+       convnext_tiny       PR/C 22   -0.120    -0.607     +0.275       +0.413 hunchback (late collapse)
+       convnext_tiny eff.rank/C 22   +0.021    -0.893     +0.361       +0.401 hunchback (late collapse)
+convnext_tiny_random k*/C (95%) 22   +0.758    +0.571     -0.038       +0.005            monotonic rise
+convnext_tiny_random       PR/C 22   +0.313    +0.643     -0.009       +0.001            no clear shape
+convnext_tiny_random eff.rank/C 22   +0.689    +0.571     -0.032       +0.005            monotonic rise
+            resnet18 k*/C (95%) 20   +0.144    -0.257     +0.104       +0.174            no clear shape
+            resnet18       PR/C 20   -0.320    -0.029     -0.161       +0.105            no clear shape
+            resnet18 eff.rank/C 20   -0.074    +0.143     -0.122       +0.099            no clear shape
+            resnet50 k*/C (95%) 53   +0.295    -0.126     +0.011       +0.448            no clear shape
+            resnet50       PR/C 53   -0.065    -0.206     -0.020       +0.267            no clear shape
+            resnet50 eff.rank/C 53   +0.153    -0.096     -0.020       +0.351            no clear shape
+     resnet50_random k*/C (95%) 53   -0.540    -0.410     +0.032       +0.467            no clear shape
+     resnet50_random       PR/C 53   -0.699    -0.326     +0.001       +0.059            no clear shape
+     resnet50_random eff.rank/C 53   -0.679    -0.336     +0.004       +0.147            no clear shape
+            vgg16_bn k*/C (95%) 13   +0.813    -0.800     +0.059       +0.088 hunchback (late collapse)
+            vgg16_bn       PR/C 13   -0.566    -0.800     +0.028       +0.197 hunchback (late collapse)
+            vgg16_bn eff.rank/C 13   -0.044    -0.800     +0.116       +0.261 hunchback (late collapse)
+
+  rho_all/rho_late and the verdict are pre-registered. late_drop (value at the start of the
+  last third minus the final value) and peak_to_end are descriptive additions, not
+  pre-registered: rho is rank-based and scores a 0.09 dip the same as a 0.90 collapse,
+  so a 'hunchback' verdict must be read together with its magnitude.
 
 ------------------------------------------------------------------------
 HYPOTHESES
 ------------------------------------------------------------------------
-  H1 metric definition: SUPPORTED -- the two statistics give different shapes on the same layers
+  H1 metric definition: NOT SUPPORTED -- the statistics agree on 5/6 models; the 1 exception(s) are listed and should be discussed, not generalised
     convnext_tiny          k*: hunchback (late collapse) PR: hunchback (late collapse) -> agree
     convnext_tiny_random   k*: monotonic rise           PR: no clear shape           -> DIFFER
     resnet18               k*: no clear shape           PR: no clear shape           -> agree
@@ -34,7 +39,7 @@ HYPOTHESES
     resnet50_random        k*: no clear shape           PR: no clear shape           -> agree
     vgg16_bn               k*: hunchback (late collapse) PR: hunchback (late collapse) -> agree
 
-  H2 estimator (pooled vs position-sampled): SUPPORTED -- pooling changes the shape
+  H2 estimator (pooled vs position-sampled): SUPPORTED -- pooling changes the shape on 4/6 models
     convnext_tiny          sampled: hunchback (late collapse) pooled: no clear shape           (pooled rows passing the gate: 22/22)
     convnext_tiny_random   sampled: monotonic rise           pooled: no clear shape           (pooled rows passing the gate: 22/22)
     resnet18               sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 20/20)

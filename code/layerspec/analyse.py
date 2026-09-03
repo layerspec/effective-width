@@ -67,10 +67,21 @@ def conv_ok(df: pd.DataFrame) -> pd.DataFrame:
 # -------------------------------------------------------------------- shape
 
 def shape(values: np.ndarray) -> dict:
-    """rho against depth order, over all layers and over the last third."""
+    """rho against depth order, over all layers and over the last third.
+
+    `rho` is rank-based and therefore scale-free: a curve that slips from 0.53
+    to 0.44 over its last three layers earns exactly the same rho_late as one
+    that falls from 0.97 to 0.07.  The pre-registered verdict is the rho, and
+    that is what the paper reports as its test -- but reporting it alone would
+    equate a dip with a collapse, so the magnitude of the late change is
+    carried alongside it.  These two columns were NOT pre-registered and are
+    descriptive only; they qualify the verdict, they do not override it.
+    """
     n = len(values)
     if n < 4:
-        return {"n": n, "rho_all": np.nan, "rho_late": np.nan, "verdict": "too few layers"}
+        return {"n": n, "rho_all": np.nan, "rho_late": np.nan,
+                "late_drop": np.nan, "peak_to_end": np.nan,
+                "verdict": "too few layers"}
 
     depth = np.arange(n)
     rho_all = spearmanr(depth, values).correlation
@@ -83,7 +94,15 @@ def shape(values: np.ndarray) -> dict:
         verdict = "monotonic rise"
     else:
         verdict = "no clear shape"
-    return {"n": n, "rho_all": rho_all, "rho_late": rho_late, "verdict": verdict}
+    return {
+        "n": n,
+        "rho_all": rho_all,
+        "rho_late": rho_late,
+        # positive = the curve falls across the window
+        "late_drop": float(values[-cut] - values[-1]),
+        "peak_to_end": float(np.max(values) - values[-1]),
+        "verdict": verdict,
+    }
 
 
 def shape_table(layers: dict) -> pd.DataFrame:
@@ -233,6 +252,15 @@ def report(results_dir: str) -> str:
     out.append("")
     out.append("Table 2  shape of each curve (rho vs depth; last third separately)")
     out.append(tab.to_string(index=False, float_format=lambda v: f"{v:+.3f}"))
+    out.append("")
+    out.append("  rho_all/rho_late and the verdict are pre-registered. "
+               "late_drop (value at the start of the")
+    out.append("  last third minus the final value) and peak_to_end are "
+               "descriptive additions, not")
+    out.append("  pre-registered: rho is rank-based and scores a 0.09 dip the "
+               "same as a 0.90 collapse,")
+    out.append("  so a 'hunchback' verdict must be read together with its "
+               "magnitude.")
     out.append("")
     out.append("-" * 72)
     out.append("HYPOTHESES")

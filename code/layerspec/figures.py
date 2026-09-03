@@ -74,7 +74,6 @@ def _style() -> None:
         "lines.markersize": 3.2,
         "figure.dpi": 200,
         "savefig.dpi": 400,
-        "savefig.bbox": "tight",
         "savefig.pad_inches": 0.02,
     })
 
@@ -103,6 +102,21 @@ def _relative_depth(sub: pd.DataFrame) -> np.ndarray:
     return np.linspace(0, 1, n) if n > 1 else np.array([0.5])
 
 
+def _grid(n: int) -> tuple[int, int]:
+    """Rows and columns for `n` panels, preferring a full rectangle.
+
+    A 4-panel figure laid out 2x3 leaves two empty cells and, worse, puts a
+    subplot title directly under the x-axis label of the panel above it.
+    Choosing 2x2 removes both problems.
+    """
+    if n <= 3:
+        return 1, n
+    if n == 4:
+        return 2, 2
+    ncol = 3
+    return int(np.ceil(n / ncol)), ncol
+
+
 # ---------------------------------------------------------------- figure 1
 
 def fig_profile(results: dict[str, pd.DataFrame], out_dir: str,
@@ -117,12 +131,13 @@ def fig_profile(results: dict[str, pd.DataFrame], out_dir: str,
     archs = sorted({k.replace("_random", "") for k in results})
     archs = [a for a in archs if a in results]
     n = len(archs)
-    ncol = min(n, 3)
-    nrow = int(np.ceil(n / ncol))
+    nrow, ncol = _grid(n)
 
     width = min(TWO_COL, max(ONE_COL, 2.45 * ncol))
+    # constrained_layout, not the default: without it a subplot title in row 2
+    # is drawn on top of the x-axis label of the panel above it.
     fig, axes = plt.subplots(nrow, ncol, figsize=(width, 2.1 * nrow),
-                             sharey=True, squeeze=False)
+                             sharey=True, squeeze=False, constrained_layout=True)
 
     for i, arch in enumerate(archs):
         ax = axes[i // ncol][i % ncol]
@@ -172,8 +187,7 @@ def fig_metrics(results: dict[str, pd.DataFrame], out_dir: str) -> str:
     _style()
     keys = [k for k in sorted(results) if not k.endswith("_random")]
     n = len(keys)
-    ncol = min(n, 3)
-    nrow = int(np.ceil(n / ncol))
+    nrow, ncol = _grid(n)
 
     metrics = [
         ("k_star_ratio_0.95", r"$k^*/C$ (95%)"),
@@ -183,7 +197,7 @@ def fig_metrics(results: dict[str, pd.DataFrame], out_dir: str) -> str:
 
     width = min(TWO_COL, max(ONE_COL, 2.45 * ncol))
     fig, axes = plt.subplots(nrow, ncol, figsize=(width, 2.1 * nrow),
-                             sharey=True, squeeze=False)
+                             sharey=True, squeeze=False, constrained_layout=True)
 
     for i, key in enumerate(keys):
         ax = axes[i // ncol][i % ncol]
