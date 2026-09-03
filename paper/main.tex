@@ -129,7 +129,16 @@ Our contributions are:
 % analytically -- 9 on CIFAR-10, 999 on ImageNet -- which is why the deep end
 % is regime-dependent and not a universal fact.
 % Distinguish \cite{feng2022rankDiminishing}: that is the JACOBIAN's rank.
-\todo{write}
+%
+% IMPORTANT (verified 2026-09-03, see ../refs/verification-notes.md):
+% \cite{maile2022north} compute the epsilon-numerical rank of post-activations
+% normalised by layer width, on VGG-11 and WideResNet-28.  That is the same
+% FAMILY of statistic this paper measures.  It must be acknowledged here AND in
+% Section~\ref{sec:method}, not buried among growth methods -- a reviewer who
+% finds it themselves will read the omission badly.  What they do NOT do:
+% report a depth profile, compare metrics, work at ImageNet scale, use
+% pretrained checkpoints, or run an initialisation control.  Say exactly that.
+\todo{write; explicitly position against maile2022north}
 
 \subsection{Spectral decay and why a Marchenko--Pastur threshold is unusable}
 % TODO. \cite{ghosh2022powerLaws} fit lambda_i ~ i^-alpha to feature
@@ -192,6 +201,10 @@ Our contributions are:
 % ResNet-18/50 (excluded there), ConvNeXt-T (postdates), DenseNet-121, plus
 % untrained counterparts.  Note depthwise convs do not mix channels and are
 % flagged; ConvNeXt is mostly depthwise.
+%
+% Also state here that the normalised-rank statistic is not new -- it appears
+% as a growth trigger in \cite{maile2022north} -- and that our contribution is
+% the profile, the estimator comparison and the controls, not the statistic.
 \todo{write; add Table~I}
 
 % =========================================================================
