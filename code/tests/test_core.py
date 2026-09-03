@@ -223,3 +223,37 @@ if __name__ == "__main__":
             traceback.print_exc()
     print(f"\n{len(fns) - failed}/{len(fns)} passed")
     sys.exit(1 if failed else 0)
+
+
+def test_random_init_is_seeded():
+    """A `_random` control must be the same weights on every run.
+
+    The second measurement run (2026-09-03) drew a different resnet50_random
+    from the first because build() did not seed the initialiser: the manifest
+    said seed=0 but the weights were not.  k*(0.999) differed by up to 71.
+    """
+    import torch
+    from layerspec import models
+
+    a, _ = models.build("resnet18_random", seed=0)
+    b, _ = models.build("resnet18_random", seed=0)
+    c, _ = models.build("resnet18_random", seed=1)
+    for (na, pa), (_, pb), (_, pc) in zip(a.named_parameters(), b.named_parameters(),
+                                          c.named_parameters()):
+        assert torch.equal(pa, pb), na
+    assert any(not torch.equal(pa, pc)
+               for (_, pa), (_, pc) in zip(a.named_parameters(), c.named_parameters()))
+
+
+def test_manifest_merges_across_invocations(tmp_path):
+    """The GPU script calls run.py once per stage; each call must ADD to the
+    manifest, not replace it.  The 2026-09-03 tarball kept only the last
+    stage's two entries out of 22."""
+    from layerspec.run import write_manifest
+
+    write_manifest(str(tmp_path), [{"model": "a", "x": 1}, {"model": "b", "x": 1}])
+    write_manifest(str(tmp_path), [{"model": "b", "x": 2}, {"model": "c", "x": 1}])
+    import json
+    with open(tmp_path / "manifest.json") as f:
+        got = {e["model"]: e["x"] for e in json.load(f)}
+    assert got == {"a": 1, "b": 2, "c": 1}

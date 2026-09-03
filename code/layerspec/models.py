@@ -90,19 +90,25 @@ def file_stem(name: str) -> str:
     return name.replace(":", "_")
 
 
-def build(name: str, pretrained: bool = True) -> tuple[nn.Module, str]:
+def build(name: str, pretrained: bool = True, seed: int = 0) -> tuple[nn.Module, str]:
     """Return (model, weights_tag).
 
     A name suffixed with ``_random`` gives the same architecture with default
-    (untrained) initialisation.
+    (untrained) initialisation, drawn from ``seed`` so that the control is the
+    same weights on every run.  (The 2026-09-03 run did not seed it, and its
+    resnet50_random differs from the first run's; see the test.)
     """
+    import torch
+
     backend, base, random_init = parse(name)
+    if random_init or not pretrained:
+        torch.manual_seed(seed)
 
     if backend == "timm":
         import timm
 
         if random_init or not pretrained:
-            return timm.create_model(base, pretrained=False), "random_init"
+            return timm.create_model(base, pretrained=False), f"random_init(seed={seed})"
         return timm.create_model(base, pretrained=True), f"timm/{base}"
 
     import torchvision.models as tvm
@@ -114,7 +120,7 @@ def build(name: str, pretrained: bool = True) -> tuple[nn.Module, str]:
     ctor = getattr(tvm, ctor_name)
 
     if random_init or not pretrained:
-        return ctor(weights=None), "random_init"
+        return ctor(weights=None), f"random_init(seed={seed})"
 
     weights = getattr(tvm, weights_enum).IMAGENET1K_V1
     return ctor(weights=weights), str(weights)
