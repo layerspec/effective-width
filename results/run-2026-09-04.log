@@ -1,0 +1,1157 @@
+nohup: ignoring input
+=== layerspec ===
+data:      /workspace/imagenet_val
+out:       /workspace/code/results
+NVIDIA GeForce RTX 3090, 24576 MiB
+
+--- correctness tests ---
+PASS  test_accumulator_matches_exact
+PASS  test_block_outputs_are_hooked_separately
+PASS  test_conv_on_pooled_input_is_not_a_conv_layer
+PASS  test_effective_rank_equals_k_for_flat_spectrum
+PASS  test_k_star_on_known_spectrum
+PASS  test_measured_rank_respects_the_bound
+PASS  test_merge_is_associative_with_single_pass
+PASS  test_metrics_ratios_use_nominal_C
+PASS  test_model_name_parsing_and_tiers
+PASS  test_participation_ratio_bounds
+PASS  test_powerlaw_recovers_known_exponent
+PASS  test_rmax_matches_the_architecture
+
+12/12 passed
+
+--- smoke test (synthetic, no data needed) ---
+
+=== resnet18_random ===
+  batch 0
+  46 layers, 33.8s
+  r_max check: max k*(0.999)/r_max = 1.000 at layer1.0.conv1 -> ok
+  !! 46/46 layers under-sampled (worst: fc, C=1000, n/C=0.1). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+
+wrote /tmp/layerspec_smoke/
+
+--- validation gate: reproducing Garg et al. Table 2 ---
+
+training VGG-16_BN [cifar10_small, 10 classes] for 100 epochs
+/usr/local/lib/python3.12/dist-packages/torch/optim/lr_scheduler.py:192: UserWarning: Detected call of `lr_scheduler.step()` before `optimizer.step()`. In PyTorch 1.1.0 and later, you should call them in the opposite order: `optimizer.step()` before `lr_scheduler.step()`.  Failure to do this will result in PyTorch skipping the first value of the learning rate schedule. See more details at https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
+  warnings.warn(
+  epoch  10/100  test acc 83.98%  (6s/ep)
+  epoch  20/100  test acc 81.66%  (7s/ep)
+  epoch  30/100  test acc 82.11%  (7s/ep)
+  epoch  40/100  test acc 85.41%  (7s/ep)
+  epoch  50/100  test acc 85.99%  (8s/ep)
+  epoch  60/100  test acc 87.25%  (7s/ep)
+  epoch  70/100  test acc 87.66%  (6s/ep)
+  epoch  80/100  test acc 90.17%  (7s/ep)
+  epoch  90/100  test acc 92.58%  (7s/ep)
+  epoch 100/100  test acc 94.11%  (7s/ep)
+final test accuracy: 94.11%
+
+measuring per-layer spectra
+
+=== 2x2 cell [cifar10_small] ===
+  test accuracy            94.11%
+  last conv layer          features.40 (C=512)
+  k*(0.999)                40   ratio 0.078
+  k*(0.95)                 35   ratio 0.068
+  effective rank           34.4   (neural collapse would predict ~9)
+  n/C                      78   OK
+
+=== comparison with Garg et al. Table 2 (tau = 0.999) ===
+      layer  C_ours  C_garg  k_ours  k_garg  ratio_ours  ratio_garg  n_over_C  abs_diff
+ features.0      64      64      14      11       0.219       0.172  2500.000     0.047
+ features.3      64      64      47      42       0.734       0.656  2500.000     0.078
+ features.7     128     128     107     103       0.836       0.805  1250.000     0.031
+features.10     128     128     121     118       0.945       0.922  1250.000     0.023
+features.14     256     256     238     238       0.930       0.930   625.000     0.000
+features.17     256     256     247     249       0.965       0.973   625.000     0.008
+features.20     256     256     250     249       0.977       0.973   625.000     0.004
+features.24     512     512     457     424       0.893       0.828   312.500     0.064
+features.27     512     512     373     271       0.729       0.529   312.500     0.199
+features.30     512     512     265     160       0.518       0.312   312.500     0.205
+features.34     512     512      40      36       0.078       0.070    78.125     0.008
+features.37     512     512      40      38       0.078       0.074    78.125     0.004
+features.40     512     512      40      42       0.078       0.082    78.125     0.004
+
+shape agreement (Pearson r on k*/C): 0.981
+mean absolute difference in k*/C:    0.052
+
+Verdict: the gate is about SHAPE, not digits -- their training recipe is not fully specified.
+  r > 0.9 and MAD < 0.10  -> reproduced; proceed to the ImageNet pass.
+  r > 0.7                 -> broadly consistent; investigate the layers that disagree.
+  r < 0.7                 -> STOP. Something in the pipeline or the training is wrong.
+
+Read the verdict above before continuing.
+Set SKIP_GARG=1 to skip this gate on a re-run.
+
+--- pretrained models ---
+
+=== vgg16_bn ===
+Downloading: "https://download.pytorch.org/models/vgg16_bn-6c64b313.pth" to /root/.cache/torch/hub/checkpoints/vgg16_bn-6c64b313.pth
+
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  31 layers, 854.0s
+  r_max check: max k*(0.999)/r_max = 0.973 at features.34 -> ok
+  !! 4/31 layers under-sampled (worst: classifier.0, C=4096, n/C=12.2). Need >= 12800 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.078  max 0.527  mean 0.378
+
+=== resnet18 ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  46 layers, 85.9s
+  r_max check: max k*(0.999)/r_max = 0.992 at layer2.1.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.172  max 0.664  mean 0.461
+
+=== resnet50 ===
+Downloading: "https://download.pytorch.org/models/resnet50-0676ba61.pth" to /root/.cache/torch/hub/checkpoints/resnet50-0676ba61.pth
+
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 1223.8s
+  r_max check: max k*(0.999)/r_max = 0.977 at layer2.3.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.039  max 0.562  mean 0.278
+
+=== convnext_tiny ===
+Downloading: "https://download.pytorch.org/models/convnext_tiny-983f1562.pth" to /root/.cache/torch/hub/checkpoints/convnext_tiny-983f1562.pth
+
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  95 layers, 165.6s
+  r_max check: max k*(0.999)/r_max = 0.990 at features.3.1.block.0 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.146  max 0.773  mean 0.609
+
+wrote /workspace/code/results/
+
+--- checkpoints: tier1 ---
+
+=== timm:resnet50.tv_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 1180.6s
+  r_max check: max k*(0.999)/r_max = 0.977 at layer2.3.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.039  max 0.562  mean 0.278
+
+=== timm:resnet50.tv2_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 1190.4s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.1.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.004  max 0.641  mean 0.339
+
+=== timm:resnet50.a1_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 1111.3s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.2.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.004  max 0.666  mean 0.344
+
+=== timm:resnet50.a3_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 1123.2s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.2.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.004  max 0.619  mean 0.292
+
+=== timm:resnet50.gluon_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 1131.3s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.2.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.004  max 0.594  mean 0.307
+
+=== timm:resnet50.fb_ssl_yfcc100m_ft_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 1533.4s
+  r_max check: max k*(0.999)/r_max = 0.986 at layer4.2.conv3 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.012  max 0.609  mean 0.338
+
+=== timm:resnet101.tv_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  238 layers, 1650.7s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer3.21.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.028  max 0.609  mean 0.261
+
+=== timm:wide_resnet50_2.tv_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 831.9s
+  r_max check: max k*(0.999)/r_max = 0.960 at layer4.0.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.039  max 0.507  mean 0.221
+
+=== timm:resnext50_32x4d.tv_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 812.2s
+  r_max check: max k*(0.999)/r_max = 0.973 at layer4.1.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.047  max 0.637  mean 0.272
+
+=== timm:mobilenetv2_100.ra_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  70 layers, 142.2s
+  r_max check: max k*(0.999)/r_max = 1.000 at blocks.0.0.conv_pw -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.097  max 0.850  mean 0.431
+
+wrote /workspace/code/results/
+
+--- checkpoints: tier2 ---
+
+=== timm:efficientnet_b0.ra_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  147 layers, 411.5s
+  r_max check: max k*(0.999)/r_max = 1.000 at blocks.0.0.conv_pw -> ok
+  !! 4/147 layers under-sampled (worst: blocks.5.1.se.conv_expand, C=1152, n/C=43.4). Need >= 3600 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.089  max 0.863  mean 0.375
+
+=== timm:mobilenetv3_large_100.ra_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 233.9s
+  r_max check: max k*(0.999)/r_max = 1.000 at blocks.1.1.conv_pwl -> ok
+  !! 2/119 layers under-sampled (worst: conv_head, C=1280, n/C=39.1). Need >= 4000 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.091  max 0.850  mean 0.400
+
+=== timm:vgg16.tv_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  31 layers, 1342.5s
+  r_max check: max k*(0.999)/r_max = 0.963 at features.24 -> ok
+  !! 4/31 layers under-sampled (worst: pre_logits.fc1, C=4096, n/C=12.2). Need >= 12800 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.094  max 0.445  mean 0.343
+
+=== timm:resnet34.a1_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  86 layers, 112.7s
+  r_max check: max k*(0.999)/r_max = 0.992 at layer2.1.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.078  max 0.742  mean 0.560
+
+=== timm:convnext_tiny.fb_in22k_ft_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  77 layers, 145.0s
+  r_max check: max k*(0.999)/r_max = 0.990 at stages.1.blocks.0.conv_dw -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.135  max 0.786  mean 0.587
+
+=== timm:densenet121.tv_in1k ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  300 layers, 372.4s
+  r_max check: max k*(0.999)/r_max = 1.000 at features.denseblock1.denselayer3.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.062  max 0.906  mean 0.637
+
+wrote /workspace/code/results/
+
+--- random-init controls ---
+
+=== resnet50_random ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  119 layers, 1374.6s
+  r_max check: max k*(0.999)/r_max = 0.969 at layer1.0.conv2 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.015  max 0.391  mean 0.136
+
+=== convnext_tiny_random ===
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  batch 200
+  batch 220
+  batch 240
+  batch 260
+  batch 280
+  batch 300
+  batch 320
+  batch 340
+  batch 360
+  batch 380
+  batch 400
+  batch 420
+  batch 440
+  batch 460
+  batch 480
+  batch 500
+  batch 520
+  batch 540
+  batch 560
+  batch 580
+  batch 600
+  batch 620
+  batch 640
+  batch 660
+  batch 680
+  batch 700
+  batch 720
+  batch 740
+  batch 760
+  batch 780
+  95 layers, 163.7s
+  r_max check: max k*(0.999)/r_max = 0.992 at features.5.2.block.0 -> ok
+  k*/C (95% EV, conv layers, adequately sampled): min 0.042  max 0.715  mean 0.533
+
+wrote /workspace/code/results/
+
+--- figures ---
+/workspace/code/results/figures/fig1_profile.pdf
+/workspace/code/results/figures/fig2_metrics.pdf
+/workspace/code/results/figures/fig3_convergence_convnext_tiny.pdf
+/workspace/code/results/figures/fig3_convergence_convnext_tiny_random.pdf
+/workspace/code/results/figures/fig3_convergence_resnet18.pdf
+/workspace/code/results/figures/fig3_convergence_resnet50.pdf
+/workspace/code/results/figures/fig3_convergence_resnet50_random.pdf
+/workspace/code/results/figures/fig3_convergence_timm_convnext_tiny.fb_in22k_ft_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_densenet121.tv_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_efficientnet_b0.ra_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_mobilenetv2_100.ra_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_mobilenetv3_large_100.ra_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_resnet101.tv_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_resnet34.a1_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_resnet50.a1_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_resnet50.a3_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_resnet50.fb_ssl_yfcc100m_ft_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_resnet50.gluon_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_resnet50.tv2_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_resnet50.tv_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_resnext50_32x4d.tv_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_vgg16.tv_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_timm_wide_resnet50_2.tv_in1k.pdf
+/workspace/code/results/figures/fig3_convergence_vgg16_bn.pdf
+/workspace/code/results/figures/fig4_threshold_convnext_tiny.pdf
+/workspace/code/results/figures/fig4_threshold_resnet18.pdf
+/workspace/code/results/figures/fig4_threshold_resnet50.pdf
+/workspace/code/results/figures/fig4_threshold_timm_convnext_tiny.fb_in22k_ft_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_densenet121.tv_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_efficientnet_b0.ra_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_mobilenetv2_100.ra_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_mobilenetv3_large_100.ra_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_resnet101.tv_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_resnet34.a1_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_resnet50.a1_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_resnet50.a3_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_resnet50.fb_ssl_yfcc100m_ft_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_resnet50.gluon_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_resnet50.tv2_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_resnet50.tv_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_resnext50_32x4d.tv_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_vgg16.tv_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_timm_wide_resnet50_2.tv_in1k.pdf
+/workspace/code/results/figures/fig4_threshold_vgg16_bn.pdf
+
+=== done ===
+results:  /workspace/code/results
+tarball:  /tmp/layerspec_results_20260903T122955Z.tar.gz  (76M)
+
+COPY THE TARBALL OFF THIS MACHINE BEFORE TERMINATING IT.
+  scp -P <port> root@<host>:/tmp/layerspec_results_20260903T122955Z.tar.gz .
+
+Then check the sample-size control before reporting anything:
+  any row with n_over_C_ok=False is an artefact, not a measurement.

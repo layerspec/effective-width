@@ -1,0 +1,232 @@
+loaded 22 layer tables from ../results
+duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
+
+========================================================================
+0. Validation gate: Garg et al. (2019) Table 2, VGG-16_BN on CIFAR-10
+========================================================================
+  same dataset, same architecture, our own training run
+  all 13 conv layers: Pearson r = +0.981   MAD = 0.052   Spearman = +0.988
+  largest disagreements:
+    features.30  ours 0.518  theirs 0.312  diff +0.205
+    features.27  ours 0.729  theirs 0.529  diff +0.199
+    features.3   ours 0.734  theirs 0.656  diff +0.078
+  (their recipe is under-specified; the gate is about shape, and it passes)
+  For contrast, the first-round ImageNet-vs-CIFAR comparison had r = 0.125.
+
+========================================================================
+1. r_max as the denominator, on every checkpoint
+========================================================================
+  A conv output cannot have rank above r_max = g*min((C_in/g)*kh*kw, C_out/g).
+  If k* tracks r_max rather than C, then (i) k*(.999)/r_max never exceeds 1,
+  (ii) k*(.999)/C at bounded layers scales with r_max/C while k*(.999)/r_max
+  does not, and (iii) the bounded/unbounded difference vanishes once the
+  denominator is r_max.
+
+  (i) sanity: max k*(.999)/r_max per model, and which bounds occur
+    convnext_tiny                            max 0.990   bounded   1/ 22   r_max/C values [0.5]
+    convnext_tiny_random                     max 0.992   bounded   1/ 22   r_max/C values [0.5]
+    resnet18                                 max 0.992   bounded   3/ 20   r_max/C values [0.5]
+    resnet50                                 max 0.977   bounded  20/ 53   r_max/C values [0.25, 0.5]
+    resnet50_random                          max 0.969   bounded  20/ 53   r_max/C values [0.25, 0.5]
+    timm_convnext_tiny.fb_in22k_ft_in1k      max 0.990   bounded   1/ 22   r_max/C values [0.5]
+    timm_densenet121.tv_in1k                 max 1.000   bounded   2/120   r_max/C values [0.5, 0.75]
+    timm_efficientnet_b0.ra_in1k             max 1.000   bounded  17/ 49   r_max/C values [0.167, 0.25, 0.844]
+    timm_mobilenetv2_100.ra_in1k             max 1.000   bounded  18/ 52   r_max/C values [0.167, 0.25, 0.844]
+    timm_mobilenetv3_large_100.ra_in1k       max 1.000   bounded  15/ 46   r_max/C values [0.167, 0.25, 0.333, 0.4, 0.435]
+    timm_resnet101.tv_in1k                   max 0.984   bounded  37/104   r_max/C values [0.25, 0.5]
+    timm_resnet34.a1_in1k                    max 0.992   bounded   3/ 36   r_max/C values [0.5]
+    timm_resnet50.a1_in1k                    max 0.984   bounded  20/ 53   r_max/C values [0.25, 0.5]
+    timm_resnet50.a3_in1k                    max 0.984   bounded  20/ 53   r_max/C values [0.25, 0.5]
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k    max 0.986   bounded  20/ 53   r_max/C values [0.25, 0.5]
+    timm_resnet50.gluon_in1k                 max 0.984   bounded  20/ 53   r_max/C values [0.25, 0.5]
+    timm_resnet50.tv2_in1k                   max 0.984   bounded  20/ 53   r_max/C values [0.25, 0.5]
+    timm_resnet50.tv_in1k                    max 0.977   bounded  20/ 53   r_max/C values [0.25, 0.5]
+    timm_resnext50_32x4d.tv_in1k             max 0.973   bounded  21/ 53   r_max/C values [0.25, 0.5]
+    timm_vgg16.tv_in1k                       max 0.963   bounded   1/ 13   r_max/C values [0.422]
+    timm_wide_resnet50_2.tv_in1k             max 0.960   bounded  21/ 53   r_max/C values [0.25, 0.5]
+    vgg16_bn                                 max 0.973   bounded   1/ 13   r_max/C values [0.422]
+  -> NONE exceed 1
+
+  (ii) bounded layers pooled across trained models, grouped by the bound r_max/C
+       bound    n   k*/C med   k*/r_max med    k*/r_max IQR  models
+      0.1667   38      0.165          0.990  [0.98, 1.00]      3
+      0.2500  141      0.234          0.938  [0.90, 0.96]      12
+      0.3333    4      0.312          0.938  [0.92, 0.96]      1
+      0.4000    1      0.370          0.925  [0.93, 0.93]      1
+      0.4219    2      0.156          0.370  [0.33, 0.41]      2
+      0.4348    2      0.416          0.956  [0.95, 0.96]      1
+      0.5000   70      0.410          0.820  [0.72, 0.91]      14
+      0.7500    1      0.438          0.583  [0.58, 0.58]      1
+      0.8438    2      0.266          0.315  [0.31, 0.32]      2
+    Spearman(bound, k*/C)     = +0.770  p=2.2e-52
+    Spearman(bound, k*/r_max) = -0.647  p=2.7e-32
+    Reading: k*/C tracks the bound one-for-one.  k*/r_max is not constant
+    either -- a tighter ceiling is hit harder (1/6: ~0.99, 1/4: ~0.94, 1/2:
+    ~0.82) -- but it stays within the unbounded layers' range, and the
+    within-model comparison in (iii) is the actual test.
+    The stem layers (bound 27/64 = 0.42 for VGG, 27/32 = 0.84 for the
+    MobileNets) sit far below r_max: a 3x3 RGB patch has 27 dimensions but
+    natural-image patches are themselves low-rank, so the stem is
+    data-limited, not architecture-limited.  They are excluded from no
+    test; they are simply not the layers the bound is about.
+
+  (iii) bounded vs unbounded layers within each model, by C and by r_max
+    model                                     nb  nu  med/C b      u      p(C)  med/rmax b      u   p(rmax)
+    resnet18                                   3  17    0.469  0.973   7.9e-03       0.938  0.973   3.1e-01
+    timm_efficientnet_b0.ra_in1k              17  32    0.165  0.939   9.7e-09       0.984  0.939   4.8e-01
+    timm_mobilenetv2_100.ra_in1k              18  34    0.167  0.956   2.9e-09       0.997  0.956   7.8e-02
+    timm_mobilenetv3_large_100.ra_in1k        15  31    0.234  0.917   5.3e-08       0.973  0.917   6.0e-02
+    timm_resnet101.tv_in1k                    37  67    0.229  0.934   5.9e-17       0.914  0.934   1.4e-01
+    timm_resnet34.a1_in1k                      3  33    0.469  0.984   7.4e-03       0.938  0.984   2.5e-02
+    timm_resnet50.a1_in1k                     20  33    0.237  0.961   2.3e-09       0.930  0.961   7.3e-02
+    timm_resnet50.a3_in1k                     20  33    0.231  0.945   1.8e-09       0.910  0.945   5.1e-02
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k     20  33    0.242  0.961   1.4e-09       0.951  0.961   4.8e-01
+    timm_resnet50.gluon_in1k                  20  33    0.239  0.953   1.7e-09       0.946  0.953   6.9e-01
+    timm_resnet50.tv2_in1k                    20  33    0.237  0.953   1.4e-09       0.941  0.953   8.9e-02
+    timm_resnet50.tv_in1k                     20  33    0.236  0.938   1.4e-09       0.927  0.938   4.9e-01
+    timm_resnext50_32x4d.tv_in1k              21  32    0.418  0.884   2.6e-09       0.836  0.884   2.5e-01
+    timm_wide_resnet50_2.tv_in1k              21  32    0.391  0.836   5.6e-09       0.781  0.836   1.5e-01
+    models with p(C) < 0.01 : 14/14
+    models with p(rmax)<0.01: 0/14
+    (a residual p(rmax) < 0.01 means the bounded layers still differ after
+     the correction -- report it as such, do not hide it)
+
+========================================================================
+2. Between-checkpoint variation: six ResNet-50 recipes, two ConvNeXt-T
+========================================================================
+  This is the error bar the first run did not have.  Per layer, the six
+  recipes give six values of the same statistic; their spread is compared
+  with each profile's own adjacent-layer jitter.
+
+  ResNet-50 x6: 6 checkpoints, 53 gate-passing layers each
+    k_star_ratio_0.95      per-layer SD across ckpts: median 0.032 max 0.102   range: median 0.086
+                           adjacent-layer jitter per ckpt: median 0.242  (min 0.195, max 0.266)
+                           whole-profile mean per ckpt: 0.278  0.339  0.344  0.292  0.307  0.338
+    k_star_rmax_0.95       per-layer SD across ckpts: median 0.053 max 0.123   range: median 0.129
+                           adjacent-layer jitter per ckpt: median 0.087  (min 0.062, max 0.096)
+                           whole-profile mean per ckpt: 0.382  0.463  0.476  0.396  0.423  0.465
+    k_star_ratio_0.999     per-layer SD across ckpts: median 0.012 max 0.151   range: median 0.029
+                           adjacent-layer jitter per ckpt: median 0.628  (min 0.530, max 0.672)
+                           whole-profile mean per ckpt: 0.628  0.671  0.659  0.642  0.649  0.672
+    k_star_rmax_0.999      per-layer SD across ckpts: median 0.019 max 0.151   range: median 0.051
+                           adjacent-layer jitter per ckpt: median 0.033  (min 0.023, max 0.045)
+                           whole-profile mean per ckpt: 0.858  0.913  0.895  0.870  0.886  0.918
+    pairwise Spearman between k_star_ratio_0.95 profiles: min +0.909  median +0.944  max +0.979
+    pairwise Spearman between k_star_rmax_0.95 profiles: min +0.790  median +0.847  max +0.915
+
+  ConvNeXt-T x2 (dense 1x1 only): 2 checkpoints, 4 gate-passing layers each
+    k_star_ratio_0.95      per-layer SD across ckpts: median 0.013 max 0.074   range: median 0.018
+                           adjacent-layer jitter per ckpt: median 0.081  (min 0.061, max 0.102)
+                           whole-profile mean per ckpt: 0.281  0.313
+    k_star_ratio_0.999     per-layer SD across ckpts: median 0.035 max 0.092   range: median 0.049
+                           adjacent-layer jitter per ckpt: median 0.123  (min 0.056, max 0.190)
+                           whole-profile mean per ckpt: 0.601  0.626
+    pairwise Spearman between k_star_ratio_0.95 profiles: min +0.800  median +0.800  max +0.800
+    pairwise Spearman between k_star_rmax_0.95 profiles: min +0.800  median +0.800  max +0.800
+
+  Reading: if the per-layer SD across recipes is comparable to the
+  adjacent-layer jitter, a single checkpoint's fine structure is not
+  reportable; only what is stable across recipes is.
+
+========================================================================
+3. Global average pooling lowers the level, every layer, every checkpoint
+========================================================================
+  Paired per layer: pooled_k_star_ratio_0.95 minus k_star_ratio_0.95.  A layer counts as 'lower'
+  when the pooled value is strictly smaller.  Dense and depthwise convs
+  are counted separately; both are reported.
+
+    model                                        dense  depthwise  median drop  jitter  Wilcoxon p
+    convnext_tiny                               4/4       18/18          0.152   0.061         nan
+    resnet18                                   20/20       0/0           0.285   0.172     4.4e-05
+    timm_convnext_tiny.fb_in22k_ft_in1k         4/4       17/18          0.152   0.102         nan
+    timm_densenet121.tv_in1k                  109/120      0/0           0.148   0.297     4.9e-20  <-- 10 tie(s), 1 reversal(s)
+    timm_efficientnet_b0.ra_in1k               28/28      12/12          0.059   0.625     1.9e-06
+    timm_mobilenetv2_100.ra_in1k               34/34      17/17          0.055   0.682     1.8e-07
+    timm_mobilenetv3_large_100.ra_in1k         31/31      15/15          0.089   0.514     5.9e-07
+    timm_resnet101.tv_in1k                     76/76       0/0           0.136   0.078     1.8e-14
+    timm_resnet34.a1_in1k                      36/36       0/0           0.361   0.109     8.4e-08
+    timm_resnet50.a1_in1k                      41/42       0/0           0.193   0.150     1.2e-08  <-- 1 tie(s), 0 reversal(s)
+    timm_resnet50.a3_in1k                      41/42       0/0           0.182   0.145     1.2e-08  <-- 1 tie(s), 0 reversal(s)
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k      42/42       0/0           0.191   0.182     8.2e-09
+    timm_resnet50.gluon_in1k                   41/42       0/0           0.169   0.141     1.2e-08  <-- 1 tie(s), 0 reversal(s)
+    timm_resnet50.tv2_in1k                     40/42       0/0           0.192   0.148     1.4e-08  <-- 1 tie(s), 1 reversal(s)
+    timm_resnet50.tv_in1k                      42/42       0/0           0.131   0.137     8.2e-09
+    timm_resnext50_32x4d.tv_in1k               36/36       0/0           0.146   0.193     8.4e-08
+    timm_vgg16.tv_in1k                         13/13       0/0           0.254   0.068     1.2e-04
+    timm_wide_resnet50_2.tv_in1k               36/36       0/0           0.095   0.104     8.4e-08
+    vgg16_bn                                   13/13       0/0           0.281   0.074     1.2e-04
+    convnext_tiny_random                        4/4       18/18          0.091   0.042         nan
+    resnet50_random                            42/42       0/0           0.143   0.074     8.2e-09
+
+    TRAINED TOTAL dense    : pooled lower on 687/703
+    TRAINED TOTAL depthwise: pooled lower on 79/80
+    exceptions (dense, pooled >= sampled).  k* is an integer, so at
+    C = 32 one channel is 0.031 of the range; a tie there is resolution,
+    not a reversal:
+      timm_densenet121.tv_in1k: 10 tie(s), 1 reversal(s), min C = 32
+        ['features.denseblock3.denselayer23.conv2', 'features.denseblock3.denselayer24.conv2', 'features.denseblock4.denselayer4.conv2', 'features.denseblock4.denselayer6.conv2', 'features.denseblock4.denselayer8.conv2', 'features.denseblock4.denselayer9.conv2', 'features.denseblock4.denselayer10.conv2', 'features.denseblock4.denselayer11.conv2', 'features.denseblock4.denselayer12.conv2', 'features.denseblock4.denselayer14.conv2', 'features.denseblock4.denselayer15.conv2']
+      timm_resnet50.a1_in1k: 1 tie(s), 0 reversal(s), min C = 256
+        ['layer1.0.conv3']
+      timm_resnet50.a3_in1k: 1 tie(s), 0 reversal(s), min C = 256
+        ['layer1.0.conv3']
+      timm_resnet50.gluon_in1k: 1 tie(s), 0 reversal(s), min C = 256
+        ['layer1.0.conv3']
+      timm_resnet50.tv2_in1k: 1 tie(s), 1 reversal(s), min C = 256
+        ['layer1.0.conv3', 'layer4.2.conv1']
+    (layers within a model are correlated, so per-model p-values are
+     optimistic; the count of exceptions is what carries the claim)
+
+========================================================================
+4. Trained vs random init, paired per layer, one test per checkpoint
+========================================================================
+  Statistic k_star_ratio_0.95, dense conv layers, common gate-passing layers.
+
+    trained checkpoint                       vs                       higher    sign p  Wilcoxon p  med diff  jitter
+    timm_resnet50.tv_in1k                    resnet50_random          45/53    1.2e-07     3.2e-08    +0.104   0.195
+    timm_resnet50.tv2_in1k                   resnet50_random          50/53    2.8e-12     2.6e-10    +0.203   0.266
+    timm_resnet50.a1_in1k                    resnet50_random          48/53    3.5e-10     1.5e-09    +0.125   0.263
+    timm_resnet50.a3_in1k                    resnet50_random          47/53    2.9e-09     4.8e-09    +0.102   0.225
+    timm_resnet50.gluon_in1k                 resnet50_random          47/53    2.9e-09     2.9e-09    +0.125   0.235
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k    resnet50_random          49/53    3.5e-11     3.6e-10    +0.164   0.249
+    convnext_tiny                            convnext_tiny_random      4/4     6.2e-02     6.2e-02    +0.180   0.061
+    convnext_tiny dw                         convnext_tiny_random     13/18    4.8e-02     1.3e-02    +0.089   0.044
+    timm_convnext_tiny.fb_in22k_ft_in1k      convnext_tiny_random      4/4     6.2e-02     6.2e-02    +0.199   0.102
+    timm_convnext_tiny.fb_in22k_ft_in1k dw   convnext_tiny_random     12/18    1.2e-01     2.1e-01    +0.043   0.073
+
+  Caveat: the random control is ONE draw of the initialiser, and the
+  first and second runs drew different weights (the init was not seeded;
+  fixed in models.build after this run).  The direction of the effect is
+  the same in both runs; the random profile's fine structure is not stable.
+
+========================================================================
+5. Where the bound applies: conv3 output vs block output (post-add ReLU)
+========================================================================
+  In a bottleneck block the 1x1 expansion conv3 has r_max = C/4 (C/2 for
+  wide/ResNeXt), so k*(.999)/C <= 0.25 at its output by construction.
+  The residual sum restores the rank: the same channels at the block
+  output are not bounded.  This is why studies that hook block outputs
+  (Ansuini 2019, Elmoznino & Bonner 2024) never saw the artefact, and why
+  a per-layer protocol must state which tensor it measures.
+
+    model                                    blocks  conv3 k*/C med  block k*/C med  block > bound  ratio block/conv3
+    timm_resnet50.tv_in1k                        16           0.234           0.979      16/16                  4.14
+    timm_resnet50.tv2_in1k                       16           0.236           0.977      16/16                  4.10
+    timm_resnet50.a1_in1k                        16           0.234           0.960      16/16                  4.06
+    timm_resnet50.a3_in1k                        16           0.230           0.957      16/16                  4.21
+    timm_resnet50.gluon_in1k                     16           0.238           0.986      16/16                  4.12
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k        16           0.241           0.979      16/16                  4.06
+    timm_resnet101.tv_in1k                       33           0.229           0.961      33/33                  4.19
+    timm_wide_resnet50_2.tv_in1k                 16           0.400           0.955      16/16                  2.39
+    timm_resnext50_32x4d.tv_in1k                 16           0.433           0.984      16/16                  2.28
+
+  The same comparison for the pre-registered statistic k*(.95)/C:
+    model                                     conv3 med   block med  block higher
+    timm_resnet50.tv_in1k                         0.110       0.610     16/16    
+    timm_resnet50.tv2_in1k                        0.133       0.690     16/16    
+    timm_resnet50.a1_in1k                         0.138       0.664     16/16    
+    timm_resnet50.a3_in1k                         0.110       0.603     16/16    
+    timm_resnet50.gluon_in1k                      0.119       0.715     16/16    
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k         0.129       0.683     16/16    
+    timm_resnet101.tv_in1k                        0.088       0.580     33/33    
+    timm_wide_resnet50_2.tv_in1k                  0.134       0.587     16/16    
+    timm_resnext50_32x4d.tv_in1k                  0.190       0.669     16/16    

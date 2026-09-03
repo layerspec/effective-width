@@ -3,25 +3,73 @@ PRE-REGISTERED ANALYSIS  --  primary outcome: k*(0.95)/C, conv layers, gate pass
 ========================================================================
 
 Table 2  shape of each curve (rho vs depth; last third separately)
-               model     metric  n  rho_all  rho_late  late_drop  peak_to_end                   verdict
-       convnext_tiny k*/C (95%) 22   +0.309    -0.786     +0.246       +0.246 hunchback (late collapse)
-       convnext_tiny       PR/C 22   -0.120    -0.607     +0.275       +0.413 hunchback (late collapse)
-       convnext_tiny eff.rank/C 22   +0.021    -0.893     +0.361       +0.401 hunchback (late collapse)
-convnext_tiny_random k*/C (95%) 22   +0.758    +0.571     -0.038       +0.005            monotonic rise
-convnext_tiny_random       PR/C 22   +0.313    +0.643     -0.009       +0.001            no clear shape
-convnext_tiny_random eff.rank/C 22   +0.689    +0.571     -0.032       +0.005            monotonic rise
-            resnet18 k*/C (95%) 20   +0.144    -0.257     +0.104       +0.174            no clear shape
-            resnet18       PR/C 20   -0.320    -0.029     -0.161       +0.105            no clear shape
-            resnet18 eff.rank/C 20   -0.074    +0.143     -0.122       +0.099            no clear shape
-            resnet50 k*/C (95%) 53   +0.295    -0.126     +0.011       +0.448            no clear shape
-            resnet50       PR/C 53   -0.065    -0.206     -0.020       +0.267            no clear shape
-            resnet50 eff.rank/C 53   +0.153    -0.096     -0.020       +0.351            no clear shape
-     resnet50_random k*/C (95%) 53   -0.540    -0.410     +0.032       +0.467            no clear shape
-     resnet50_random       PR/C 53   -0.699    -0.326     +0.001       +0.059            no clear shape
-     resnet50_random eff.rank/C 53   -0.679    -0.336     +0.004       +0.147            no clear shape
-            vgg16_bn k*/C (95%) 13   +0.813    -0.800     +0.059       +0.088 hunchback (late collapse)
-            vgg16_bn       PR/C 13   -0.566    -0.800     +0.028       +0.197 hunchback (late collapse)
-            vgg16_bn eff.rank/C 13   -0.044    -0.800     +0.116       +0.261 hunchback (late collapse)
+                                model     metric   n  rho_all  rho_late  late_drop  peak_to_end                   verdict
+                        convnext_tiny k*/C (95%)  22   +0.309    -0.786     +0.246       +0.246 hunchback (late collapse)
+                        convnext_tiny       PR/C  22   -0.120    -0.607     +0.275       +0.413 hunchback (late collapse)
+                        convnext_tiny eff.rank/C  22   +0.021    -0.893     +0.361       +0.401 hunchback (late collapse)
+                 convnext_tiny_random k*/C (95%)  22   +0.742    +0.630     -0.059       +0.000            monotonic rise
+                 convnext_tiny_random       PR/C  22   +0.124    +0.679     -0.020       +0.002            no clear shape
+                 convnext_tiny_random eff.rank/C  22   +0.625    +0.679     -0.065       +0.000            monotonic rise
+                             resnet18 k*/C (95%)  20   +0.144    -0.257     +0.104       +0.174            no clear shape
+                             resnet18       PR/C  20   -0.320    -0.029     -0.162       +0.105            no clear shape
+                             resnet18 eff.rank/C  20   -0.074    +0.143     -0.123       +0.099            no clear shape
+                             resnet50 k*/C (95%)  53   +0.295    -0.126     +0.011       +0.448            no clear shape
+                             resnet50       PR/C  53   -0.067    -0.206     -0.020       +0.267            no clear shape
+                             resnet50 eff.rank/C  53   +0.153    -0.096     -0.021       +0.351            no clear shape
+                      resnet50_random k*/C (95%)  53   -0.514    -0.499     +0.024       +0.373            no clear shape
+                      resnet50_random       PR/C  53   -0.674    -0.326     +0.001       +0.059            no clear shape
+                      resnet50_random eff.rank/C  53   -0.624    -0.328     +0.003       +0.125            no clear shape
+  timm_convnext_tiny.fb_in22k_ft_in1k k*/C (95%)  22   +0.324    -0.643     +0.056       +0.132 hunchback (late collapse)
+  timm_convnext_tiny.fb_in22k_ft_in1k       PR/C  22   -0.421    -0.679     +0.061       +0.324 hunchback (late collapse)
+  timm_convnext_tiny.fb_in22k_ft_in1k eff.rank/C  22   -0.065    -0.750     +0.050       +0.259 hunchback (late collapse)
+             timm_densenet121.tv_in1k k*/C (95%) 120   +0.523    +0.437     -0.094       +0.000            monotonic rise
+             timm_densenet121.tv_in1k       PR/C 120   +0.187    +0.189     -0.525       +0.077            no clear shape
+             timm_densenet121.tv_in1k eff.rank/C 120   +0.387    +0.273     -0.377       +0.040            no clear shape
+         timm_efficientnet_b0.ra_in1k k*/C (95%)  49   +0.143    +0.326     -0.092       +0.668            no clear shape
+         timm_efficientnet_b0.ra_in1k       PR/C  49   -0.230    +0.000     -0.051       +0.590            no clear shape
+         timm_efficientnet_b0.ra_in1k eff.rank/C  49   -0.032    +0.279     -0.093       +0.672            no clear shape
+         timm_mobilenetv2_100.ra_in1k k*/C (95%)  52   +0.100    +0.063     +0.623       +0.661            no clear shape
+         timm_mobilenetv2_100.ra_in1k       PR/C  52   -0.193    -0.294     +0.567       +0.599            no clear shape
+         timm_mobilenetv2_100.ra_in1k eff.rank/C  52   -0.074    -0.203     +0.636       +0.648            no clear shape
+   timm_mobilenetv3_large_100.ra_in1k k*/C (95%)  46   -0.044    +0.232     +0.087       +0.717            no clear shape
+   timm_mobilenetv3_large_100.ra_in1k       PR/C  46   -0.239    -0.125     +0.021       +0.505            no clear shape
+   timm_mobilenetv3_large_100.ra_in1k eff.rank/C  46   -0.164    +0.036     +0.049       +0.656            no clear shape
+               timm_resnet101.tv_in1k k*/C (95%) 104   +0.423    +0.083     +0.281       +0.496            no clear shape
+               timm_resnet101.tv_in1k       PR/C 104   +0.155    -0.148     +0.046       +0.226            no clear shape
+               timm_resnet101.tv_in1k eff.rank/C 104   +0.321    +0.052     +0.131       +0.334            no clear shape
+                timm_resnet34.a1_in1k k*/C (95%)  36   +0.365    -0.490     +0.104       +0.123            no clear shape
+                timm_resnet34.a1_in1k       PR/C  36   -0.227    -0.951     +0.215       +0.409 hunchback (late collapse)
+                timm_resnet34.a1_in1k eff.rank/C  36   +0.072    -0.776     +0.316       +0.434 hunchback (late collapse)
+                timm_resnet50.a1_in1k k*/C (95%)  53   +0.379    -0.027     +0.016       +0.536            no clear shape
+                timm_resnet50.a1_in1k       PR/C  53   -0.023    -0.608     +0.052       +0.397 hunchback (late collapse)
+                timm_resnet50.a1_in1k eff.rank/C  53   +0.225    -0.301     +0.080       +0.525            no clear shape
+                timm_resnet50.a3_in1k k*/C (95%)  53   +0.353    -0.011     +0.016       +0.513            no clear shape
+                timm_resnet50.a3_in1k       PR/C  53   +0.016    -0.488     +0.042       +0.301            no clear shape
+                timm_resnet50.a3_in1k eff.rank/C  53   +0.186    -0.392     +0.069       +0.443            no clear shape
+timm_resnet50.fb_ssl_yfcc100m_ft_in1k k*/C (95%)  53   +0.238    +0.216     -0.038       +0.434            no clear shape
+timm_resnet50.fb_ssl_yfcc100m_ft_in1k       PR/C  53   -0.324    -0.208     -0.028       +0.359            no clear shape
+timm_resnet50.fb_ssl_yfcc100m_ft_in1k eff.rank/C  53   -0.056    -0.034     -0.060       +0.411            no clear shape
+             timm_resnet50.gluon_in1k k*/C (95%)  53   +0.323    -0.021     -0.029       +0.437            no clear shape
+             timm_resnet50.gluon_in1k       PR/C  53   -0.119    -0.556     +0.024       +0.385 hunchback (late collapse)
+             timm_resnet50.gluon_in1k eff.rank/C  53   +0.135    -0.250     -0.004       +0.451            no clear shape
+               timm_resnet50.tv2_in1k k*/C (95%)  53   +0.171    -0.029     +0.017       +0.522            no clear shape
+               timm_resnet50.tv2_in1k       PR/C  53   -0.245    -0.657     +0.051       +0.435 hunchback (late collapse)
+               timm_resnet50.tv2_in1k eff.rank/C  53   -0.086    -0.426     +0.084       +0.578            no clear shape
+                timm_resnet50.tv_in1k k*/C (95%)  53   +0.295    -0.126     +0.011       +0.448            no clear shape
+                timm_resnet50.tv_in1k       PR/C  53   -0.067    -0.206     -0.020       +0.267            no clear shape
+                timm_resnet50.tv_in1k eff.rank/C  53   +0.153    -0.096     -0.021       +0.351            no clear shape
+         timm_resnext50_32x4d.tv_in1k k*/C (95%)  53   +0.354    -0.015     +0.036       +0.480            no clear shape
+         timm_resnext50_32x4d.tv_in1k       PR/C  53   -0.386    -0.395     -0.020       +0.180            no clear shape
+         timm_resnext50_32x4d.tv_in1k eff.rank/C  53   -0.048    -0.301     -0.015       +0.261            no clear shape
+                   timm_vgg16.tv_in1k k*/C (95%)  13   +0.786    -0.400     +0.020       +0.041            no clear shape
+                   timm_vgg16.tv_in1k       PR/C  13   -0.720    -0.400     +0.010       +0.179            no clear shape
+                   timm_vgg16.tv_in1k eff.rank/C  13   -0.253    -0.400     +0.033       +0.194            no clear shape
+         timm_wide_resnet50_2.tv_in1k k*/C (95%)  53   +0.489    +0.292     -0.068       +0.305            no clear shape
+         timm_wide_resnet50_2.tv_in1k       PR/C  53   -0.079    -0.385     -0.057       +0.130            no clear shape
+         timm_wide_resnet50_2.tv_in1k eff.rank/C  53   +0.287    +0.000     -0.081       +0.182            no clear shape
+                             vgg16_bn k*/C (95%)  13   +0.813    -0.800     +0.059       +0.088 hunchback (late collapse)
+                             vgg16_bn       PR/C  13   -0.566    -0.800     +0.028       +0.197 hunchback (late collapse)
+                             vgg16_bn eff.rank/C  13   -0.044    -0.800     +0.116       +0.261 hunchback (late collapse)
 
   rho_all/rho_late and the verdict are pre-registered. late_drop (value at the start of the
   last third minus the final value) and peak_to_end are descriptive additions, not
@@ -31,20 +79,52 @@ convnext_tiny_random eff.rank/C 22   +0.689    +0.571     -0.032       +0.005   
 ------------------------------------------------------------------------
 HYPOTHESES
 ------------------------------------------------------------------------
-  H1 metric definition: NOT SUPPORTED -- the statistics agree on 5/6 models; the 1 exception(s) are listed and should be discussed, not generalised
+  H1 metric definition: NOT SUPPORTED -- the statistics agree on 16/22 models; the 6 exception(s) are listed and should be discussed, not generalised
     convnext_tiny          k*: hunchback (late collapse) PR: hunchback (late collapse) -> agree
     convnext_tiny_random   k*: monotonic rise           PR: no clear shape           -> DIFFER
     resnet18               k*: no clear shape           PR: no clear shape           -> agree
     resnet50               k*: no clear shape           PR: no clear shape           -> agree
     resnet50_random        k*: no clear shape           PR: no clear shape           -> agree
+    timm_convnext_tiny.fb_in22k_ft_in1k k*: hunchback (late collapse) PR: hunchback (late collapse) -> agree
+    timm_densenet121.tv_in1k k*: monotonic rise           PR: no clear shape           -> DIFFER
+    timm_efficientnet_b0.ra_in1k k*: no clear shape           PR: no clear shape           -> agree
+    timm_mobilenetv2_100.ra_in1k k*: no clear shape           PR: no clear shape           -> agree
+    timm_mobilenetv3_large_100.ra_in1k k*: no clear shape           PR: no clear shape           -> agree
+    timm_resnet101.tv_in1k k*: no clear shape           PR: no clear shape           -> agree
+    timm_resnet34.a1_in1k  k*: no clear shape           PR: hunchback (late collapse) -> DIFFER
+    timm_resnet50.a1_in1k  k*: no clear shape           PR: hunchback (late collapse) -> DIFFER
+    timm_resnet50.a3_in1k  k*: no clear shape           PR: no clear shape           -> agree
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k k*: no clear shape           PR: no clear shape           -> agree
+    timm_resnet50.gluon_in1k k*: no clear shape           PR: hunchback (late collapse) -> DIFFER
+    timm_resnet50.tv2_in1k k*: no clear shape           PR: hunchback (late collapse) -> DIFFER
+    timm_resnet50.tv_in1k  k*: no clear shape           PR: no clear shape           -> agree
+    timm_resnext50_32x4d.tv_in1k k*: no clear shape           PR: no clear shape           -> agree
+    timm_vgg16.tv_in1k     k*: no clear shape           PR: no clear shape           -> agree
+    timm_wide_resnet50_2.tv_in1k k*: no clear shape           PR: no clear shape           -> agree
     vgg16_bn               k*: hunchback (late collapse) PR: hunchback (late collapse) -> agree
 
-  H2 estimator (pooled vs position-sampled): SUPPORTED -- pooling changes the shape on 4/6 models
+  H2 estimator (pooled vs position-sampled): SUPPORTED -- pooling changes the shape on 15/22 models
     convnext_tiny          sampled: hunchback (late collapse) pooled: no clear shape           (pooled rows passing the gate: 22/22)
     convnext_tiny_random   sampled: monotonic rise           pooled: no clear shape           (pooled rows passing the gate: 22/22)
     resnet18               sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 20/20)
     resnet50               sampled: no clear shape           pooled: no clear shape           (pooled rows passing the gate: 42/53)
-    resnet50_random        sampled: no clear shape           pooled: no clear shape           (pooled rows passing the gate: 42/53)
+    resnet50_random        sampled: no clear shape           pooled: hunchback (late collapse) (pooled rows passing the gate: 42/53)
+    timm_convnext_tiny.fb_in22k_ft_in1k sampled: hunchback (late collapse) pooled: monotonic rise           (pooled rows passing the gate: 22/22)
+    timm_densenet121.tv_in1k sampled: monotonic rise           pooled: monotonic rise           (pooled rows passing the gate: 120/120)
+    timm_efficientnet_b0.ra_in1k sampled: no clear shape           pooled: no clear shape           (pooled rows passing the gate: 40/49)
+    timm_mobilenetv2_100.ra_in1k sampled: no clear shape           pooled: no clear shape           (pooled rows passing the gate: 51/52)
+    timm_mobilenetv3_large_100.ra_in1k sampled: no clear shape           pooled: no clear shape           (pooled rows passing the gate: 46/46)
+    timm_resnet101.tv_in1k sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 76/104)
+    timm_resnet34.a1_in1k  sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 36/36)
+    timm_resnet50.a1_in1k  sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 42/53)
+    timm_resnet50.a3_in1k  sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 42/53)
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 42/53)
+    timm_resnet50.gluon_in1k sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 42/53)
+    timm_resnet50.tv2_in1k sampled: no clear shape           pooled: no clear shape           (pooled rows passing the gate: 42/53)
+    timm_resnet50.tv_in1k  sampled: no clear shape           pooled: no clear shape           (pooled rows passing the gate: 42/53)
+    timm_resnext50_32x4d.tv_in1k sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 36/53)
+    timm_vgg16.tv_in1k     sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 13/13)
+    timm_wide_resnet50_2.tv_in1k sampled: no clear shape           pooled: monotonic rise           (pooled rows passing the gate: 36/53)
     vgg16_bn               sampled: hunchback (late collapse) pooled: monotonic rise           (pooled rows passing the gate: 13/13)
     NOTE pooled n is the image count, so wide layers are sample-poor by construction; read the gate column before believing a difference.
 
@@ -54,11 +134,27 @@ HYPOTHESES
     resnet18               0/20 layers still moving at the largest n/C
     resnet50               0/53 layers still moving at the largest n/C
     resnet50_random        0/53 layers still moving at the largest n/C
+    timm_convnext_tiny.fb_in22k_ft_in1k 0/22 layers still moving at the largest n/C
+    timm_densenet121.tv_in1k 12/120 layers still moving at the largest n/C
+    timm_efficientnet_b0.ra_in1k 0/49 layers still moving at the largest n/C
+    timm_mobilenetv2_100.ra_in1k 0/52 layers still moving at the largest n/C
+    timm_mobilenetv3_large_100.ra_in1k 1/46 layers still moving at the largest n/C
+    timm_resnet101.tv_in1k 0/104 layers still moving at the largest n/C
+    timm_resnet34.a1_in1k  0/36 layers still moving at the largest n/C
+    timm_resnet50.a1_in1k  0/53 layers still moving at the largest n/C
+    timm_resnet50.a3_in1k  0/53 layers still moving at the largest n/C
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k 0/53 layers still moving at the largest n/C
+    timm_resnet50.gluon_in1k 0/53 layers still moving at the largest n/C
+    timm_resnet50.tv2_in1k 0/53 layers still moving at the largest n/C
+    timm_resnet50.tv_in1k  0/53 layers still moving at the largest n/C
+    timm_resnext50_32x4d.tv_in1k 0/53 layers still moving at the largest n/C
+    timm_vgg16.tv_in1k     0/13 layers still moving at the largest n/C
+    timm_wide_resnet50_2.tv_in1k 0/53 layers still moving at the largest n/C
     vgg16_bn               1/13 layers still moving at the largest n/C
 
   trained vs random-init (if indistinguishable, the profile is architectural and the paper's framing changes)
-    convnext_tiny          mean diff +0.085  max |diff| 0.234  layers where trained is higher: 17/22
-    resnet50               mean diff +0.108  max |diff| 0.469  layers where trained is higher: 44/53
+    convnext_tiny          mean diff +0.077  max |diff| 0.260  layers where trained is higher: 17/22
+    resnet50               mean diff +0.142  max |diff| 0.490  layers where trained is higher: 45/53
 
   depthwise vs dense convolutions (stratification promised by the method section;
   a depthwise layer does not mix channels, so its channel covariance is a different object)
@@ -67,17 +163,49 @@ HYPOTHESES
       depthwise n= 18 median 0.707  hunchback (late collapse) (late drop +0.246)
       dense     n=  4 median 0.309  monotonic rise (late drop -0.043)
     convnext_tiny_random
-      mixed     n= 22 median 0.639  monotonic rise
-      depthwise n= 18 median 0.651  monotonic rise (late drop -0.038)
-      dense     n=  4 median 0.103  monotonic rise (late drop -0.087)
+      mixed     n= 22 median 0.650  monotonic rise
+      depthwise n= 18 median 0.656  monotonic rise (late drop -0.059)
+      dense     n=  4 median 0.103  monotonic rise (late drop -0.094)
+    timm_convnext_tiny.fb_in22k_ft_in1k
+      mixed     n= 22 median 0.633  hunchback (late collapse)
+      depthwise n= 18 median 0.674  hunchback (late collapse) (late drop +0.056)
+      dense     n=  4 median 0.348  no clear shape (late drop +0.046)
+    timm_efficientnet_b0.ra_in1k
+      mixed     n= 49 median 0.243  no clear shape
+      depthwise n= 16 median 0.257  no clear shape (late drop +0.017)
+      dense     n= 33 median 0.195  no clear shape (late drop -0.092)
+    timm_mobilenetv2_100.ra_in1k
+      mixed     n= 52 median 0.417  no clear shape
+      depthwise n= 17 median 0.422  hunchback (late collapse) (late drop +0.249)
+      dense     n= 35 median 0.189  no clear shape (late drop -0.080)
+    timm_mobilenetv3_large_100.ra_in1k
+      mixed     n= 46 median 0.316  no clear shape
+      depthwise n= 15 median 0.311  no clear shape (late drop -0.197)
+      dense     n= 31 median 0.375  no clear shape (late drop +0.590)
 
   k* against attainable rank r_max rather than channel count C.
   Where the two medians differ, the gap is architectural and was never the network's to close.
     convnext_tiny          bounded  1/22 layers   median k*/C 0.656 -> k*/r_max 0.656   max k*(.999)/r_max 0.990
-    convnext_tiny_random   bounded  1/22 layers   median k*/C 0.639 -> k*/r_max 0.639   max k*(.999)/r_max 0.992
-    resnet18               bounded  3/20 layers   median k*/C 0.511 -> k*/r_max 0.533   max k*(.999)/r_max 0.992
+    convnext_tiny_random   bounded  1/22 layers   median k*/C 0.650 -> k*/r_max 0.650   max k*(.999)/r_max 0.992
+    resnet18               bounded  3/20 layers   median k*/C 0.511 -> k*/r_max 0.531   max k*(.999)/r_max 0.992
     resnet50               bounded 20/53 layers   median k*/C 0.250 -> k*/r_max 0.422   max k*(.999)/r_max 0.977
-    resnet50_random        bounded 20/53 layers   median k*/C 0.098 -> k*/r_max 0.203   max k*(.999)/r_max 0.984
+    resnet50_random        bounded 20/53 layers   median k*/C 0.094 -> k*/r_max 0.172   max k*(.999)/r_max 0.969
+    timm_convnext_tiny.fb_in22k_ft_in1k bounded  1/22 layers   median k*/C 0.633 -> k*/r_max 0.633   max k*(.999)/r_max 0.990
+    timm_densenet121.tv_in1k bounded  2/120 layers   median k*/C 0.695 -> k*/r_max 0.695   max k*(.999)/r_max 1.000
+    timm_efficientnet_b0.ra_in1k bounded 17/49 layers   median k*/C 0.243 -> k*/r_max 0.637   max k*(.999)/r_max 1.000
+    timm_mobilenetv2_100.ra_in1k bounded 18/52 layers   median k*/C 0.417 -> k*/r_max 0.667   max k*(.999)/r_max 1.000
+    timm_mobilenetv3_large_100.ra_in1k bounded 15/46 layers   median k*/C 0.316 -> k*/r_max 0.560   max k*(.999)/r_max 1.000
+    timm_resnet101.tv_in1k bounded 37/104 layers   median k*/C 0.217 -> k*/r_max 0.377   max k*(.999)/r_max 0.984
+    timm_resnet34.a1_in1k  bounded  3/36 layers   median k*/C 0.621 -> k*/r_max 0.621   max k*(.999)/r_max 0.992
+    timm_resnet50.a1_in1k  bounded 20/53 layers   median k*/C 0.359 -> k*/r_max 0.520   max k*(.999)/r_max 0.984
+    timm_resnet50.a3_in1k  bounded 20/53 layers   median k*/C 0.273 -> k*/r_max 0.424   max k*(.999)/r_max 0.984
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k bounded 20/53 layers   median k*/C 0.344 -> k*/r_max 0.508   max k*(.999)/r_max 0.986
+    timm_resnet50.gluon_in1k bounded 20/53 layers   median k*/C 0.266 -> k*/r_max 0.469   max k*(.999)/r_max 0.984
+    timm_resnet50.tv2_in1k bounded 20/53 layers   median k*/C 0.375 -> k*/r_max 0.500   max k*(.999)/r_max 0.984
+    timm_resnet50.tv_in1k  bounded 20/53 layers   median k*/C 0.250 -> k*/r_max 0.422   max k*(.999)/r_max 0.977
+    timm_resnext50_32x4d.tv_in1k bounded 21/53 layers   median k*/C 0.216 -> k*/r_max 0.338   max k*(.999)/r_max 0.973
+    timm_vgg16.tv_in1k     bounded  1/13 layers   median k*/C 0.381 -> k*/r_max 0.381   max k*(.999)/r_max 0.963
+    timm_wide_resnet50_2.tv_in1k bounded 21/53 layers   median k*/C 0.201 -> k*/r_max 0.268   max k*(.999)/r_max 0.960
     vgg16_bn               bounded  1/13 layers   median k*/C 0.422 -> k*/r_max 0.422   max k*(.999)/r_max 0.973
 
   EXPLORATORY -- median k*/C / k*/r_max by nominal width.  Where rho(C) and rho(depth)
@@ -85,14 +213,46 @@ HYPOTHESES
   choosing one.  rho is computed on k*/C, the pre-registered statistic.
     convnext_tiny          96:0.51/0.51  192:0.69/0.69  384:0.75/0.75  768:0.59/0.59
                            rho(C) +0.116   rho(depth) +0.309
-    convnext_tiny_random   96:0.47/0.47  192:0.56/0.56  384:0.65/0.65  768:0.70/0.70
-                           rho(C) +0.675   rho(depth) +0.758
+    convnext_tiny_random   96:0.45/0.45  192:0.60/0.60  384:0.66/0.66  768:0.71/0.71
+                           rho(C) +0.676   rho(depth) +0.742
     resnet18               64:0.42/0.42  128:0.59/0.59  256:0.54/0.54  512:0.49/0.49
                            rho(C) +0.012   rho(depth) +0.144
     resnet50               64:0.23/0.23  128:0.34/0.34  256:0.40/0.42  512:0.37/0.42  1024:0.11/0.43  2048:0.13/0.47
                            rho(C) -0.378   rho(depth) +0.295
-    resnet50_random        64:0.39/0.39  128:0.33/0.33  256:0.18/0.22  512:0.06/0.07  1024:0.05/0.20  2048:0.02/0.06
-                           rho(C) -0.897   rho(depth) -0.540
+    resnet50_random        64:0.33/0.33  128:0.26/0.26  256:0.15/0.17  512:0.05/0.07  1024:0.04/0.15  2048:0.02/0.06
+                           rho(C) -0.911   rho(depth) -0.514
+    timm_convnext_tiny.fb_in22k_ft_in1k 96:0.47/0.47  192:0.67/0.67  384:0.70/0.70  768:0.62/0.62
+                           rho(C) +0.162   rho(depth) +0.324
+    timm_densenet121.tv_in1k 32:0.81/0.81  64:0.16/0.16  128:0.50/0.50  256:0.49/0.49  512:0.47/0.47
+                           rho(C) -0.808   rho(depth) +0.523
+    timm_efficientnet_b0.ra_in1k 16:0.75/0.75  24:0.71/0.71  32:0.17/0.19  40:0.72/0.72  80:0.79/0.79  96:0.19/0.48  112:0.80/0.80  144:0.18/0.43  192:0.85/0.85  240:0.14/0.44  320:0.86/0.86  480:0.17/0.40  672:0.14/0.44  1152:0.14/0.49  1280:0.19/0.78
+                           rho(C) -0.441   rho(depth) +0.143
+    timm_mobilenetv2_100.ra_in1k 16:0.69/0.69  24:0.73/0.73  32:0.75/0.75  64:0.78/0.78  96:0.72/0.72  144:0.24/0.54  160:0.81/0.81  192:0.22/0.57  320:0.85/0.85  384:0.26/0.52  576:0.24/0.57  960:0.19/0.56  1280:0.19/0.76
+                           rho(C) -0.504   rho(depth) +0.100
+    timm_mobilenetv3_large_100.ra_in1k 16:0.38/0.38  24:0.67/0.67  40:0.65/0.65  64:0.30/0.55  72:0.35/0.51  80:0.67/0.67  112:0.78/0.78  120:0.33/0.50  160:0.84/0.84  184:0.24/0.43  200:0.19/0.33  240:0.16/0.42  480:0.17/0.45  672:0.17/0.41  960:0.13/0.69
+                           rho(C) -0.531   rho(depth) -0.044
+    timm_resnet101.tv_in1k 64:0.16/0.16  128:0.28/0.28  256:0.40/0.40  512:0.37/0.42  1024:0.09/0.36  2048:0.13/0.48
+                           rho(C) -0.471   rho(depth) +0.423
+    timm_resnet34.a1_in1k  64:0.48/0.48  128:0.62/0.62  256:0.62/0.62  512:0.62/0.62
+                           rho(C) +0.220   rho(depth) +0.365
+    timm_resnet50.a1_in1k  64:0.31/0.31  128:0.48/0.48  256:0.51/0.52  512:0.47/0.53  1024:0.15/0.55  2048:0.17/0.60
+                           rho(C) -0.295   rho(depth) +0.379
+    timm_resnet50.a3_in1k  64:0.25/0.25  128:0.43/0.43  256:0.36/0.40  512:0.42/0.46  1024:0.12/0.45  2048:0.13/0.45
+                           rho(C) -0.326   rho(depth) +0.353
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k 64:0.34/0.34  128:0.50/0.50  256:0.48/0.51  512:0.42/0.51  1024:0.13/0.50  2048:0.18/0.65
+                           rho(C) -0.438   rho(depth) +0.238
+    timm_resnet50.gluon_in1k 64:0.25/0.25  128:0.41/0.41  256:0.43/0.46  512:0.46/0.48  1024:0.12/0.47  2048:0.16/0.63
+                           rho(C) -0.373   rho(depth) +0.323
+    timm_resnet50.tv2_in1k 64:0.39/0.39  128:0.47/0.47  256:0.49/0.50  512:0.43/0.50  1024:0.13/0.52  2048:0.16/0.55
+                           rho(C) -0.483   rho(depth) +0.171
+    timm_resnet50.tv_in1k  64:0.23/0.23  128:0.34/0.34  256:0.40/0.42  512:0.37/0.42  1024:0.11/0.43  2048:0.13/0.47
+                           rho(C) -0.378   rho(depth) +0.295
+    timm_resnext50_32x4d.tv_in1k 64:0.12/0.12  128:0.26/0.26  256:0.22/0.28  512:0.26/0.34  1024:0.21/0.34  2048:0.20/0.40
+                           rho(C) +0.004   rho(depth) +0.354
+    timm_vgg16.tv_in1k     64:0.18/0.24  128:0.31/0.31  256:0.37/0.37  512:0.41/0.41
+                           rho(C) +0.662   rho(depth) +0.786
+    timm_wide_resnet50_2.tv_in1k 64:0.14/0.14  128:0.18/0.18  256:0.14/0.21  512:0.21/0.26  1024:0.15/0.28  2048:0.20/0.39
+                           rho(C) +0.122   rho(depth) +0.489
     vgg16_bn               64:0.15/0.20  128:0.32/0.32  256:0.42/0.42  512:0.47/0.47
                            rho(C) +0.755   rho(depth) +0.813
 

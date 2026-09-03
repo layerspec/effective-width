@@ -8,9 +8,12 @@
     "batch_size": 64,
     "image_size": 224,
     "seed": 0,
-    "n_layers": 102,
-    "elapsed_sec": 756.5,
-    "torch": "2.8.0+cu128"
+    "n_layers": 119,
+    "elapsed_sec": 1374.6,
+    "torch": "2.8.0+cu128",
+    "rmax_check_max": 0.96875,
+    "rmax_check_layer": "layer1.0.conv2",
+    "rmax_check_ok": true
   },
   {
     "model": "convnext_tiny_random",
@@ -21,8 +24,11 @@
     "batch_size": 64,
     "image_size": 224,
     "seed": 0,
-    "n_layers": 40,
-    "elapsed_sec": 95.5,
-    "torch": "2.8.0+cu128"
+    "n_layers": 95,
+    "elapsed_sec": 163.7,
+    "torch": "2.8.0+cu128",
+    "rmax_check_max": 0.9921875,
+    "rmax_check_layer": "features.5.2.block.0",
+    "rmax_check_ok": true
   }
 ]
