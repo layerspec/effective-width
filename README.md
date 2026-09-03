@@ -39,7 +39,7 @@
 
 ### 下一步
 
-0. **查證 r_max 的文獻新穎性** —— 決定第一承重點還在不在，最優先
+0. ~~查證 r_max 的文獻新穎性~~ —— 已查（2026-09-03）：上界已知（ReXNet 2021、Kim 2018），量測分母用法是我們的；見 `notes/rmax-novelty-2026-09-03.md`
 0. **量 15–20 個公開 checkpoint（約 US$3–5）** —— 解決 n=1，形狀主張才有
    跨網路誤差棒。torchvision 的 ResNet-50 有 V1/V2，timm 上有幾十個
 1. **CIFAR 2×2（約 US$4）** —— `bash code/scripts/run_cifar_2x2.sh`
