@@ -247,8 +247,13 @@
   title     = {When, Where, and How to Add New Neurons to {ANNs}},
   booktitle = {International Conference on Automated Machine Learning (AutoML)},
   year      = {2022},
-  note      = {Growth triggered on epsilon-numerical rank of post-activations.
-               PDF NOT READ -- confirm whether conv filters were evaluated},
+  note      = {VERIFIED 2026-09-03. Adds CONV FILTERS; VGG-11 and
+               WideResNet-28 on CIFAR-10/100. Trigger is the epsilon-numerical
+               rank of post-activations normalised by layer width -- the same
+               family of statistic this paper measures, so cite in Method, not
+               only in Related Work. Orthogonality sets initialisation only;
+               no deflation. Authors concede a maximum layer size is still
+               required without extensive tuning},
 }
 
 @inproceedings{liu2019splitting,
