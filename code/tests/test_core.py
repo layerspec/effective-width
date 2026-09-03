@@ -90,6 +90,61 @@ def test_metrics_ratios_use_nominal_C():
     assert m.C == 128
 
 
+def test_rmax_matches_the_architecture():
+    """r_max is min(fan-in, width) per group, summed over groups.
+
+    Three cases that must come out differently: a dense 3x3, a 1x1 expansion
+    (the ResNet bottleneck case, where the bound bites), and a depthwise conv
+    (where it must NOT bite, because the blocks have disjoint supports and
+    their ranks add to C).
+    """
+    import torch
+    import torch.nn as nn
+    from layerspec.hooks import SpectrumProbe
+
+    net = nn.Sequential(
+        nn.Conv2d(3, 16, 3, padding=1),      # fan-in 3*9=27 > 16 -> r_max 16
+        nn.Conv2d(16, 64, 1),                # fan-in 16 < 64     -> r_max 16
+        nn.Conv2d(64, 64, 3, padding=1, groups=64),   # depthwise -> r_max 64
+        nn.Conv2d(64, 8, 1),                 # fan-in 64 > 8      -> r_max 8
+    )
+    probe = SpectrumProbe(net, positions_per_image=4, pooled=False)
+    with torch.no_grad():
+        net(torch.randn(2, 3, 8, 8))
+    got = [(r.C, r.r_max) for r in probe.records() if r.kind == "conv"]
+    probe.remove()
+    assert got == [(16, 16), (64, 16), (64, 64), (8, 8)], got
+
+
+def test_measured_rank_respects_the_bound():
+    """The empirical check behind Section V-B of the paper.
+
+    A 1x1 expansion cannot produce more nonzero eigenvalues than it has input
+    channels, however much data is pushed through it.  If this fails, either
+    r_max is wrong or the accumulator is.
+    """
+    import torch
+    import torch.nn as nn
+    from layerspec.hooks import SpectrumProbe
+
+    net = nn.Sequential(nn.Conv2d(8, 32, 1))
+    probe = SpectrumProbe(net, positions_per_image=16, pooled=False)
+    with torch.no_grad():
+        for _ in range(20):
+            net(torch.randn(16, 8, 8, 8))
+    rec = [r for r in probe.records() if r.kind == "conv"][0]
+    probe.remove()
+
+    assert rec.C == 32 and rec.r_max == 8
+    assert rec.acc.n >= 50 * rec.C          # well past the reporting gate
+    eig = rec.acc.eigenvalues()
+    # Everything beyond the 8th eigenvalue is numerically zero.
+    assert np.sum(eig > eig[0] * 1e-10) <= rec.r_max
+    # ... so k* can never see more than r_max components, at any threshold.
+    for tau in (0.9, 0.95, 0.99, 0.999):
+        assert metrics.k_star(eig, tau) <= rec.r_max
+
+
 if __name__ == "__main__":
     import sys
     import traceback
