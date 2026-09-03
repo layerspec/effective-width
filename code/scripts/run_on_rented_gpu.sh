@@ -65,6 +65,19 @@ python -m layerspec.run \
     --positions "$POSITIONS" --batch-size "$BATCH" --workers "$WORKERS" \
     --out "$OUT"
 
+# Checkpoint tiers (notes/checkpoints-2026-09-03.md): ten timm checkpoints
+# that fix n = 1 and vary r_max/C, then six more.  ~1 GPU-hour for both.
+# TIERS="" skips them; TIERS="tier1" runs only the first ten.
+for tier in ${TIERS:-tier1 tier2}; do
+  echo
+  echo "--- checkpoints: $tier ---"
+  python -m layerspec.run \
+      --data "$DATA" \
+      --models "$tier" \
+      --positions "$POSITIONS" --batch-size "$BATCH" --workers "$WORKERS" \
+      --out "$OUT"
+done
+
 echo
 echo "--- random-init controls ---"
 python -m layerspec.run \

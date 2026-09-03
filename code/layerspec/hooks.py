@@ -35,6 +35,20 @@ was actually available.
 *Depthwise convolutions.*  Flagged via ``groups``.  A depthwise conv does not
 mix channels, so its channel covariance means something different from a dense
 conv's; ConvNeXt is mostly depthwise and this must be visible in the output.
+
+*Convolutions on globally pooled input.*  Squeeze-and-excitation gates and
+the ``conv_head`` of MobileNetV3 are ``nn.Conv2d`` modules acting on a 1x1
+spatial map.  They have no spatial positions to sample, so one image is one
+sample, and they are not convolutional layers in the sense measured here.
+They are recorded under ``kind="conv_gap"`` so that nothing filtering on
+``kind == "conv"`` picks them up.
+
+*Block outputs.*  Ansuini et al. and Elmoznino & Bonner measure the output of
+each residual block, after the skip addition.  The attainable-rank bound does
+not apply there -- the skip path adds rank back -- so a block-output profile
+and a conv-output profile of the same network are different objects.  Blocks
+are hooked by class name (``BLOCK_CLASSES``) under ``kind="block"`` so the
+two can be shown side by side.
 """
 
 from __future__ import annotations
@@ -48,6 +62,18 @@ import torch.nn as nn
 from .accumulate import CovarianceAccumulator
 
 ACTIVATIONS = (nn.ReLU, nn.GELU, nn.SiLU, nn.Hardswish, nn.ELU)
+
+# Residual / dense blocks in torchvision and timm, matched by class name so
+# neither library has to be imported here.  A block's output is what the
+# next block sees: post-addition, and in ResNets post-ReLU as well.
+BLOCK_CLASSES = frozenset({
+    # torchvision
+    "BasicBlock", "Bottleneck", "InvertedResidual", "CNBlock", "_DenseLayer",
+    "MBConv", "FusedMBConv",
+    # timm
+    "ConvNeXtBlock", "DenseLayer", "DepthwiseSeparableConv", "EdgeResidual",
+    "CondConvResidual", "UniversalInvertedResidual",
+})
 
 # Linear layers are hooked too, so the classifier head can be measured on the
 # same footing as the conv trunk.  This matters for one specific question: if
@@ -124,11 +150,13 @@ class SpectrumProbe:
         scatter_dtype: torch.dtype | None = None,
         checkpoint_multiples: tuple[int, ...] = (1, 2, 5, 10, 25, 50, 100, 250),
         pooled: bool = True,
+        include_blocks: bool = True,
     ):
         self.model = model
         self.positions_per_image = int(positions_per_image)
         self.include_activations = include_activations
         self.include_linear = include_linear
+        self.include_blocks = include_blocks
         self.max_channels = max_channels
         self.scatter_dtype = scatter_dtype
         self.pooled = pooled
@@ -174,6 +202,9 @@ class SpectrumProbe:
                 self._register(name, module, kind="linear")
             elif self.include_activations and isinstance(module, ACTIVATIONS):
                 self._register(name, module, kind="act")
+            elif (self.include_blocks
+                  and type(module).__name__ in BLOCK_CLASSES):
+                self._register(name, module, kind="block")
 
     def _register(self, name: str, module: nn.Module, kind: str, **extra) -> None:
         base = f"{name}::{kind}"
@@ -204,6 +235,12 @@ class SpectrumProbe:
             H = W = None
         else:
             N, C, H, W = out.shape
+            if kind == "conv" and H * W == 1:
+                # A conv acting on a globally pooled tensor (SE gate,
+                # MobileNetV3 conv_head): no positions to sample, one image
+                # is one sample.  Keep it out of the conv profile.
+                kind = "conv_gap"
+                key = key.replace("::conv#", "::conv_gap#")
         if self.max_channels is not None and C > self.max_channels:
             return
 
@@ -305,6 +342,7 @@ def run_probe(
     seed: int = 0,
     progress: bool = True,
     pooled: bool = True,
+    include_blocks: bool = True,
 ) -> SpectrumProbe:
     """Push batches from `loader` through `model` with a probe attached."""
     model = model.to(device).eval()
@@ -314,6 +352,7 @@ def run_probe(
         include_activations=include_activations,
         seed=seed,
         pooled=pooled,
+        include_blocks=include_blocks,
     )
     try:
         for i, batch in enumerate(loader):

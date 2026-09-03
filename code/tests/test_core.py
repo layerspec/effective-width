@@ -145,6 +145,68 @@ def test_measured_rank_respects_the_bound():
         assert metrics.k_star(eig, tau) <= rec.r_max
 
 
+def test_model_name_parsing_and_tiers():
+    """timm names, the _random suffix, tier expansion and file stems."""
+    from layerspec import models
+
+    assert models.parse("resnet50") == ("torchvision", "resnet50", False)
+    assert models.parse("resnet50_random") == ("torchvision", "resnet50", True)
+    assert models.parse("timm:resnet50.a1_in1k") == ("timm", "resnet50.a1_in1k", False)
+    assert models.parse("timm:resnet50.a1_in1k_random") == ("timm", "resnet50.a1_in1k", True)
+    assert models.file_stem("timm:resnet50.a1_in1k") == "timm_resnet50.a1_in1k"
+
+    names = models.expand_names(["vgg16_bn", "tier1"])
+    assert names[0] == "vgg16_bn" and len(names) == 1 + len(models.TIER1)
+    assert all(n.startswith("timm:") for n in models.TIER1 + models.TIER2)
+    assert len(set(models.TIER1 + models.TIER2)) == len(models.TIER1 + models.TIER2)
+
+
+def test_conv_on_pooled_input_is_not_a_conv_layer():
+    """An SE gate / conv_head acts on a 1x1 map: kind must be conv_gap."""
+    import torch
+    import torch.nn as nn
+    from layerspec.hooks import SpectrumProbe
+
+    net = nn.Sequential(
+        nn.Conv2d(3, 8, 3, padding=1),
+        nn.AdaptiveAvgPool2d(1),
+        nn.Conv2d(8, 4, 1),
+    )
+    probe = SpectrumProbe(net, positions_per_image=4, pooled=False)
+    with torch.no_grad():
+        net(torch.randn(4, 3, 8, 8))
+    kinds = [(r.kind, r.C, r.acc.n) for r in probe.records()]
+    probe.remove()
+    assert kinds == [("conv", 8, 16), ("conv_gap", 4, 4)], kinds
+
+
+def test_block_outputs_are_hooked_separately():
+    """A residual block's output is recorded as kind='block', with no r_max,
+    alongside -- not instead of -- its inner conv layers."""
+    import torch
+    import torch.nn as nn
+    from torchvision.models.resnet import BasicBlock
+    from layerspec.hooks import SpectrumProbe
+
+    net = nn.Sequential(nn.Conv2d(3, 16, 3, padding=1), BasicBlock(16, 16))
+    probe = SpectrumProbe(net, positions_per_image=4, pooled=False)
+    with torch.no_grad():
+        net(torch.randn(2, 3, 8, 8))
+    recs = probe.records()
+    probe.remove()
+    blocks = [r for r in recs if r.kind == "block"]
+    assert len(blocks) == 1 and blocks[0].C == 16 and blocks[0].r_max is None
+    assert sum(r.kind == "conv" for r in recs) == 3
+    # Block output comes after the convs it contains.
+    assert blocks[0].depth_index > max(r.depth_index for r in recs if r.kind == "conv")
+
+    off = SpectrumProbe(net, positions_per_image=4, pooled=False, include_blocks=False)
+    with torch.no_grad():
+        net(torch.randn(2, 3, 8, 8))
+    assert not any(r.kind == "block" for r in off.records())
+    off.remove()
+
+
 if __name__ == "__main__":
     import sys
     import traceback

@@ -130,7 +130,24 @@ def measure_one(
         "elapsed_sec": round(elapsed, 1),
         "torch": torch.__version__,
     }
-    return pd.DataFrame(layer_rows), pd.DataFrame(conv_rows), spectra, meta
+    layers = pd.DataFrame(layer_rows)
+
+    # Sanity check on r_max, per model, before anything is read off the
+    # numbers: k*(0.999) cannot exceed the attainable rank.  If it does, the
+    # bound is computed wrongly for some layer type in this architecture --
+    # which has happened twice (kernel extent forgotten; groups mishandled).
+    # Checked over every conv layer, gated or not: the bound is algebraic and
+    # does not care about sample size.
+    col = "k_star_rmax_0.999"
+    if not layers.empty and col in layers.columns:
+        conv = layers[(layers.kind == "conv") & layers[col].notna()]
+        if not conv.empty:
+            worst = conv.loc[conv[col].idxmax()]
+            meta["rmax_check_max"] = float(worst[col])
+            meta["rmax_check_layer"] = str(worst.layer)
+            meta["rmax_check_ok"] = bool(worst[col] <= 1.0 + 1e-9)
+
+    return layers, pd.DataFrame(conv_rows), spectra, meta
 
 
 def main(argv=None) -> int:
@@ -159,16 +176,21 @@ def main(argv=None) -> int:
     os.makedirs(args.out, exist_ok=True)
     manifest = []
 
-    for name in args.models:
+    for name in _models.expand_names(args.models):
         print(f"\n=== {name} ===", flush=True)
         layers, conv, spectra, meta = measure_one(name, args)
 
-        layers.to_csv(os.path.join(args.out, f"{name}_layers.csv"), index=False)
-        conv.to_csv(os.path.join(args.out, f"{name}_convergence.csv"), index=False)
+        stem = _models.file_stem(name)
+        layers.to_csv(os.path.join(args.out, f"{stem}_layers.csv"), index=False)
+        conv.to_csv(os.path.join(args.out, f"{stem}_convergence.csv"), index=False)
         # Raw eigenvalues, so any metric can be recomputed later without paying
         # for another pass over the data.
-        np.savez_compressed(os.path.join(args.out, f"{name}_spectra.npz"), **spectra)
+        np.savez_compressed(os.path.join(args.out, f"{stem}_spectra.npz"), **spectra)
         print(f"  {meta['n_layers']} layers, {meta['elapsed_sec']}s", flush=True)
+        if "rmax_check_ok" in meta:
+            flag = "ok" if meta["rmax_check_ok"] else "!! FAILED -- r_max is wrong for this architecture"
+            print(f"  r_max check: max k*(0.999)/r_max = {meta['rmax_check_max']:.3f} "
+                  f"at {meta['rmax_check_layer']} -> {flag}", flush=True)
 
         if not layers.empty:
             bad = layers[~layers.n_over_C_ok]
