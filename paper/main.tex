@@ -1,0 +1,323 @@
+% =========================================================================
+% How Much of a Convolutional Layer's Width Is Actually Used?
+%
+% Skeleton. Every section carries a TODO note saying what belongs there and,
+% where the decision is already made, WHICH decision -- so the writing does not
+% have to re-derive what the analysis plan already settled.
+%
+% The plan lives at ../notes/analysis-plan.md.  If this document and that one
+% disagree, the plan wins and this file is out of date.
+%
+% Build:  make        (latexmk -pdf main.tex)
+% =========================================================================
+
+\documentclass[journal]{IEEEtran}
+
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{url}
+\usepackage[caption=false,font=footnotesize]{subfig}
+\usepackage[hidelinks]{hyperref}
+
+\graphicspath{{../figures/}}
+
+% --- drafting aids; delete both before submission ------------------------
+\usepackage{xcolor}
+\newcommand{\todo}[1]{\textcolor{red}{[\textbf{TODO} #1]}}
+\newcommand{\num}[1]{\textcolor{blue}{\underline{#1}}}  % unfilled number
+% -------------------------------------------------------------------------
+
+\begin{document}
+
+\title{How Much of a Convolutional Layer's Width Is Actually Used?
+Normalized Effective Dimensionality Across Modern Architectures}
+
+\author{Cheng-Chung~Li%
+\thanks{C.-C. Li is with the Taiwan Power Research Institute, Taiwan Power
+Company, and the Department of Electrical Engineering, National Tsing Hua
+University, Hsinchu, Taiwan (e-mail: \todo{institutional address}).}}
+
+\markboth{Journal of \LaTeX\ Class Files}{Li: Effective Width in CNNs}
+
+\maketitle
+
+% =========================================================================
+\begin{abstract}
+% TODO write last.  Structure, one or two sentences each:
+%   1. Width is a hyperparameter set by hand or by expensive search.
+%   2. Two published measurements of how much of it is used disagree in shape.
+%   3. We measure both quantities on the same layers of the same models, at
+%      ImageNet scale, on architectures neither covered, with an
+%      initialisation control and an explicit sample-size analysis.
+%   4. The headline finding.                       <- unknown until data
+%   5. What follows for width selection.
+\todo{write last, after Section~\ref{sec:results}}
+\end{abstract}
+
+\begin{IEEEkeywords}
+Convolutional neural networks, effective dimensionality, principal component
+analysis, network width, representation analysis.
+\end{IEEEkeywords}
+
+% =========================================================================
+\section{Introduction}
+\label{sec:intro}
+
+% TODO. Four moves, in order:
+%
+% (a) The gap.  The number of channels in each layer is chosen by hand or by
+%     architecture search costing ~10^3 GPU-hours \cite{cai2020ofa}.  Neither
+%     answers "how many does this problem need"; structured pruning is HANDED a
+%     target ratio \cite{fang2023depgraph}.  And the operative variable really
+%     is the per-layer width: \cite{frankle2021missingMark} show per-weight
+%     pruning decisions can be replaced by a per-layer fraction.
+%
+% (b) The natural prior question: of the width a trained network HAS, how much
+%     does it use?
+%
+% (c) Two published answers disagree.  \cite{garg2019lowEffort} measure k* per
+%     layer for VGG on CIFAR and report a hunchback.
+%     \cite{elmoznino2024highDim} measure participation ratio across 500+ conv
+%     layers of ImageNet models and report a monotonic rise.  They differ in
+%     metric, in estimator, in dataset scale, and in which layers were included
+%     -- and no one has separated those.
+%
+% (d) Contributions, as an itemize.  Keep to the four below; resist adding.
+
+\todo{draft (a)--(d)}
+
+Our contributions are:
+\begin{itemize}
+  \item \textbf{A reconciliation.} We compute both families of metric on
+  identical layers of identical models, under both the position-sampled and
+  the globally-pooled estimator, and separate the four candidate explanations
+  for the disagreement in the literature.
+  \item \textbf{Coverage of the uncovered.} \cite{garg2019lowEffort}
+  explicitly excluded residual networks; ConvNeXt \cite{liu2022convnext}
+  postdates this literature entirely. We report both at ImageNet scale.
+  \item \textbf{An initialisation control.} We measure the same profile in
+  untrained networks, separating structure the network learned from structure
+  implied by the architecture and the input statistics alone. To our knowledge
+  no prior work reports this.
+  \item \textbf{An explicit sample-size analysis.} We show what the estimator
+  does when $n$ approaches $C$, give a convergence criterion for reporting, and
+  \todo{state whether published curves are affected}.
+\end{itemize}
+
+% =========================================================================
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Four notions of ``dimensionality''}
+% TODO. This subsection is load-bearing -- put it FIRST, not last.  Four
+% quantities get the same name and are not interchangeable:
+%   manifold intrinsic dimension (TwoNN) \cite{ansuini2019intrinsic}
+%   rank of the linear span
+%   participation ratio
+%   number of PCs reaching a variance threshold
+% The cleanest demonstration is \cite{ansuini2019intrinsic}'s own VGG-16
+% numbers: PC-ID ~200 vs TwoNN ID ~18 in the SAME layer.  Say explicitly that
+% everything in this paper is linear, and that we make no manifold claim.
+\todo{write; use the 200-vs-18 contrast as the hook}
+
+\subsection{Depth profiles of representation dimensionality}
+% TODO. \cite{ansuini2019intrinsic} hunchback (TwoNN),
+% \cite{recanatesi2019dimensionality} expansion-then-compression,
+% \cite{rangamani2023intermediate} stable rank hunchback.
+% \cite{papyan2020neuralCollapse} pins the terminal layer at C_class - 1
+% analytically -- 9 on CIFAR-10, 999 on ImageNet -- which is why the deep end
+% is regime-dependent and not a universal fact.
+% Distinguish \cite{feng2022rankDiminishing}: that is the JACOBIAN's rank.
+\todo{write}
+
+\subsection{Spectral decay and why a Marchenko--Pastur threshold is unusable}
+% TODO. \cite{ghosh2022powerLaws} fit lambda_i ~ i^-alpha to feature
+% covariance; \cite{kong2022v1Eigenspectrum} find alpha well below 1 for
+% standard CNNs.  A power law with slow decay has no bulk edge, so the
+% RMT noise threshold has nothing to cut at.  Note
+% \cite{martin2021implicitSelfReg} is about WEIGHT spectra and does not
+% transfer.  \cite{pospisil2025revisiting} is the methodological warning:
+% broken power law, and three estimator biases including d < n.
+\todo{write -- readers will ask why not MP, so answer pre-emptively}
+
+\subsection{Redundancy, pruning, and width selection}
+% TODO. Brief; this is motivation, not the contribution.
+% \cite{suau2020filterDistillation,waleffe2023pcn,nanda2023diffusedRedundancy}
+% for redundancy; \cite{liu2019rethinkingPruning,frankle2021missingMark} for
+% why per-layer width is the operative variable; growth methods
+% growth methods: fahlman1990cascade, liu2019splitting, evci2022gradmax,
+% maile2022north, mitchell2024selfExpanding -- and the observation that every
+% one of them ends in a tuned knob.  Do not develop this -- it is the sibling paper.
+\todo{write, keep short}
+
+% =========================================================================
+\section{Method}
+\label{sec:method}
+
+\subsection{What we measure}
+% TODO. For a conv layer producing Y in R^{N x C x H x W}, the object is the
+% C x C covariance of channel responses.  Define both estimators explicitly:
+%   position-sampled: p random spatial positions per image, n = N*p
+%   globally pooled:  spatial mean per image,             n = N
+% State plainly that these are different objects and that the literature has
+% used both without comparing them.
+\todo{write; give both estimators as displayed equations}
+
+\subsection{Metrics}
+% TODO. Formal definitions of k*(tau), PR, effective rank, stable rank,
+% power-law alpha.  State the primary outcome is k*(0.95)/C and everything
+% else is secondary -- per the analysis plan, this was fixed before data.
+\todo{write}
+
+\begin{equation}
+  k^*(\tau) = \min\Bigl\{k : \textstyle\sum_{i\le k}\lambda_i
+    \big/ \sum_i \lambda_i \ \ge\ \tau \Bigr\}
+  \label{eq:kstar}
+\end{equation}
+
+\subsection{Estimation}
+% TODO. Streaming covariance via the parallel update of \cite{chan1983variance},
+% float64 accumulator.  Why: summing uncentred outer products in float32
+% destroys the small eigenvalues, which are exactly what k* depends on.
+%
+% Effective sample size: adjacent spatial positions are strongly correlated, so
+% N*H*W is not the count of independent samples; we subsample positions and
+% report that as n.  This makes the convergence control honest rather than
+% flattering.
+\todo{write}
+
+\subsection{Models and controls}
+% TODO. Table of models: VGG-16 (the \cite{garg2019lowEffort} architecture),
+% ResNet-18/50 (excluded there), ConvNeXt-T (postdates), DenseNet-121, plus
+% untrained counterparts.  Note depthwise convs do not mix channels and are
+% flagged; ConvNeXt is mostly depthwise.
+\todo{write; add Table~I}
+
+% =========================================================================
+\section{Sample-Size Control}
+\label{sec:samplesize}
+
+% TODO. This section comes BEFORE results deliberately: it licenses everything
+% after it.  Three things:
+%
+% (a) n < C makes the sample covariance rank-deficient by construction, so k*
+%     there is an artefact.  Show it.
+% (b) Convergence of each metric against n/C, per layer (Fig.~\ref{fig:conv}).
+%     State the reporting rule: n/C >= 50, fixed before data.
+% (c) The globally-pooled estimator is inherently sample-poor because n is the
+%     IMAGE count.  \cite{elmoznino2024highDim} used 10,000 images, so a
+%     2048-channel layer sits at n/C ~ 4.9.  Test whether PR/C moves between
+%     n = 10^4 and n = 5x10^4.  Our own pooled estimate is subject to the same
+%     limit (n/C ~ 24 at 50k images) -- say so here, not only in Limitations.
+
+\todo{write; this is the section that makes or breaks reviewer trust}
+
+\begin{figure}[t]
+  \centering
+  % \includegraphics[width=\columnwidth]{fig3_convergence_resnet50.pdf}
+  \caption{Sample-size control. \todo{caption}}
+  \label{fig:conv}
+\end{figure}
+
+% =========================================================================
+\section{Results}
+\label{sec:results}
+
+% NOTE. The analysis plan fixes what is confirmatory and what is exploratory.
+% Primary: k*(0.95)/C vs depth; the k* vs PR shape comparison; the convergence
+% control; the pooled-vs-sampled comparison; the CIFAR-vs-ImageNet deep end.
+% Everything else is secondary and must be labelled as such in the text.
+
+\subsection{The normalized profile}
+\label{sec:profile}
+% TODO. Fig.~\ref{fig:profile}.  Report rho_all and rho_late per architecture
+% (Table~II) rather than describing the shape in words.
+\todo{fill from results}
+
+\begin{figure}[t]
+  \centering
+  % \includegraphics[width=\columnwidth]{fig1_profile.pdf}
+  \caption{$k^*/C$ against relative depth. \todo{caption}}
+  \label{fig:profile}
+\end{figure}
+
+\subsection{Do the metrics agree?}
+% TODO. Fig.~\ref{fig:metrics}.  This adjudicates H1 (metric definition).
+\todo{fill from results}
+
+\begin{figure}[t]
+  \centering
+  % \includegraphics[width=\columnwidth]{fig2_metrics.pdf}
+  \caption{Three normalized metrics on identical layers. \todo{caption}}
+  \label{fig:metrics}
+\end{figure}
+
+\subsection{Does the estimator explain the disagreement?}
+% TODO. Position-sampled vs globally pooled.  Adjudicates H2.
+\todo{fill from results; figure not yet generated}
+
+\subsection{Class count and the terminal collapse}
+% TODO. CIFAR-10 (C_class = 10) vs ImageNet (1000).  Adjudicates H3.  We have
+% both regimes by design: the reproduction gate runs on CIFAR-10, the main
+% experiment on ImageNet.  Tie to \cite{papyan2020neuralCollapse}.
+\todo{fill from results}
+
+\subsection{Trained versus untrained}
+% TODO. Adjudicates how much of the profile is learned.  Per the analysis plan:
+% if the curves are indistinguishable across all architectures, THAT becomes
+% the headline and the framing changes.
+\todo{fill from results}
+
+\subsection{Threshold sensitivity}
+% TODO. Secondary.  \cite{garg2019lowEffort} used tau = 0.999, looser than our
+% primary 0.95; show how much of the shape is the threshold's doing.
+\todo{fill from results}
+
+\subsection{Reproduction of prior measurements}
+% TODO. Table~III: our per-layer k*(0.999) against
+% \cite{garg2019lowEffort} Table 2, VGG-16/CIFAR-10.  Report Pearson r on
+% k*/C and mean absolute difference.  State up front that the comparison is
+% about shape, not digits -- their training recipe is not fully specified.
+\todo{fill from the reproduction gate}
+
+% =========================================================================
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Implications for choosing width}
+\todo{write}
+
+\subsection{What this does and does not say}
+% TODO. Everything here is a linear measure of the channel covariance.  It is
+% not manifold dimension \cite{ansuini2019intrinsic}, not the Jacobian's rank
+% \cite{feng2022rankDiminishing}, and not a claim about what the network could
+% do with fewer channels -- only about what the trained one uses.
+\todo{write; be explicit, this is where over-claiming happens}
+
+\subsection{Limitations}
+% TODO, at minimum:
+%   one public checkpoint per architecture, so no seed variance
+%   ImageNet classification only; no detection, no ViT
+%   the pooled estimator is sample-limited by image count for wide layers
+%   any conv1 argument is bounded by patch dimension (3x3x3 = 27) and is
+%     confounded by \cite{bell1997ica}: learned conv1 filters are ICA-like,
+%     not the second-order PCA basis
+\todo{write}
+
+% =========================================================================
+\section{Conclusion}
+\todo{write last}
+
+% =========================================================================
+\section*{Reproducibility}
+% TODO. Code, the pre-registered analysis plan with its git history, the raw
+% eigenvalue spectra, and the run manifests.  The plan's deviation log is part
+% of the artefact -- say so; it is the evidence that the analysis was not
+% chosen after seeing the data.
+\todo{URLs}
+
+\bibliographystyle{IEEEtran}
+\bibliography{refs}
+
+\end{document}
