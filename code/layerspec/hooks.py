@@ -49,6 +49,14 @@ class LayerRecord:
     C: int
     groups: int = 1
     is_depthwise: bool = False
+    # Which invocation of this module within one forward pass this record is.
+    # ResNet blocks reuse a single nn.ReLU for every activation in the block,
+    # so the module NAME does not identify an activation site: a Bottleneck
+    # calls self.relu three times, at 64, 64 and 256 channels.  Keying by name
+    # alone merges all three into one accumulator -- which crashes on the
+    # shape change in ResNet-50, and silently pools two different
+    # distributions in ResNet-18, where the shapes happen to match.
+    call_index: int = 0
     spatial: tuple[int, int] | None = None
     acc: CovarianceAccumulator | None = field(default=None, repr=False)
     # Second covariance over globally average-pooled feature maps: one sample
@@ -71,6 +79,7 @@ class LayerRecord:
             "C": self.C,
             "groups": self.groups,
             "is_depthwise": self.is_depthwise,
+            "call_index": self.call_index,
             "H": self.spatial[0] if self.spatial else None,
             "W": self.spatial[1] if self.spatial else None,
         }
@@ -103,8 +112,14 @@ class SpectrumProbe:
         self.layers: dict[str, LayerRecord] = {}
         self._handles: list = []
         self._order = 0
+        # Reset at the start of every forward pass so a module invoked N times
+        # gets N stable, distinct records rather than one merged one.
+        self._calls: dict[str, int] = {}
         self._gen = torch.Generator(device="cpu")
         self._gen.manual_seed(seed)
+        self._handles.append(
+            model.register_forward_pre_hook(lambda _m, _i: self._calls.clear())
+        )
         self._attach()
 
     # ---------------------------------------------------------------- attach
@@ -124,12 +139,15 @@ class SpectrumProbe:
                 self._register(name, module, kind="act")
 
     def _register(self, name: str, module: nn.Module, kind: str, **extra) -> None:
-        key = f"{name}::{kind}"
+        base = f"{name}::{kind}"
 
-        def hook(_mod, _inp, out, _key=key, _name=name, _kind=kind, _extra=extra):
+        def hook(_mod, _inp, out, _base=base, _name=name, _kind=kind, _extra=extra):
             if not isinstance(out, torch.Tensor) or out.dim() != 4:
                 return
-            self._consume(_key, _name, _kind, out.detach(), _extra)
+            idx = self._calls.get(_base, 0)
+            self._calls[_base] = idx + 1
+            self._consume(f"{_base}#{idx}", _name, _kind, idx,
+                          out.detach(), _extra)
 
         self._handles.append(module.register_forward_hook(hook))
 
@@ -140,7 +158,8 @@ class SpectrumProbe:
 
     # --------------------------------------------------------------- consume
 
-    def _consume(self, key, name, kind, out: torch.Tensor, extra: dict) -> None:
+    def _consume(self, key, name, kind, call_index, out: torch.Tensor,
+                 extra: dict) -> None:
         N, C, H, W = out.shape
         if self.max_channels is not None and C > self.max_channels:
             return
@@ -155,6 +174,7 @@ class SpectrumProbe:
                 groups=extra.get("groups", 1),
                 is_depthwise=extra.get("is_depthwise", False),
                 spatial=(H, W),
+                call_index=call_index,
                 acc=CovarianceAccumulator(C),
                 acc_pooled=CovarianceAccumulator(C) if self.pooled else None,
             )
@@ -222,7 +242,7 @@ class SpectrumProbe:
 
     def spectra(self) -> dict[str, np.ndarray]:
         return {
-            f"{r.name}::{r.kind}": r.acc.eigenvalues()
+            f"{r.name}::{r.kind}#{r.call_index}": r.acc.eigenvalues()
             for r in self.records()
             if r.acc is not None and r.acc.n >= 2
         }

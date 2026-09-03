@@ -90,6 +90,13 @@ class CovarianceAccumulator:
         )
 
     def _merge(self, m: int, block_mean: np.ndarray, block_M2: np.ndarray) -> None:
+        if block_mean.shape != (self.dim,):
+            raise ValueError(
+                f"block has {block_mean.shape[0]} channels but this accumulator "
+                f"was built for {self.dim}. Two different activation sites are "
+                f"being merged -- check that the probe keys records by call "
+                f"index, not just by module name."
+            )
         if self.n == 0:
             self.n = m
             self.mean = block_mean.copy()
