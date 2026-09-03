@@ -306,8 +306,15 @@ spatial extent and treats each image as one observation, giving $n = N$:
 Pooling removes the within-image spatial variance rather than summarising it,
 so the two estimators can order layers differently. Garg \emph{et al.}
 \cite{garg2019lowEffort} used a spatial estimator and Elmoznino and Bonner
-\cite{elmoznino2024highDim} a pooled one; to our knowledge the two have not
-been compared on the same layers. We compute both.
+\cite{elmoznino2024highDim} a pooled one. The latter report, in their
+supplementary S6 Text, that their conclusions about encoding performance
+survive when dimensionality is instead computed on the entire flattened
+feature map; but that object is $CHW$-dimensional with images as
+observations---neither Equation~\eqref{eq:covpos} nor
+Equation~\eqref{eq:covpool}---and the dimensionality values under the two
+treatments are not reported. To our knowledge the pooled and
+position-sampled channel covariances have not been compared on the same
+layers. We compute both.
 
 Equation~\eqref{eq:covpool} also has a consequence that matters for
 Section~\ref{sec:samplesize}: under pooling, $n$ is the number of
