@@ -35,7 +35,7 @@ def measure_one(
     model_name: str,
     args,
 ) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
-    model, weights_tag = _models.build(model_name)
+    model, weights_tag = _models.build(model_name, seed=args.seed)
     loader, source = _data.build_loader(
         args.data,
         batch_size=args.batch_size,
@@ -215,10 +215,31 @@ def main(argv=None) -> int:
                       flush=True)
         manifest.append(meta)
 
-    with open(os.path.join(args.out, "manifest.json"), "w") as f:
-        json.dump(manifest, f, indent=2)
+    write_manifest(args.out, manifest)
     print(f"\nwrote {args.out}/", flush=True)
     return 0
+
+
+def write_manifest(out: str, entries: list[dict]) -> None:
+    """Merge ``entries`` into out/manifest.json, keyed by model name.
+
+    The GPU script runs this module once per stage (pretrained, checkpoint
+    tiers, random controls); each stage must add to the manifest rather than
+    replace it.  A re-run of the same model replaces its earlier entry.
+    """
+    path = os.path.join(out, "manifest.json")
+    existing: list[dict] = []
+    if os.path.exists(path):
+        with open(path) as f:
+            try:
+                existing = json.load(f)
+            except json.JSONDecodeError:
+                existing = []
+    merged = {e["model"]: e for e in existing}
+    for e in entries:
+        merged[e["model"]] = e
+    with open(path, "w") as f:
+        json.dump(list(merged.values()), f, indent=2)
 
 
 if __name__ == "__main__":
