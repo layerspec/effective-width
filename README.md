@@ -10,22 +10,37 @@
 
 | | 狀態 |
 |---|---|
-| 第一篇 · k*/C 量測 | 管線寫完，7/7 測試通過。**等 ImageNet 驗證集** |
+| 第一篇 · k*/C 量測 | **第一輪量測已完成**（ImageNet 5 萬張、六個模型、US$0.90）。論文 §I–V 已寫，21 個 TODO 剩 12 |
 | 第二篇 · 非調參的寬度判準 | 規劃中，接續第一篇，共用量測基礎設施 |
 | 支線 · 正交正則化受控再評估 | 完整實驗設計已寫，約 1,200 GPU-hours，時程未定 |
 
+### 第一輪結果（詳見 `results/analysis.txt`、`notes/analysis-plan.md` §7）
+
+- **H2 成立，這是本篇的核心結果。** 同一批層、同一套譜運算，只換估計量，形狀
+  判定就翻轉：VGG-16 位置抽樣是駝峰、全域池化是單調上升（13/13 通過取樣門檻）。
+  Garg 與 Elmoznino & Bonner 的矛盾來自**估計量**，不是指標。
+- **H1 不成立**（k\* 與 PR 在 6 個 run 中 5 個一致）；**H4 不成立**（τ 改變高度、
+  不改變形狀）；**H5 乾淨**（13 層中只排除 1 層）。**H3 待 CIFAR 那一輪**。
+- **方法上的修正：正規化分母應該是可達秩 r_max，不是標稱通道數 C。**
+  ResNet-50 有 20/53 層是 1×1 擴張，k\*/C 在架構上就不可能超過 0.25。
+  改用 r_max 後中位數 0.250 → 0.422，與 VGG（0.422）、ResNet-18（0.533）同級，
+  「寬層只用一成寬度」那個說法是分母造成的假象，已撤回。
+
 ### 下一步
 
-1. 取得 ImageNet 驗證集（5 萬張，約 6.3 GB）——**直接下到租來的 GPU 機器上，不要放進這個資料夾**。
-   三條路，推薦第二條：
-   - **image-net.org**：註冊、同意條款、下載 `ILSVRC2012_img_val.tar`，解壓即可。
-     開通要人工審核，要等。
-   - **Hugging Face `ILSVRC/imagenet-1k`**（推薦）：閘門是即時點擊同意、不需審核，
-     而且驗證集是獨立的 parquet shards，不必碰 150 GB 的訓練集。
-     瀏覽器同意條款 → `huggingface-cli login` → `python code/scripts/fetch_imagenet_val.py --out /data/imagenet_val`
-   - **Academic Torrents**：同一份資料、同樣的使用條款、不需帳號。
-2. 租一台 RTX 3090 等級的機器（純推論，約 NT$300–500）
-3. `bash code/scripts/run_on_rented_gpu.sh /data/imagenet_val`
+1. **CIFAR-10 那一輪（約 US$1）** —— `code/scripts/reproduce_garg.py`，
+   再加一個「ImageNet 式深分類頭」的變體，把類別數與分類頭深度這兩個
+   混淆的解釋分開，同時補完 Garg 驗證關卡。這是唯一還擋著論文的量測。
+2. 補完剩下的 12 個 TODO（摘要、Discussion、Conclusion、Table III）
+3. 取得 IEEEtran.cls（本機租來的環境裝不了；Overleaf 或 texlive-publishers）
+
+跑法（機器上）：
+
+```
+hf auth login
+python code/scripts/fetch_imagenet_val.py --out /data/imagenet_val
+bash code/scripts/run_on_rented_gpu.sh /data/imagenet_val
+```
 
 **不需要 devkit，也不需要 valprep 重整目錄。** 管線只算激活共變異數、從不讀標籤，
 所以接受扁平目錄，驗證集 tar 解開後直接指過去就行。
@@ -58,7 +73,7 @@
 ```
 code/       layerspec 量測管線（見 code/README.md）
 results/    每次跑的原始 CSV 與 npz
-figures/    論文圖（PDF 給論文、PNG 給人看）
+            結果圖在 results/figures/（PDF 給論文、PNG 給人看）
 paper/      草稿、bib、IEEE 模板
 refs/       要親自確認的 PDF
 notes/      零散想法
