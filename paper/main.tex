@@ -22,7 +22,7 @@
 \usepackage[caption=false,font=footnotesize]{subfig}
 \usepackage[hidelinks]{hyperref}
 
-\graphicspath{{../figures/}}
+\graphicspath{{../results/figures/}}
 
 % --- drafting aids; delete before submission ------------------------------
 \usepackage{xcolor}
@@ -322,6 +322,26 @@ threshold but, unlike PR, responds to the tail of the spectrum. Each is
 reported both raw and divided by the layer's nominal channel count $C$, since
 the question is what fraction of the available width is used.
 
+A layer's output at one spatial position is a linear map of its
+receptive-field patch, so the rank of $\hat{\Sigma}$ is bounded above by the
+rank of that map and not by $C$ alone. For a convolution with $C_{\text{in}}$
+input channels, kernel $k_h \times k_w$ and $g$ groups, the weight matrix is
+block-diagonal with blocks of disjoint support, so the block ranks add and
+\begin{equation}
+  r_{\max} = g \cdot \min\!\Bigl(
+     \tfrac{C_{\text{in}}}{g} k_h k_w,\ \tfrac{C_{\text{out}}}{g}
+  \Bigr).
+  \label{eq:rmax}
+\end{equation}
+Where $r_{\max} < C$, the ratio $k^*/C$ is bounded above by $r_{\max}/C$
+whatever the network has learned, and normalising by $C$ therefore charges the
+layer for width it never had. The case is not hypothetical: a bottleneck's
+$1\!\times\!1$ expansion has $C_{\text{in}} = C_{\text{out}}/4$, so $k^*/C$
+there cannot exceed $0.25$ by construction. We report $k^*/C$, which is the
+pre-registered statistic and the one comparable with prior work, and
+$k^*/r_{\max}$ alongside it. Section~\ref{sec:rmax} shows what the choice of
+denominator does.
+
 Following the pre-specified analysis plan, $k^*(0.95)/C$ is the primary
 outcome and all other statistics are secondary. We note that
 \cite{garg2019lowEffort} used $\tau = 0.999$, a looser criterion that is more
@@ -349,15 +369,25 @@ report $n = Np$ as the sample size, which is conservative.
 \subsection{Models and controls}
 \label{sec:models}
 
-\todo{Table~I: architecture, nominal widths, number of conv layers, weights
-used.}
+\begin{table}[t]
+  \centering
+  \caption{What was measured. \emph{Conv} counts convolutional layers passing
+  the sample-size gate; $r_{\max}\!<\!C$ counts those whose attainable rank
+  (Equation~\eqref{eq:rmax}) is below their channel count; $n/C$ is the range
+  of samples per channel under the position-sampled estimator, against a
+  reporting threshold of $50$. Generated from \texttt{results/}.}
+  \label{tab:models}
+  \footnotesize
+  \input{table_models}
+\end{table}
 
 We measure VGG-16 with batch normalisation, the architecture used by
 \cite{garg2019lowEffort}; ResNet-18 and ResNet-50 \cite{he2016resnet}, which
-that work excluded; ConvNeXt-T \cite{liu2022convnext}, which postdates it; and
-DenseNet-121 \cite{huang2017densenet} as a third connectivity pattern. All use
-publicly released ImageNet-1k checkpoints, and all layers are probed on the
-ImageNet validation split \cite{deng2009imagenet}.
+that work excluded; and ConvNeXt-T \cite{liu2022convnext}, which postdates it.
+The four span three connectivity patterns and two normalisation regimes. All
+use publicly released \texttt{torchvision} ImageNet-1k checkpoints, and all
+layers are probed on the full ImageNet validation split of $50{,}000$ images
+\cite{deng2009imagenet}.
 
 Convolutional and post-activation outputs are recorded separately. A
 rectified representation is non-negative, which changes the covariance
@@ -366,8 +396,9 @@ convolutions are flagged, since a depthwise layer does not mix channels and its
 channel covariance therefore carries a different meaning; this matters for
 ConvNeXt, which is predominantly depthwise.
 
-As a control we measure each architecture again at initialisation, without
-training. This separates structure the network acquired from structure implied
+As a control we measure ResNet-50 and ConvNeXt-T again at initialisation,
+without training; these are the deepest and the most recent of the four, and
+the two whose profiles are least like VGG's. This separates structure the network acquired from structure implied
 by the architecture together with the second-order statistics of natural
 images \cite{field1987relations}. We note in passing that any argument about
 the first convolutional layer is bounded by the dimension of the input patch
@@ -384,20 +415,49 @@ comparison of estimators and statistics, and the controls.
 \section{Sample-Size Control}
 \label{sec:samplesize}
 
-% This section precedes the results deliberately: it licenses them.
-% (a) n < C is rank-deficient by construction -- demonstrate.
-% (b) convergence of each statistic in n/C, per layer (Fig.~\ref{fig:conv});
-%     state the pre-registered reporting rule n/C >= 50.
-% (c) the pooled estimator is limited by image count; test whether PR/C moves
-%     between n = 10^4 and n = 5x10^4, and state that OUR pooled estimate is
-%     subject to the same limit (n/C ~ 24 at 5x10^4 images for C = 2048).
-\todo{write once the convergence data exist; this is the section that decides
-whether a reviewer trusts the rest}
+Every number in Section~\ref{sec:results} is a function of an estimated
+covariance, so the first question is not what the profile looks like but at
+what sample size it stops moving. We answer that before showing any profile.
+
+Two facts bound the exercise. A sample covariance formed from $n < C$
+observations is rank-deficient by construction, so its $k^*$ is a statement
+about $n$ and not about the network. Well above that point the small
+eigenvalues remain downward-biased, and $k^*(\tau)$ for $\tau$ near one depends
+on exactly those. The analysis plan therefore fixed, before the data existed, a
+reporting rule: no row with $n/C < 50$ is reported, and every reported
+statistic must additionally be shown to have flattened in $n/C$.
+
+Under the position-sampled estimator of Equation~\eqref{eq:covpos} with
+$p = 16$ positions per image over $50{,}000$ images, each convolutional layer
+receives $n = 8 \times 10^5$ observations. This gives $n/C$ between $391$
+(ResNet-50's $2048$-channel layers) and $12{,}500$ ($64$-channel layers), so
+every convolutional row in the study clears the gate with at least a factor of
+seven in hand. Fig.~\ref{fig:conv} shows the convergence itself: metrics are
+recomputed at $n/C \in \{1,2,5,10,25,50,100,250\}$ within the same single pass,
+so the control costs no extra compute. Of the layers measured, none is still
+moving by more than $0.02$ between the last two checkpoints in five of the six
+runs; VGG-16 has one layer of thirteen that is, and it is excluded.
+
+The pooled estimator of Equation~\eqref{eq:covpool} is in a different position,
+and this is not a detail. Under pooling $n$ is the number of \emph{images}, so
+$n = 5 \times 10^4$ and $n/C$ runs from $781$ down to $24.4$. For VGG-16,
+ResNet-18 and ConvNeXt-T every pooled row clears the gate; for ResNet-50,
+eleven of fifty-three do not, and they are precisely the $1024$- and
+$2048$-channel layers. Any comparison of the two estimators on those layers is
+therefore confounded with sample size, and we do not make one. This limit
+applies to the published pooled measurements as well as to ours: a
+$2048$-channel layer cannot be estimated at $n/C \ge 50$ from any dataset with
+fewer than $10^5$ images.
 
 \begin{figure}[t]
   \centering
-  % \includegraphics[width=\columnwidth]{fig3_convergence_resnet50.pdf}
-  \caption{Sample-size control. \todo{caption}}
+  \includegraphics[width=\columnwidth]{fig3_convergence_resnet50.pdf}
+  \caption{Sample-size control, ResNet-50: $k^*(0.95)/C$ against samples per
+  channel, one line per convolutional layer, shaded light to dark with depth.
+  The dashed rule is the pre-registered reporting threshold $n/C = 50$. Curves
+  are flat well before it; the measurement is not sample-limited. Under the
+  pooled estimator the same layers would reach only $n/C = 24$ at the right-hand
+  edge of this axis.}
   \label{fig:conv}
 \end{figure}
 
@@ -405,48 +465,229 @@ whether a reviewer trusts the rest}
 \section{Results}
 \label{sec:results}
 
-% Confirmatory, per the analysis plan: the profile; the k* vs PR shape
-% comparison; the convergence control; pooled vs sampled; CIFAR vs ImageNet.
-% Everything else is secondary and must be labelled as such in the text.
+Sections~\ref{sec:profile}--\ref{sec:threshold} are confirmatory: each was
+specified in the analysis plan before the data were collected. Sections
+\ref{sec:rmax} and \ref{sec:dwsplit} were prompted by reading the measured
+numbers and are labelled exploratory throughout; they are reported because
+each changes how an earlier subsection must be read, not because either was
+predicted.
 
-\subsection{The normalized profile}
-\todo{Fig.~\ref{fig:profile}; report rho\_all and rho\_late per architecture in
-Table~II rather than describing the shape in words}
+\subsection{The normalised profile}
+\label{sec:profile}
+
+Fig.~\ref{fig:profile} gives $k^*(0.95)/C$ against relative depth for all four
+architectures. The first observation is the one that survives every
+qualification that follows: no layer of any trained network in this study
+requires more than $0.78$ of its nominal width to account for $95\%$ of its
+channel-space variance, and the per-architecture medians are $0.42$ (VGG-16),
+$0.51$ (ResNet-18), $0.25$ (ResNet-50) and $0.66$ (ConvNeXt-T). Section
+\ref{sec:rmax} shows that the ResNet-50 figure is largely a property of its
+denominator.
+
+Shape is decided by the pre-registered rule rather than by inspection:
+Spearman $\rho$ of the statistic against depth order over all gated layers
+($\rho_{\text{all}}$) and over the last third ($\rho_{\text{late}}$), with
+$\rho_{\text{late}} < -0.5$ read as a late collapse and
+$\rho_{\text{all}} > 0.5$ with $\rho_{\text{late}} > 0$ as a monotonic rise.
+Table~\ref{tab:shape} reports both. VGG-16 rises strongly
+($\rho_{\text{all}} = +0.813$) and then turns over
+($\rho_{\text{late}} = -0.800$); ConvNeXt-T shows the same qualitative pattern;
+neither ResNet meets either criterion.
+
+That verdict needs a magnitude beside it, and the reason is worth stating
+plainly because it decides how this result relates to the prior literature.
+Spearman $\rho$ is rank-based and therefore scale-free: a curve slipping from
+$0.53$ to $0.44$ across its last three layers earns exactly the same
+$\rho_{\text{late}} = -0.800$ as one falling from $0.97$ to $0.07$. We
+therefore report, as a descriptive addition that was \emph{not}
+pre-registered, the drop across the last third in the units of the statistic
+itself. VGG-16's is $0.059$. ConvNeXt-T's is $0.246$. The terminal collapse
+reported by \cite{garg2019lowEffort} is $0.90$. The pre-registered test and
+the magnitude say different things about VGG-16, and both belong in the record:
+the curve does turn over, and the turn is an order of magnitude smaller than
+the effect it is being compared against.
 
 \begin{figure}[t]
   \centering
-  % \includegraphics[width=\columnwidth]{fig1_profile.pdf}
-  \caption{$k^*/C$ against relative depth. \todo{caption}}
+  \includegraphics[width=\columnwidth]{fig1_profile.pdf}
+  \caption{$k^*(0.95)/C$ against relative depth, trained (blue circles) and at
+  initialisation (red squares) where the untrained control was run. The dashed
+  rule at $1.0$ marks full use of the nominal width. ResNet-50's alternation is
+  a denominator effect and is resolved in Section~\ref{sec:rmax}.}
   \label{fig:profile}
 \end{figure}
 
+\begin{table}[t]
+  \centering
+  \caption{Shape of each profile, over convolutional layers passing the
+  sample-size gate. $\rho$ against depth order and the resulting verdict are
+  pre-registered; the drop columns---the fall across the last third, and from
+  the peak to the final layer, in units of the statistic---are descriptive
+  additions, reported because $\rho$ is scale-free and cannot distinguish a
+  dip from a collapse. $\dagger$ marks the untrained control. Generated from
+  \texttt{results/} by \texttt{layerspec.analyse}; not transcribed.}
+  \label{tab:shape}
+  \footnotesize
+  \input{table_shape}
+\end{table}
+
+\subsection{Normalising by attainable rank}
+\label{sec:rmax}
+
+\emph{Exploratory.} ResNet-50 is the outlier of Fig.~\ref{fig:profile} on every
+reading: the lowest median, no shape by the pre-registered test, and a profile
+that alternates violently between adjacent layers. Grouping its layers by
+nominal width rather than by depth makes the alternation legible---the median
+$k^*(0.95)/C$ runs $0.23, 0.34, 0.40, 0.37$ for $C = 64 \ldots 512$ and then
+falls to $0.11$ and $0.13$ for $C = 1024$ and $2048$---and invites the reading
+that the widest layers use roughly a tenth of the width they are given.
+
+That reading is an artefact of the denominator. Twenty of ResNet-50's
+fifty-three convolutional layers are the $1\!\times\!1$ expansions at the end
+of each bottleneck, for which $C_{\text{in}} = C_{\text{out}}/4$ and hence
+$r_{\max}/C = 0.25$ by Equation~\eqref{eq:rmax}. Those layers cannot exceed
+$0.25$ however well they are trained, and at $\tau = 0.999$ they reach a median
+of $93\%$ of that ceiling (range $45$--$98\%$ over the seventeen of them, with
+the two lowest values both in the first bottleneck of the network). What looked
+like a tenth of the available width is most of the rank the architecture
+permits. Against $r_{\max}$ the width profile becomes
+$0.23, 0.34, 0.42, 0.42, 0.43, 0.47$: flat, slightly rising, and with no
+collapse at the wide end. The median moves from $k^*/C = 0.250$ to
+$k^*/r_{\max} = 0.422$, in line with VGG-16 ($0.422$) and ResNet-18 ($0.533$).
+ResNet-50 is not an outlier; it was being asked the wrong question.
+
+The correction is checkable rather than merely plausible: $k^*(0.999)/r_{\max}$
+must not exceed unity, and across all six runs its maximum is $0.973$ to
+$0.992$. The effect is confined to bottleneck architectures---one bounded layer
+of thirteen in VGG-16, three of twenty in ResNet-18, one of twenty-two in
+ConvNeXt-T, against twenty of fifty-three in ResNet-50---which is why it can
+go unnoticed in a study of VGG alone, and why it matters for a literature that
+increasingly measures residual networks.
+
 \subsection{Do the summary statistics agree?}
-\todo{Fig.~\ref{fig:metrics}; adjudicates H1}
+\label{sec:metrics}
+
+The pre-registered comparison is whether $k^*(0.95)/C$ and $\mathrm{PR}/C$
+assign the same shape to identical layers. They do, on five of the six runs.
+The one exception is ConvNeXt-T at initialisation, where $k^*$ reads a
+monotonic rise and PR no clear shape; on the trained models the two agree
+everywhere. H1 is not supported: the choice between these two statistics does
+not explain the disagreement in the literature.
 
 \begin{figure}[t]
   \centering
-  % \includegraphics[width=\columnwidth]{fig2_metrics.pdf}
-  \caption{Three normalized statistics on identical layers. \todo{caption}}
+  \includegraphics[width=\columnwidth]{fig2_metrics.pdf}
+  \caption{Three normalised statistics on identical layers. The three are
+  offset from one another---PR and effective rank weight the head of the
+  spectrum more heavily than $k^*(0.95)$ does---but they rise and fall
+  together.}
   \label{fig:metrics}
 \end{figure}
 
 \subsection{Does the estimator explain the disagreement?}
-\todo{position-sampled vs globally pooled; adjudicates H2}
+\label{sec:estimator}
 
-\subsection{Class count and the terminal collapse}
-\todo{CIFAR-10 vs ImageNet; adjudicates H3; tie to papyan2020neuralCollapse}
+It does. Computing both estimators of Section~\ref{sec:object} on the same
+forward pass, over the same layers, with the same spectral machinery, the
+shape verdict changes with the estimator on four of the six runs.
+
+VGG-16 is the cleanest case, and it is also the architecture on which the two
+prior results were obtained. Position-sampled, its profile rises to $0.527$ and
+turns over, giving $\rho_{\text{all}} = +0.813$, $\rho_{\text{late}} = -0.800$
+and a verdict of late collapse. Globally pooled, over the same thirteen layers,
+it runs from $0.047$ to $0.328$ with $\rho_{\text{all}} = +0.962$ and
+$\rho_{\text{late}} = +1.000$: a monotonic rise, without exception, to the last
+layer measured. All thirteen pooled rows clear the sample-size gate, so the
+difference is not a sampling artefact. ResNet-18 behaves the same way, with
+twenty of twenty pooled rows gated.
+
+Two things follow. Pooling lowers the level everywhere---it averages away the
+within-image spatial variance, which is carried by many channels---and it
+removes the terminal turnover. Since \cite{garg2019lowEffort} used a spatial
+estimator and \cite{elmoznino2024highDim} a pooled one, and since to our
+knowledge the two have never been computed on the same layers, the most
+economical account of the disagreement between those literatures is that they
+measure different objects. H2 is supported.
+
+We do not extend this to ResNet-50: eleven of its pooled rows fail the gate
+(Section~\ref{sec:samplesize}), and they are the layers where the difference
+would be largest.
 
 \subsection{Trained versus untrained}
-\todo{if indistinguishable across all architectures, THIS becomes the headline
-and the framing changes -- see the analysis plan}
+\label{sec:trained}
+
+The profiles are not implied by architecture and input statistics alone.
+Against its untrained control, trained ConvNeXt-T is higher on seventeen of
+twenty-two layers (mean difference $+0.085$) and trained ResNet-50 on
+forty-four of fifty-three (mean $+0.108$, maximum $0.469$). The separation is
+structured rather than uniform: ConvNeXt-T's trained and untrained curves are
+nearly coincident from mid-depth onwards and diverge in the early layers, while
+ResNet-50's diverge progressively with depth, its untrained profile declining
+($\rho_{\text{all}} = -0.540$) where its trained one does not.
+
+The control also settles which of the exploratory findings are about learning.
+ConvNeXt-T's late drop of $0.246$ is absent at initialisation, where the same
+layers give $-0.038$: that turnover is learned. ResNet-50's decline of
+$k^*/C$ with width, by contrast, is present at initialisation and stronger
+there ($\rho(C) = -0.897$ untrained against $-0.378$ trained), consistent with
+Section~\ref{sec:rmax}---it is the rank bound, which training cannot move.
 
 \subsection{Threshold sensitivity}
-\todo{secondary; how much of the shape is $\tau$'s doing}
+\label{sec:threshold}
+
+$k^*(\tau)$ needs a threshold, and \cite{garg2019lowEffort} used
+$\tau = 0.999$, four orders of magnitude looser in retained variance than the
+$0.95$ used here and correspondingly more exposed to the biased tail of the
+spectrum. Fig.~\ref{fig:tau} varies $\tau$ over $\{0.9, 0.95, 0.99, 0.999\}$ on
+VGG-16. The level moves a great deal---the last layer reads $0.29$, $0.44$,
+$0.74$ and $0.95$---but the shape does not: all four curves rise steeply to
+relative depth $0.5$, dip at the same layer, recover, and turn over in the last
+two. H4 is not supported. The threshold sets how much of the tail is counted,
+not whether the profile has a hump.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{fig4_threshold_vgg16_bn.pdf}
+  \caption{$\tau$ sensitivity on VGG-16. The level is strongly threshold-
+  dependent; the shape is not.}
+  \label{fig:tau}
+\end{figure}
+
+\subsection{Depthwise and dense convolutions}
+\label{sec:dwsplit}
+
+\emph{Exploratory.} Section~\ref{sec:models} records depthwise layers
+separately on the ground that a layer which does not mix channels has a
+channel covariance of a different kind. ConvNeXt-T makes that distinction
+consequential: eighteen of its twenty-two convolutional layers are depthwise
+and four are dense, and the two groups do not overlap. The depthwise layers
+have median $k^*(0.95)/C = 0.707$ and a late drop of $0.246$; the dense ones
+median $0.309$ and a rise. Interleaved along a single depth axis they produce
+the sawtooth visible in Fig.~\ref{fig:profile}, and the aggregate shape verdict
+is in part an artefact of that interleaving. We report the stratified numbers
+and the aggregate; a profile of ConvNeXt-style architectures that does not
+separate them is measuring two things at once.
+
+\subsection{Class count and the terminal collapse}
+\label{sec:classcount}
+
+\todo{needs the CIFAR-10 reproduction; H3. Two explanations remain confounded
+after this round -- class count (neural collapse pins the penultimate effective
+rank at $C_{\text{class}}-1$, which is 9 on CIFAR-10 and 999 on ImageNet) and
+head depth (Garg's CIFAR head makes features.40 effectively penultimate, while
+the ImageNet VGG has 4096-4096-1000 after it). The planned run varies head
+depth at fixed class count, which separates them.}
 
 \subsection{Reproduction of prior measurements}
-\todo{Table~III against garg2019lowEffort Table 2; report Pearson $r$ on
-$k^*/C$ and mean absolute difference; state up front that the comparison is
-about shape, not digits}
+\label{sec:repro-garg}
+
+\todo{Table~III against \cite{garg2019lowEffort} Table 2. Aligning channel
+counts layer by layer at $\tau = 0.999$: the first eight layers give
+$r = 0.969$ and mean absolute difference $0.057$, a cross-dataset reproduction
+that validates the pipeline. The last five diverge by $+0.42$ to $+0.90$ ---
+their $0.07$--$0.08$ against our $0.95$--$0.97$. State up front that the
+comparison is of shape, not digits, and that the divergence is the subject of
+Section~\ref{sec:classcount}.}
 
 % =========================================================================
 \section{Discussion}
@@ -462,10 +703,41 @@ network would perform equally with fewer channels, only that the trained one
 does not use them}
 
 \subsection{Limitations}
-\todo{one public checkpoint per architecture, so no seed variance; ImageNet
-classification only, no detection, no ViT; the pooled estimator is
-sample-limited by image count for wide layers, ours included; conv1 arguments
-are bounded by patch dimension and confounded by bell1997ica}
+Five, in rough order of how much they should temper the conclusions.
+
+\emph{One checkpoint per architecture.} We measure the publicly released
+weights, so there is no seed variance anywhere in this study and no error bar
+on any profile. Differences between architectures are large relative to the
+effects we claim, but differences between two layers of one network may not be.
+
+\emph{The pooled estimator is sample-limited for wide layers, ours included.}
+Under pooling $n$ is the image count, so no dataset smaller than $10^5$ images
+can estimate a $2048$-channel layer at $n/C \ge 50$. Eleven of ResNet-50's
+pooled rows fail our own gate, and we decline to compare estimators there. This
+is a limit on the published pooled measurements as much as on ours.
+
+\emph{Everything here is linear.} $k^*$, PR, effective rank and stable rank are
+all functionals of the channel-covariance spectrum. None estimates the
+dimension of a manifold, and the gap is not small: Ansuini \emph{et al.}
+\cite{ansuini2019intrinsic} report a PC-based dimension of order $200$ and a
+TwoNN intrinsic dimension of order $18$ for the same VGG-16 layer. A layer
+whose covariance has high rank may still carry a low-dimensional curved
+manifold.
+
+\emph{Not a claim about prunability.} That a trained network does not use most
+of a layer's channel-space variance does not establish that a network built
+with fewer channels would train to the same accuracy. The measurement is of
+the trained artefact, not of the optimisation that produced it, and the
+literature on lottery tickets and on over-parameterised optimisation gives
+ample reason to keep those separate.
+
+\emph{Scope.} ImageNet classification only: no detection, no segmentation, no
+transformer, and no dataset whose class count differs---which is exactly the
+gap Section~\ref{sec:classcount} exists to close. Arguments about the first
+convolutional layer are additionally bounded by the dimension of the input
+patch and confounded by the observation of Bell and Sejnowski
+\cite{bell1997ica} that such layers learn filters resembling independent rather
+than principal components.
 
 % =========================================================================
 \section{Conclusion}
