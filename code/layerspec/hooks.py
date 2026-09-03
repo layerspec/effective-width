@@ -51,6 +51,14 @@ class LayerRecord:
     is_depthwise: bool = False
     spatial: tuple[int, int] | None = None
     acc: CovarianceAccumulator | None = field(default=None, repr=False)
+    # Second covariance over globally average-pooled feature maps: one sample
+    # per image instead of one per spatial position.  This is the estimator
+    # Elmoznino & Bonner (2024) used, and it is a genuinely different object --
+    # pooling averages the spatial variance away.  Carrying both lets the paper
+    # test whether the disagreement in the literature is the pooling and not
+    # the metric.  Note it is inherently sample-limited: n = number of images,
+    # so a 2048-channel layer over 50k images only reaches n/C ~ 24.
+    acc_pooled: CovarianceAccumulator | None = field(default=None, repr=False)
     # n -> metrics row, recorded as the sample count crosses each threshold.
     checkpoints: dict = field(default_factory=dict, repr=False)
     _next_ckpt: int = 0
@@ -80,12 +88,14 @@ class SpectrumProbe:
         seed: int = 0,
         scatter_dtype: torch.dtype | None = None,
         checkpoint_multiples: tuple[int, ...] = (1, 2, 5, 10, 25, 50, 100, 250),
+        pooled: bool = True,
     ):
         self.model = model
         self.positions_per_image = int(positions_per_image)
         self.include_activations = include_activations
         self.max_channels = max_channels
         self.scatter_dtype = scatter_dtype
+        self.pooled = pooled
         # Thresholds are multiples of C, per layer: a 64-channel layer needs far
         # fewer samples than a 2048-channel one, and the honest x-axis for the
         # convergence control is n/C, not n.
@@ -146,26 +156,32 @@ class SpectrumProbe:
                 is_depthwise=extra.get("is_depthwise", False),
                 spatial=(H, W),
                 acc=CovarianceAccumulator(C),
+                acc_pooled=CovarianceAccumulator(C) if self.pooled else None,
             )
             self.layers[key] = rec
             self._order += 1
 
-        x = self._sample_positions(out, N, C, H, W)   # (m, C)
-
         work_dtype = self.scatter_dtype or (
             torch.float64 if out.device.type == "cpu" else torch.float32
         )
-        x = x.to(work_dtype)
+
+        x = self._sample_positions(out, N, C, H, W).to(work_dtype)   # (m, C)
+        self._fold(rec.acc, x)
+        self._maybe_checkpoint(rec)
+
+        if rec.acc_pooled is not None:
+            # (N, C): one sample per image, spatial extent averaged away.
+            self._fold(rec.acc_pooled, out.mean(dim=(2, 3)).to(work_dtype))
+
+    @staticmethod
+    def _fold(acc: CovarianceAccumulator, x: torch.Tensor) -> None:
         block_mean = x.mean(dim=0)
         xc = x - block_mean
-        block_M2 = xc.T @ xc
-
-        rec.acc.update_precomputed(
+        acc.update_precomputed(
             x.shape[0],
             block_mean.double().cpu().numpy(),
-            block_M2.double().cpu().numpy(),
+            (xc.T @ xc).double().cpu().numpy(),
         )
-        self._maybe_checkpoint(rec)
 
     def _maybe_checkpoint(self, rec: LayerRecord) -> None:
         """Record metrics whenever this layer's sample count crosses n = k*C.
@@ -222,6 +238,7 @@ def run_probe(
     max_batches: int | None = None,
     seed: int = 0,
     progress: bool = True,
+    pooled: bool = True,
 ) -> SpectrumProbe:
     """Push batches from `loader` through `model` with a probe attached."""
     model = model.to(device).eval()
@@ -230,6 +247,7 @@ def run_probe(
         positions_per_image=positions_per_image,
         include_activations=include_activations,
         seed=seed,
+        pooled=pooled,
     )
     try:
         for i, batch in enumerate(loader):

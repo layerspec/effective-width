@@ -79,6 +79,24 @@ def measure_one(
         # biased; we mark anything under n/C = 50 as not reportable and let the
         # convergence file settle the rest.
         row["n_over_C_ok"] = bool(rec.acc.n >= args.min_n_over_C * rec.C)
+
+        # The globally-pooled estimator, carried alongside so the paper can test
+        # whether the literature's disagreement is the pooling rather than the
+        # metric.  It is inherently sample-poor -- n is the image count, so a
+        # 2048-channel layer over 50k images only reaches n/C ~ 24 -- which is
+        # itself worth reporting.
+        if rec.acc_pooled is not None and rec.acc_pooled.n >= 2:
+            pm = _metrics.compute(
+                rec.acc_pooled.eigenvalues(), rec.C, rec.acc_pooled.n
+            ).to_row()
+            for k, v in pm.items():
+                if k not in ("C",):
+                    row[f"pooled_{k}"] = v
+            row["pooled_n_over_C"] = rec.acc_pooled.n / rec.C
+            row["pooled_n_over_C_ok"] = bool(
+                rec.acc_pooled.n >= args.min_n_over_C * rec.C
+            )
+
         layer_rows.append(row)
 
         for mult, ck in rec.checkpoints.items():
