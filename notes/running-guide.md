@@ -121,7 +121,7 @@ ssh root@123.45.67.89 -p 40022
 進去之後：
 
 ```bash
-cd /workspace && tar xzf layerspec.tar.gz && cd code
+cd /workspace && tar xzf --no-same-owner layerspec.tar.gz && cd code
 pip install -q -r requirements.txt
 pip install -q huggingface_hub pyarrow pillow
 
@@ -136,7 +136,7 @@ PYTHONPATH=. python tests/test_core.py
 ## 4. 抓資料
 
 ```bash
-huggingface-cli login
+hf auth login
 ```
 
 **先小試 2000 張**，確認整條路通：
@@ -214,7 +214,7 @@ cd ~/Downloads/effective-width-claude/results && tar tzf layerspec_results_*.tar
 | Container disk 開太小 | 抓資料抓到一半爆掉，很難補救 | 開 80 GB |
 | 沒先用 `--limit 2000` 試 | 環境有問題時，浪費幾小時才發現 | 一定先小試 |
 | 用 Stop 而不是 Destroy | 還在收儲存費 | 看清楚按鈕 |
-| token 寫進檔案被 commit | 憑證外洩 | 只用 `huggingface-cli login` |
+| token 寫進檔案被 commit | 憑證外洩 | 只用 `hf auth login` |
 | SSH 斷線導致工作中斷 | 前功盡棄 | 用 `nohup ... &` |
 
 ---

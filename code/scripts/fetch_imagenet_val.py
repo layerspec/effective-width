@@ -20,7 +20,9 @@ Whichever route: the data is under the ImageNet terms of access, which permit
 non-commercial research use only.
 
 Usage:
-    huggingface-cli login          # once, after accepting the gate in a browser
+    hf auth login                  # once, after accepting the gate in a browser
+                                   # (huggingface-cli is deprecated and silently
+                                   #  does nothing, which surfaces later as a 401)
     python scripts/fetch_imagenet_val.py --out /data/imagenet_val
 
 Then:
@@ -63,8 +65,9 @@ def main(argv=None) -> int:
     os.makedirs(args.out, exist_ok=True)
 
     print(f"downloading {args.pattern} from {args.repo}")
-    print("(if this 401s, accept the dataset terms in a browser first, "
-          "then run: huggingface-cli login)")
+    print("(if this 401s: accept the dataset terms in a browser, then run "
+          "`hf auth login` -- note `huggingface-cli login` is deprecated and "
+          "exits without logging in)")
     t0 = time.time()
     local = snapshot_download(
         repo_id=args.repo,
