@@ -230,3 +230,51 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     timm_resnet101.tv_in1k                        0.088       0.580     33/33    
     timm_wide_resnet50_2.tv_in1k                  0.134       0.587     16/16    
     timm_resnext50_32x4d.tv_in1k                  0.190       0.669     16/16    
+
+========================================================================
+6. Is the per-layer profile a property of the architecture, or learned?
+========================================================================
+  The six ResNet-50 recipes agree on the ORDER of layers (section 2).
+  If a random-init network of the same architecture, on the same images,
+  gives the same order, the structure is architecture + input statistics;
+  if not, it is learned.  Spearman between profiles over the same
+  gate-passing dense conv layers, aligned by depth order.
+
+  ResNet-50 (dense conv): 6 trained checkpoints vs 1 random init, 53 layers
+    k_star_ratio_0.95          trained-vs-trained rho: median +0.94 [+0.91, +0.98]   trained-vs-random rho: median +0.55 [+0.53, +0.64]
+                               rho(depth): trained mean +0.30  random -0.51    level: trained median 0.312  random median 0.094
+    k_star_rmax_0.95           trained-vs-trained rho: median +0.85 [+0.79, +0.91]   trained-vs-random rho: median -0.07 [-0.13, +0.10]
+                               rho(depth): trained mean +0.57  random -0.72    level: trained median 0.473  random median 0.172
+    k_star_ratio_0.999         trained-vs-trained rho: median +0.95 [+0.94, +0.98]   trained-vs-random rho: median +0.80 [+0.77, +0.85]
+                               rho(depth): trained mean +0.29  random -0.19    level: trained median 0.867  random median 0.832
+    k_star_rmax_0.999          trained-vs-trained rho: median +0.85 [+0.80, +0.89]   trained-vs-random rho: median +0.25 [+0.14, +0.39]
+                               rho(depth): trained mean +0.64  random -0.23    level: trained median 0.945  random median 0.855
+    participation_ratio_norm   trained-vs-trained rho: median +0.86 [+0.76, +0.96]   trained-vs-random rho: median +0.58 [+0.49, +0.72]
+                               rho(depth): trained mean -0.21  random -0.67    level: trained median 0.081  random median 0.009
+    effective_rank_norm        trained-vs-trained rho: median +0.89 [+0.83, +0.97]   trained-vs-random rho: median +0.56 [+0.44, +0.70]
+                               rho(depth): trained mean +0.06  random -0.62    level: trained median 0.186  random median 0.024
+
+    Within-stage (same nominal C, so no width or r_max sawtooth confound):
+    stage      n    trained-vs-trained    trained-vs-random   (k*(.95)/r_max)
+    layer1    10     +0.98 [+0.95,+1.00]     +0.48 [+0.41,+0.51]
+    layer2    13     +0.91 [+0.81,+0.97]     +0.55 [+0.45,+0.60]
+    layer3    19     +0.86 [+0.77,+0.96]     +0.57 [+0.48,+0.67]
+    layer4    10     +0.50 [+0.33,+0.80]     +0.12 [-0.39,+0.40]
+
+    By conv role inside the bottleneck (conv1 1x1 reduce / conv2 3x3 / conv3 1x1 expand):
+    conv1     16     +0.86 [+0.80,+0.97]     -0.28 [-0.45,-0.09]   level trained 0.383 random 0.166
+    conv2     16     +0.69 [+0.53,+0.86]     +0.00 [-0.19,+0.28]   level trained 0.516 random 0.197
+    conv3     16     +0.70 [+0.60,+0.87]     -0.51 [-0.59,-0.19]   level trained 0.500 random 0.172
+
+  ConvNeXt-T (depthwise 7x7): 2 trained checkpoints vs 1 random init, 18 layers
+    k_star_ratio_0.95          trained-vs-trained rho: median +0.34 [+0.34, +0.34]   trained-vs-random rho: median +0.10 [+0.02, +0.18]
+                               rho(depth): trained mean +0.16  random +0.86    level: trained median 0.689  random median 0.656
+    k_star_ratio_0.999         trained-vs-trained rho: median +0.36 [+0.36, +0.36]   trained-vs-random rho: median +0.31 [+0.17, +0.45]
+                               rho(depth): trained mean +0.45  random +0.80    level: trained median 0.980  random median 0.990
+    participation_ratio_norm   trained-vs-trained rho: median +0.61 [+0.61, +0.61]   trained-vs-random rho: median -0.04 [-0.21, +0.12]
+                               rho(depth): trained mean -0.68  random +0.01    level: trained median 0.213  random median 0.043
+
+  Caveat: one random draw per architecture (init now seeded; more draws
+  are cheap).  A single draw can only show whether the random profile is
+  close to the trained one; how much of the trained-vs-random gap is draw
+  noise needs the extra seeds.
