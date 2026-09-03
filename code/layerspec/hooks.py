@@ -282,8 +282,8 @@ class SpectrumProbe:
         xc = x - block_mean
         acc.update_precomputed(
             x.shape[0],
-            block_mean.double().cpu().numpy(),
-            (xc.T @ xc).double().cpu().numpy(),
+            block_mean.cpu().double().numpy(),
+            (xc.T @ xc).cpu().double().numpy(),
         )
 
     def _maybe_checkpoint(self, rec: LayerRecord) -> None:
