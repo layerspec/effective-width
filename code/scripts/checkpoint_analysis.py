@@ -384,6 +384,95 @@ def section_block(layers: dict) -> None:
               f"{int((kb > kc).sum()):5d}/{len(common):<6d}")
 
 
+# ------------------------------------ section 6: architectural or learned?
+
+def _stage_of(layer: str) -> str:
+    """ResNet stage name ('layer1'..'layer4', 'stem') from a layer name."""
+    head = layer.split(".")[0]
+    return head if head.startswith("layer") else "stem"
+
+
+def _rho(a, b) -> float:
+    return float(spearmanr(a, b).correlation)
+
+
+def section_learned(layers: dict) -> None:
+    hdr("6. Is the per-layer profile a property of the architecture, or learned?")
+    print("  The six ResNet-50 recipes agree on the ORDER of layers (section 2).")
+    print("  If a random-init network of the same architecture, on the same images,")
+    print("  gives the same order, the structure is architecture + input statistics;")
+    print("  if not, it is learned.  Spearman between profiles over the same")
+    print("  gate-passing dense conv layers, aligned by depth order.\n")
+
+    def block(label, names, rand, rows_fn, cols):
+        names = [n for n in names if n in layers]
+        if rand not in layers or len(names) < 2:
+            print(f"  {label}: missing data, skipped")
+            return
+        fr = [rows_fn(layers[n]).reset_index(drop=True) for n in names]
+        rr = rows_fn(layers[rand]).reset_index(drop=True)
+        if len({len(f) for f in fr} | {len(rr)}) != 1:
+            print(f"  {label}: layer counts differ, skipped")
+            return
+        print(f"  {label}: {len(names)} trained checkpoints vs 1 random init, {len(rr)} layers")
+        depth = np.arange(len(rr))
+        for col in cols:
+            if col not in rr.columns:
+                continue
+            T = np.stack([f[col].to_numpy() for f in fr], axis=1)
+            R = rr[col].to_numpy()
+            tt = [_rho(T[:, i], T[:, j]) for i, j in itertools.combinations(range(T.shape[1]), 2)]
+            tr = [_rho(T[:, i], R) for i in range(T.shape[1])]
+            print(f"    {col:26s} trained-vs-trained rho: median {np.median(tt):+.2f} "
+                  f"[{min(tt):+.2f}, {max(tt):+.2f}]   trained-vs-random rho: "
+                  f"median {np.median(tr):+.2f} [{min(tr):+.2f}, {max(tr):+.2f}]")
+            print(f"    {'':26s} rho(depth): trained mean {_rho(depth, T.mean(1)):+.2f}  "
+                  f"random {_rho(depth, R):+.2f}    level: trained median "
+                  f"{np.median(T):.3f}  random median {np.median(R):.3f}")
+        return fr, rr
+
+    out = block("ResNet-50 (dense conv)", RESNET50_RECIPES, "resnet50_random", conv_rows,
+                (K, "k_star_rmax_0.95", K999, "k_star_rmax_0.999",
+                 "participation_ratio_norm", "effective_rank_norm"))
+
+    if out is not None:
+        fr, rr = out
+        print("\n    Within-stage (same nominal C, so no width or r_max sawtooth confound):")
+        print(f"    {'stage':8s} {'n':>3s}  {'trained-vs-trained':>20s}  {'trained-vs-random':>19s}   (k*(.95)/r_max)")
+        stages = rr.layer.map(_stage_of)
+        col = "k_star_rmax_0.95"
+        for st in ["layer1", "layer2", "layer3", "layer4"]:
+            idx = np.where(stages.to_numpy() == st)[0]
+            if len(idx) < 5:
+                continue
+            T = np.stack([f[col].to_numpy()[idx] for f in fr], axis=1)
+            R = rr[col].to_numpy()[idx]
+            tt = [_rho(T[:, i], T[:, j]) for i, j in itertools.combinations(range(T.shape[1]), 2)]
+            tr = [_rho(T[:, i], R) for i in range(T.shape[1])]
+            print(f"    {st:8s} {len(idx):3d}  {np.median(tt):+8.2f} [{min(tt):+.2f},{max(tt):+.2f}]"
+                  f"  {np.median(tr):+8.2f} [{min(tr):+.2f},{max(tr):+.2f}]")
+
+        print("\n    By conv role inside the bottleneck (conv1 1x1 reduce / conv2 3x3 / conv3 1x1 expand):")
+        roles = rr.layer.str.extract(r"\.(conv[123]|downsample)")[0].fillna("other")
+        for role in ["conv1", "conv2", "conv3"]:
+            idx = np.where(roles.to_numpy() == role)[0]
+            T = np.stack([f[col].to_numpy()[idx] for f in fr], axis=1)
+            R = rr[col].to_numpy()[idx]
+            tt = [_rho(T[:, i], T[:, j]) for i, j in itertools.combinations(range(T.shape[1]), 2)]
+            tr = [_rho(T[:, i], R) for i in range(T.shape[1])]
+            print(f"    {role:8s} {len(idx):3d}  {np.median(tt):+8.2f} [{min(tt):+.2f},{max(tt):+.2f}]"
+                  f"  {np.median(tr):+8.2f} [{min(tr):+.2f},{max(tr):+.2f}]"
+                  f"   level trained {np.median(T):.3f} random {np.median(R):.3f}")
+
+    print()
+    block("ConvNeXt-T (depthwise 7x7)", CONVNEXT_CKPTS, "convnext_tiny_random",
+          depthwise_rows, (K, K999, "participation_ratio_norm"))
+    print("\n  Caveat: one random draw per architecture (init now seeded; more draws")
+    print("  are cheap).  A single draw can only show whether the random profile is")
+    print("  close to the trained one; how much of the trained-vs-random gap is draw")
+    print("  noise needs the extra seeds.")
+
+
 # ------------------------------------------------------------------- main
 
 def main(argv=None) -> int:
@@ -401,6 +490,7 @@ def main(argv=None) -> int:
     section_pooling(layers)
     section_random(layers)
     section_block(layers)
+    section_learned(layers)
     return 0
 
 
