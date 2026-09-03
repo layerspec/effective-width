@@ -40,8 +40,10 @@ def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--out", required=True, help="directory to write JPEGs into")
     p.add_argument("--repo", default="ILSVRC/imagenet-1k")
-    p.add_argument("--pattern", default="data/val-*",
-                   help="shard glob; the default is the validation split only")
+    p.add_argument("--pattern", default="data/validation-*",
+                   help="shard glob; the default is the validation split only. "
+                        "Verified 2026-09-03 against the repo: the shards are "
+                        "named data/validation-000NN-of-00014.parquet")
     p.add_argument("--cache", default=None, help="parquet download cache dir")
     p.add_argument("--limit", type=int, default=None,
                    help="stop after this many images (for a trial run)")
@@ -77,7 +79,21 @@ def main(argv=None) -> int:
         shards += [os.path.join(root, f) for f in files if f.endswith(".parquet")]
     shards.sort()
     if not shards:
+        # Naming in these repos does change.  Show what is actually there
+        # rather than making the user guess at the glob.
         print(f"no parquet shards matched {args.pattern!r}", file=sys.stderr)
+        try:
+            from huggingface_hub import list_repo_files
+            available = list_repo_files(args.repo, repo_type="dataset")
+            parquet = [f for f in available if f.endswith(".parquet")]
+            print("\navailable parquet files in the repo (first 10):",
+                  file=sys.stderr)
+            for f in parquet[:10]:
+                print(f"  {f}", file=sys.stderr)
+            print(f"  ... {len(parquet)} total\n"
+                  f"pass a matching glob with --pattern", file=sys.stderr)
+        except Exception as e:
+            print(f"(could not list repo files: {e})", file=sys.stderr)
         return 1
     print(f"  {len(shards)} shards")
 

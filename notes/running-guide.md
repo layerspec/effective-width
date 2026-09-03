@@ -26,6 +26,11 @@ Vast.ai 的競價實例留給第二篇（1,200 GPU-hours，那時價差才有意
 
 ### 1.1 Hugging Face 帳號與 ImageNet 授權
 
+> **已完成（2026-09-03）。** 帳號 askia318，條款已接受，token 已建立並驗證。
+> 驗證結果：repo 有 339 個檔案，驗證集是
+> `data/validation-000NN-of-00014.parquet` 共 14 個 shard。
+> 在 Mac 上重跑驗證：`source ~/hfenv/bin/activate` 之後執行下方指令。
+
 1. 註冊 huggingface.co
 2. 瀏覽器打開 `https://huggingface.co/datasets/ILSVRC/imagenet-1k`
 3. 頁面上會要求同意 ImageNet 使用條款——**點下去就好，是即時的，不需審核**
