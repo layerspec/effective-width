@@ -24,11 +24,45 @@ Caveats to keep in mind when comparing:
   * A tau of 0.999 is loose.  We report several tau, and the comparison against
     their table must use tau = 0.999.
 
+Second purpose: separating two confounded explanations.
+------------------------------------------------------
+
+The ImageNet pass reproduced Garg's first eight layers (r = 0.969, MAD = 0.057)
+and then diverged: their last five collapse to k*/C = 0.07-0.08 while ours stay
+at 0.95-0.97.  The terminal collapse does not happen on ImageNet.  Two
+explanations were confounded in that comparison and neither could be ruled out:
+
+  (a) CLASS COUNT.  Neural collapse (Papyan, Han & Donoho 2020) pins the
+      penultimate representation's effective rank at C_class - 1, which is 9 on
+      CIFAR-10 and 999 on ImageNet.  If that is the mechanism, the collapse
+      should follow the class count.
+
+  (b) HEAD DEPTH.  Garg's CIFAR adaptation replaces the ImageNet head with a
+      single linear layer, which makes features.40 the penultimate layer.  The
+      ImageNet VGG has 4096-4096-1000 after it, so features.40 is three layers
+      from the output and neural collapse has somewhere else to happen.  If
+      that is the mechanism, the collapse should follow the head, not the
+      class count.
+
+The two vary together between the published CIFAR result and our ImageNet one,
+so this script runs the 2x2 that separates them: {CIFAR-10, CIFAR-100} x
+{small head, deep head}.  Read the result off the interaction --- if k*/C at
+features.40 tracks --dataset, (a); if it tracks --head, (b); if both matter,
+say so.
+
 Usage:
+    # the validation gate on its own
     python scripts/reproduce_garg.py --epochs 100 --out results_garg/
 
-Cost: about one GPU-hour on a 3090 for the training, then seconds for the
-measurement.  Run this before the ImageNet pass, on the same rented box.
+    # the full 2x2 (about four GPU-hours)
+    for d in cifar10 cifar100; do for h in small deep; do
+      python scripts/reproduce_garg.py --dataset $d --head $h \
+             --epochs 100 --out results_garg/
+    done; done
+
+Cost: about one GPU-hour on a 3090 per cell, then seconds for the measurement.
+Only the (cifar10, small) cell is comparable with Garg's table; the other three
+are the contrast.
 """
 
 from __future__ import annotations
@@ -56,21 +90,48 @@ GARG_TABLE2 = {
 }
 
 
-def build_vgg16_bn_cifar(num_classes: int = 10) -> nn.Module:
-    """VGG-16 with BN, adapted to 32x32 in the standard way (single-unit
-    classifier head instead of the 7x7x512 -> 4096 ImageNet head)."""
+def build_vgg16_bn_cifar(num_classes: int = 10, head: str = "small") -> nn.Module:
+    """VGG-16 with BN adapted to 32x32.
+
+    `head="small"` is the standard CIFAR adaptation and the one Garg et al.
+    used: a single linear layer, which makes features.40 the penultimate
+    representation.  `head="deep"` keeps the ImageNet head's shape
+    (4096-4096-num_classes) so that features.40 sits three layers from the
+    output, as it does in the ImageNet model.  The convolutional trunk is
+    identical in both, which is the point: any difference in the trunk's
+    profile is attributable to the head.
+    """
     import torchvision.models as tvm
 
     model = tvm.vgg16_bn(weights=None, num_classes=num_classes)
-    model.avgpool = nn.AdaptiveAvgPool2d(1)
-    model.classifier = nn.Linear(512, num_classes)
+    if head == "small":
+        model.avgpool = nn.AdaptiveAvgPool2d(1)
+        model.classifier = nn.Linear(512, num_classes)
+    elif head == "deep":
+        # 2x2 rather than 7x7: at 32x32 input the trunk's output is 1x1, so a
+        # 7x7 pool would be mostly padding.  4096 units either way.
+        model.avgpool = nn.AdaptiveAvgPool2d(2)
+        model.classifier = nn.Sequential(
+            nn.Linear(512 * 2 * 2, 4096), nn.ReLU(True), nn.Dropout(0.5),
+            nn.Linear(4096, 4096), nn.ReLU(True), nn.Dropout(0.5),
+            nn.Linear(4096, num_classes),
+        )
+    else:
+        raise ValueError(f"unknown head {head!r}: expected 'small' or 'deep'")
     return model
 
 
-def cifar_loaders(root: str, batch_size: int, workers: int):
+CIFAR_STATS = {
+    "cifar10": ((0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616), 10),
+    "cifar100": ((0.5071, 0.4865, 0.4409), (0.2673, 0.2564, 0.2762), 100),
+}
+
+
+def cifar_loaders(root: str, batch_size: int, workers: int,
+                  dataset: str = "cifar10"):
     from torchvision import datasets, transforms
 
-    mean, std = (0.4914, 0.4822, 0.4465), (0.2470, 0.2435, 0.2616)
+    mean, std, _ = CIFAR_STATS[dataset]
     train_tf = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
@@ -81,8 +142,9 @@ def cifar_loaders(root: str, batch_size: int, workers: int):
         transforms.ToTensor(),
         transforms.Normalize(mean, std),
     ])
-    tr = datasets.CIFAR10(root, train=True, download=True, transform=train_tf)
-    te = datasets.CIFAR10(root, train=False, download=True, transform=test_tf)
+    cls = datasets.CIFAR10 if dataset == "cifar10" else datasets.CIFAR100
+    tr = cls(root, train=True, download=True, transform=train_tf)
+    te = cls(root, train=False, download=True, transform=test_tf)
     return (
         DataLoader(tr, batch_size=batch_size, shuffle=True,
                    num_workers=workers, pin_memory=True, drop_last=True),
@@ -141,21 +203,32 @@ def main(argv=None) -> int:
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--checkpoint", default=None,
                    help="skip training and load this state_dict instead")
+    p.add_argument("--dataset", default="cifar10",
+                   choices=sorted(CIFAR_STATS),
+                   help="varies the class count: 10 or 100")
+    p.add_argument("--head", default="small", choices=("small", "deep"),
+                   help="'small' is Garg's single-linear CIFAR head, which "
+                        "makes features.40 penultimate; 'deep' keeps the "
+                        "ImageNet 4096-4096-K head, which does not")
     args = p.parse_args(argv)
 
+    n_classes = CIFAR_STATS[args.dataset][2]
+    tag = f"{args.dataset}_{args.head}"
     os.makedirs(args.out, exist_ok=True)
     train_loader, test_loader = cifar_loaders(
-        args.data_root, args.batch_size, args.workers)
+        args.data_root, args.batch_size, args.workers, args.dataset)
 
-    model = build_vgg16_bn_cifar()
+    model = build_vgg16_bn_cifar(n_classes, args.head)
     if args.checkpoint:
         model.load_state_dict(torch.load(args.checkpoint, map_location="cpu"))
         model = model.to(args.device)
         print(f"loaded {args.checkpoint}")
     else:
-        print(f"training VGG-16_BN on CIFAR-10 for {args.epochs} epochs")
+        print(f"training VGG-16_BN [{tag}, {n_classes} classes] "
+              f"for {args.epochs} epochs")
         model = train(model, train_loader, test_loader, args.epochs, args.device)
-        torch.save(model.state_dict(), os.path.join(args.out, "vgg16_bn_cifar10.pt"))
+        torch.save(model.state_dict(),
+                   os.path.join(args.out, f"vgg16_bn_{tag}.pt"))
 
     acc = evaluate(model, test_loader, args.device)
     print(f"final test accuracy: {acc:.2f}%")
@@ -178,10 +251,40 @@ def main(argv=None) -> int:
         rows.append(row)
 
     df = pd.DataFrame(rows)
-    df.to_csv(os.path.join(args.out, "vgg16_cifar10_layers.csv"), index=False)
+    df["dataset"] = args.dataset
+    df["head"] = args.head
+    df["n_classes"] = n_classes
+    df["test_acc"] = acc
+    df.to_csv(os.path.join(args.out, f"vgg16_{tag}_layers.csv"), index=False)
+
+    # ---- the cell's own contribution to the 2x2 ----------------------------
+    # features.40 is the last conv layer.  Under the small head it is the
+    # penultimate representation and neural collapse predicts an effective rank
+    # near n_classes - 1; under the deep head it is not, and should not
+    # collapse.  Printing it per cell means the 2x2 can be read off four log
+    # tails without re-loading anything.
+    conv = df[df["kind"] == "conv"].sort_values("depth_index")
+    if not conv.empty:
+        last = conv.iloc[-1]
+        print(f"\n=== 2x2 cell [{tag}] ===")
+        print(f"  test accuracy            {acc:.2f}%")
+        print(f"  last conv layer          {last['layer']} (C={int(last['C'])})")
+        print(f"  k*(0.999)                {int(last['k_star_0.999'])}"
+              f"   ratio {last['k_star_ratio_0.999']:.3f}")
+        print(f"  k*(0.95)                 {int(last['k_star_0.95'])}"
+              f"   ratio {last['k_star_ratio_0.95']:.3f}")
+        print(f"  effective rank           {last['effective_rank']:.1f}"
+              f"   (neural collapse would predict ~{n_classes - 1})")
+        print(f"  n/C                      {last['n_over_C']:.0f}"
+              f"   {'OK' if last['n_over_C'] >= 50 else 'BELOW GATE -- do not report'}")
+
+    if args.dataset != "cifar10" or args.head != "small":
+        print("\nThis cell is a contrast, not the validation gate; "
+              "Garg's table applies only to [cifar10_small].")
+        return 0
 
     # ---- comparison against the published table ----------------------------
-    ours = df[df["kind"] == "conv"].sort_values("depth_index")
+    ours = conv
     n = min(len(ours), len(GARG_TABLE2["k_star"]))
     theirs_k = np.array(GARG_TABLE2["k_star"][:n])
     theirs_C = np.array(GARG_TABLE2["C"][:n])
