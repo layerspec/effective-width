@@ -45,6 +45,46 @@ class SyntheticImages(Dataset):
         return img, 0
 
 
+IMAGE_SUFFIXES = {".jpeg", ".jpg", ".png", ".bmp", ".webp", ".ppm", ".tif", ".tiff"}
+
+
+class FlatImageFolder(Dataset):
+    """Every image under `root`, recursively, in sorted order. Labels are not read.
+
+    Sorted order matters for reproducibility: the subset drawn under `--limit`
+    must be the same set on every machine and every run.
+    """
+
+    def __init__(self, root: str, transform=None):
+        import pathlib
+
+        self.root = pathlib.Path(root).expanduser()
+        if not self.root.is_dir():
+            raise NotADirectoryError(f"{self.root} is not a directory")
+        self.paths = sorted(
+            p for p in self.root.rglob("*")
+            if p.suffix.lower() in IMAGE_SUFFIXES and p.is_file()
+        )
+        if not self.paths:
+            raise FileNotFoundError(
+                f"no images under {self.root} "
+                f"(looked for {sorted(IMAGE_SUFFIXES)}, recursively)"
+            )
+        self.transform = transform
+
+    def __len__(self) -> int:
+        return len(self.paths)
+
+    def __getitem__(self, i: int):
+        from PIL import Image
+
+        # ImageNet's validation set contains a handful of CMYK and greyscale
+        # JPEGs; convert unconditionally rather than discovering them at
+        # batch 700 of a paid run.
+        img = Image.open(self.paths[i]).convert("RGB")
+        return (self.transform(img) if self.transform else img), 0
+
+
 def build_loader(
     data: str | None,
     batch_size: int = 64,
@@ -61,7 +101,7 @@ def build_loader(
             "synthetic",
         )
 
-    from torchvision import datasets, transforms
+    from torchvision import transforms
 
     tf = transforms.Compose(
         [
@@ -71,7 +111,12 @@ def build_loader(
             transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
         ]
     )
-    ds = datasets.ImageFolder(data, transform=tf)
+    # We never use labels -- every quantity here is computed from activation
+    # covariances -- so there is no reason to demand the root/<class>/<image>
+    # layout that ImageFolder wants.  A recursive scan accepts both that layout
+    # and a flat directory, which means the ImageNet validation tar can be used
+    # exactly as it unpacks, with no devkit and no valprep step.
+    ds = FlatImageFolder(data, transform=tf)
     if limit is not None and limit < len(ds):
         # Deterministic subset, spread across classes rather than the first N
         # files (which would be a handful of classes and would bias every

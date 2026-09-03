@@ -16,9 +16,19 @@
 
 ### 下一步
 
-1. 到 image-net.org 註冊、下載驗證集（6.7 GB）——**直接下到租來的 GPU 機器上，不要放進這個資料夾**
+1. 取得 ImageNet 驗證集（5 萬張，約 6.3 GB）——**直接下到租來的 GPU 機器上，不要放進這個資料夾**。
+   三條路，推薦第二條：
+   - **image-net.org**：註冊、同意條款、下載 `ILSVRC2012_img_val.tar`，解壓即可。
+     開通要人工審核，要等。
+   - **Hugging Face `ILSVRC/imagenet-1k`**（推薦）：閘門是即時點擊同意、不需審核，
+     而且驗證集是獨立的 parquet shards，不必碰 150 GB 的訓練集。
+     瀏覽器同意條款 → `huggingface-cli login` → `python code/scripts/fetch_imagenet_val.py --out /data/imagenet_val`
+   - **Academic Torrents**：同一份資料、同樣的使用條款、不需帳號。
 2. 租一台 RTX 3090 等級的機器（純推論，約 NT$300–500）
-3. `bash code/scripts/run_on_rented_gpu.sh /path/to/imagenet/val`
+3. `bash code/scripts/run_on_rented_gpu.sh /data/imagenet_val`
+
+**不需要 devkit，也不需要 valprep 重整目錄。** 管線只算激活共變異數、從不讀標籤，
+所以接受扁平目錄，驗證集 tar 解開後直接指過去就行。
 
 ---
 
