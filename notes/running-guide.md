@@ -123,7 +123,6 @@ ssh root@123.45.67.89 -p 40022
 ```bash
 cd /workspace && tar xzf --no-same-owner layerspec.tar.gz && cd code
 pip install -q -r requirements.txt
-pip install -q huggingface_hub pyarrow pillow
 
 nvidia-smi
 PYTHONPATH=. python tests/test_core.py
