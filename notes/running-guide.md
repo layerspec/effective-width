@@ -5,6 +5,11 @@
 
 ---
 
+> **貼指令前先做這件事。** macOS 的 zsh 預設不把 `#` 當註解，整行貼上時
+> 註解文字會被當成參數傳給指令（典型症狀：`Too many arguments`）。
+> 執行一次 `echo 'setopt interactive_comments' >> ~/.zshrc`，開新視窗後即可。
+> 本文件的指令區塊已經拿掉行內註解，說明都寫在區塊外。
+
 ## 0. 先理解你在租什麼
 
 租來的是**一台別人機器上的 Linux 容器，附一張 GPU**。三件事要記住：
@@ -49,9 +54,16 @@ ls ~/.ssh/id_ed25519.pub
 沒有的話建一把：
 
 ```bash
-ssh-keygen -t ed25519 -C "runpod"      # 一路按 Enter 即可
-cat ~/.ssh/id_ed25519.pub              # 複製這一整行，等下要貼
+ssh-keygen -t ed25519 -C runpod
 ```
+
+三個提示都直接按 Enter（預設路徑、不設 passphrase）。然後印出公鑰：
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+輸出的那一整行 `ssh-ed25519 AAAA... runpod` 就是等下要貼到 RunPod 的內容。
 
 ### 1.3 把程式碼打包好
 
@@ -97,7 +109,6 @@ CIFAR-10 ＋ 結果檔，再加上映像檔本身。**80 GB 是安全值，不�
 在你自己的 Mac 上：
 
 ```bash
-# 用面板給你的 IP 和 port，注意 scp 的 -P 是大寫
 scp -P 40022 /tmp/layerspec.tar.gz root@123.45.67.89:/workspace/
 ```
 
@@ -114,8 +125,8 @@ cd /workspace && tar xzf layerspec.tar.gz && cd code
 pip install -q -r requirements.txt
 pip install -q huggingface_hub pyarrow pillow
 
-nvidia-smi                      # 確認 GPU 在
-PYTHONPATH=. python tests/test_core.py    # 應該 7/7 passed
+nvidia-smi
+PYTHONPATH=. python tests/test_core.py
 ```
 
 **7/7 沒過就先停下來**，環境有問題，繼續跑只是浪費錢。
@@ -125,7 +136,7 @@ PYTHONPATH=. python tests/test_core.py    # 應該 7/7 passed
 ## 4. 抓資料
 
 ```bash
-huggingface-cli login           # 貼上 1.1 那個 token
+huggingface-cli login
 ```
 
 **先小試 2000 張**，確認整條路通：
@@ -153,7 +164,7 @@ python scripts/fetch_imagenet_val.py --out /workspace/imagenet_val
 ```bash
 cd /workspace/code
 nohup bash scripts/run_on_rented_gpu.sh /workspace/imagenet_val > run.log 2>&1 &
-tail -f run.log                 # Ctrl-C 只是停止看 log，不會停止工作
+tail -f run.log
 ```
 
 會依序跑：
