@@ -530,14 +530,24 @@ def section_seeds(results: str, layers: dict) -> None:
 
 # ------------------------- section 8: the same question, other architectures
 
+# family: (glob for trained files, glob for random files); the ResNet-50 set
+# lives one directory up (section 7) and is included so all families are in
+# one table.
 ARCH_FAMILIES = {
-    # family: (trained stems prefix match, random stem)
-    "resnet18":  ("timm_resnet18.",  "timm_resnet18.tv_in1k_random"),
-    "resnet34":  ("timm_resnet34.",  "timm_resnet34.tv_in1k_random"),
-    "vgg16":     ("timm_vgg16",      "timm_vgg16_bn.tv_in1k_random"),
-    "densenet121": ("timm_densenet121.", "timm_densenet121.tv_in1k_random"),
-    "mobilenetv3": ("timm_mobilenetv3_large_100.", "timm_mobilenetv3_large_100.ra_in1k_random"),
-    "efficientnet_b0": ("timm_efficientnet_b0.", "timm_efficientnet_b0.ra_in1k_random"),
+    "resnet50":        ("local6400/trained/*resnet50*_layers.csv",
+                        "local6400/seed*/resnet50_random_layers.csv"),
+    "resnet18":        ("local6400/archs/trained/timm_resnet18.*_layers.csv",
+                        "local6400/archs/seed*/timm_resnet18.tv_in1k_random_layers.csv"),
+    "resnet34":        ("local6400/archs/trained/timm_resnet34.*_layers.csv",
+                        "local6400/archs/seed*/timm_resnet34.tv_in1k_random_layers.csv"),
+    "vgg16":           ("local6400/archs/trained/timm_vgg16*_layers.csv",
+                        "local6400/archs/seed*/timm_vgg16_bn.tv_in1k_random_layers.csv"),
+    "densenet121":     ("local6400/archs/trained/timm_densenet121.*_layers.csv",
+                        "local6400/archs/seed*/timm_densenet121.tv_in1k_random_layers.csv"),
+    "mobilenetv3":     ("local6400/archs/trained/timm_mobilenetv3_large_100.*_layers.csv",
+                        "local6400/archs/seed*/timm_mobilenetv3_large_100.ra_in1k_random_layers.csv"),
+    "efficientnet_b0": ("local6400/archs/trained/timm_efficientnet_b0.*_layers.csv",
+                        "local6400/archs/seed*/timm_efficientnet_b0.ra_in1k_random_layers.csv"),
 }
 
 
@@ -547,47 +557,86 @@ def _load_local(path: str) -> pd.DataFrame:
     return d.sort_values("depth_index").reset_index(drop=True)
 
 
+def conv_role(family: str, layer: str, is_dw: bool) -> str:
+    """'1x1', '3x3', 'dw' or 'stem', from the layer name.  Kernel sizes are
+    not stored in the CSV, so this is by naming convention per family;
+    it was checked against the architectures on 2026-09-04."""
+    if is_dw:
+        return "dw"
+    if family == "resnet50":
+        if layer in ("conv1",):
+            return "stem"
+        return "3x3" if layer.endswith(".conv2") else "1x1"     # conv1, conv3, downsample
+    if family in ("resnet18", "resnet34"):
+        if layer == "conv1":
+            return "stem"
+        return "1x1" if "downsample" in layer else "3x3"
+    if family == "vgg16":
+        return "stem" if layer == "features.0" else "3x3"
+    if family == "densenet121":
+        if layer == "features.conv0":
+            return "stem"
+        return "3x3" if layer.endswith(".conv2") else "1x1"     # denselayer conv1, transition conv
+    if family in ("mobilenetv3", "efficientnet_b0"):
+        if layer == "conv_stem":
+            return "stem"
+        return "1x1"                                              # conv_pw, conv_pwl, conv_head
+    return "other"
+
+
+def _three_rhos(Tm, Rm):
+    tt = [_rho(Tm[:, i], Tm[:, j]) for i, j in itertools.combinations(range(Tm.shape[1]), 2)]
+    rr = [_rho(Rm[:, i], Rm[:, j]) for i, j in itertools.combinations(range(Rm.shape[1]), 2)]
+    tr = [_rho(Tm[:, i], Rm[:, j]) for i in range(Tm.shape[1]) for j in range(Rm.shape[1])]
+    fmt = lambda v: f"{np.median(v):+.2f} [{min(v):+.2f},{max(v):+.2f}]" if v else "     n/a       "
+    return fmt(rr), fmt(tt), fmt(tr)
+
+
 def section_archs(results: str) -> None:
-    base = os.path.join(results, "local6400", "archs")
-    if not os.path.isdir(base):
+    if not os.path.isdir(os.path.join(results, "local6400", "archs")):
         return
-    hdr("8. Architectural or learned, per family (same 6,400 images, Mac run)")
-    print("  Same three numbers as section 7 for each family: random-vs-random,")
-    print("  trained-vs-trained, trained-vs-random Spearman on k*(0.95)/r_max,")
-    print("  dense conv layers; depthwise layers reported separately where present.\n")
-    print(f"    {'family':16s} {'grp':5s} {'L':>3s} {'nT':>2s} {'nR':>2s}  {'R-vs-R':>14s}  "
-          f"{'T-vs-T':>14s}  {'T-vs-R':>14s}  {'rho(depth) T / R':>17s}  {'level T / R':>12s}")
-    for fam, (prefix, rstem) in ARCH_FAMILIES.items():
-        seed_files = sorted(glob.glob(os.path.join(base, "seed*", f"{rstem}_layers.csv")))
-        tr_files = sorted(f for f in glob.glob(os.path.join(base, "trained", "*_layers.csv"))
-                          if os.path.basename(f).startswith(prefix))
-        if not seed_files or not tr_files:
+    hdr("8. Architectural or learned, per family and per conv role (same 6,400 images)")
+    print("  Spearman between k*(0.95)/r_max profiles: random-vs-random (R-R, the")
+    print("  ceiling), trained-vs-trained (T-T, recipe stability), trained-vs-random")
+    print("  (T-R).  'all' = every dense conv layer; then split by role, because the")
+    print("  hypothesis from ResNet-50 (section 6) is that training reorganises the")
+    print("  1x1 channel-mixing layers and leaves the 3x3 layers' order alone.\n")
+    col = "k_star_rmax_0.95"
+    print(f"    {'family':16s} {'role':5s} {'L':>3s} {'nT':>2s} {'nR':>2s}  {'R-R':^19s}  "
+          f"{'T-T':^19s}  {'T-R':^19s}  {'level T/R':>11s}  {'T-R diff':>8s}  T level per ckpt")
+    for fam, (tglob, rglob) in ARCH_FAMILIES.items():
+        tr_files = sorted(f for f in glob.glob(os.path.join(results, tglob))
+                          if "_random_" not in os.path.basename(f))
+        seed_files = sorted(glob.glob(os.path.join(results, rglob)))
+        if not tr_files or not seed_files:
             print(f"    {fam:16s} missing ({len(tr_files)} trained, {len(seed_files)} random)")
             continue
-        for grp, rows_fn in (("dense", conv_rows), ("dw", depthwise_rows)):
-            R = [rows_fn(_load_local(f)) for f in seed_files]
-            T = [rows_fn(_load_local(f)) for f in tr_files]
-            if len(R[0]) < 5:
+        T = [_load_local(f) for f in tr_files]
+        R = [_load_local(f) for f in seed_files]
+        T = [x[(x.kind == "conv") & x.n_over_C_ok].reset_index(drop=True) for x in T]
+        R = [x[(x.kind == "conv") & x.n_over_C_ok].reset_index(drop=True) for x in R]
+        if len({len(x) for x in T + R}) != 1:
+            print(f"    {fam:16s} layer counts differ, skipped")
+            continue
+        base = R[0]
+        is_dw = base.is_depthwise.astype(bool).to_numpy() if "is_depthwise" in base else np.zeros(len(base), bool)
+        roles = np.array([conv_role(fam, l, d) for l, d in zip(base.layer, is_dw)])
+        Tall = np.stack([x[col].to_numpy() for x in T], 1)
+        Rall = np.stack([x[col].to_numpy() for x in R], 1)
+        for role in ("all", "3x3", "1x1", "dw"):
+            idx = np.where(roles != "dw")[0] if role == "all" else np.where(roles == role)[0]
+            if len(idx) < 5:
                 continue
-            if len({len(x) for x in R + T}) != 1:
-                print(f"    {fam:16s} {grp:5s} layer counts differ "
-                      f"{[len(x) for x in T]} vs {[len(x) for x in R]}, skipped")
-                continue
-            col = "k_star_rmax_0.95"
-            Rm = np.stack([x[col].to_numpy() for x in R], 1)
-            Tm = np.stack([x[col].to_numpy() for x in T], 1)
-            rr = [_rho(Rm[:, i], Rm[:, j]) for i, j in itertools.combinations(range(Rm.shape[1]), 2)]
-            tt = [_rho(Tm[:, i], Tm[:, j]) for i, j in itertools.combinations(range(Tm.shape[1]), 2)]
-            tr = [_rho(Tm[:, i], Rm[:, j]) for i in range(Tm.shape[1]) for j in range(Rm.shape[1])]
-            depth = np.arange(Rm.shape[0])
-            fmt = lambda v: f"{np.median(v):+.2f} [{min(v):+.2f},{max(v):+.2f}]" if v else "   n/a"
-            print(f"    {fam:16s} {grp:5s} {Rm.shape[0]:3d} {Tm.shape[1]:2d} {Rm.shape[1]:2d}  "
-                  f"{fmt(rr):>14s}  {fmt(tt):>14s}  {fmt(tr):>14s}  "
-                  f"{_rho(depth, Tm.mean(1)):+6.2f} / {_rho(depth, Rm.mean(1)):+.2f}     "
-                  f"{np.median(Tm):.3f} / {np.median(Rm):.3f}")
-    print("\n  Reading: 'learned' means T-vs-R well below both R-vs-R and T-vs-T.")
-    print("  VGG-16 has only two ImageNet checkpoints (with and without BN), so its")
-    print("  T-vs-T is one number and is a comparison across two architectures.")
+            Tm, Rm = Tall[idx], Rall[idx]
+            rr, tt, tr = _three_rhos(Tm, Rm)
+            print(f"    {fam:16s} {role:5s} {len(idx):3d} {Tm.shape[1]:2d} {Rm.shape[1]:2d}  {rr}  {tt}  {tr}  "
+                  f"{np.median(Tm):5.3f}/{np.median(Rm):5.3f}  {np.mean(Tm.mean(1) - Rm.mean(1)):+8.3f}  "
+                  + " ".join(f"{v:.2f}" for v in Tm.mean(0)))
+    print("\n  Reading: 'learned order' = T-R well below both R-R and T-T.  A family")
+    print("  whose T-T is near zero has no recipe-independent trained profile at all;")
+    print("  look at its per-checkpoint levels before saying anything about it.")
+    print("  VGG-16's two checkpoints are with and without BN, so its T-T compares")
+    print("  two architectures.")
 
 
 # ----------------------------------------- section 9: training trajectory
@@ -598,7 +647,10 @@ def section_trajectory(results: str) -> None:
         return
     hdr("9. When does the profile become the trained one?  VGG-16_BN on CIFAR-10")
     d = pd.read_csv(path)
-    d = d[(d.kind == "conv") & d.n_over_C_ok.astype(bool)]
+    # trajectory_cifar.py writes the raw metric rows; derive the gate and the
+    # r_max-normalised statistic here exactly as run.py does.
+    d = d[(d.kind == "conv") & (d.n_over_C >= 50)].copy()
+    d["k_star_rmax_0.95"] = d["k_star_0.95"] / d["r_max"]
     epochs = sorted(d.epoch.unique())
     col = "k_star_rmax_0.95"
     P = {e: d[d.epoch == e].sort_values("depth_index")[col].to_numpy() for e in epochs}
