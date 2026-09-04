@@ -528,6 +528,97 @@ def section_seeds(results: str, layers: dict) -> None:
                           f"max|diff| {np.abs(a - b).max():.3f}")
 
 
+# ------------------------- section 8: the same question, other architectures
+
+ARCH_FAMILIES = {
+    # family: (trained stems prefix match, random stem)
+    "resnet18":  ("timm_resnet18.",  "timm_resnet18.tv_in1k_random"),
+    "resnet34":  ("timm_resnet34.",  "timm_resnet34.tv_in1k_random"),
+    "vgg16":     ("timm_vgg16",      "timm_vgg16_bn.tv_in1k_random"),
+    "densenet121": ("timm_densenet121.", "timm_densenet121.tv_in1k_random"),
+    "mobilenetv3": ("timm_mobilenetv3_large_100.", "timm_mobilenetv3_large_100.ra_in1k_random"),
+    "efficientnet_b0": ("timm_efficientnet_b0.", "timm_efficientnet_b0.ra_in1k_random"),
+}
+
+
+def _load_local(path: str) -> pd.DataFrame:
+    d = pd.read_csv(path)
+    d["n_over_C_ok"] = d["n_over_C_ok"].astype(bool)
+    return d.sort_values("depth_index").reset_index(drop=True)
+
+
+def section_archs(results: str) -> None:
+    base = os.path.join(results, "local6400", "archs")
+    if not os.path.isdir(base):
+        return
+    hdr("8. Architectural or learned, per family (same 6,400 images, Mac run)")
+    print("  Same three numbers as section 7 for each family: random-vs-random,")
+    print("  trained-vs-trained, trained-vs-random Spearman on k*(0.95)/r_max,")
+    print("  dense conv layers; depthwise layers reported separately where present.\n")
+    print(f"    {'family':16s} {'grp':5s} {'L':>3s} {'nT':>2s} {'nR':>2s}  {'R-vs-R':>14s}  "
+          f"{'T-vs-T':>14s}  {'T-vs-R':>14s}  {'rho(depth) T / R':>17s}  {'level T / R':>12s}")
+    for fam, (prefix, rstem) in ARCH_FAMILIES.items():
+        seed_files = sorted(glob.glob(os.path.join(base, "seed*", f"{rstem}_layers.csv")))
+        tr_files = sorted(f for f in glob.glob(os.path.join(base, "trained", "*_layers.csv"))
+                          if os.path.basename(f).startswith(prefix))
+        if not seed_files or not tr_files:
+            print(f"    {fam:16s} missing ({len(tr_files)} trained, {len(seed_files)} random)")
+            continue
+        for grp, rows_fn in (("dense", conv_rows), ("dw", depthwise_rows)):
+            R = [rows_fn(_load_local(f)) for f in seed_files]
+            T = [rows_fn(_load_local(f)) for f in tr_files]
+            if len(R[0]) < 5:
+                continue
+            if len({len(x) for x in R + T}) != 1:
+                print(f"    {fam:16s} {grp:5s} layer counts differ "
+                      f"{[len(x) for x in T]} vs {[len(x) for x in R]}, skipped")
+                continue
+            col = "k_star_rmax_0.95"
+            Rm = np.stack([x[col].to_numpy() for x in R], 1)
+            Tm = np.stack([x[col].to_numpy() for x in T], 1)
+            rr = [_rho(Rm[:, i], Rm[:, j]) for i, j in itertools.combinations(range(Rm.shape[1]), 2)]
+            tt = [_rho(Tm[:, i], Tm[:, j]) for i, j in itertools.combinations(range(Tm.shape[1]), 2)]
+            tr = [_rho(Tm[:, i], Rm[:, j]) for i in range(Tm.shape[1]) for j in range(Rm.shape[1])]
+            depth = np.arange(Rm.shape[0])
+            fmt = lambda v: f"{np.median(v):+.2f} [{min(v):+.2f},{max(v):+.2f}]" if v else "   n/a"
+            print(f"    {fam:16s} {grp:5s} {Rm.shape[0]:3d} {Tm.shape[1]:2d} {Rm.shape[1]:2d}  "
+                  f"{fmt(rr):>14s}  {fmt(tt):>14s}  {fmt(tr):>14s}  "
+                  f"{_rho(depth, Tm.mean(1)):+6.2f} / {_rho(depth, Rm.mean(1)):+.2f}     "
+                  f"{np.median(Tm):.3f} / {np.median(Rm):.3f}")
+    print("\n  Reading: 'learned' means T-vs-R well below both R-vs-R and T-vs-T.")
+    print("  VGG-16 has only two ImageNet checkpoints (with and without BN), so its")
+    print("  T-vs-T is one number and is a comparison across two architectures.")
+
+
+# ----------------------------------------- section 9: training trajectory
+
+def section_trajectory(results: str) -> None:
+    path = os.path.join(results, "trajectory", "trajectory_layers.csv")
+    if not os.path.exists(path):
+        return
+    hdr("9. When does the profile become the trained one?  VGG-16_BN on CIFAR-10")
+    d = pd.read_csv(path)
+    d = d[(d.kind == "conv") & d.n_over_C_ok.astype(bool)]
+    epochs = sorted(d.epoch.unique())
+    col = "k_star_rmax_0.95"
+    P = {e: d[d.epoch == e].sort_values("depth_index")[col].to_numpy() for e in epochs}
+    acc = {e: float(d[d.epoch == e].test_acc.iloc[0]) for e in epochs}
+    L = len(P[epochs[0]])
+    depth = np.arange(L)
+    final = P[epochs[-1]]
+    print(f"  {L} conv layers, statistic {col}\n")
+    print(f"    {'epoch':>5s} {'acc%':>6s}  {'level':>6s}  {'rho(depth)':>10s}  "
+          f"{'rho vs init':>11s}  {'rho vs final':>12s}  {'MAD vs final':>12s}")
+    for e in epochs:
+        v = P[e]
+        print(f"    {e:5d} {acc[e]:6.2f}  {np.median(v):6.3f}  {_rho(depth, v):+10.2f}  "
+              f"{_rho(P[epochs[0]], v):+11.2f}  {_rho(final, v):+12.2f}  "
+              f"{np.abs(v - final).mean():12.3f}")
+    print("\n  Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates")
+    print("  is when the learned profile is in place; compare it with the accuracy")
+    print("  column to see whether it precedes or follows the fit.")
+
+
 # ------------------------------------------------------------------- main
 
 def main(argv=None) -> int:
@@ -547,6 +638,8 @@ def main(argv=None) -> int:
     section_block(layers)
     section_learned(layers)
     section_seeds(a.results, layers)
+    section_archs(a.results)
+    section_trajectory(a.results)
     return 0
 
 
