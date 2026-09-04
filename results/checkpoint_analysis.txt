@@ -278,3 +278,25 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   are cheap).  A single draw can only show whether the random profile is
   close to the trained one; how much of the trained-vs-random gap is draw
   noise needs the extra seeds.
+
+========================================================================
+7. How much of the trained-vs-random gap is draw noise?  (same 6,400 images)
+========================================================================
+  random draws: ['seed1', 'seed2', 'seed3', 'seed4', 'seed5']   layers: 53
+  random-vs-random rho (k_star_rmax_0.95): median +0.94 [+0.87, +0.99]   per-layer SD across draws: median 0.043   level median 0.230
+  rho(depth) per draw: -0.67  -0.71  -0.53  -0.69  -0.81
+
+  trained on the same subset: ['resnet50', 'timm_resnet50.a1_in1k', 'timm_resnet50.a3_in1k', 'timm_resnet50.fb_ssl_yfcc100m_ft_in1k', 'timm_resnet50.gluon_in1k', 'timm_resnet50.tv2_in1k']
+  trained-vs-trained rho: median +0.84 [+0.80, +0.92]
+  trained-vs-random  rho: median -0.08 [-0.31, +0.33]   (30 pairs)
+  rho(depth) trained mean +0.56   random mean -0.70
+  level: trained median 0.470   random median 0.230
+
+  Reading: the random-vs-random rho is the ceiling a random draw could
+  reach; if trained-vs-random is far below it, the gap is not draw noise.
+  resnet50                                 6,400 vs 50,000 images: rho +1.000  max|diff| 0.004
+  timm_resnet50.a1_in1k                    6,400 vs 50,000 images: rho +0.999  max|diff| 0.016
+  timm_resnet50.a3_in1k                    6,400 vs 50,000 images: rho +0.999  max|diff| 0.008
+  timm_resnet50.fb_ssl_yfcc100m_ft_in1k    6,400 vs 50,000 images: rho +1.000  max|diff| 0.006
+  timm_resnet50.gluon_in1k                 6,400 vs 50,000 images: rho +1.000  max|diff| 0.016
+  timm_resnet50.tv2_in1k                   6,400 vs 50,000 images: rho +0.999  max|diff| 0.016

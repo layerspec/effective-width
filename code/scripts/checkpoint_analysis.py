@@ -473,6 +473,61 @@ def section_learned(layers: dict) -> None:
     print("  noise needs the extra seeds.")
 
 
+# ------------------------------- section 7: random draws, same image subset
+
+def section_seeds(results: str, layers: dict) -> None:
+    """Several random-init draws and the six recipes on ONE 6,400-image subset
+    (results/local6400, run on the Mac, see scripts/run_local_seeds.sh)."""
+    base = os.path.join(results, "local6400")
+    seed_files = sorted(glob.glob(os.path.join(base, "seed*", "resnet50_random_layers.csv")))
+    trained_files = sorted(glob.glob(os.path.join(base, "trained", "*_layers.csv")))
+    if not seed_files:
+        return
+    hdr("7. How much of the trained-vs-random gap is draw noise?  (same 6,400 images)")
+
+    def prof(path, col):
+        d = pd.read_csv(path)
+        d["n_over_C_ok"] = d["n_over_C_ok"].astype(bool)
+        d = conv_rows(d.sort_values("depth_index"))
+        return d[col].to_numpy(), d.layer.to_numpy()
+
+    col = "k_star_rmax_0.95"
+    R = np.stack([prof(f, col)[0] for f in seed_files], axis=1)
+    names_r = [os.path.basename(os.path.dirname(f)) for f in seed_files]
+    print(f"  random draws: {names_r}   layers: {R.shape[0]}")
+    rr = [_rho(R[:, i], R[:, j]) for i, j in itertools.combinations(range(R.shape[1]), 2)]
+    print(f"  random-vs-random rho ({col}): median {np.median(rr):+.2f} "
+          f"[{min(rr):+.2f}, {max(rr):+.2f}]   per-layer SD across draws: "
+          f"median {np.median(R.std(1, ddof=1)):.3f}   level median {np.median(R):.3f}")
+    depth = np.arange(R.shape[0])
+    print(f"  rho(depth) per draw: " + "  ".join(f"{_rho(depth, R[:, j]):+.2f}" for j in range(R.shape[1])))
+
+    if trained_files:
+        T = np.stack([prof(f, col)[0] for f in trained_files], axis=1)
+        names_t = [os.path.basename(f)[: -len("_layers.csv")] for f in trained_files]
+        print(f"\n  trained on the same subset: {names_t}")
+        tt = [_rho(T[:, i], T[:, j]) for i, j in itertools.combinations(range(T.shape[1]), 2)]
+        tr = [_rho(T[:, i], R[:, j]) for i in range(T.shape[1]) for j in range(R.shape[1])]
+        print(f"  trained-vs-trained rho: median {np.median(tt):+.2f} [{min(tt):+.2f}, {max(tt):+.2f}]")
+        print(f"  trained-vs-random  rho: median {np.median(tr):+.2f} [{min(tr):+.2f}, {max(tr):+.2f}]"
+              f"   ({len(tr)} pairs)")
+        print(f"  rho(depth) trained mean {_rho(depth, T.mean(1)):+.2f}   random mean {_rho(depth, R.mean(1)):+.2f}")
+        print(f"  level: trained median {np.median(T):.3f}   random median {np.median(R):.3f}")
+        # the 3 x 3 picture: within-random, within-trained, between
+        print("\n  Reading: the random-vs-random rho is the ceiling a random draw could")
+        print("  reach; if trained-vs-random is far below it, the gap is not draw noise.")
+
+        # consistency with the 50k run for the same weights
+        for f, n in zip(trained_files, names_t):
+            if n in layers:
+                a, la = prof(f, col)
+                d = conv_rows(layers[n])
+                b = d.set_index("layer").loc[la, col].to_numpy() if set(la) <= set(d.layer) else None
+                if b is not None:
+                    print(f"  {n:40s} 6,400 vs 50,000 images: rho {_rho(a, b):+.3f}  "
+                          f"max|diff| {np.abs(a - b).max():.3f}")
+
+
 # ------------------------------------------------------------------- main
 
 def main(argv=None) -> int:
@@ -491,6 +546,7 @@ def main(argv=None) -> int:
     section_random(layers)
     section_block(layers)
     section_learned(layers)
+    section_seeds(a.results, layers)
     return 0
 
 

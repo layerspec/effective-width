@@ -1,0 +1,219 @@
+=== resnet50_random seed 1 ===
+
+=== resnet50_random ===
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 294.2s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.1.conv2 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.017  max 0.469  mean 0.179
+
+wrote ../results/local6400/seed1/
+=== resnet50_random seed 2 ===
+
+=== resnet50_random ===
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 297.1s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.1.conv2 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.012  max 0.547  mean 0.183
+
+wrote ../results/local6400/seed2/
+=== resnet50_random seed 3 ===
+
+=== resnet50_random ===
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 293.7s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.1.conv2 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.030  max 0.500  mean 0.196
+
+wrote ../results/local6400/seed3/
+=== resnet50_random seed 4 ===
+
+=== resnet50_random ===
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 375.8s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.1.conv2 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.022  max 0.594  mean 0.213
+
+wrote ../results/local6400/seed4/
+=== resnet50_random seed 5 ===
+
+=== resnet50_random ===
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 329.6s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.0.conv2 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.011  max 0.453  mean 0.143
+
+wrote ../results/local6400/seed5/
+=== trained recipes on the same subset ===
+
+=== resnet50 ===
+Downloading: "https://download.pytorch.org/models/resnet50-0676ba61.pth" to /Users/ccli/.cache/torch/hub/checkpoints/resnet50-0676ba61.pth
+  0%|          | 0.00/97.8M [00:00<?, ?B/s]  0%|          | 384k/97.8M [00:00<00:32, 3.18MB/s]  1%|▏         | 1.38M/97.8M [00:00<00:14, 7.00MB/s]  4%|▎         | 3.62M/97.8M [00:00<00:07, 13.8MB/s]  6%|▌         | 5.62M/97.8M [00:00<00:06, 14.6MB/s]  8%|▊         | 8.12M/97.8M [00:00<00:05, 18.3MB/s] 10%|█         | 10.0M/97.8M [00:00<00:05, 18.3MB/s] 13%|█▎        | 12.9M/97.8M [00:00<00:04, 21.5MB/s] 16%|█▌        | 15.2M/97.8M [00:00<00:03, 22.2MB/s] 19%|█▉        | 18.4M/97.8M [00:00<00:03, 24.8MB/s] 21%|██▏       | 20.9M/97.8M [00:01<00:03, 24.7MB/s] 25%|██▌       | 24.9M/97.8M [00:01<00:02, 29.5MB/s] 28%|██▊       | 27.8M/97.8M [00:01<00:02, 25.3MB/s] 31%|███       | 30.4M/97.8M [00:01<00:02, 23.6MB/s] 34%|███▍      | 33.6M/97.8M [00:01<00:02, 26.0MB/s] 38%|███▊      | 36.8M/97.8M [00:01<00:02, 27.7MB/s] 40%|████      | 39.5M/97.8M [00:01<00:02, 25.1MB/s] 43%|████▎     | 42.0M/97.8M [00:02<00:02, 21.3MB/s] 46%|████▌     | 44.9M/97.8M [00:02<00:02, 23.0MB/s] 48%|████▊     | 47.2M/97.8M [00:02<00:03, 16.4MB/s] 50%|█████     | 49.4M/97.8M [00:02<00:02, 17.5MB/s] 53%|█████▎    | 51.4M/97.8M [00:02<00:02, 18.0MB/s] 55%|█████▍    | 53.6M/97.8M [00:02<00:02, 19.1MB/s] 57%|█████▋    | 55.9M/97.8M [00:02<00:02, 20.3MB/s] 59%|█████▉    | 58.0M/97.8M [00:02<00:02, 20.7MB/s] 62%|██████▏   | 60.2M/97.8M [00:03<00:01, 21.3MB/s] 64%|██████▍   | 62.4M/97.8M [00:03<00:01, 19.8MB/s] 66%|██████▌   | 64.4M/97.8M [00:03<00:01, 19.9MB/s] 69%|██████▉   | 67.5M/97.8M [00:03<00:01, 23.4MB/s] 71%|███████▏  | 69.9M/97.8M [00:03<00:01, 23.2MB/s] 74%|███████▍  | 72.2M/97.8M [00:03<00:01, 23.6MB/s] 76%|███████▋  | 74.6M/97.8M [00:03<00:01, 23.6MB/s] 79%|███████▊  | 77.0M/97.8M [00:03<00:01, 21.2MB/s] 81%|████████  | 79.1M/97.8M [00:03<00:00, 20.8MB/s] 83%|████████▎ | 81.6M/97.8M [00:04<00:00, 22.2MB/s] 87%|████████▋ | 84.8M/97.8M [00:04<00:00, 24.3MB/s] 89%|████████▉ | 87.1M/97.8M [00:04<00:00, 24.3MB/s] 92%|█████████▏| 89.5M/97.8M [00:04<00:00, 23.1MB/s] 94%|█████████▍| 92.4M/97.8M [00:04<00:00, 24.9MB/s] 98%|█████████▊| 95.6M/97.8M [00:04<00:00, 27.4MB/s]100%|██████████| 97.8M/97.8M [00:04<00:00, 22.0MB/s]
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 323.7s
+  r_max check: max k*(0.999)/r_max = 0.977 at layer2.3.conv2 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.039  max 0.562  mean 0.278
+
+=== timm:resnet50.tv2_in1k ===
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 331.9s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.1.conv2 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.004  max 0.641  mean 0.338
+
+=== timm:resnet50.a1_in1k ===
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 324.0s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.2.conv2 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.004  max 0.662  mean 0.344
+
+=== timm:resnet50.a3_in1k ===
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 330.4s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.2.conv2 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.004  max 0.617  mean 0.292
+
+=== timm:resnet50.gluon_in1k ===
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 327.6s
+  r_max check: max k*(0.999)/r_max = 0.984 at layer1.2.conv2 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.004  max 0.594  mean 0.306
+
+=== timm:resnet50.fb_ssl_yfcc100m_ft_in1k ===
+/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  119 layers, 348.9s
+  r_max check: max k*(0.999)/r_max = 0.986 at layer4.2.conv3 -> ok
+  !! 1/119 layers under-sampled (worst: fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.012  max 0.609  mean 0.337
+
+wrote ../results/local6400/trained/
+=== done ===
