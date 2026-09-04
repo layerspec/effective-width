@@ -1,0 +1,18 @@
+[
+  {
+    "model": "resnet50_random",
+    "weights": "random_init(seed=5)",
+    "source": "imagenet_val[6400]",
+    "device": "mps",
+    "positions_per_image": 16,
+    "batch_size": 32,
+    "image_size": 224,
+    "seed": 5,
+    "n_layers": 119,
+    "elapsed_sec": 329.6,
+    "torch": "2.14.0",
+    "rmax_check_max": 0.984375,
+    "rmax_check_layer": "layer1.0.conv2",
+    "rmax_check_ok": true
+  }
+]
