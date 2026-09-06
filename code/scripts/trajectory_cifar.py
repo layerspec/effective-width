@@ -8,6 +8,8 @@ gate (reproduce_garg.py) and measures the conv-layer spectra on the test
 split at a fixed schedule of epochs, epoch 0 being the initialisation.
 
     python scripts/trajectory_cifar.py --epochs 100 --out ../results/trajectory
+    python scripts/trajectory_cifar.py --arch resnet50 --epochs 100 \
+        --out ../results/trajectory_resnet50          # bottleneck block type
 
 Outputs one <out>/epoch_<E>_layers.csv per measured epoch and a combined
 <out>/trajectory_layers.csv with an `epoch` column.  Positions are sampled
@@ -32,6 +34,25 @@ from layerspec import metrics as _metrics                       # noqa: E402
 from layerspec.hooks import run_probe                            # noqa: E402
 from scripts.reproduce_garg import (build_vgg16_bn_cifar,        # noqa: E402
                                     cifar_loaders, evaluate)
+
+
+def build_resnet50_cifar(num_classes: int = 10):
+    """torchvision ResNet-50 with the usual CIFAR stem: 3x3 stride-1 conv1
+    and no max-pool, so a 32x32 input reaches layer4 at 4x4.  Bottleneck
+    blocks, expansion 4, r_max/C = 0.25 at every conv3 -- the block type
+    whose trained profile (round-2 section 8) was uncorrelated with its
+    initialisation.  Random init is torchvision's default (Kaiming, zero
+    last-BN gamma disabled), seeded by the caller."""
+    import torch.nn as nn
+    import torchvision
+    m = torchvision.models.resnet50(weights=None, num_classes=num_classes)
+    m.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
+    m.maxpool = nn.Identity()
+    return m
+
+
+ARCHS = {"vgg16_bn": lambda: build_vgg16_bn_cifar(10, "small"),
+         "resnet50": lambda: build_resnet50_cifar(10)}
 
 DEFAULT_SCHEDULE = [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
@@ -76,6 +97,7 @@ def main(argv=None) -> int:
     p.add_argument("--positions", type=int, default=16)
     p.add_argument("--lr", type=float, default=0.1)
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--arch", choices=sorted(ARCHS), default="vgg16_bn")
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--max-train-batches", type=int, default=None,
                    help="smoke-test aid: stop each epoch after this many batches")
@@ -91,7 +113,7 @@ def main(argv=None) -> int:
 
     train_loader, test_loader = cifar_loaders(args.data_root, args.batch_size,
                                               args.workers, "cifar10")
-    model = build_vgg16_bn_cifar(10, "small").to(args.device)
+    model = ARCHS[args.arch]().to(args.device)
     opt = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9,
                           weight_decay=5e-4, nesterov=True)
     steps = len(train_loader) if args.max_train_batches is None \
@@ -141,7 +163,7 @@ def main(argv=None) -> int:
         if ep in schedule:
             checkpoint(ep)
 
-    torch.save(model.state_dict(), os.path.join(args.out, "vgg16_bn_cifar10_final.pt"))
+    torch.save(model.state_dict(), os.path.join(args.out, f"{args.arch}_cifar10_final.pt"))
     print("done", flush=True)
     return 0
 
