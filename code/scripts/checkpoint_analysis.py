@@ -262,10 +262,17 @@ def section_pooling(layers: dict) -> None:
     print(f"  Paired per layer: pooled_{K} minus {K}.  A layer counts as 'lower'")
     print("  when the pooled value is strictly smaller.  Dense and depthwise convs")
     print("  are counted separately; both are reported.\n")
-    print(f"    {'model':40s} {'dense':>9s}  {'depthwise':>9s}  {'median drop':>11s} "
-          f"{'jitter':>7s}  {'Wilcoxon p':>10s}")
+    print("  'drop' and 'jitter' are given with both denominators: /C is the")
+    print("  pre-registered statistic; /r_max removes the sawtooth that 1x1 expansion")
+    print("  layers put into the /C profile, so that the drop is compared with the")
+    print("  curve's own jitter rather than with the architecture's.  The counts do")
+    print("  not depend on the denominator (it is shared by the two estimators).\n")
+    print(f"    {'model':40s} {'dense':>9s}  {'depthwise':>9s}  "
+          f"{'drop/C':>7s} {'jit/C':>6s}  {'drop/rmax':>9s} {'jit/rmax':>8s}  "
+          f"{'ratio/C':>7s} {'ratio/rmax':>10s}  {'Wilcoxon p':>10s}")
     tot = {"dense": [0, 0], "dw": [0, 0]}
     exceptions = []
+    ratio_rows = []
     for m in list(trained_names(layers)) + [m for m in layers if is_random(m)]:
         df = layers[m]
         d, w = conv_rows(df), depthwise_rows(df)
@@ -288,8 +295,18 @@ def section_pooling(layers: dict) -> None:
         if kd != nd:
             exceptions.append((m, d[delta >= 0].layer.tolist(), ties, rev,
                                int(d[delta >= 0].C.min())))
+        # the same statistic with r_max as the denominator (k* itself is shared)
+        kcount = K.replace("k_star_ratio_", "k_star_")
+        s_r = (d[kcount] / d["r_max"]).to_numpy()
+        p_r = (d["pooled_" + kcount] / d["r_max"]).to_numpy()
+        drop_c, jit_c = -np.median(delta), jitter(d[K].to_numpy())
+        drop_r, jit_r = -np.median(p_r - s_r), jitter(s_r)
+        if key == "trained":
+            ratio_rows.append((m, drop_c / jit_c, drop_r / jit_r,
+                               int((d["r_max"] < d["C"]).sum()), nd))
         print(f"    {m:40s} {kd:4d}/{nd:<4d}  {kw:4d}/{nw:<4d}  "
-              f"{-np.median(delta):11.3f} {jitter(d[K].to_numpy()):7.3f}  {pval:10.1e}{tag}")
+              f"{drop_c:7.3f} {jit_c:6.3f}  {drop_r:9.3f} {jit_r:8.3f}  "
+              f"{drop_c / jit_c:7.2f} {drop_r / jit_r:10.2f}  {pval:10.1e}{tag}")
     print(f"\n    TRAINED TOTAL dense    : pooled lower on {tot['dense'][0]}/{tot['dense'][1]}")
     print(f"    TRAINED TOTAL depthwise: pooled lower on {tot['dw'][0]}/{tot['dw'][1]}")
     if exceptions:
@@ -301,6 +318,23 @@ def section_pooling(layers: dict) -> None:
             print(f"        {ls}")
     print("    (layers within a model are correlated, so per-model p-values are")
     print("     optimistic; the count of exceptions is what carries the claim)")
+    print("\n    drop-to-jitter ratio, trained models, by whether the model has")
+    print("    expansion layers (r_max < C).  A ratio below 1 means the pooling")
+    print("    effect is smaller than the curve's own adjacent-layer step:")
+    print(f"      {'model':40s} {'bounded':>8s}  {'ratio/C':>7s} {'ratio/rmax':>10s}")
+    for m, rc, rr, nb, nd in sorted(ratio_rows, key=lambda t: -t[3] / t[4]):
+        print(f"      {m:40s} {nb:3d}/{nd:<3d}   {rc:7.2f} {rr:10.2f}")
+    inv = [(rc, rr) for _, rc, rr, nb, nd in ratio_rows if nb / nd >= 0.4]
+    rest = [(rc, rr) for _, rc, rr, nb, nd in ratio_rows if nb / nd < 0.4]
+    print(f"      inverted-residual models (>=40% bounded layers), median ratio: "
+          f"/C {np.median([b[0] for b in inv]):.2f}   /r_max {np.median([b[1] for b in inv]):.2f}   (n={len(inv)})")
+    print(f"      all other trained models, median ratio                   : "
+          f"/C {np.median([u[0] for u in rest]):.2f}   /r_max {np.median([u[1] for u in rest]):.2f}   (n={len(rest)})")
+    print(f"      trained models with ratio/r_max < 1: "
+          f"{[m for m, _, rr, _, _ in ratio_rows if rr < 1]}")
+    print("      (DenseNet-121's jitter is the 1x1/3x3 alternation of its dense")
+    print("       layers, which is structural; its ratio is below 1 with either")
+    print("       denominator and is reported as such)")
 
 
 # ------------------------------------------------- section 4: trained vs random

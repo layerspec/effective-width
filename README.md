@@ -51,7 +51,7 @@ r_max 分母 14/14 模型成立；池化壓低 687/703；block 輸出超過 conv
 1. **依新框架重寫論文**：~~標題、摘要、§I／§II~~（2026-09-07 已改，見
    `notes/reframe-2026-09-07.md`）；**§V／§VI 待改**。定位是「量測協定＋三個
    陷阱＋訓練作用依 block 類型分三種」。目標期刊 TPAMI。
-2. 小補量測：隨機對照多個種子（init 已固定）；MobileNet 系列池化效果用 r_max 版。
+2. ~~小補量測：隨機對照多個種子；MobileNet 系列池化效果用 r_max 版~~（2026-09-04／09-07 已做）。
 3. CIFAR 2×2（約 US$4，選配）—— `bash code/scripts/run_cifar_2x2.sh`
 4. 取得 IEEEtran.cls（Overleaf 或 texlive-publishers）
 
