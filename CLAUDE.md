@@ -75,7 +75,7 @@
    （activation 前、殘差相加前）成立，block 輸出不受限（161/161 已量到）。
 2. ~~15–20 個公開 checkpoint 的量測~~ —— 2026-09-03 跑完，22 組權重，
    `notes/round2-2026-09-04.md`。
-3. ~~依新排序重寫 §I／§II 框架、標題、摘要~~ —— 2026-09-07 已改（`notes/reframe-2026-09-07.md`）。**§V／§VI 仍待重寫**，新結構與數據來源在該筆記；main.tex §V 開頭有 `\todo{REWRITE}`。
+3. ~~依新排序重寫論文~~ —— 2026-09-07 全文（標題、摘要、§I–§VI、結論）已依 `notes/reframe-2026-09-07.md` 重寫。剩餘 `\todo`：e-mail、Reproducibility 網址。**尚未編譯**（本機無 TeX），下一步是在 Overleaf 或 pod 上編譯一次抓錯。
 4. 小補量測（便宜）：~~隨機對照多抽幾個種子~~（2026-09-04 已做，§7–8）；
    ~~MobileNet／EfficientNet 的池化效果改用 r_max 版統計量~~（2026-09-07 已做，
    `round2` §3 補記：/C 比值 0.08–0.17 → /r_max 1.25–2.11；只有 DenseNet-121 <1）。
@@ -85,8 +85,10 @@
 
 ## 慣例
 
-- 表格由資料生成再 `\input`，不手抄：
-  `python3 -m layerspec.analyse --results ../results --latex ../paper/table_shape.tex`
+- 表格與圖由資料生成再 `\input`，不手抄。論文現用的三張表與圖 1／圖 5：
+  `cd code && python3 scripts/checkpoint_analysis.py --results ../results --latex-models ../paper/table_models.tex --latex-pooling ../paper/table_pooling.tex --latex-families ../paper/table_families.tex > ../results/checkpoint_analysis.txt`
+  `python3 scripts/paper_figures.py --results ../results --out ../results/figures`
+  （`layerspec.analyse --latex` 產的 `table_shape.tex` 是 rho_late 表，論文已不引用）
 - 重算審查數字：`cd code && python3 scripts/review_checks.py --results ../results`
 - 承重主張（全部 checkpoint）：`cd code && python3 scripts/checkpoint_analysis.py --results ../results`
 - 測試：`cd code && python3 -m pytest tests/test_core.py -q`（需要 torch；本機 Mac 沒有，用暫存 venv 或 pod）

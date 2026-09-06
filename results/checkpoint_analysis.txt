@@ -12,6 +12,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     features.3   ours 0.734  theirs 0.656  diff +0.078
   (their recipe is under-specified; the gate is about shape, and it passes)
   For contrast, the first-round ImageNet-vs-CIFAR comparison had r = 0.125.
+  wrote ../paper/table_models.tex
 
 ========================================================================
 1. r_max as the denominator, on every checkpoint
@@ -211,6 +212,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       (DenseNet-121's jitter is the 1x1/3x3 alternation of its dense
        layers, which is structural; its ratio is below 1 with either
        denominator and is reported as such)
+  wrote ../paper/table_pooling.tex
 
 ========================================================================
 4. Trained vs random init, paired per layer, one test per checkpoint
@@ -371,6 +373,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   look at its per-checkpoint levels before saying anything about it.
   VGG-16's two checkpoints are with and without BN, so its T-T compares
   two architectures.
+  wrote ../paper/table_families.tex
 
 ========================================================================
 9. When does the profile become the trained one?  VGG-16_BN on CIFAR-10
