@@ -215,6 +215,30 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   wrote ../paper/table_pooling.tex
 
 ========================================================================
+3b. Layers whose k*(.95)/C had not flattened at n/C = 250 (|delta| > 0.02)
+========================================================================
+  dense layers flagged: 14   depthwise flagged: 0
+    timm_densenet121.tv_in1k:
+      features.denseblock3.denselayer20.conv2       C=  32  moved -1.0 channels between n/C=100 and 250
+      features.denseblock3.denselayer4.conv2        C=  32  moved -1.0 channels between n/C=100 and 250
+      features.denseblock4.denselayer10.conv2       C=  32  moved +1.0 channels between n/C=100 and 250
+      features.denseblock4.denselayer11.conv2       C=  32  moved +1.0 channels between n/C=100 and 250
+      features.denseblock4.denselayer12.conv2       C=  32  moved +1.0 channels between n/C=100 and 250
+      features.denseblock4.denselayer13.conv2       C=  32  moved +1.0 channels between n/C=100 and 250
+      features.denseblock4.denselayer14.conv2       C=  32  moved +1.0 channels between n/C=100 and 250
+      features.denseblock4.denselayer15.conv2       C=  32  moved +1.0 channels between n/C=100 and 250
+      features.denseblock4.denselayer16.conv2       C=  32  moved +1.0 channels between n/C=100 and 250
+      features.denseblock4.denselayer3.conv2        C=  32  moved +1.0 channels between n/C=100 and 250
+      features.denseblock4.denselayer5.conv2        C=  32  moved +1.0 channels between n/C=100 and 250
+      features.denseblock4.denselayer9.conv2        C=  32  moved +1.0 channels between n/C=100 and 250
+    timm_mobilenetv3_large_100.ra_in1k:
+      conv_stem                                     C=  16  moved +1.0 channels between n/C=100 and 250
+    vgg16_bn:
+      features.40                                   C= 512  moved +18.0 channels between n/C=100 and 250
+  pooled-lower count (dense, trained) with flagged layers removed: 679/689
+  (a C=32 layer moves 0.031 per channel, so one channel trips the 0.02 rule)
+
+========================================================================
 4. Trained vs random init, paired per layer, one test per checkpoint
 ========================================================================
   Statistic k_star_ratio_0.95, dense conv layers, common gate-passing layers.

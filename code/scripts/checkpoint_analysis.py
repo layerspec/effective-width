@@ -408,6 +408,50 @@ def section_pooling(layers: dict, latex: str | None = None) -> None:
         write_pooling_table(sorted(latex_rows, key=lambda r: order.get(r[0], 99)), latex)
 
 
+# ------------------------------------------ section 3b: the flattening rule
+
+def section_flattening(results: str, layers: dict) -> None:
+    """The plan's second sample-size rule: a reported statistic must have
+    flattened in n/C.  analyse.h5_sampling applies |k*(n/C=250) - k*(n/C=100)|
+    > 0.02 and lists the offenders; here they are named, sized in channels,
+    and the pooling count is repeated without them, so the paper can say
+    exactly what the rule changes."""
+    hdr("3b. Layers whose k*(.95)/C had not flattened at n/C = 250 (|delta| > 0.02)")
+    dense_flag, dw_flag = {}, {}
+    for m in trained_names(layers):
+        path = os.path.join(results, f"{m}_convergence.csv")
+        if not os.path.exists(path):
+            continue
+        cdf = pd.read_csv(path)
+        cdf = cdf[cdf["kind"] == "conv"]
+        for layer, g in cdf.groupby("layer"):
+            g = g.sort_values("n_over_C")
+            v = g[K].to_numpy()
+            if len(v) >= 3 and abs(v[-1] - v[-2]) > 0.02:
+                C = int(g["C"].iloc[0])
+                row = layers[m][layers[m].layer == layer]
+                dw = bool(row.is_depthwise.iloc[0]) if len(row) else False
+                (dw_flag if dw else dense_flag).setdefault(m, []).append((layer, C, (v[-1] - v[-2]) * C))
+    n_dense = sum(len(v) for v in dense_flag.values())
+    n_dw = sum(len(v) for v in dw_flag.values())
+    print(f"  dense layers flagged: {n_dense}   depthwise flagged: {n_dw}")
+    for m, ls in list(dense_flag.items()) + list(dw_flag.items()):
+        print(f"    {m}:")
+        for layer, C, dch in ls:
+            print(f"      {layer:45s} C={C:4d}  moved {dch:+.1f} channels between n/C=100 and 250")
+    # pooling count with the flagged layers removed
+    tot = [0, 0]
+    for m in trained_names(layers):
+        d = conv_rows(layers[m])
+        d = d[d["pooled_n_over_C_ok"].astype(bool)]
+        bad = {l for l, _, _ in dense_flag.get(m, [])}
+        d = d[~d.layer.isin(bad)]
+        delta = (d["pooled_" + K] - d[K]).to_numpy()
+        tot[0] += int((delta < 0).sum()); tot[1] += len(delta)
+    print(f"  pooled-lower count (dense, trained) with flagged layers removed: {tot[0]}/{tot[1]}")
+    print("  (a C=32 layer moves 0.031 per channel, so one channel trips the 0.02 rule)")
+
+
 # ------------------------------------------------- section 4: trained vs random
 
 def section_random(layers: dict) -> None:
@@ -841,6 +885,7 @@ def main(argv=None) -> int:
     section_rmax(layers)
     section_spread(layers)
     section_pooling(layers, latex=a.latex_pooling)
+    section_flattening(a.results, layers)
     section_random(layers)
     section_block(layers)
     section_learned(layers)
