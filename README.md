@@ -89,6 +89,11 @@ bash code/scripts/run_on_rented_gpu.sh /data/imagenet_val
 
 ---
 
+## 遠端
+
+私人 repo `github.com/layerspec/effective-width`（論文專用帳號，2026-09-07）。
+論文上 arXiv 時再決定是直接公開這個 repo 還是另開乾淨的公開版。
+
 ## 資料夾
 
 ```
