@@ -11,7 +11,7 @@
 2. `notes/round2-2026-09-04.md` —— 第二輪（22 組權重）結果的讀法；承重主張
    表的現行數字都來自這裡（`results/checkpoint_analysis.txt`）
 3. `notes/analysis-plan.md` —— 預先登記、§7 結果、§8 偏離紀錄
-4. `README.md` —— 現況與下一步
+4. `notes/status-zh.md` —— 中文現況與下一步（`README.md` 已改為英文的公開首頁，2026-09-07）
 
 ---
 
