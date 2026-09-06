@@ -3,8 +3,15 @@ make: they come from the local 6,400-image runs rather than results/*.csv.
 
   fig1_profile      k*(0.95)/r_max vs depth, ResNet-50: six trained recipes
                     (blue) and five random initialisations (grey), same images
+  fig2_metrics      three statistics on identical layers, three representative
+                    models (the 22-panel version from layerspec.figures is
+                    unreadable at column width)
+  fig4_threshold    tau sensitivity, VGG-16_BN (layout fix)
   fig5_trajectory   VGG-16_BN / CIFAR-10: rho vs init, rho vs final, level and
                     test accuracy against epoch
+
+Run AFTER `python -m layerspec.figures`, which overwrites fig1/fig2 with the
+first-round versions.
 
     cd code && python3 scripts/paper_figures.py --results ../results --out ../results/figures
 """
@@ -20,7 +27,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from layerspec.figures import (INK, MUTED, ONE_COL, SERIES, _style, _tidy,   # noqa: E402
-                               plt)
+                               fig_metrics, fig_threshold, load, plt)
 from scripts.checkpoint_analysis import _load_local, _rho                   # noqa: E402
 
 COL = "k_star_rmax_0.95"
@@ -92,13 +99,26 @@ def fig_trajectory(results: str, out: str) -> str | None:
     return path
 
 
+def fig_metrics_subset(results: str, out: str) -> str:
+    layers, _ = load(results)
+    pick = {"VGG-16 (BN)": "vgg16_bn", "ResNet-18": "resnet18",
+            "ResNet-50": "timm_resnet50.tv_in1k"}
+    return fig_metrics({k: layers[v] for k, v in pick.items() if v in layers}, out)
+
+
+def fig_threshold_vgg(results: str, out: str) -> str:
+    layers, _ = load(results)
+    return fig_threshold(layers, out, "vgg16_bn")
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--results", default="../results")
     p.add_argument("--out", default="../results/figures")
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
-    for f in (fig_profile_r50(a.results, a.out), fig_trajectory(a.results, a.out)):
+    for f in (fig_profile_r50(a.results, a.out), fig_metrics_subset(a.results, a.out),
+              fig_threshold_vgg(a.results, a.out), fig_trajectory(a.results, a.out)):
         if f:
             print("wrote", f)
     return 0

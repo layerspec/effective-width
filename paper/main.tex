@@ -485,7 +485,7 @@ report $n = Np$ as the sample size, which is conservative.
 \subsection{Models and controls}
 \label{sec:models}
 
-\begin{table}[t]
+\begin{table*}[t]
   \centering
   \caption{The first measurement: 22 public ImageNet-1k checkpoints on the
   full validation split (19 distinct trained networks; the two random
@@ -499,7 +499,7 @@ report $n = Np$ as the sample size, which is conservative.
   \label{tab:models}
   \footnotesize
   \input{table_models}
-\end{table}
+\end{table*}
 
 Two measurements were made. The first covers 22 publicly released
 ImageNet-1k checkpoints from \texttt{torchvision} and \texttt{timm}, every
@@ -733,16 +733,17 @@ was got wrong twice during this work, once by omitting the kernel extent
 and once in the grouped case; this check caught both.)
 
 \emph{Bounded layers track the bound one-for-one.} Pooling the bounded
-layers of all trained checkpoints and grouping them by $r_{\max}/C$:
+layers of all trained checkpoints and grouping them by $r_{\max}/C$
+(median $k^*(0.999)$ under each denominator):
 \begin{center}
 \footnotesize
-\begin{tabular}{crccc}
+\begin{tabular}{crccl}
 \toprule
-$r_{\max}/C$ & layers & $k^*(0.999)/C$ & $k^*(0.999)/r_{\max}$ & families \\
+$r_{\max}/C$ & layers & $k^*/C$ & $k^*/r_{\max}$ & families \\
 \midrule
-$1/6$ & 38  & $0.165$ & $0.990$ & MobileNetV2/V3, EfficientNet-B0 \\
+$1/6$ & 38  & $0.165$ & $0.990$ & MobileNet, EffNet \\
 $1/4$ & 141 & $0.234$ & $0.938$ & ResNet-50/101 \\
-$1/2$ & 70  & $0.410$ & $0.820$ & Wide-ResNet, ResNeXt, others \\
+$1/2$ & 70  & $0.410$ & $0.820$ & WRN, ResNeXt, other \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -808,7 +809,7 @@ DenseNet-121, whose dense layers alternate a $1\!\times\!1$ convolution of
 $128$ channels with a $3\!\times\!3$ of $32$, so that its adjacent-layer
 step is structural rather than noise. We report it as it is.
 
-\begin{table}[t]
+\begin{table*}[t]
   \centering
   \caption{Pooling lowers the level. Per trained checkpoint: dense
   convolutions passing the pooled gate on which the pooled $k^*(0.95)$ is
@@ -818,7 +819,7 @@ step is structural rather than noise. We report it as it is.
   \label{tab:pooling}
   \footnotesize
   \input{table_pooling}
-\end{table}
+\end{table*}
 
 What pooling does \emph{not} do is reorder the layers. The pre-registered
 shape test, a rank correlation between depth and the pooled-minus-sampled
@@ -991,7 +992,7 @@ architecture; one in which T--R is far below both has learned its ordering.
 Table~\ref{tab:families} gives the medians, with the median level of the
 trained and random profiles.
 
-\begin{table}[t]
+\begin{table*}[t]
   \centering
   \caption{Is the ordering of layers learned? Median Spearman $\rho$ between
   $k^*(0.95)/r_{\max}$ profiles over a family's $L$ dense convolutions, on the
@@ -1003,7 +1004,7 @@ trained and random profiles.
   \label{tab:families}
   \footnotesize
   \input{table_families}
-\end{table}
+\end{table*}
 
 Three behaviours appear, and they sort by block type.
 
