@@ -1,32 +1,24 @@
 # layerspec
 
-Per-layer effective dimensionality of trained CNNs — the measurement behind
-「正規化的 k\*/C 曲線」.
+Per-layer effective width of trained convolutional networks: the measurement
+behind *Measuring the Effective Width of Convolutional Layers* (see the
+repository README for the paper and the findings).
 
-For every conv layer of a pretrained network, this measures how many principal
-components of its channel-space activation covariance are actually used,
-divided by the layer's nominal channel count C.
+For every convolutional layer of a network, `layerspec` accumulates the
+channel-space covariance of the layer's output (at the convolution output,
+before the nonlinearity and before any residual addition; post-activation and
+block outputs are recorded separately), from sampled spatial positions and,
+in parallel, from globally pooled features. From each spectrum it reports
+$k^*(\tau)$, participation ratio, effective rank and stable rank, each divided
+by the nominal channel count $C$ and by the attainable rank
+$r_{\max} = g\cdot\min((C_{\rm in}/g)\,k_h k_w,\ C_{\rm out}/g)$, together
+with the sample-to-channel ratio at which each statistic was estimated and a
+convergence curve in $n/C$.
 
-**No training.** Everything runs on downloaded pretrained weights, so the whole
-study is one forward pass per model — roughly 30–50 GPU-hours including the
-controls, about NT$300 on rented hardware.
-
----
-
-## What this is for
-
-Two published results disagree:
-
-- **Garg, Panda & Roy** (IEEE Access 2019, arXiv 1812.06224) measured k\* per layer
-  for VGG on CIFAR and found a **hunchback**: k\*/C rises from 0.17, saturates near
-  0.97 mid-network, then collapses to ~0.07 in the last conv layers.
-  They **excluded ResNets** because of shortcut connections.
-- **Elmoznino & Bonner** (PLOS Comput Biol 2024) measured participation ratio across
-  536+ conv layers of ImageNet models and found it **increases monotonically with depth**.
-
-Nobody has published the normalised k\*/C curve for ResNet or ConvNeXt at ImageNet
-scale, and nobody has computed both metrics on the same layers of the same models.
-That is what reconciles the two, and that is what this produces.
+**No training is needed** to reproduce the paper's ImageNet measurements:
+everything runs on downloaded pretrained weights, one forward pass per
+checkpoint. The CIFAR-10 validation gate and the training trajectory are the
+only scripts that train anything.
 
 ---
 
