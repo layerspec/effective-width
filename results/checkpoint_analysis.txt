@@ -135,28 +135,34 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   when the pooled value is strictly smaller.  Dense and depthwise convs
   are counted separately; both are reported.
 
-    model                                        dense  depthwise  median drop  jitter  Wilcoxon p
-    convnext_tiny                               4/4       18/18          0.152   0.061         nan
-    resnet18                                   20/20       0/0           0.285   0.172     4.4e-05
-    timm_convnext_tiny.fb_in22k_ft_in1k         4/4       17/18          0.152   0.102         nan
-    timm_densenet121.tv_in1k                  109/120      0/0           0.148   0.297     4.9e-20  <-- 10 tie(s), 1 reversal(s)
-    timm_efficientnet_b0.ra_in1k               28/28      12/12          0.059   0.625     1.9e-06
-    timm_mobilenetv2_100.ra_in1k               34/34      17/17          0.055   0.682     1.8e-07
-    timm_mobilenetv3_large_100.ra_in1k         31/31      15/15          0.089   0.514     5.9e-07
-    timm_resnet101.tv_in1k                     76/76       0/0           0.136   0.078     1.8e-14
-    timm_resnet34.a1_in1k                      36/36       0/0           0.361   0.109     8.4e-08
-    timm_resnet50.a1_in1k                      41/42       0/0           0.193   0.150     1.2e-08  <-- 1 tie(s), 0 reversal(s)
-    timm_resnet50.a3_in1k                      41/42       0/0           0.182   0.145     1.2e-08  <-- 1 tie(s), 0 reversal(s)
-    timm_resnet50.fb_ssl_yfcc100m_ft_in1k      42/42       0/0           0.191   0.182     8.2e-09
-    timm_resnet50.gluon_in1k                   41/42       0/0           0.169   0.141     1.2e-08  <-- 1 tie(s), 0 reversal(s)
-    timm_resnet50.tv2_in1k                     40/42       0/0           0.192   0.148     1.4e-08  <-- 1 tie(s), 1 reversal(s)
-    timm_resnet50.tv_in1k                      42/42       0/0           0.131   0.137     8.2e-09
-    timm_resnext50_32x4d.tv_in1k               36/36       0/0           0.146   0.193     8.4e-08
-    timm_vgg16.tv_in1k                         13/13       0/0           0.254   0.068     1.2e-04
-    timm_wide_resnet50_2.tv_in1k               36/36       0/0           0.095   0.104     8.4e-08
-    vgg16_bn                                   13/13       0/0           0.281   0.074     1.2e-04
-    convnext_tiny_random                        4/4       18/18          0.091   0.042         nan
-    resnet50_random                            42/42       0/0           0.143   0.074     8.2e-09
+  'drop' and 'jitter' are given with both denominators: /C is the
+  pre-registered statistic; /r_max removes the sawtooth that 1x1 expansion
+  layers put into the /C profile, so that the drop is compared with the
+  curve's own jitter rather than with the architecture's.  The counts do
+  not depend on the denominator (it is shared by the two estimators).
+
+    model                                        dense  depthwise   drop/C  jit/C  drop/rmax jit/rmax  ratio/C ratio/rmax  Wilcoxon p
+    convnext_tiny                               4/4       18/18      0.152  0.061      0.204    0.026     2.49       7.85         nan
+    resnet18                                   20/20       0/0       0.285  0.172      0.289    0.141     1.66       2.06     4.4e-05
+    timm_convnext_tiny.fb_in22k_ft_in1k         4/4       17/18      0.152  0.102      0.204    0.102     1.50       2.01         nan
+    timm_densenet121.tv_in1k                  109/120      0/0       0.148  0.297      0.148    0.297     0.50       0.50     4.9e-20  <-- 10 tie(s), 1 reversal(s)
+    timm_efficientnet_b0.ra_in1k               28/28      12/12      0.059  0.625      0.187    0.125     0.09       1.50     1.9e-06
+    timm_mobilenetv2_100.ra_in1k               34/34      17/17      0.055  0.682      0.231    0.109     0.08       2.11     1.8e-07
+    timm_mobilenetv3_large_100.ra_in1k         31/31      15/15      0.089  0.514      0.188    0.150     0.17       1.25     5.9e-07
+    timm_resnet101.tv_in1k                     76/76       0/0       0.136  0.078      0.158    0.066     1.74       2.38     1.8e-14
+    timm_resnet34.a1_in1k                      36/36       0/0       0.361  0.109      0.361    0.102     3.30       3.56     8.4e-08
+    timm_resnet50.a1_in1k                      41/42       0/0       0.193  0.150      0.217    0.102     1.29       2.13     1.2e-08  <-- 1 tie(s), 0 reversal(s)
+    timm_resnet50.a3_in1k                      41/42       0/0       0.182  0.145      0.203    0.094     1.26       2.17     1.2e-08  <-- 1 tie(s), 0 reversal(s)
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k      42/42       0/0       0.191  0.182      0.234    0.094     1.05       2.50     8.2e-09
+    timm_resnet50.gluon_in1k                   41/42       0/0       0.169  0.141      0.209    0.094     1.20       2.23     1.2e-08  <-- 1 tie(s), 0 reversal(s)
+    timm_resnet50.tv2_in1k                     40/42       0/0       0.192  0.148      0.223    0.090     1.30       2.48     1.4e-08  <-- 1 tie(s), 1 reversal(s)
+    timm_resnet50.tv_in1k                      42/42       0/0       0.131  0.137      0.163    0.078     0.96       2.09     8.2e-09
+    timm_resnext50_32x4d.tv_in1k               36/36       0/0       0.146  0.193      0.184    0.158     0.75       1.16     8.4e-08
+    timm_vgg16.tv_in1k                         13/13       0/0       0.254  0.068      0.254    0.051     3.71       4.98     1.2e-04
+    timm_wide_resnet50_2.tv_in1k               36/36       0/0       0.095  0.104      0.119    0.102     0.92       1.17     8.4e-08
+    vgg16_bn                                   13/13       0/0       0.281  0.074      0.281    0.054     3.79       5.24     1.2e-04
+    convnext_tiny_random                        4/4       18/18      0.091  0.042      0.091    0.039     2.19       2.33         nan
+    resnet50_random                            42/42       0/0       0.143  0.074      0.184    0.062     1.92       2.94     8.2e-09
 
     TRAINED TOTAL dense    : pooled lower on 687/703
     TRAINED TOTAL depthwise: pooled lower on 79/80
@@ -175,6 +181,36 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
         ['layer1.0.conv3', 'layer4.2.conv1']
     (layers within a model are correlated, so per-model p-values are
      optimistic; the count of exceptions is what carries the claim)
+
+    drop-to-jitter ratio, trained models, by whether the model has
+    expansion layers (r_max < C).  A ratio below 1 means the pooling
+    effect is smaller than the curve's own adjacent-layer step:
+      model                                     bounded  ratio/C ratio/rmax
+      timm_mobilenetv2_100.ra_in1k              17/34       0.08       2.11
+      timm_mobilenetv3_large_100.ra_in1k        15/31       0.17       1.25
+      timm_efficientnet_b0.ra_in1k              12/28       0.09       1.50
+      timm_resnext50_32x4d.tv_in1k              10/36       0.75       1.16
+      timm_wide_resnet50_2.tv_in1k              10/36       0.92       1.17
+      convnext_tiny                              1/4        2.49       7.85
+      timm_convnext_tiny.fb_in22k_ft_in1k        1/4        1.50       2.01
+      timm_resnet50.a1_in1k                      9/42       1.29       2.13
+      timm_resnet50.a3_in1k                      9/42       1.26       2.17
+      timm_resnet50.fb_ssl_yfcc100m_ft_in1k      9/42       1.05       2.50
+      timm_resnet50.gluon_in1k                   9/42       1.20       2.23
+      timm_resnet50.tv2_in1k                     9/42       1.30       2.48
+      timm_resnet50.tv_in1k                      9/42       0.96       2.09
+      resnet18                                   3/20       1.66       2.06
+      timm_resnet101.tv_in1k                     9/76       1.74       2.38
+      timm_resnet34.a1_in1k                      3/36       3.30       3.56
+      timm_vgg16.tv_in1k                         1/13       3.71       4.98
+      vgg16_bn                                   1/13       3.79       5.24
+      timm_densenet121.tv_in1k                   2/120      0.50       0.50
+      inverted-residual models (>=40% bounded layers), median ratio: /C 0.09   /r_max 1.50   (n=3)
+      all other trained models, median ratio                   : /C 1.29   /r_max 2.20   (n=16)
+      trained models with ratio/r_max < 1: ['timm_densenet121.tv_in1k']
+      (DenseNet-121's jitter is the 1x1/3x3 alternation of its dense
+       layers, which is structural; its ratio is below 1 with either
+       denominator and is reported as such)
 
 ========================================================================
 4. Trained vs random init, paired per layer, one test per checkpoint

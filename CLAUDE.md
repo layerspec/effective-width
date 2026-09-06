@@ -59,7 +59,7 @@
 | | 檢定 | 狀態 |
 |---|---|---|
 | r_max 是對的分母 | 14/14 有 1×1 擴張的模型：用 C 全 p<0.01，用 r_max 全 p>0.01；上界 1/6、1/4、1/2 三種都成立；22 模型 max k*/r_max ≤ 1.000 | **強烈倖存**。上界本身已知（Han 2021 ReXNet、Kim 2018），我們的是「當量測分母」。stem 層只到上界的 0.3–0.4（RGB patch 本身低秩），要寫成「必要非充分」。見 `notes/rmax-novelty-2026-09-03.md` |
-| 池化一致壓低水準 | 687/703 dense、79/80 depthwise（訓練模型）；16 例外中 15 個是 C=32 的整數平手 | **強烈倖存**；新穎性已查（`notes/pooling-novelty-2026-09-03.md`） |
+| 池化一致壓低水準 | 687/703 dense、79/80 depthwise（訓練模型）；16 例外中 15 個是 C=32 的整數平手；下降÷自身抖動（r_max 版）19 個模型中 18 個 >1，中位 2.2，DenseNet-121 0.5 | **強烈倖存**；新穎性已查（`notes/pooling-novelty-2026-09-03.md`） |
 | conv 輸出 vs block 輸出 | 161/161 個 bottleneck 的 block 輸出超過 conv3 的上界，比值約 4 | **強烈倖存**（新增） |
 | trained ≠ random | ResNet-50 六配方全 p ≤ 3e-8；ConvNeXt dense/dw 分開後 p=0.013／0.21 | **ResNet-50 倖存，ConvNeXt 降級**。舊的 p=6.3e-4 混了 dw 與 dense，違反規則 5，不得引用 |
 | Garg 驗證關卡 | CIFAR-10 全 13 層 r=0.981 | **通過** |
@@ -76,8 +76,9 @@
 2. ~~15–20 個公開 checkpoint 的量測~~ —— 2026-09-03 跑完，22 組權重，
    `notes/round2-2026-09-04.md`。
 3. ~~依新排序重寫 §I／§II 框架、標題、摘要~~ —— 2026-09-07 已改（`notes/reframe-2026-09-07.md`）。**§V／§VI 仍待重寫**，新結構與數據來源在該筆記；main.tex §V 開頭有 `\todo{REWRITE}`。
-4. 小補量測（便宜）：隨機對照多抽幾個種子（init 現已固定）；MobileNet／
-   EfficientNet 的池化效果改用 r_max 版統計量。
+4. 小補量測（便宜）：~~隨機對照多抽幾個種子~~（2026-09-04 已做，§7–8）；
+   ~~MobileNet／EfficientNet 的池化效果改用 r_max 版統計量~~（2026-09-07 已做，
+   `round2` §3 補記：/C 比值 0.08–0.17 → /r_max 1.25–2.11；只有 DenseNet-121 <1）。
 5. CIFAR 2×2 為選配：`bash code/scripts/run_cifar_2x2.sh`。
 
 ---
