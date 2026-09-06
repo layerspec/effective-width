@@ -89,8 +89,7 @@
   帳號 `layerspec` 是這篇論文專用，與作者私人帳號分開。這個 repo 的 `git config user.*`
   已設成 layerspec 的 noreply 身分，**不要改回全域設定**；SSH 走 `~/.ssh/config` 的
   `github-layerspec` 別名（金鑰 `id_ed25519_layerspec`）。`gh` CLI 登入的是私人帳號，
-  對這個 repo 一律用 git 指令，不用 `gh`。歷史已在推送前全部改寫成 layerspec 作者；
-  本機留有 `backup-before-author-rewrite` 分支，確認無誤後可刪。
+  對這個 repo 一律用 git 指令，不用 `gh`。歷史已在推送前全部改寫成 layerspec 作者（備份分支已於同日刪除）。
 
 - 表格與圖由資料生成再 `\input`，不手抄。論文現用的三張表與圖 1／圖 5：
   `cd code && python3 scripts/checkpoint_analysis.py --results ../results --latex-models ../paper/table_models.tex --latex-pooling ../paper/table_pooling.tex --latex-families ../paper/table_families.tex > ../results/checkpoint_analysis.txt`
