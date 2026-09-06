@@ -18,7 +18,7 @@
   volume  = {8},
   pages   = {1347--1360},
   year    = {2020},
-  note    = {arXiv:1812.06224. Table 2 is the reproduction target;
+  annote    = {arXiv:1812.06224. Table 2 is the reproduction target;
              they excluded ResNets over shortcut connections},
 }
 % UNVERIFIED: volume/pages. arXiv preprint is 2018, IEEE Access publication 2019/2020.
@@ -31,7 +31,7 @@
   volume  = {20},
   number  = {1},
   year    = {2024},
-  note    = {Participation ratio over globally-pooled features, 10{,}000 images.
+  annote    = {Participation ratio over globally-pooled features, 10{,}000 images.
              S6 Text: encoding-performance results replicated on the entire
              flattened feature map (CHW features, images as samples); ED
              levels under the two treatments are not reported},
@@ -46,7 +46,7 @@
   title     = {Intrinsic Dimension of Data Representations in Deep Neural Networks},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   year      = {2019},
-  note      = {TwoNN; the hunchback. Manifold dimension, NOT linear rank --
+  annote      = {TwoNN; the hunchback. Manifold dimension, NOT linear rank --
                same VGG-16 layer gives PC-ID ~200 vs TwoNN ID ~18},
 }
 
@@ -65,7 +65,7 @@
                Neural Collapse},
   booktitle = {International Conference on Machine Learning (ICML)},
   year      = {2023},
-  note      = {Stable rank per layer -- a third independent hunchback},
+  annote      = {Stable rank per layer -- a third independent hunchback},
 }
 
 @article{papyan2020neuralCollapse,
@@ -77,7 +77,7 @@
   number  = {40},
   pages   = {24652--24663},
   year    = {2020},
-  note    = {Pins terminal effective rank at $C_{\text{class}}-1$; 9 on CIFAR-10,
+  annote    = {Pins terminal effective rank at $C_{\text{class}}-1$; 9 on CIFAR-10,
              999 on ImageNet-1k. This is why the deep end is regime-dependent},
 }
 
@@ -87,7 +87,7 @@
   title     = {Rank Diminishing in Deep Neural Networks},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   year      = {2022},
-  note      = {Numerical rank of the JACOBIAN, monotonically decreasing.
+  annote      = {Numerical rank of the JACOBIAN, monotonically decreasing.
                A different object -- do not conflate with activation rank},
 }
 
@@ -118,7 +118,7 @@
   volume  = {18},
   number  = {1},
   year    = {2022},
-  note    = {alpha well below 1 for standard CNNs -- no bulk edge,
+  annote    = {alpha well below 1 for standard CNNs -- no bulk edge,
              so no MP threshold},
 }
 
@@ -138,7 +138,7 @@
              in the Visual Cortex},
   journal = {Proceedings of the National Academy of Sciences},
   year    = {2025},
-  note    = {Broken power law, not a clean one; three estimator biases,
+  annote    = {Broken power law, not a clean one; three estimator biases,
              including d < n giving only d nonzero eigenvalues.
              All three apply to our setting},
 }
@@ -152,7 +152,7 @@
   volume  = {22},
   number  = {165},
   year    = {2021},
-  note    = {WEIGHT spectra are heavy-tailed. Does not transfer to activations
+  annote    = {WEIGHT spectra are heavy-tailed. Does not transfer to activations
              -- that is what we measure},
 }
 
@@ -163,7 +163,7 @@
   title     = {Filter Distillation for Network Compression},
   booktitle = {IEEE Winter Conference on Applications of Computer Vision (WACV)},
   year      = {2020},
-  note      = {arXiv:1807.10585, earlier titled Principal Filter Analysis},
+  annote      = {arXiv:1807.10585, earlier titled Principal Filter Analysis},
 }
 
 @article{waleffe2023pcn,
@@ -189,7 +189,7 @@
   title     = {{HRank}: Filter Pruning Using High-Rank Feature Map},
   booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
   year      = {2020},
-  note      = {SVD rank of a single H x W feature map -- frequently miscited
+  annote      = {SVD rank of a single H x W feature map -- frequently miscited
                as if it were the channel covariance spectrum},
 }
 
@@ -201,7 +201,7 @@
   title     = {Rethinking Channel Dimensions for Efficient Model Design},
   booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
   year      = {2021},
-  note      = {arXiv:2007.00992 (ReXNet). Sec. 3.2: ``The rank is originally
+  annote      = {arXiv:2007.00992 (ReXNet). Sec. 3.2: ``The rank is originally
                bounded to the input dimension, but the subsequent nonlinear
                function will increase the rank above the input dimension.''
                Fig. 1 plots rank/C_out against C_in/C_out for 1x1, 3x3 and
@@ -215,7 +215,7 @@
   title   = {Rank-1 Convolutional Neural Network},
   journal = {arXiv preprint arXiv:1808.04303},
   year    = {2018},
-  note    = {Eqs. (28)--(37): output feature matrix Y = H[X] W in Hankel/im2col
+  annote    = {Eqs. (28)--(37): output feature matrix Y = H[X] W in Hankel/im2col
              form, rank(Y) <= min(C_in k_h k_w, C_out) for a standard
              convolution. Preprint; the kernel-extent term in r_max is here},
 }
@@ -226,7 +226,7 @@
   title     = {Low-Rank Bottleneck in Multi-head Attention Models},
   booktitle = {International Conference on Machine Learning (ICML)},
   year      = {2020},
-  note      = {The Transformer form of the same bound: head size below sequence
+  annote      = {The Transformer form of the same bound: head size below sequence
                length caps the rank of each attention head},
 }
 
@@ -236,7 +236,7 @@
   title     = {Breaking the Softmax Bottleneck: A High-Rank {RNN} Language Model},
   booktitle = {International Conference on Learning Representations (ICLR)},
   year      = {2018},
-  note      = {Logit matrix rank bounded by the hidden dimension; the source
+  annote      = {Logit matrix rank bounded by the hidden dimension; the source
                Han et al. cite for the input-dimension bound},
 }
 
@@ -246,7 +246,7 @@
   title     = {{DepGraph}: Towards Any Structural Pruning},
   booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
   year      = {2023},
-  note      = {The target speedup ratio is supplied by the user;
+  annote      = {The target speedup ratio is supplied by the user;
                pruning does not select width},
 }
 
@@ -256,7 +256,7 @@
   title     = {Rethinking the Value of Network Pruning},
   booktitle = {International Conference on Learning Representations (ICLR)},
   year      = {2019},
-  note      = {The pruned architecture, not the inherited weights, is what matters},
+  annote      = {The pruned architecture, not the inherited weights, is what matters},
 }
 
 @inproceedings{frankle2021missingMark,
@@ -266,7 +266,7 @@
                the Mark?},
   booktitle = {International Conference on Learning Representations (ICLR)},
   year      = {2021},
-  note      = {Per-weight decisions can be replaced by a per-layer FRACTION --
+  annote      = {Per-weight decisions can be replaced by a per-layer FRACTION --
                i.e. width is the operative variable},
 }
 
@@ -277,7 +277,7 @@
   title     = {The Cascade-Correlation Learning Architecture},
   booktitle = {Advances in Neural Information Processing Systems (NIPS)},
   year      = {1990},
-  note      = {Units added one at a time against the residual error;
+  annote      = {Units added one at a time against the residual error;
                stopping rule is an operator-set patience},
 }
 
@@ -286,7 +286,7 @@
   title   = {Self-Expanding Neural Networks},
   journal = {arXiv preprint arXiv:2307.04526},
   year    = {2024},
-  note    = {Natural expansion score with an explicit stopping rule and a
+  annote    = {Natural expansion score with an explicit stopping rule and a
              termination bound -- but tau and alpha are swept per dataset},
 }
 % UNVERIFIED: author list beyond the first.
@@ -297,7 +297,7 @@
   title     = {When, Where, and How to Add New Neurons to {ANNs}},
   booktitle = {International Conference on Automated Machine Learning (AutoML)},
   year      = {2022},
-  note      = {VERIFIED 2026-09-03. Adds CONV FILTERS; VGG-11 and
+  annote      = {VERIFIED 2026-09-03. Adds CONV FILTERS; VGG-11 and
                WideResNet-28 on CIFAR-10/100. Trigger is the epsilon-numerical
                rank of post-activations normalised by layer width -- the same
                family of statistic this paper measures, so cite in Method, not
@@ -311,7 +311,7 @@
   title     = {Splitting Steepest Descent for Growing Neural Architectures},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   year      = {2019},
-  note      = {$\lambda_{\min}(S) \ge 0$ is a genuine stationarity criterion,
+  annote      = {$\lambda_{\min}(S) \ge 0$ is a genuine stationarity criterion,
                but the schedule is still a 30\%-per-phase budget},
 }
 
@@ -335,7 +335,7 @@
   title     = {Bayesian Compression for Deep Learning},
   booktitle = {Advances in Neural Information Processing Systems (NIPS)},
   year      = {2017},
-  note      = {The pruning threshold is set by manual inspection --
+  annote      = {The pruning threshold is set by manual inspection --
                quotable admission},
 }
 
@@ -346,7 +346,7 @@
                Efficient Deployment},
   booktitle = {International Conference on Learning Representations (ICLR)},
   year      = {2020},
-  note      = {~1200 GPU-hours; width comes from a deployment budget,
+  annote      = {~1200 GPU-hours; width comes from a deployment budget,
                not from the data},
 }
 
@@ -365,7 +365,7 @@
   title     = {Learning Ordered Representations with Nested Dropout},
   booktitle = {International Conference on Machine Learning (ICML)},
   year      = {2014},
-  note      = {Recovers the top-K eigenvectors in order under an
+  annote      = {Recovers the top-K eigenvectors in order under an
                orthonormality constraint; truncation is at inference time},
 }
 
@@ -377,7 +377,7 @@
   title     = {Matryoshka Representation Learning},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   year      = {2022},
-  note      = {Granularities are hand-chosen; k is left to the user},
+  annote      = {Granularities are hand-chosen; k is left to the user},
 }
 
 @inproceedings{finn2015compactCNN,
@@ -386,7 +386,7 @@
                Nested Dropout},
   booktitle = {ICLR Workshop},
   year      = {2015},
-  note      = {arXiv:1412.7155. Orders conv filters and reduces 32->23,
+  annote      = {arXiv:1412.7155. Orders conv filters and reduces 32->23,
                32->25 on CIFAR-10, but with no formal stopping rule and
                no PCA/deflation framing},
 }
@@ -402,7 +402,7 @@
   number  = {3},
   pages   = {242--247},
   year    = {1983},
-  note    = {The parallel update our streaming covariance uses},
+  annote    = {The parallel update our streaming covariance uses},
 }
 
 @article{field1987relations,
@@ -414,7 +414,7 @@
   number  = {12},
   pages   = {2379--2394},
   year    = {1987},
-  note    = {1/f amplitude spectrum: why patch-covariance eigenvalues
+  annote    = {1/f amplitude spectrum: why patch-covariance eigenvalues
              decay fast and the eigenvectors are DCT-like},
 }
 
@@ -426,7 +426,7 @@
   number  = {23},
   pages   = {3327--3338},
   year    = {1997},
-  note    = {The standing objection to any conv1 argument built on
+  annote    = {The standing objection to any conv1 argument built on
              second-order statistics},
 }
 
@@ -445,7 +445,7 @@
   number  = {2},
   pages   = {179--185},
   year    = {1965},
-  note    = {Parallel analysis: an empirical null by permutation,
+  annote    = {Parallel analysis: an empirical null by permutation,
              immune to the heavy tails that kill Marchenko-Pastur},
 }
 

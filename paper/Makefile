@@ -12,7 +12,7 @@
 
 MAIN = main
 
-.PHONY: all watch clean wc todo
+.PHONY: all watch clean wc todo tectonic
 
 all: $(MAIN).pdf
 
@@ -33,3 +33,7 @@ wc:
 
 todo:
 	@grep -n 'todo{' $(MAIN).tex | sed 's/^\([0-9]*\).*todo{/\1: /' | cut -c1-100
+
+# Alternative build without a TeX Live install: brew install tectonic
+tectonic:
+	tectonic -X compile $(MAIN).tex --keep-logs

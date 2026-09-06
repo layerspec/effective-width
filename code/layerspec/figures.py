@@ -292,7 +292,7 @@ def fig_threshold(results: dict[str, pd.DataFrame], out_dir: str,
     taus = [c for c in sub.columns if c.startswith("k_star_ratio_")]
     taus = sorted(taus, key=lambda c: float(c.rsplit("_", 1)[1]))
 
-    fig, ax = plt.subplots(figsize=(ONE_COL, 2.4))
+    fig, ax = plt.subplots(figsize=(ONE_COL, 2.4), constrained_layout=True)
     x = _relative_depth(sub)
     for i, col in enumerate(taus):
         shade = 0.15 + 0.85 * (i / max(len(taus) - 1, 1))
