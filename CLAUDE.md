@@ -91,8 +91,8 @@
   （`layerspec.analyse --latex` 產的 `table_shape.tex` 是 rho_late 表，論文已不引用）
 - 重算審查數字：`cd code && python3 scripts/review_checks.py --results ../results`
 - 承重主張（全部 checkpoint）：`cd code && python3 scripts/checkpoint_analysis.py --results ../results`
-- 測試：`cd code && python3 -m pytest tests/test_core.py -q`（需要 torch；本機 Mac 沒有，用暫存 venv 或 pod）
-- 論文需要 IEEEtran（`texlive-publishers`，或用 Overleaf）
+- 測試：`cd code && python3 -m pytest tests/test_core.py -q`（需要 torch 與 pytest；系統 python3 只有 pandas／scipy／matplotlib，測試要用暫存 venv 或 pod）
+- 論文編譯：本機已裝 tectonic（`brew install tectonic`，2026-09-07），`cd paper && make tectonic` 產生 `main.pdf`（自動抓 IEEEtran）；也可用 Overleaf
 - 改動 `hooks.py` 的鍵值方式時要格外小心：ResNet block 會重用同一個
   `nn.ReLU`，只用模組名當鍵會**靜默地**把不同的激活位置合併起來。已用
   call index 修掉，並有測試。
