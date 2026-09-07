@@ -507,47 +507,66 @@
 @inproceedings{bansal2018orthogonality,
   author    = {Bansal, Nitin and Chen, Xiaohan and Wang, Zhangyang},
   title     = {Can We Gain More from Orthogonality Regularizations in Training Deep Networks?},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  booktitle = {Advances in Neural Information Processing Systems},
+  volume    = {31},
+  editor    = {S. Bengio and H. Wallach and H. Larochelle and K. Grauman and N. Cesa-Bianchi and R. Garnett},
+  publisher = {Curran Associates, Inc.},
   year      = {2018},
-  annote    = {SO/DSO/MC/SRIP definitions; states that for C_out > d the Gram matrix is rank-deficient and SO is a biased objective. Verify page numbers before submission.},
+  note      = {arXiv:1810.09102. The paper PDF carries the title ``\ldots in Training Deep CNNs?''},
+  annote  = {SO/DSO/MC/SRIP definitions; states that for C_out > d the Gram matrix is rank-deficient and SO is a biased objective. Verify page numbers before submission.}
 }
 
 @inproceedings{massart2022orthogonal,
   author    = {Massart, Estelle},
   title     = {Orthogonal Regularizers in Deep Learning: How to Handle Rectangular Matrices?},
-  booktitle = {International Conference on Pattern Recognition (ICPR)},
+  booktitle = {2022 26th International Conference on Pattern Recognition (ICPR)},
+  address   = {Montr{\'e}al, QC, Canada},
+  pages     = {1294--1299},
   year      = {2022},
-  annote    = {Minimiser sets of SO/DSO/SRIP/MC on wide matrices; SRIP minimised iff singular values in [0, sqrt 2]; MC at n = p-1 minimised by the regular simplex. Read from the author's version 2026-09-07; check the IEEE version.},
+  doi       = {10.1109/ICPR56361.2022.9956205},
+  annote  = {Minimiser sets of SO/DSO/SRIP/MC on wide matrices; SRIP minimised iff singular values in [0, sqrt 2]; MC at n = p-1 minimised by the regular simplex. Read from the author's version 2026-09-07; check the IEEE version.}
 }
 
 @inproceedings{huang2018own,
   author    = {Huang, Lei and Liu, Xianglong and Lang, Bo and Yu, Adams Wei and Wang, Yongliang and Li, Bo},
   title     = {Orthogonal Weight Normalization: Solution to Optimization over Multiple Dependent {S}tiefel Manifolds in Deep Neural Networks},
-  booktitle = {AAAI Conference on Artificial Intelligence},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume    = {32},
+  number    = {1},
+  pages     = {3271--3278},
   year      = {2018},
-  annote    = {Theorem 1: cov(x) = sigma^2 I implies cov(Wx) = sigma^2 I for orthogonal W; outputs de-correlated if the input is whitened.},
+  doi       = {10.1609/aaai.v32i1.11768},
+  note      = {arXiv:1709.06079},
+  annote  = {Theorem 1: cov(x) = sigma^2 I implies cov(Wx) = sigma^2 I for orthogonal W; outputs de-correlated if the input is whitened.}
 }
 
 @inproceedings{huang2020oni,
   author    = {Huang, Lei and Liu, Li and Zhu, Fan and Wan, Diwen and Yuan, Zehuan and Li, Bo and Shao, Ling},
   title     = {Controllable Orthogonalization in Training {DNN}s},
-  booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {6428--6437},
   year      = {2020},
-  annote    = {ONI; states that for n > d the rows cannot be orthogonal and that the decorrelation property holds only for n <= d. Verify author list before submission.},
+  doi       = {10.1109/CVPR42600.2020.00646},
+  note      = {arXiv:2004.00917},
+  annote  = {ONI; states that for n > d the rows cannot be orthogonal and that the decorrelation property holds only for n <= d. Verify author list before submission.}
 }
 
 @inproceedings{wang2020ocnn,
   author    = {Wang, Jiayun and Chen, Yubei and Chakraborty, Rudrasis and Yu, Stella X.},
   title     = {Orthogonal Convolutional Neural Networks},
-  booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {11502--11512},
   year      = {2020},
-  annote    = {Kernel orthogonality is necessary but not sufficient for operator orthogonality; fat/tall kernels handled as a normalised frame.},
+  doi       = {10.1109/CVPR42600.2020.01152},
+  note      = {arXiv:1911.12207},
+  annote  = {Kernel orthogonality is necessary but not sufficient for operator orthogonality; fat/tall kernels handled as a normalised frame.}
 }
 
-@article{wightman2021rsb,
-  author  = {Wightman, Ross and Touvron, Hugo and J{\'e}gou, Herv{\'e}},
-  title   = {{ResNet} Strikes Back: An Improved Training Procedure in timm},
-  journal = {arXiv preprint arXiv:2110.00476},
-  year    = {2021},
-  annote  = {The A1/A2/A3 recipes (BCE loss, heavy augmentation, 600/300/100 epochs). Verify before submission.},
+@misc{wightman2021rsb,
+  author       = {Wightman, Ross and Touvron, Hugo and J{\'e}gou, Herv{\'e}},
+  title        = {{ResNet} Strikes Back: An Improved Training Procedure in {timm}},
+  howpublished = {arXiv:2110.00476},
+  year         = {2021},
+  note         = {NeurIPS 2021 Workshop ``ImageNet: Past, Present, and Future'', best paper award},
+  annote  = {The A1/A2/A3 recipes (BCE loss, heavy augmentation, 600/300/100 epochs). Verify before submission.}
 }
