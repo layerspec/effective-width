@@ -149,7 +149,7 @@ def main(argv=None) -> int:
             row[f"ortho_{tau}"] = kstar(lam_ortho, tau) / r_max
         rows.append(row)
     df = pd.DataFrame(rows).sort_values("depth_index")
-    path = os.path.join(a.out, f"{a.model}_decompose.csv")
+    path = os.path.join(a.out, f"{a.model.replace(':', '_')}_decompose.csv")
     df.to_csv(path, index=False)
     print(df[["layer", "d", "C_out", "n_over_d", "out_0.95", "kernel_0.95", "data_0.95", "ortho_0.95",
               "kernel_erank_over_rmax"]].to_string(index=False), flush=True)

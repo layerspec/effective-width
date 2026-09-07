@@ -22,3 +22,4 @@ results/trajectory_queue.log
 results/measure_queue.log
 results/measure_queue2.log
 results/projection_resnet50.log
+results/decompose_queue.log
