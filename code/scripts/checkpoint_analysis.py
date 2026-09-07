@@ -693,6 +693,14 @@ ARCH_FAMILIES = {
                         "local6400/archs/seed*/timm_vgg16_bn.tv_in1k_random_layers.csv"),
     "densenet121":     ("local6400/archs/trained/timm_densenet121.*_layers.csv",
                         "local6400/archs/seed*/timm_densenet121.tv_in1k_random_layers.csv"),
+    "resnet101":       ("local6400/archs/trained/timm_resnet101.*_layers.csv",
+                        "local6400/archs/seed*/timm_resnet101.tv_in1k_random_layers.csv"),
+    "wide_resnet50_2": ("local6400/archs/trained/timm_wide_resnet50_2.*_layers.csv",
+                        "local6400/archs/seed*/timm_wide_resnet50_2.tv_in1k_random_layers.csv"),
+    "resnext50":       ("local6400/archs/trained/timm_resnext50_32x4d.*_layers.csv",
+                        "local6400/archs/seed*/timm_resnext50_32x4d.tv_in1k_random_layers.csv"),
+    "mobilenetv2":     ("local6400/archs/trained/timm_mobilenetv2_100.*_layers.csv",
+                        "local6400/archs/seed*/timm_mobilenetv2_100.ra_in1k_random_layers.csv"),
     "mobilenetv3":     ("local6400/archs/trained/timm_*mobilenetv3_large_100.*_layers.csv",
                         "local6400/archs/seed*/timm_mobilenetv3_large_100.ra_in1k_random_layers.csv"),
     "efficientnet_b0": ("local6400/archs/trained/timm_*efficientnet_b0.*_layers.csv",
@@ -712,7 +720,7 @@ def conv_role(family: str, layer: str, is_dw: bool) -> str:
     it was checked against the architectures on 2026-09-04."""
     if is_dw:
         return "dw"
-    if family == "resnet50":
+    if family in ("resnet50", "resnet101", "wide_resnet50_2", "resnext50"):
         if layer in ("conv1",):
             return "stem"
         return "3x3" if layer.endswith(".conv2") else "1x1"     # conv1, conv3, downsample
@@ -726,7 +734,7 @@ def conv_role(family: str, layer: str, is_dw: bool) -> str:
         if layer == "features.conv0":
             return "stem"
         return "3x3" if layer.endswith(".conv2") else "1x1"     # denselayer conv1, transition conv
-    if family in ("mobilenetv3", "efficientnet_b0"):
+    if family in ("mobilenetv3", "efficientnet_b0", "mobilenetv2"):
         if layer == "conv_stem":
             return "stem"
         return "1x1"                                              # conv_pw, conv_pwl, conv_head
@@ -747,6 +755,10 @@ FAMILY_LABELS = {
     "resnet34": ("ResNet-34", "basic"),
     "vgg16": ("VGG-16 ($\\pm$BN)", "plain"),
     "densenet121": ("DenseNet-121", "dense"),
+    "resnet101": ("ResNet-101", "bottleneck"),
+    "wide_resnet50_2": ("Wide-ResNet-50-2", "bottleneck (2$\\times$)"),
+    "resnext50": ("ResNeXt-50", "bottleneck (2$\\times$)"),
+    "mobilenetv2": ("MobileNetV2", "inverted residual"),
     "mobilenetv3": ("MobileNetV3-L", "inverted residual"),
     "efficientnet_b0": ("EfficientNet-B0", "inverted residual"),
 }
