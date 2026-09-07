@@ -99,6 +99,8 @@
 - 重算審查數字：`cd code && python3 scripts/review_checks.py --results ../results`
 - 承重主張（全部 checkpoint）：`cd code && python3 scripts/checkpoint_analysis.py --results ../results`
 - 測試與本機量測：`~/.venvs/effwidth/bin/python`（2026-09-07 建的持久 venv，torch 2.14＋MPS、timm、pytest）。`cd code && ~/.venvs/effwidth/bin/python -m pytest tests/test_core.py -q`。系統 python3 只有 pandas／scipy／matplotlib，夠跑分析與畫圖。
+- **若 2026-09-07 的 measure2 沒跑完**（`results/measure_queue2.log` 沒有 `measure queue 2 done`），先跑
+  `nohup caffeinate -i results/measure_queue2_resume.sh >> results/measure_queue2.log 2>&1 &`（會略過已量的），再啟動下面的軌跡隊列。
 - **每天開機後執行一次**（CIFAR 軌跡分多天跑，會自動續跑、跑完自動略過）：
   `cd /Users/ccli/Downloads/effective-width-claude && nohup caffeinate -i results/cifar_local.sh >> results/cifar_local.log 2>&1 &`
   進度看 `results/cifar_local.log`；`trajectory_cifar.py` 每個 epoch 存 `resume.pt`，蓋上蓋子只損失當前 epoch。
