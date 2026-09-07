@@ -32,8 +32,7 @@
 
 \begin{document}
 
-\title{Measuring the Effective Width of Convolutional Layers:
-Three Pitfalls, and What Training Changes Depends on the Block}
+\title{Measuring the Effective Width of Convolutional Layers: Protocol, Pitfalls, and the Comparison with Initialisation}
 
 \author{Cheng-Chung~Li%
 \thanks{C.-C. Li is with the Taiwan Power Research Institute, Taiwan Power
@@ -61,9 +60,7 @@ convolution outputs are different objects. With these fixed, the protocol
 recovers the published CIFAR-10 profile of Garg \emph{et al.} on a network we
 train ourselves ($r = 0.98$ over 13 layers). We then ask what training changes,
 using two to six checkpoints and three to five random initialisations per
-family on one image set. The answer depends on the block type. In plain,
-basic-residual and dense networks the layer ordering is set by the
-architecture and training raises the level. In bottleneck ResNet-50 the
+family on one image set. In the families measured the answer differs by family. In plain, basic-residual and dense networks the layer ordering is largely the architecture's and training raises the level. In bottleneck ResNet-50 the
 ordering is learned: six training recipes agree with each other
 ($\rho = 0.84$) and not with initialisation ($\rho = -0.08$), and the depth
 trend reverses sign. The available inverted-residual checkpoints share no profile at all. Code, spectra and the pre-registered analysis plan with its
@@ -146,10 +143,9 @@ effective width. The contributions are:
   bound of its last convolution in 161 of 161 blocks, by a factor of about
   four (Sections~\ref{sec:rmax}, \ref{sec:estimator} and \ref{sec:blockout}).
 
-  \item \textbf{Training acts differently on different block types.} With two
+  \item \textbf{What training changes, compared with initialisation.} With two
   to six trained checkpoints and three to five random initialisations per
-  family, measured on the same images, we compare the ordering of layers in
-  the trained profile with the ordering at initialisation. In plain,
+  family, measured on the same images, we compare the ordering of layers in the trained profile with the ordering at initialisation. In the families measured the answer differs by family. In plain,
   basic-residual and densely connected networks (VGG-16, ResNet-18/34,
   DenseNet-121) the ordering is largely architectural
   ($\rho_{\rm trained,random} = 0.6$--$0.75$) and training raises the level by $0.09$--$0.19$ in the median over layers. That rise exceeds the profile's own adjacent-layer step in three of the four families. In bottleneck ResNet-50 the ordering is learned: six recipes
@@ -264,7 +260,7 @@ makes the comparison of a trained profile with its own initialisation the
 natural control. We are not aware of a published depth profile that reports
 it. Section~\ref{sec:learned} does so for seven architecture families, with
 several trained checkpoints and several random initialisations each, and
-finds that the answer depends on the block type.
+finds that the answer differs by family.
 
 \subsection{Spectral decay and the choice of statistic}
 \label{sec:mp}
@@ -847,7 +843,7 @@ report the direction and do not claim more. (A first-round test that
 pooled the two kinds gave $p = 6 \times 10^{-4}$; it violated the
 separation of Section~\ref{sec:dwsplit} and is withdrawn.)
 
-\subsection{What training changes, by block type}
+\subsection{What training changes, compared with initialisation}
 \label{sec:learned}
 
 \emph{Exploratory; full validation set for the paired test, the $6{,}400$-image subset with several seeds for everything else.}\label{sec:trained} The profiles are not implied by architecture and input statistics alone, and for ResNet-50 the statement has an error bar. Against
@@ -887,7 +883,7 @@ trained and random profiles.
   \input{table_families}
 \end{table*}
 
-Three behaviours appear, and they sort by block type.
+Three behaviours appear in the families measured, and they sort by block type; whether the block is the cause is taken up below.
 
 \emph{Plain, basic-residual and densely connected networks learn a level,
 not an ordering.} For VGG-16, ResNet-18, ResNet-34 and DenseNet-121 the
@@ -1113,8 +1109,7 @@ reports: normalising by nominal rather than attainable width caps every
 expansion layer at the expansion ratio and misreads bottleneck networks as
 underused, in all 14 networks that have such layers; estimating the covariance after global pooling lowers the value at 687 of 703 layers, and by more than the profile's own step in 18 of 19 networks; and reading the block output instead of
 the convolution output raises it by the expansion ratio in 161 of 161
-blocks. With those choices fixed and stated, the protocol reproduces the one published CIFAR-10 table it can be compared with ($r = 0.98$, two layers differing by $0.2$), and the question of
-what training changes has an answer that depends on the block: plain, basic-residual and dense networks largely keep the ordering the architecture gave them and gain a level; bottleneck networks learn an ordering uncorrelated
+blocks. With those choices fixed and stated, the protocol reproduces the one published CIFAR-10 table it can be compared with ($r = 0.98$, two layers differing by $0.2$), and what training changes differs across the families measured: plain, basic-residual and dense networks largely keep the ordering the architecture gave them and gain a level; bottleneck networks learn an ordering uncorrelated
 with initialisation and reverse the trend with depth; inverted-residual
 checkpoints share no profile at all. Measurement code, the eigenvalue
 spectra of every layer, and the analysis plan with its deviation log are
