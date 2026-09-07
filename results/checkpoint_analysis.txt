@@ -393,18 +393,18 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     densenet121      all   120  2  3  +0.94 [+0.93,+0.96]  +0.91 [+0.91,+0.91]  +0.71 [+0.65,+0.75]  0.660/0.406    +0.165  0.56 0.64
     densenet121      3x3    58  2  3  +0.56 [+0.45,+0.71]  +0.68 [+0.68,+0.68]  -0.26 [-0.33,-0.09]  0.781/0.594    +0.180  0.73 0.81
     densenet121      1x1    61  2  3  +0.92 [+0.92,+0.93]  +0.93 [+0.93,+0.93]  +0.39 [+0.33,+0.44]  0.465/0.289    +0.152  0.40 0.48
-    resnet101        missing (0 trained, 0 random)
+    resnet101        missing (0 trained, 1 random)
     wide_resnet50_2  missing (0 trained, 0 random)
     resnext50        missing (0 trained, 0 random)
     mobilenetv2      missing (0 trained, 0 random)
-    mobilenetv3      under k*/C: R-R +0.94  T-T +0.61  T-R +0.55
-    mobilenetv3      all    31  3  3  +0.75 [+0.68,+0.94]  -0.19 [-0.19,+0.40]  -0.26 [-0.66,+0.72]  0.500/0.525    -0.085  0.18 0.44 0.65
-    mobilenetv3      1x1    30  3  3  +0.73 [+0.66,+0.94]  -0.14 [-0.23,+0.44]  -0.30 [-0.63,+0.69]  0.506/0.531    -0.090  0.18 0.45 0.65
-    mobilenetv3      dw     15  3  3  +0.37 [+0.33,+0.79]  +0.50 [+0.38,+0.59]  -0.05 [-0.48,+0.32]  0.188/0.408    -0.224  0.09 0.17 0.34
-    efficientnet_b0  under k*/C: R-R +0.99  T-T +0.66  T-R +0.69
-    efficientnet_b0  all    33  2  3  +0.97 [+0.95,+0.99]  +0.10 [+0.10,+0.10]  +0.14 [-0.31,+0.60]  0.539/0.550    -0.097  0.10 0.70
-    efficientnet_b0  1x1    32  2  3  +0.97 [+0.95,+0.99]  +0.14 [+0.14,+0.14]  +0.12 [-0.29,+0.56]  0.558/0.550    -0.101  0.10 0.71
-    efficientnet_b0  dw     16  2  3  +0.97 [+0.97,+0.99]  -0.10 [-0.10,-0.10]  -0.12 [-0.65,+0.45]  0.162/0.348    -0.175  0.05 0.25
+    mobilenetv3      under k*/C: R-R +0.94  T-T +0.64  T-R +0.72
+    mobilenetv3      all    31  4  3  +0.75 [+0.68,+0.94]  -0.18 [-0.30,+0.86]  +0.14 [-0.66,+0.72]  0.525/0.525    -0.047  0.18 0.44 0.65 0.57
+    mobilenetv3      1x1    30  4  3  +0.73 [+0.66,+0.94]  -0.13 [-0.34,+0.85]  +0.10 [-0.63,+0.69]  0.537/0.531    -0.050  0.18 0.45 0.65 0.59
+    mobilenetv3      dw     15  4  3  +0.37 [+0.33,+0.79]  +0.57 [+0.38,+0.69]  -0.05 [-0.48,+0.32]  0.199/0.408    -0.201  0.09 0.17 0.34 0.29
+    efficientnet_b0  under k*/C: R-R +0.99  T-T +0.75  T-R +0.87
+    efficientnet_b0  all    33  5  3  +0.97 [+0.95,+0.99]  +0.40 [+0.10,+0.99]  +0.54 [-0.31,+0.61]  0.613/0.550    -0.005  0.10 0.70 0.69 0.26 0.71
+    efficientnet_b0  1x1    32  5  3  +0.97 [+0.95,+0.99]  +0.38 [+0.14,+0.99]  +0.50 [-0.29,+0.57]  0.625/0.550    -0.006  0.10 0.71 0.70 0.26 0.73
+    efficientnet_b0  dw     16  5  3  +0.97 [+0.97,+0.99]  +0.29 [-0.37,+0.87]  +0.36 [-0.65,+0.60]  0.225/0.348    -0.122  0.05 0.25 0.29 0.13 0.30
 
   Reading: 'learned order' = T-R well below both R-R and T-T.  A family
   whose T-T is near zero has no recipe-independent trained profile at all;
@@ -438,19 +438,21 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
        90  92.89   0.296       -0.68        +0.93         +1.00         0.004
       100  94.01   0.296       -0.68        +0.93         +1.00         0.000
 
-  [trajectory_resnet50]  53 conv layers, epochs measured 0..3  (IN PROGRESS: 'final' = latest epoch)
+  [trajectory_resnet50]  53 conv layers, epochs measured 0..7  (IN PROGRESS: 'final' = latest epoch)
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
-        0  10.24   0.185       -0.85        +1.00         +0.25         0.192
-        1  45.46   0.352       +0.86        -0.60         +0.48         0.123
-        2  52.30   0.461       +0.74        -0.43         +0.67         0.076
-        3  57.82   0.414       +0.13        +0.25         +1.00         0.000
-    role 3x3: rho(init, final) +0.02   level init 0.244 -> final 0.453
-    role 1x1: rho(init, final) +0.35   level init 0.180 -> final 0.402
+        0  10.24   0.185       -0.85        +1.00         +0.87         0.102
+        1  45.46   0.352       +0.86        -0.60         -0.33         0.201
+        2  52.30   0.461       +0.74        -0.43         -0.12         0.175
+        3  57.82   0.414       +0.13        +0.25         +0.57         0.108
+        5  68.13   0.371       -0.64        +0.89         +0.99         0.025
+        7  76.51   0.352       -0.62        +0.87         +1.00         0.000
+    role 3x3: rho(init, final) +0.88   level init 0.244 -> final 0.373
+    role 1x1: rho(init, final) +0.87   level init 0.180 -> final 0.346
 
   Summary (settle = first measured epoch with rho vs final >= 0.95):
     run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
     trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
-    trajectory_resnet50      no      3      57.82     57.82            +0.25       -0.85 -> +0.13
+    trajectory_resnet50      no      5      68.13     76.51            +0.87       -0.85 -> -0.62
 
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
   is when the learned profile is in place; compare it with the accuracy
@@ -471,3 +473,43 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
      0.990  0.457   0.627     73.56%    0.16%
      0.999  0.628   0.858     76.09%    0.12%
   wrote ../paper/table_projection.tex
+
+========================================================================
+11. Where the effective width comes from: Sigma_out = W Sigma_patch W^T
+========================================================================
+  scripts/decompose_check.py on the 6,400-image subset, dense conv layers.
+  out    = k*(W Sigma W^T)/r_max   (the measured statistic, recomputed from the identity)
+  kernel = k*(W W^T)/r_max         (what the layer would show under white patches)
+  data   = min(k*(Sigma), r_max)/r_max
+  ortho  = k*(W_o Sigma W_o^T)/r_max, W_o the polar factor of W (nearest isometry)
+  'rho' columns: Spearman across layers against 'out'.  |out-meas| = max abs
+  difference from the independently measured k*(0.95)/r_max on the same subset
+  (the identity check; skipped for random inits, whose seeds differ).
+
+    model                                    L n/d min    tau    out kernel  data ortho  rho(kern) rho(data) rho(ortho)  ortho>out  |out-meas|
+    resnet18                                20      67  0.950   0.53   0.75  1.00  0.80      +0.81     +0.41      +0.67    19/20              
+    resnet18                                20      67  0.999   0.96   0.99  1.00  1.00      +0.86     +0.34      +0.58    20/20              
+    resnet50                                53      67  0.950   0.42   0.69  1.00  0.76      +0.88     +0.32      +0.84    52/53         0.004
+    resnet50                                53      67  0.999   0.93   0.99  1.00  1.00      +0.90     +0.36      +0.75    53/53              
+    resnet50_random                         53      67  0.950   0.20   0.86  0.28  0.22      +0.44     +0.94      +0.99    45/53              
+    resnet50_random                         53      67  0.999   0.88   1.00  1.00  0.91      +0.45     +0.83      +0.96    49/53              
+    timm:densenet121.tv_in1k               120     267  0.950   0.70   0.84  1.00  0.87      +0.97     +0.50      +0.97   119/120        0.008
+    timm:densenet121.tv_in1k               120     267  0.999   0.99   1.00  1.00  1.00      +0.84     +0.40      +0.66    65/120             
+    timm:efficientnet_b0.ra_in1k            33     267  0.950   0.70   0.86  0.89  0.82      +0.46     +0.78      +0.82    31/33         0.005
+    timm:efficientnet_b0.ra_in1k            33     267  0.999   0.99   1.00  1.00  1.00      +0.31     +0.56      +0.59    16/33              
+    timm:mobilenetv3_large_100.ra_in1k      31     320  0.950   0.67   0.82  0.88  0.80      +0.70     +0.67      +0.75    30/31         0.006
+    timm:mobilenetv3_large_100.ra_in1k      31     320  0.999   0.97   1.00  1.00  1.00      +0.57     +0.57      +0.60    25/31              
+    timm:resnet34.a1_in1k                   36      67  0.950   0.62   0.82  1.00  0.82      +0.57     +0.42      +0.83    36/36         0.008
+    timm:resnet34.a1_in1k                   36      67  0.999   0.98   1.00  1.00  1.00      +0.45     +0.49      +0.71    34/36              
+    timm:resnet50.a1_in1k                   53      67  0.950   0.52   0.77  1.00  0.75      +0.88     +0.28      +0.82    50/53         0.008
+    timm:resnet50.a1_in1k                   53      67  0.999   0.95   0.99  1.00  0.99      +0.70     +0.51      +0.82    52/53              
+    timm:resnet50.tv2_in1k                  53      67  0.950   0.50   0.73  1.00  0.77      +0.84     +0.24      +0.76    52/53         0.008
+    timm:resnet50.tv2_in1k                  53      67  0.999   0.95   0.99  1.00  0.99      +0.77     +0.47      +0.74    53/53              
+    vgg16_bn                                13      67  0.950   0.42   0.73  1.00  0.76      +0.97     +0.63      +0.88    12/13              
+    vgg16_bn                                13      67  0.999   0.95   0.98  1.00  0.99      +0.90     +0.46      +0.80    13/13              
+
+  Reading: 'kernel' vs 'out' says how much the layer's width is set by the
+  kernel spectrum alone; 'ortho' is the analytic prediction for orthogonalising
+  the kernel with the data held fixed, to be tested against trained-with-
+  orthogonality-penalty networks (submission bar A5).
+  wrote ../paper/table_decompose.tex

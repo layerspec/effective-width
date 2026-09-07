@@ -128,6 +128,36 @@ def fig_threshold_vgg(results: str, out: str) -> str:
     return fig_threshold(layers, out, "vgg16_bn")
 
 
+def fig_decompose(results: str, out: str) -> list[str]:
+    """Per-layer decomposition for ResNet-50, trained (tv V1) and at
+    initialisation: measured k*/r_max, kernel-only (white patches), and the
+    orthogonalised-kernel counterfactual."""
+    made = []
+    for tag, fn in (("trained", "resnet50_decompose.csv"), ("random", "resnet50_random_decompose.csv")):
+        path_in = os.path.join(results, "decompose", fn)
+        if not os.path.exists(path_in):
+            continue
+        _style()
+        d = pd.read_csv(path_in).sort_values("depth_index")
+        x = np.arange(1, len(d) + 1)
+        fig, ax = plt.subplots(figsize=(ONE_COL, 2.3), constrained_layout=True)
+        ax.plot(x, d["kernel_0.95"], color=SERIES[1], marker="s", dashes=(5, 2), label=r"kernel only ($WW^\top$)")
+        ax.plot(x, d["ortho_0.95"], color=SERIES[2], marker="^", dashes=(1.5, 1.5), label=r"orthogonalised kernel")
+        ax.plot(x, d["data_0.95"], color=MUTED, lw=0.8, label=r"patch covariance (capped)")
+        ax.plot(x, d["out_0.95"], color=SERIES[0], marker="o", label=r"measured ($W\Sigma W^\top$)")
+        ax.axhline(1.0, color=MUTED, lw=0.7, ls=(0, (2, 3)))
+        ax.set_xlim(1, len(d)); ax.set_ylim(0, 1.05)
+        ax.set_xlabel("convolutional layer (depth order)")
+        ax.set_ylabel(r"$k^*(0.95)/r_{\max}$")
+        ax.set_title(f"ResNet-50, {tag}", color=INK)
+        _tidy(ax)
+        ax.legend(frameon=False, loc="lower right" if tag == "trained" else "upper right", fontsize=6)
+        path = os.path.join(out, f"fig6_decompose_{tag}.pdf")
+        fig.savefig(path); fig.savefig(path.replace(".pdf", ".png")); plt.close(fig)
+        made.append(path)
+    return made
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--results", default="../results")
@@ -135,7 +165,7 @@ def main(argv=None) -> int:
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     for f in [fig_profile_r50(a.results, a.out), fig_metrics_subset(a.results, a.out),
-              fig_threshold_vgg(a.results, a.out)] + fig_trajectory(a.results, a.out):
+              fig_threshold_vgg(a.results, a.out)] + fig_trajectory(a.results, a.out) + fig_decompose(a.results, a.out):
         print("wrote", f)
     return 0
 

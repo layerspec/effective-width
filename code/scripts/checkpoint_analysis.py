@@ -995,7 +995,9 @@ def section_decompose(results: str, latex: str | None = None) -> None:
     print("  kernel = k*(W W^T)/r_max         (what the layer would show under white patches)")
     print("  data   = min(k*(Sigma), r_max)/r_max")
     print("  ortho  = k*(W_o Sigma W_o^T)/r_max, W_o the polar factor of W (nearest isometry)")
-    print("  'rho' columns: Spearman across layers against 'out'.\n")
+    print("  'rho' columns: Spearman across layers against 'out'.  |out-meas| = max abs")
+    print("  difference from the independently measured k*(0.95)/r_max on the same subset")
+    print("  (the identity check; skipped for random inits, whose seeds differ).\n")
     print(f"    {'model':38s} {'L':>3s} {'n/d min':>7s}  {'tau':>5s}  {'out':>5s} {'kernel':>6s} {'data':>5s} {'ortho':>5s}  "
           f"{'rho(kern)':>9s} {'rho(data)':>9s} {'rho(ortho)':>10s}  {'ortho>out':>9s}  {'|out-meas|':>10s}")
     rows = []
@@ -1004,9 +1006,9 @@ def section_decompose(results: str, latex: str | None = None) -> None:
         model = d.model.iloc[0]
         # identity check against the independent measurement on the same subset, if present
         meas = None
-        for cand in (os.path.join(results, "local6400", "trained", f"{model}_layers.csv"),
+        for cand in ([] if model.endswith("_random") else [os.path.join(results, "local6400", "trained", f"{model}_layers.csv"),
                      os.path.join(results, "local6400", "archs", "trained", f"{model.replace(':', '_')}_layers.csv"),
-                     os.path.join(results, "local6400", "seed1", f"{model}_layers.csv")):
+                     os.path.join(results, "local6400", "trained", f"{model.replace(':', '_')}_layers.csv")]):
             if os.path.exists(cand):
                 L = pd.read_csv(cand); L = L[L.kind == "conv"]
                 m = d.merge(L[["layer", "k_star_rmax_0.95"]], on="layer")
