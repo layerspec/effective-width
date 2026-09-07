@@ -22,16 +22,19 @@ run() {  # name, then trajectory_cifar.py args
   $PY scripts/trajectory_cifar.py $COMMON "$@" --out $OUT/$name
 }
 
-# A9: trajectories (VGG seed 0 exists from the Mac run: results/trajectory)
-run trajectory_resnet50_s0   --arch resnet50 --seed 0
-run trajectory_vgg16_bn_s1   --arch vgg16_bn --seed 1
-run trajectory_vgg16_bn_s2   --arch vgg16_bn --seed 2
+# A9: trajectories.  These are being run on the Mac over several days
+# (results/cifar_local.sh, resumable); set SKIP_TRAJ=1 to leave them out here.
+if [ -z "${SKIP_TRAJ:-}" ]; then
+  run trajectory_resnet50_s0   --arch resnet50 --seed 0
+  run trajectory_vgg16_bn_s1   --arch vgg16_bn --seed 1
+  run trajectory_vgg16_bn_s2   --arch vgg16_bn --seed 2
+fi
 
 # A2: controlled block type, same recipe, same conv count (52 vs 53), 3 seeds each
 # (trajectory_resnet50_s0 doubles as a2_bottleneck_s0)
 for s in 0 1 2; do
   run a2_basic52_s$s      --arch resnet_basic52 --seed $s
-  [ $s -gt 0 ] && run a2_bottleneck_s$s --arch resnet50 --seed $s
+  if [ $s -gt 0 ] || [ -n "${SKIP_TRAJ:-}" ]; then run a2_bottleneck_s$s --arch resnet50 --seed $s; fi
   run a2_mobilenetv2_s$s  --arch mobilenetv2 --seed $s
 done
 
