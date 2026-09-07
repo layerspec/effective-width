@@ -6,7 +6,7 @@
 cd /Users/ccli/Downloads/effective-width-claude/code
 PY=$HOME/.venvs/effwidth/bin/python
 while pgrep -f 'trajectory_queue.sh|measure_queue.sh' > /dev/null; do sleep 120; done
-COMMON="--data ../data/imagenet_val_6400 --device mps --batch-size 32 --workers 4 --positions 16"
+COMMON="--data ../data/imagenet_val_6400 --device mps --batch-size 32 --workers 2 --positions 16"
 R="timm:resnet101.tv_in1k_random timm:wide_resnet50_2.tv_in1k_random timm:resnext50_32x4d.tv_in1k_random timm:mobilenetv2_100.ra_in1k_random"
 for s in 1 2 3; do
   echo "=== bottleneck extras random seed $s $(date) ==="
