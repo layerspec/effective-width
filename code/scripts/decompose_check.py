@@ -22,6 +22,9 @@ of 2026-09-07; see notes/orthogonality-novelty-2026-09-07.md section 3.
 
     python scripts/decompose_check.py --model resnet50 --data ../data/imagenet_val_6400 \
         --device mps --out ../results/decompose
+    # a CIFAR-10 network from trajectory_cifar.py (round 3, A5):
+    python scripts/decompose_check.py --cifar-arch vgg16_bn --checkpoint ../results/round3/a5_vgg16_bn_so_s0/vgg16_bn_so_cifar10_final.pt \
+        --data ../data --device mps --out ../results/round3_decompose
 """
 from __future__ import annotations
 
@@ -107,11 +110,29 @@ def main(argv=None) -> int:
     p.add_argument("--limit", type=int, default=None)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default="../results/decompose")
+    p.add_argument("--cifar-arch", default=None,
+                   help="a CIFAR-10 architecture from trajectory_cifar.ARCHS; with --checkpoint, "
+                        "decompose a network trained by trajectory_cifar.py on the CIFAR-10 test split")
+    p.add_argument("--checkpoint", default=None, help="state_dict .pt for --cifar-arch (omit = random init)")
+    p.add_argument("--name", default=None, help="output name (default: --model or the checkpoint stem)")
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
 
-    loader, src = build_loader(a.data, a.batch_size, a.workers, limit=a.limit, seed=a.seed)
-    model, tag = build(a.model, pretrained=True, seed=a.seed)
+    if a.cifar_arch:
+        from scripts.trajectory_cifar import ARCHS
+        from scripts.reproduce_garg import cifar_loaders
+        torch.manual_seed(a.seed)
+        model = ARCHS[a.cifar_arch]()
+        if a.checkpoint:
+            model.load_state_dict(torch.load(a.checkpoint, map_location="cpu"))
+        tag = a.checkpoint or f"random_init(seed={a.seed})"
+        _, loader = cifar_loaders(a.data, a.batch_size, a.workers, "cifar10")
+        a.model = a.name or (os.path.splitext(os.path.basename(a.checkpoint))[0] if a.checkpoint
+                             else f"{a.cifar_arch}_random{a.seed}")
+    else:
+        loader, src = build_loader(a.data, a.batch_size, a.workers, limit=a.limit, seed=a.seed)
+        model, tag = build(a.model, pretrained=True, seed=a.seed)
+        a.model = a.name or a.model
     model = model.to(a.device).eval()
     probe = PatchProbe(model, a.positions, a.seed, a.device)
     t0 = time.time()
