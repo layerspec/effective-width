@@ -167,11 +167,11 @@ def main(argv=None) -> int:
                   f"mean k/r_max {np.mean(kr):.3f}", flush=True)
     df = pd.DataFrame(rows)
     df["model"], df["n_calib"], df["n_eval"] = a.model, n_cal, n_eval
-    path = os.path.join(a.out, f"{a.model}_projection.csv")
+    path = os.path.join(a.out, f"{a.model.replace(':', '_')}_projection.csv")
     df.to_csv(path, index=False)
     per = pd.DataFrame([dict(layer=n, C=C, r_max=r, **{f"k_{t}": kstar(w, t) for t in a.taus})
                         for n, (m, V, w, C, r) in layers.items()])
-    per.to_csv(os.path.join(a.out, f"{a.model}_projection_layers.csv"), index=False)
+    per.to_csv(os.path.join(a.out, f"{a.model.replace(':', '_')}_projection_layers.csv"), index=False)
     print("wrote", path, flush=True)
     return 0
 
