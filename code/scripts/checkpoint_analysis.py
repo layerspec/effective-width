@@ -1098,6 +1098,48 @@ def section_round3(results: str) -> None:
               f"-> {'SUPPORTED' if min(tt) >= 0.7 else 'NOT supported'}")
 
 
+# ------------------- section 13: round 3, orthogonality intervention (A5)
+
+def section_round3_ortho(results: str) -> None:
+    d = os.path.join(results, "round3_decompose")
+    files = glob.glob(os.path.join(d, "a5_*_decompose.csv"))
+    if not files:
+        return
+    hdr("13. Round 3, orthogonality penalties vs the analytic prediction (analysis-plan 9.2)")
+    print("  For each penalty arm (so, srip), per layer: measured k*(0.95)/r_max of the")
+    print("  penalised network vs the 'ortho' counterfactual of the matching no-penalty")
+    print("  network (same arch, same seed).  P9.3: median |diff| < 0.1 for SO; P9.4: SRIP does not.")
+    none_of = {"vgg16_bn": {"0": "trajectory", "1": "trajectory_vgg16_bn_s1", "2": "trajectory_vgg16_bn_s2"},
+               "basic52": {k: f"a2_basic52_s{k}" for k in "012"}}
+    rows = []
+    for f in sorted(files):
+        run = os.path.basename(f).replace("_decompose.csv", "")   # a5_<arch>_<o>_s<k>
+        m = re.match(r"a5_(vgg16_bn|basic52)_(so|srip)_s(\d)", run)
+        if not m:
+            continue
+        arch, o, k = m.groups()
+        base = os.path.join(d, none_of[arch][k] + "_decompose.csv")
+        if not os.path.exists(base):
+            print(f"    {run}: no-penalty arm {none_of[arch][k]} not decomposed yet"); continue
+        P = pd.read_csv(f).merge(pd.read_csv(base), on="layer", suffixes=("_pen", "_none"))
+        P = P[P.n_over_d_pen >= 50]
+        diff = (P["out_0.95_pen"] - P["ortho_0.95_none"]).to_numpy()
+        gain = (P["out_0.95_pen"] - P["out_0.95_none"]).to_numpy()
+        rows.append((arch, o, k, len(P), float(np.median(np.abs(diff))), float(np.median(diff)),
+                     float(np.median(gain)), float(np.median(P["kernel_erank_over_rmax_pen"]))))
+    print(f"    {'arch':9s} {'arm':5s} {'seed':>4s} {'L':>3s}  {'med|out-pred|':>13s} {'med(out-pred)':>13s}  {'med gain vs none':>16s}  {'kernel erank/rmax':>17s}")
+    for arch, o, k, L, mad, md, g, ke in rows:
+        print(f"    {arch:9s} {o:5s} {k:>4s} {L:3d}  {mad:13.3f} {md:+13.3f}  {g:+16.3f}  {ke:17.3f}")
+    for o in ("so", "srip"):
+        v = [r[4] for r in rows if r[1] == o]
+        if v:
+            print(f"  {o.upper()}: median |out - prediction| over arms = {np.median(v):.3f}  -> "
+                  f"{'within 0.1 (prediction holds)' if np.median(v) < 0.1 else 'not within 0.1'}")
+
+
+import re  # noqa: E402  (used by section_round3_ortho)
+
+
 # ------------------------------------------------------------------- main
 
 def main(argv=None) -> int:
@@ -1131,6 +1173,7 @@ def main(argv=None) -> int:
     section_projection(a.results, latex=a.latex_projection)
     section_decompose(a.results, latex=a.latex_decompose)
     section_round3(a.results)
+    section_round3_ortho(a.results)
     return 0
 
 
