@@ -307,8 +307,12 @@ ConvNeXt 的 0.246 是真的，而且是**學出來的**，不是架構性質。
 ### 9.1 受控 block 類型實驗（投稿門檻 A2）
 
 - **設計**：CIFAR-10，同一訓練配方（reproduce_garg.py 的 OneCycle 100 epoch），
-  三個架構、各 3 個種子：(a) basic-block ResNet，(b) bottleneck ResNet，兩者
-  conv 層數與各 stage 通道數配到相同；(c) CIFAR 版 MobileNetV2。每個種子記錄
+  三個架構、各 3 個種子：(a) basic-block ResNet [6,6,6,6]（52 個 conv：stem＋48＋3 downsample，36M 參數），
+  (b) bottleneck ResNet-50 [3,4,6,3]（53 個 conv，24M 參數），兩者 stage 深度模式與 block 輸入寬度
+  64/128/256/512 相同，CIFAR stem 相同；bottleneck 的輸出寬度依定義為 4 倍，無法配平，
+  這是 block 類型的一部分而非混淆；(c) CIFAR 版 MobileNetV2（前兩個 stride 改 1，2.2M 參數）。
+  實作：`trajectory_cifar.py --arch {resnet_basic52,resnet50,mobilenetv2}`；
+  pod 腳本 `scripts/run_round3_pod.sh`。每個種子記錄
   初始化剖面與最終剖面（k*(0.95)/r_max，dense conv），並在 §9 的 17 個 epoch
   量測點記錄軌跡。
 - **統計量**：每架構的 R–R（初始化之間）、T–T（種子之間的最終剖面）、T–R
@@ -323,8 +327,10 @@ ConvNeXt 的 0.246 是真的，而且是**學出來的**，不是架構性質。
 
 ### 9.2 正交正則化介入實驗（投稿門檻 A5）
 
-- **設計**：CIFAR-10，VGG-16_BN 與 ResNet-18，同配方，四臂：無正則化、SO
-  （‖WWᵀ−I‖²_F，λ 依 Bansal 2018）、SRIP、ONI（Huang 2020）；各 3 種子。訓練後
+- **設計**：CIFAR-10，VGG-16_BN 與 basic-block ResNet（同 9.1 的 [6,6,6,6]），同配方，
+  三臂：無正則化、SO（‖WWᵀ−I‖²_F，λ=1e-4）、SRIP（λ=1e-2，兩次冪迭代），λ 依 Bansal 2018；
+  各 3 種子。ONI（Huang 2020）是一個層而非懲罰項，本輪不做，列為限制。
+  實作：`trajectory_cifar.py --ortho {none,so,srip}`。訓練後
   用 decompose_check.py 量每層的 out／kernel／data／ortho。
 - **預測（由 Σ_out = W Σ_patch Wᵀ 與 §11 的反事實推出，資料未見）**：
   (P9.3) SO 與 ONI 臂的每層 out 落在無正則化臂的 ortho 預測值 ±0.1 之內
