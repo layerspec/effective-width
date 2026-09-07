@@ -122,6 +122,45 @@ def section_gate(results: str) -> None:
     print("  For contrast, the first-round ImageNet-vs-CIFAR comparison had r = 0.125.")
 
 
+# ---------------------------- section 0b: second gate, Elmoznino & Bonner 2024
+
+def section_gate_eb(results: str, layers: dict) -> None:
+    """Agreement with the published block-output participation ratios of
+    Elmoznino & Bonner (PLOS CB 2024): their eigmetrics CSV (refs/eb2024/, from
+    github.com/EricElmoznino/encoder_dimensionality) vs our pooled PR on the
+    same torchvision ResNet-50 blocks.  They: 10,000 images, Resize(224,224)
+    without crop, avg-pooled block outputs; we: 50,000 images, resize 256 +
+    centre crop 224.  Not the same images, so this is agreement, not
+    reproduction (rule 11)."""
+    path = os.path.join(os.path.dirname(os.path.abspath(results)), "refs", "eb2024",
+                        "eigmetrics_imagenet_pooling-avg.csv")
+    if not os.path.exists(path) or "resnet50" not in layers:
+        return
+    hdr("0b. Second gate: block-output pooled PR vs Elmoznino & Bonner (2024), ResNet-50 V1")
+    E = pd.read_csv(path)
+    E = E[(E.architecture == "ResNet50") & (E.source == "PyTorch")].copy()
+    E["layer"] = E.layer.str.replace(".relu", "", regex=False)
+    for label, kind_sel, ours_key in (("trained", "Supervised", "resnet50"), ("untrained", "Untrained", "resnet50_random")):
+        if ours_key not in layers:
+            continue
+        theirs = E[E.kind == kind_sel][["layer", "effective dimensionality"]].rename(columns={"effective dimensionality": "eb"})
+        ours = layers[ours_key]; ours = ours[ours.kind == "block"][["layer", "C", "pooled_participation_ratio", "pooled_n_over_C_ok"]]
+        m = ours.merge(theirs, on="layer")
+        if m.empty:
+            print(f"  {label}: no matching layers"); continue
+        lo, lt = np.log(m.pooled_participation_ratio), np.log(m.eb)
+        dl = lo - lt
+        gated = m[m.pooled_n_over_C_ok.astype(bool)]
+        print(f"  {label}: {len(m)} blocks matched;  log-log Pearson r = {np.corrcoef(lo, lt)[0, 1]:+.3f}   "
+              f"Spearman = {_rho(lo, lt):+.3f}   median |dlog| = {np.median(np.abs(dl)):.3f}   max = {np.abs(dl).max():.3f}   "
+              f"ours higher on {int((dl > 0).sum())}/{len(m)} (median ratio {np.exp(np.median(dl)):.3f})")
+        print(f"    gated (pooled n/C >= 50, {len(gated)} blocks): max |dlog| = "
+              f"{np.abs(np.log(gated.pooled_participation_ratio) - np.log(gated.eb)).max():.3f}")
+        print(f"    {'block':10s} {'C':>5s} {'ours':>8s} {'E&B':>8s} {'ratio':>6s}")
+        for _, r in m.iterrows():
+            print(f"    {r.layer:10s} {int(r.C):5d} {r.pooled_participation_ratio:8.2f} {r.eb:8.2f} {r.pooled_participation_ratio / r.eb:6.3f}")
+
+
 # ----------------------------------------------------- section 1: r_max bound
 
 def section_rmax(layers: dict) -> None:
@@ -1158,6 +1197,7 @@ def main(argv=None) -> int:
     print(f"loaded {len(layers)} layer tables from {a.results}")
     print(f"duplicates excluded from counts: {DUPLICATES}")
     section_gate(a.results)
+    section_gate_eb(a.results, layers)
     if a.latex_models:
         write_models_table(layers, a.latex_models)
     section_rmax(layers)
