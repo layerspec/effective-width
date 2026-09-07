@@ -232,3 +232,29 @@ cd ~/Downloads/effective-width-claude/results && tar tzf layerspec_results_*.tar
 
 第二篇（正交再評估，約 1,200 GPU-hours）到時候再談，那時才輪到 Vast.ai
 的競價實例，約 US$160。
+
+## 第三輪（RunPod，2026-09-07 準備）
+
+一趟跑完投稿門檻 A2、A5、A6、A9（`notes/submission-bar-2026-09-07.md`）。預先登記在
+`analysis-plan.md` §9。在 pod 上：
+
+```
+git clone git@github.com:layerspec/effective-width.git && cd effective-width/code
+pip install -r requirements.txt
+python -c "import torchvision; torchvision.datasets.CIFAR10('../data', download=True); torchvision.datasets.CIFAR10('../data', train=False, download=True)"
+# 只跑 CIFAR（A2、A5、A9，約 6–9 GPU-hours on 3090）：
+nohup bash scripts/run_round3_pod.sh > ../results/round3.log 2>&1 &
+# 連 A6 一起（需要 ImageNet val 50k）：
+hf auth login && python scripts/fetch_imagenet_val.py --out /data/imagenet_val
+nohup bash scripts/run_round3_pod.sh /data/imagenet_val > ../results/round3.log 2>&1 &
+```
+
+中斷後重跑同一指令會略過已完成的 run（以 `epoch_100_layers.csv` 為準）。結束後：
+
+```
+tar czf round3_$(date +%Y%m%dT%H%M%SZ).tar.gz ../results/round3 ../results/fullval ../results/round3.log
+```
+
+拉回本機解到 `results/`，然後 `python3 scripts/checkpoint_analysis.py --results ../results`
+（§9 會自動掃 `results/round3/*/trajectory_layers.csv`，A2／A5 的判定規則要另寫 §12，見 plan §9）。
+私人 repo 的 clone 需要把 pod 的 SSH 公鑰加到 layerspec 帳號，或用 https + token。
