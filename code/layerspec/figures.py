@@ -176,7 +176,9 @@ def fig_profile(results: dict[str, pd.DataFrame], out_dir: str,
 
 # ---------------------------------------------------------------- figure 2
 
-def fig_metrics(results: dict[str, pd.DataFrame], out_dir: str) -> str:
+def fig_metrics(results: dict[str, pd.DataFrame], out_dir: str,
+                metrics: list[tuple[str, str]] | None = None,
+                ylabel: str = "normalised dimensionality") -> str:
     """Three normalised metrics on the same layers.
 
     This is the reconciliation panel: Garg et al. report k*(0.999), Elmoznino &
@@ -189,7 +191,7 @@ def fig_metrics(results: dict[str, pd.DataFrame], out_dir: str) -> str:
     n = len(keys)
     nrow, ncol = _grid(n)
 
-    metrics = [
+    metrics = metrics or [
         ("k_star_ratio_0.95", r"$k^*/C$ (95%)"),
         ("participation_ratio_norm", "PR$/C$"),
         ("effective_rank_norm", "eff. rank$/C$"),
@@ -216,7 +218,7 @@ def fig_metrics(results: dict[str, pd.DataFrame], out_dir: str) -> str:
         ax.set_xlim(0, 1)
         _tidy(ax)
         if i % ncol == 0:
-            ax.set_ylabel("normalised dimensionality")
+            ax.set_ylabel(ylabel)
         ax.set_xlabel("relative depth")
 
     for k in range(n, nrow * ncol):
