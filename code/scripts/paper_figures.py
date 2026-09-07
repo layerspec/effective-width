@@ -65,10 +65,18 @@ def fig_profile_r50(results: str, out: str) -> str:
     return path
 
 
-def fig_trajectory(results: str, out: str) -> str | None:
-    path_in = os.path.join(results, "trajectory", "trajectory_layers.csv")
-    if not os.path.exists(path_in):
-        return None
+def fig_trajectory(results: str, out: str) -> list[str]:
+    """One panel per results/trajectory*/ run; the VGG seed-0 run keeps the
+    name fig5_trajectory.pdf that the paper inputs."""
+    made = []
+    for path_in in sorted(glob.glob(os.path.join(results, "trajectory*", "trajectory_layers.csv"))):
+        name = os.path.basename(os.path.dirname(path_in))
+        suffix = "" if name == "trajectory" else "_" + name.replace("trajectory_", "")
+        made.append(_fig_trajectory_one(path_in, os.path.join(out, f"fig5_trajectory{suffix}.pdf")))
+    return made
+
+
+def _fig_trajectory_one(path_in: str, path: str) -> str:
     _style()
     d = pd.read_csv(path_in)
     d = d[(d.kind == "conv") & (d.n_over_C >= 50)].copy()
@@ -92,7 +100,6 @@ def fig_trajectory(results: str, out: str) -> str | None:
     ax.set_xlim(0, max(epochs))
     _tidy(ax)
     ax.legend(frameon=False, loc="lower right")
-    path = os.path.join(out, "fig5_trajectory.pdf")
     fig.savefig(path)
     fig.savefig(path.replace(".pdf", ".png"))
     plt.close(fig)
@@ -117,10 +124,9 @@ def main(argv=None) -> int:
     p.add_argument("--out", default="../results/figures")
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
-    for f in (fig_profile_r50(a.results, a.out), fig_metrics_subset(a.results, a.out),
-              fig_threshold_vgg(a.results, a.out), fig_trajectory(a.results, a.out)):
-        if f:
-            print("wrote", f)
+    for f in [fig_profile_r50(a.results, a.out), fig_metrics_subset(a.results, a.out),
+              fig_threshold_vgg(a.results, a.out)] + fig_trajectory(a.results, a.out):
+        print("wrote", f)
     return 0
 
 

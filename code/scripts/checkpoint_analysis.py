@@ -834,34 +834,70 @@ def section_archs(results: str, latex: str | None = None) -> None:
 
 # ----------------------------------------- section 9: training trajectory
 
-def section_trajectory(results: str) -> None:
-    path = os.path.join(results, "trajectory", "trajectory_layers.csv")
-    if not os.path.exists(path):
-        return
-    hdr("9. When does the profile become the trained one?  VGG-16_BN on CIFAR-10")
+def _load_trajectory(path: str):
     d = pd.read_csv(path)
     # trajectory_cifar.py writes the raw metric rows; derive the gate and the
     # r_max-normalised statistic here exactly as run.py does.
     d = d[(d.kind == "conv") & (d.n_over_C >= 50)].copy()
     d["k_star_rmax_0.95"] = d["k_star_0.95"] / d["r_max"]
     epochs = sorted(d.epoch.unique())
-    col = "k_star_rmax_0.95"
-    P = {e: d[d.epoch == e].sort_values("depth_index")[col].to_numpy() for e in epochs}
+    P = {e: d[d.epoch == e].sort_values("depth_index")["k_star_rmax_0.95"].to_numpy() for e in epochs}
     acc = {e: float(d[d.epoch == e].test_acc.iloc[0]) for e in epochs}
-    L = len(P[epochs[0]])
-    depth = np.arange(L)
-    final = P[epochs[-1]]
-    print(f"  {L} conv layers, statistic {col}\n")
-    print(f"    {'epoch':>5s} {'acc%':>6s}  {'level':>6s}  {'rho(depth)':>10s}  "
-          f"{'rho vs init':>11s}  {'rho vs final':>12s}  {'MAD vs final':>12s}")
-    for e in epochs:
-        v = P[e]
-        print(f"    {e:5d} {acc[e]:6.2f}  {np.median(v):6.3f}  {_rho(depth, v):+10.2f}  "
-              f"{_rho(P[epochs[0]], v):+11.2f}  {_rho(final, v):+12.2f}  "
-              f"{np.abs(v - final).mean():12.3f}")
+    layers = d[d.epoch == epochs[0]].sort_values("depth_index").layer.tolist()
+    return epochs, P, acc, layers
+
+
+def section_trajectory(results: str) -> None:
+    runs = sorted(glob.glob(os.path.join(results, "trajectory*", "trajectory_layers.csv")))
+    if not runs:
+        return
+    hdr("9. When does the profile become the trained one?  CIFAR-10 trajectories")
+    print("  statistic k*(0.95)/r_max, conv layers passing n/C >= 50; one table per run")
+    summary = {}
+    for path in runs:
+        name = os.path.basename(os.path.dirname(path))
+        epochs, P, acc, layers = _load_trajectory(path)
+        L = len(P[epochs[0]])
+        depth = np.arange(L)
+        final = P[epochs[-1]]
+        done = epochs[-1] >= 100
+        print(f"\n  [{name}]  {L} conv layers, epochs measured {epochs[0]}..{epochs[-1]}"
+              + ("" if done else "  (IN PROGRESS: 'final' = latest epoch)"))
+        print(f"    {'epoch':>5s} {'acc%':>6s}  {'level':>6s}  {'rho(depth)':>10s}  "
+              f"{'rho vs init':>11s}  {'rho vs final':>12s}  {'MAD vs final':>12s}")
+        for e in epochs:
+            v = P[e]
+            print(f"    {e:5d} {acc[e]:6.2f}  {np.median(v):6.3f}  {_rho(depth, v):+10.2f}  "
+                  f"{_rho(P[epochs[0]], v):+11.2f}  {_rho(final, v):+12.2f}  "
+                  f"{np.abs(v - final).mean():12.3f}")
+        settle = next((e for e in epochs if _rho(final, P[e]) >= 0.95), None)
+        summary[name] = dict(done=done, settle=settle, rho_init_final=_rho(P[epochs[0]], final),
+                             rho_depth_init=_rho(depth, P[epochs[0]]), rho_depth_final=_rho(depth, final),
+                             acc_settle=acc.get(settle), acc_final=acc[epochs[-1]], final=final,
+                             init=P[epochs[0]], layers=layers)
+        if L >= 40:   # bottleneck run: split by conv role as in section 8
+            roles = np.array([conv_role("resnet50", l, False) for l in layers])
+            for role in ("3x3", "1x1"):
+                idx = roles == role
+                print(f"    role {role}: rho(init, final) {_rho(P[epochs[0]][idx], final[idx]):+.2f}"
+                      f"   level init {np.median(P[epochs[0]][idx]):.3f} -> final {np.median(final[idx]):.3f}")
+    print("\n  Summary (settle = first measured epoch with rho vs final >= 0.95):")
+    print(f"    {'run':22s} {'done':>4s} {'settle':>6s} {'acc@settle':>10s} {'acc final':>9s}  "
+          f"{'rho(init,final)':>15s}  {'rho_depth init->final':>22s}")
+    for name, r in summary.items():
+        print(f"    {name:22s} {'yes' if r['done'] else 'no':>4s} {str(r['settle']):>6s} "
+              f"{(r['acc_settle'] or float('nan')):10.2f} {r['acc_final']:9.2f}  {r['rho_init_final']:+15.2f}  "
+              f"{r['rho_depth_init']:+10.2f} -> {r['rho_depth_final']:+.2f}")
+    vgg = [r for n, r in summary.items() if r["done"] and len(r["final"]) == 13]
+    if len(vgg) >= 2:
+        pairs = [_rho(a["final"], b["final"]) for a, b in itertools.combinations(vgg, 2)]
+        print(f"    VGG seeds: final-vs-final rho over {len(pairs)} pairs: "
+              f"median {np.median(pairs):+.2f} [{min(pairs):+.2f}, {max(pairs):+.2f}]")
     print("\n  Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates")
     print("  is when the learned profile is in place; compare it with the accuracy")
-    print("  column to see whether it precedes or follows the fit.")
+    print("  column to see whether it precedes or follows the fit.  For the")
+    print("  bottleneck run the question is whether rho(init, final) is near zero,")
+    print("  as it is across the six ImageNet recipes (section 7), and when it drops.")
 
 
 # ------------------------------------------------------------------- main
