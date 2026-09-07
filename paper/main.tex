@@ -56,9 +56,7 @@ covariance from globally pooled features lowers the measured dimensionality in
 687 of 703 dense layers, and 14 of the 16 exceptions are ties. Third, the
 output of a residual block exceeds the bound that binds its last convolution in
 161 of 161 bottleneck blocks, so profiles taken at block outputs and at
-convolution outputs are different objects. With these fixed, the protocol
-recovers the published CIFAR-10 profile of Garg \emph{et al.} on a network we
-train ourselves ($r = 0.98$ over 13 layers). We then ask what training changes,
+convolution outputs are different objects. With these fixed, the protocol recovers the published CIFAR-10 profile of Garg \emph{et al.} on a network we train ourselves ($r = 0.98$ over 13 layers), and the statistic has a functional reading: projecting every convolution output of ResNet-50 onto its $k^*(0.999)$ principal directions at inference, $86\%$ of attainable rank on average, leaves top-1 accuracy unchanged, while $k^*(0.95)$ does not. We then ask what training changes,
 using two to six checkpoints and three to five random initialisations per
 family on one image set. In the families measured the answer differs by family. In plain, basic-residual and dense networks the layer ordering is largely the architecture's and training raises the level. In bottleneck ResNet-50 the
 ordering is learned: six training recipes agree with each other
@@ -155,9 +153,7 @@ effective width. The contributions are:
   the depthwise layers halve their effective width on training
   (Section~\ref{sec:learned}).
 
-  \item \textbf{Two further observations.} Along one CIFAR-10 training
-  run of VGG-16 the profile is in place by epoch 40, while test accuracy
-  still rises from $84\%$ to $94\%$. And the position-sampled statistic
+  \item \textbf{Three further observations.} Projecting every convolution output of ResNet-50 onto its top $k^*(\tau)$ principal channel directions at inference, all 53 layers at once and without retraining, leaves top-1 accuracy unchanged at $\tau = 0.999$ (mean $k^*/r_{\max}$ $0.86$, $k^*/C$ $0.63$), costs $2.5$ points at $0.99$ and $21$ points at $0.95$; random directions of the same dimension give chance (Section~\ref{sec:projection}). Along one CIFAR-10 training run of VGG-16 the profile is in place by epoch 40, while test accuracy still rises from $84\%$ to $94\%$. And the position-sampled statistic
   computed from $6{,}400$ images agrees with the $50{,}000$-image value to
   within $0.016$ on every layer of six checkpoints, which bounds how much data such a measurement needs (Sections~\ref{sec:samplesize} and \ref{sec:learned}).
 \end{itemize}
@@ -258,9 +254,24 @@ for deep linear networks, that the singular structure of the representation
 is set by the input--output covariance and the initialisation together, which
 makes the comparison of a trained profile with its own initialisation the
 natural control. We are not aware of a published depth profile that reports
-it. Section~\ref{sec:learned} does so for seven architecture families, with
-several trained checkpoints and several random initialisations each, and
-finds that the answer differs by family.
+it. Section~\ref{sec:learned} does so for seven architecture families, with several trained checkpoints and several random initialisations each, and finds that the answer differs by family.
+
+A third literature bears on the same quantity from the weight side.
+Orthogonality regularisers penalise the distance of a layer's kernel matrix
+$W \in \mathbb{R}^{C_{\rm out} \times d}$, $d = C_{\rm in} k_h k_w$, from an
+isometry \cite{bansal2018orthogonality,huang2018own,wang2020ocnn}; when
+$C_{\rm out} > d$ no isometry exists, and Massart \cite{massart2022orthogonal}
+characterises what each penalty minimises instead (the spectral restricted
+isometry penalty, for instance, is minimised by any $W$ whose singular values
+lie in $[0, \sqrt{2}]$). Huang \emph{et al.} \cite{huang2018own} prove that an
+orthogonal $W$ decorrelates its outputs if and only if its input is white,
+and Huang \emph{et al.} \cite{huang2020oni} that an over-complete layer does
+not decorrelate even then. At the tensor we measure, before the
+nonlinearity, the output covariance is exactly $W \Sigma_{\rm patch} W^{\top}$,
+with $\Sigma_{\rm patch}$ the $d \times d$ covariance of the receptive-field
+patch; the effective width of a layer is therefore a joint property of the
+kernel spectrum that this literature regularises and of the patch covariance
+that it assumes white. Section~\ref{sec:discussion} returns to this.
 
 \subsection{Spectral decay and the choice of statistic}
 \label{sec:mp}
@@ -961,6 +972,51 @@ class count from head depth was not run (Section~\ref{sec:discussion}).
   \label{fig:traj}
 \end{figure}
 
+\subsection{A functional reading: projecting onto the $k^*$ subspace}
+\label{sec:projection}
+
+\emph{Exploratory; the $6{,}400$-image subset.} The statistic counts
+directions of variance. Whether the directions it discards carry function
+can be checked at inference without rebuilding anything. On one half of the
+subset the channel covariance of every convolution output of ResNet-50 was
+accumulated exactly as in the measurement (position-sampled, before the
+nonlinearity and the shortcut), giving each layer its mean, its principal
+directions and its $k^*(\tau)$. On the other half the network was evaluated
+with every convolution output replaced by its projection onto its own top
+$k^*(\tau)$ directions, all 53 layers at once. The control projects each
+layer onto $k^*(\tau)$ random orthonormal directions instead.
+Table~\ref{tab:projection} gives top-1 accuracy.
+
+\begin{table}[t]
+  \centering
+  \caption{ResNet-50, top-1 on $3{,}200$ held-out images, with every
+  convolution output projected onto its top $k^*(\tau)$ principal channel
+  directions (\emph{principal}) or onto $k^*(\tau)$ random orthonormal
+  directions (\emph{random}), all 53 layers at once, no retraining. The $k^*$
+  columns are means over layers. Generated by
+  \texttt{checkpoint\_analysis.py} from \texttt{projection\_check.py}.}
+  \label{tab:projection}
+  \footnotesize
+  \input{table_projection}
+\end{table}
+
+At $\tau = 0.999$ the projection keeps on average $86\%$ of each layer's
+attainable rank and $63\%$ of its nominal width, and accuracy is unchanged
+($76.0\%$ against $76.1\%$). The directions beyond $k^*(0.999)$, a seventh of
+the attainable rank and more than a third of the nominal width, carry no
+variance the classifier uses. At $\tau = 0.99$ the cost is $2.5$ points; at
+$0.95$, the pre-registered threshold, it is $21$ points, and at $0.9$ the
+network is nearly destroyed. Random directions of the same dimension give
+chance accuracy throughout, so what is retained is the principal subspace
+and not merely the dimension count. The reading is therefore
+threshold-specific: $k^*(0.999)$ bounds the width the network uses;
+$k^*(0.95)$, which is what the profiles above are drawn with, orders layers
+and tracks training but does not by itself say how much width could be
+removed. This is not a pruning result. The projection is a rank restriction
+in channel space applied to the trained network as it stands; whether a
+network built with fewer channels would train to the same accuracy is a
+different question, and we do not address it.
+
 % =========================================================================
 \section{Discussion}
 \label{sec:discussion}
@@ -1006,12 +1062,7 @@ $10^5$ images. None of this is expensive. The whole first measurement took about
 
 \subsection{Implications for choosing width}
 
-The descriptive question was how much of its width a trained layer uses,
-and the answer, once the denominator is right, is roughly half: the median
-$k^*(0.95)/r_{\max}$ of a trained network's dense convolutions lies between
-$0.4$ and $0.7$ across seven families, with the depthwise layers of
-inverted-residual networks far below. That number is not a pruning ratio
-(Section~\ref{sec:limits}), but it is a floor on how much redundancy a width-selection method has to explain, and it is similar across the seven families.
+The descriptive question was how much of its width a trained layer uses. Once the denominator is right the answer has two parts. At the $95\%$ criterion a trained dense convolution uses between $0.4$ and $0.7$ of its attainable rank in the median over layers, across seven families; that number orders layers and tracks training but is not a count of removable width, since projecting onto it costs ResNet-50 $21$ points (Section~\ref{sec:projection}). At the $99.9\%$ criterion it uses about $0.86$ of its attainable rank and $0.63$ of its nominal width, and projecting onto that costs nothing. The second number is the one a width-selection method has to explain: a seventh of the attainable rank, and a third of the nominal width, of a trained ResNet-50 carries no variance its classifier uses. It is still not a pruning ratio (Section~\ref{sec:limits}), because a rank restriction on a trained network is not a narrower network trained from scratch.
 
 What differs across architectures is how much of the profile is learned.
 For plain and basic-residual networks the ordering of layers is the
@@ -1075,9 +1126,7 @@ TwoNN intrinsic dimension of order $18$ for the same VGG-16 layer. A layer
 whose covariance has high rank may still carry a low-dimensional curved
 manifold.
 
-\emph{Not a claim about prunability.} That a trained network does not use most
-of a layer's channel-space variance does not establish that a network built
-with fewer channels would train to the same accuracy. The measurement is of
+\emph{Not a claim about prunability.} That the directions beyond $k^*(0.999)$ can be projected away at inference without loss (Section~\ref{sec:projection}) does not establish that a network built with fewer channels would train to the same accuracy. The measurement is of
 the trained artefact, not of the optimisation that produced it, and the
 literature on lottery tickets and on over-parameterised optimisation gives
 ample reason to keep those separate.
