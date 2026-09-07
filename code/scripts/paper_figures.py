@@ -96,6 +96,7 @@ def _fig_trajectory_one(path_in: str, path: str) -> str:
         ax.plot(epochs, [acc[e] / 100 for e in epochs], color=INK, lw=0.8, dashes=(7, 2, 1.5, 2),
                 label="test accuracy")
     ax.set_xlabel("epoch")
+    ax.set_ylabel(r"$\rho$ / level / accuracy")
     ax.set_ylim(0, 1.02)
     ax.set_xlim(0, max(epochs))
     _tidy(ax)
@@ -110,7 +111,16 @@ def fig_metrics_subset(results: str, out: str) -> str:
     layers, _ = load(results)
     pick = {"VGG-16 (BN)": "vgg16_bn", "ResNet-18": "resnet18",
             "ResNet-50": "timm_resnet50.tv_in1k"}
-    return fig_metrics({k: layers[v] for k, v in pick.items() if v in layers}, out)
+    sub = {}
+    for k, v in pick.items():
+        d = layers[v].copy()
+        d["pr_rmax"] = d["participation_ratio"] / d["r_max"]
+        d["erank_rmax"] = d["effective_rank"] / d["r_max"]
+        sub[k] = d
+    return fig_metrics(sub, out, metrics=[("k_star_rmax_0.95", r"$k^*/r_{\max}$ (95%)"),
+                                          ("pr_rmax", r"PR$/r_{\max}$"),
+                                          ("erank_rmax", r"eff. rank$/r_{\max}$")],
+                       ylabel=r"statistic $/\,r_{\max}$")
 
 
 def fig_threshold_vgg(results: str, out: str) -> str:

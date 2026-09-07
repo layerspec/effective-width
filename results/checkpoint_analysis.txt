@@ -373,21 +373,35 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   1x1 channel-mixing layers and leaves the 3x3 layers' order alone.
 
     family           role    L nT nR          R-R                  T-T                  T-R            level T/R  T-R diff  T level per ckpt
+    resnet50         within-stage (pooled ranks, 52 layers): T-T +0.82  T-R +0.27  R-R +0.75
+    resnet50         under k*/C: R-R +0.97  T-T +0.94  T-R +0.57
     resnet50         all    53  6  5  +0.94 [+0.87,+0.99]  +0.84 [+0.80,+0.92]  -0.08 [-0.31,+0.33]  0.470/0.230    +0.192  0.38 0.48 0.40 0.46 0.42 0.46
     resnet50         3x3    16  6  5  +0.94 [+0.86,+1.00]  +0.72 [+0.54,+0.86]  +0.09 [-0.28,+0.51]  0.516/0.314    +0.194  0.45 0.52 0.46 0.54 0.48 0.53
     resnet50         1x1    36  6  5  +0.93 [+0.86,+0.98]  +0.88 [+0.82,+0.95]  -0.28 [-0.52,+0.14]  0.453/0.219    +0.196  0.36 0.46 0.37 0.44 0.40 0.44
+    resnet18         within-stage (pooled ranks, 19 layers): T-T +0.92  T-R +0.75  R-R +0.92
+    resnet18         under k*/C: R-R +0.98  T-T +0.93  T-R +0.81
     resnet18         all    20  6  3  +0.98 [+0.97,+0.98]  +0.91 [+0.74,+0.97]  +0.73 [+0.62,+0.79]  0.543/0.330    +0.187  0.53 0.54 0.51 0.52 0.51 0.50
     resnet18         3x3    16  6  3  +0.97 [+0.94,+0.97]  +0.88 [+0.70,+0.99]  +0.64 [+0.53,+0.73]  0.586/0.398    +0.167  0.57 0.57 0.53 0.56 0.54 0.52
+    resnet34         within-stage (pooled ranks, 35 layers): T-T +0.84  T-R +0.55  R-R +0.87
+    resnet34         under k*/C: R-R +0.96  T-T +0.94  T-R +0.67
     resnet34         all    36  5  3  +0.96 [+0.93,+0.96]  +0.92 [+0.86,+0.97]  +0.61 [+0.52,+0.71]  0.578/0.409    +0.163  0.58 0.58 0.55 0.54 0.52
     resnet34         3x3    32  5  3  +0.94 [+0.91,+0.94]  +0.92 [+0.85,+0.96]  +0.55 [+0.45,+0.66]  0.590/0.422    +0.150  0.60 0.60 0.56 0.56 0.54
+    vgg16            under k*/C: R-R +0.80  T-T +0.96  T-R +0.76
     vgg16            all    13  2  3  +0.79 [+0.72,+0.95]  +0.96 [+0.96,+0.96]  +0.75 [+0.57,+0.87]  0.395/0.291    +0.085  0.35 0.39
     vgg16            3x3    12  2  3  +0.75 [+0.64,+0.94]  +0.95 [+0.95,+0.95]  +0.69 [+0.46,+0.83]  0.400/0.294    +0.086  0.36 0.40
+    densenet121      under k*/C: R-R +0.94  T-T +0.91  T-R +0.71
     densenet121      all   120  2  3  +0.94 [+0.93,+0.96]  +0.91 [+0.91,+0.91]  +0.71 [+0.65,+0.75]  0.660/0.406    +0.165  0.56 0.64
     densenet121      3x3    58  2  3  +0.56 [+0.45,+0.71]  +0.68 [+0.68,+0.68]  -0.26 [-0.33,-0.09]  0.781/0.594    +0.180  0.73 0.81
     densenet121      1x1    61  2  3  +0.92 [+0.92,+0.93]  +0.93 [+0.93,+0.93]  +0.39 [+0.33,+0.44]  0.465/0.289    +0.152  0.40 0.48
+    resnet101        missing (0 trained, 0 random)
+    wide_resnet50_2  missing (0 trained, 0 random)
+    resnext50        missing (0 trained, 0 random)
+    mobilenetv2      missing (0 trained, 0 random)
+    mobilenetv3      under k*/C: R-R +0.94  T-T +0.61  T-R +0.55
     mobilenetv3      all    31  3  3  +0.75 [+0.68,+0.94]  -0.19 [-0.19,+0.40]  -0.26 [-0.66,+0.72]  0.500/0.525    -0.085  0.18 0.44 0.65
     mobilenetv3      1x1    30  3  3  +0.73 [+0.66,+0.94]  -0.14 [-0.23,+0.44]  -0.30 [-0.63,+0.69]  0.506/0.531    -0.090  0.18 0.45 0.65
     mobilenetv3      dw     15  3  3  +0.37 [+0.33,+0.79]  +0.50 [+0.38,+0.59]  -0.05 [-0.48,+0.32]  0.188/0.408    -0.224  0.09 0.17 0.34
+    efficientnet_b0  under k*/C: R-R +0.99  T-T +0.66  T-R +0.69
     efficientnet_b0  all    33  2  3  +0.97 [+0.95,+0.99]  +0.10 [+0.10,+0.10]  +0.14 [-0.31,+0.60]  0.539/0.550    -0.097  0.10 0.70
     efficientnet_b0  1x1    32  2  3  +0.97 [+0.95,+0.99]  +0.14 [+0.14,+0.14]  +0.12 [-0.29,+0.56]  0.558/0.550    -0.101  0.10 0.71
     efficientnet_b0  dw     16  2  3  +0.97 [+0.97,+0.99]  -0.10 [-0.10,-0.10]  -0.12 [-0.65,+0.45]  0.162/0.348    -0.175  0.05 0.25
@@ -400,10 +414,11 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   wrote ../paper/table_families.tex
 
 ========================================================================
-9. When does the profile become the trained one?  VGG-16_BN on CIFAR-10
+9. When does the profile become the trained one?  CIFAR-10 trajectories
 ========================================================================
-  13 conv layers, statistic k_star_rmax_0.95
+  statistic k*(0.95)/r_max, conv layers passing n/C >= 50; one table per run
 
+  [trajectory]  13 conv layers, epochs measured 0..100
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
         0  10.00   0.281       -0.59        +1.00         +0.93         0.062
         1  60.25   0.469       -0.18        +0.76         +0.65         0.171
@@ -423,6 +438,19 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
        90  92.89   0.296       -0.68        +0.93         +1.00         0.004
       100  94.01   0.296       -0.68        +0.93         +1.00         0.000
 
+  [trajectory_resnet50]  53 conv layers, epochs measured 0..0  (IN PROGRESS: 'final' = latest epoch)
+    epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
+        0  10.24   0.185       -0.85        +1.00         +1.00         0.000
+    role 3x3: rho(init, final) +1.00   level init 0.244 -> final 0.244
+    role 1x1: rho(init, final) +1.00   level init 0.180 -> final 0.180
+
+  Summary (settle = first measured epoch with rho vs final >= 0.95):
+    run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
+    trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
+    trajectory_resnet50      no      0      10.24     10.24            +1.00       -0.85 -> -0.85
+
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
   is when the learned profile is in place; compare it with the accuracy
-  column to see whether it precedes or follows the fit.
+  column to see whether it precedes or follows the fit.  For the
+  bottleneck run the question is whether rho(init, final) is near zero,
+  as it is across the six ImageNet recipes (section 7), and when it drops.
