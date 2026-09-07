@@ -1049,6 +1049,55 @@ def section_decompose(results: str, latex: str | None = None) -> None:
         print(f"  wrote {latex}")
 
 
+# --------------------------- section 12: round 3 (controlled block experiment)
+
+def _final_profiles(results: str, prefix: str):
+    """{seed: (init profile, final profile)} for results/round3/<prefix>_s<seed>/."""
+    out = {}
+    for path in sorted(glob.glob(os.path.join(results, "round3", f"{prefix}_s*", "trajectory_layers.csv"))):
+        seed = os.path.basename(os.path.dirname(path)).rsplit("_s", 1)[1]
+        epochs, P, acc, layers = _load_trajectory(path)
+        if epochs[-1] < 100:
+            continue
+        out[seed] = (P[epochs[0]], P[epochs[-1]], acc[epochs[-1]], layers)
+    return out
+
+
+def section_round3(results: str) -> None:
+    fams = {"basic52": ("a2_basic52", "trajectory_resnet50"), }
+    groups = {"basic (52 conv)": _final_profiles(results, "a2_basic52"),
+              "bottleneck (53 conv)": {**_final_profiles(results, "trajectory_resnet50"),
+                                       **_final_profiles(results, "a2_bottleneck")},
+              "mobilenetv2 (CIFAR)": _final_profiles(results, "a2_mobilenetv2")}
+    if not any(groups.values()):
+        return
+    hdr("12. Round 3, controlled block type on CIFAR-10 (analysis-plan 9.1)")
+    print("  same recipe, same dataset, same conv count for basic vs bottleneck; k*(0.95)/r_max")
+    print(f"    {'group':22s} {'seeds':>5s}  {'R-R':>6s} {'T-T':>6s} {'T-R':>6s}  {'T-R per seed':>30s}  {'acc':>6s}")
+    tr_by_group = {}
+    for name, runs in groups.items():
+        if not runs:
+            print(f"    {name:22s} (no finished runs)"); continue
+        inits = [v[0] for v in runs.values()]; finals = [v[1] for v in runs.values()]
+        rr = [_rho(a, b) for a, b in itertools.combinations(inits, 2)]
+        tt = [_rho(a, b) for a, b in itertools.combinations(finals, 2)]
+        tr = [_rho(v[0], v[1]) for v in runs.values()]
+        tr_by_group[name] = tr
+        fmt = lambda v: f"{np.median(v):+6.2f}" if v else "   n/a"
+        print(f"    {name:22s} {len(runs):5d}  {fmt(rr)} {fmt(tt)} {fmt(tr)}  "
+              f"{' '.join(f'{x:+.2f}' for x in tr):>30s}  {np.mean([v[2] for v in runs.values()]):6.2f}")
+    b, t = tr_by_group.get("basic (52 conv)"), tr_by_group.get("bottleneck (53 conv)")
+    if b and t:
+        p = mannwhitneyu(t, b, alternative="less").pvalue if len(b) > 1 and len(t) > 1 else float("nan")
+        print(f"\n  H9.1 (bottleneck T-R below basic T-R): max bottleneck {max(t):+.2f} vs min basic {min(b):+.2f}; "
+              f"Mann-Whitney one-sided p = {p:.3g}  -> {'SUPPORTED' if max(t) < min(b) or p < 0.01 else 'NOT supported'}")
+    m = groups["mobilenetv2 (CIFAR)"]
+    if len(m) >= 2:
+        tt = [_rho(a[1], b[1]) for a, b in itertools.combinations(m.values(), 2)]
+        print(f"  H9.2 (MobileNetV2 seeds share a profile, T-T >= 0.7): pairwise {[f'{x:+.2f}' for x in tt]} "
+              f"-> {'SUPPORTED' if min(tt) >= 0.7 else 'NOT supported'}")
+
+
 # ------------------------------------------------------------------- main
 
 def main(argv=None) -> int:
@@ -1081,6 +1130,7 @@ def main(argv=None) -> int:
     section_trajectory(a.results)
     section_projection(a.results, latex=a.latex_projection)
     section_decompose(a.results, latex=a.latex_decompose)
+    section_round3(a.results)
     return 0
 
 
