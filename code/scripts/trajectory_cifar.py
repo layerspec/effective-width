@@ -51,8 +51,72 @@ def build_resnet50_cifar(num_classes: int = 10):
     return m
 
 
+def build_resnet_basic52_cifar(num_classes: int = 10):
+    """Basic-block ResNet with the SAME conv count as the bottleneck ResNet-50
+    (52 vs 53: stem + 2x24 block convs + 3 downsample vs stem + 3x16 + 4),
+    the same stage widths at the block input (64/128/256/512), the same CIFAR
+    stem, the same depth-per-stage pattern.  Only the block type differs.
+    Registered as the controlled block-type experiment (analysis-plan 9.1)."""
+    import torch.nn as nn
+    import torchvision
+    from torchvision.models.resnet import BasicBlock
+    m = torchvision.models.ResNet(BasicBlock, [6, 6, 6, 6], num_classes=num_classes)
+    m.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
+    m.maxpool = nn.Identity()
+    return m
+
+
+def build_mobilenetv2_cifar(num_classes: int = 10):
+    """torchvision MobileNetV2 (inverted residual, expansion 6) with the first
+    two strides removed so a 32x32 input ends at 4x4, as is usual for CIFAR."""
+    import torch.nn as nn
+    import torchvision
+    m = torchvision.models.mobilenet_v2(weights=None, num_classes=num_classes)
+    m.features[0][0].stride = (1, 1)          # stem
+    m.features[2].conv[1][0].stride = (1, 1)  # first stride-2 inverted residual
+    return m
+
+
 ARCHS = {"vgg16_bn": lambda: build_vgg16_bn_cifar(10, "small"),
-         "resnet50": lambda: build_resnet50_cifar(10)}
+         "resnet50": lambda: build_resnet50_cifar(10),
+         "resnet_basic52": lambda: build_resnet_basic52_cifar(10),
+         "mobilenetv2": lambda: build_mobilenetv2_cifar(10)}
+
+
+def ortho_penalty(model, kind: str) -> "torch.Tensor":
+    """Kernel-orthogonality penalties of Bansal et al. (NeurIPS 2018) on every
+    dense conv and linear weight, W reshaped to (C_out, d).
+      so   : ||W W^T - I||_F^2 if C_out <= d else ||W^T W - I||_F^2  (Massart 2022: the
+             two differ by a constant, so the choice only fixes the constant)
+      srip : spectral norm of (W^T W - I), by two power iterations, summed
+    Registered as arms of analysis-plan 9.2; ONI (Huang 2020) is a layer, not a
+    penalty, and is not implemented here."""
+    import torch.nn as nn
+    total = None
+    for mod in model.modules():
+        if isinstance(mod, nn.Conv2d) and mod.groups == 1:
+            W = mod.weight.reshape(mod.out_channels, -1)
+        elif isinstance(mod, nn.Linear):
+            W = mod.weight
+        else:
+            continue
+        n, d = W.shape
+        G = W @ W.T if n <= d else W.T @ W
+        I = torch.eye(G.shape[0], device=W.device, dtype=W.dtype)
+        M = G - I
+        if kind == "so":
+            pen = (M * M).sum()
+        elif kind == "srip":
+            v = torch.randn(M.shape[0], 1, device=W.device, dtype=W.dtype)
+            v = v / (v.norm() + 1e-12)
+            for _ in range(2):
+                v = M @ (M @ v)
+                v = v / (v.norm() + 1e-12)
+            pen = (M @ v).norm()
+        else:
+            raise ValueError(kind)
+        total = pen if total is None else total + pen
+    return total
 
 DEFAULT_SCHEDULE = [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
@@ -98,6 +162,10 @@ def main(argv=None) -> int:
     p.add_argument("--lr", type=float, default=0.1)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--arch", choices=sorted(ARCHS), default="vgg16_bn")
+    p.add_argument("--ortho", choices=["none", "so", "srip"], default="none",
+                   help="kernel-orthogonality penalty arm (analysis-plan 9.2)")
+    p.add_argument("--ortho-lambda", type=float, default=None,
+                   help="penalty weight; default 1e-4 for so, 1e-2 for srip (Bansal et al.)")
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--max-train-batches", type=int, default=None,
                    help="smoke-test aid: stop each epoch after this many batches")
@@ -154,6 +222,9 @@ def main(argv=None) -> int:
             opt.zero_grad(set_to_none=True)
             with torch.autocast("cuda", enabled=use_amp):
                 loss = F.cross_entropy(model(x), y)
+            if args.ortho != "none":
+                lam = args.ortho_lambda if args.ortho_lambda is not None else (1e-4 if args.ortho == "so" else 1e-2)
+                loss = loss + lam * ortho_penalty(model, args.ortho)
             scaler.scale(loss).backward()
             scaler.step(opt)
             scaler.update()
@@ -163,7 +234,8 @@ def main(argv=None) -> int:
         if ep in schedule:
             checkpoint(ep)
 
-    torch.save(model.state_dict(), os.path.join(args.out, f"{args.arch}_cifar10_final.pt"))
+    tag = args.arch + ("" if args.ortho == "none" else f"_{args.ortho}")
+    torch.save(model.state_dict(), os.path.join(args.out, f"{tag}_cifar10_final.pt"))
     print("done", flush=True)
     return 0
 
