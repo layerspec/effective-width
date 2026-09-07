@@ -12,7 +12,9 @@ split at a fixed schedule of epochs, epoch 0 being the initialisation.
         --out ../results/trajectory_resnet50          # bottleneck block type
 
 Outputs one <out>/epoch_<E>_layers.csv per measured epoch and a combined
-<out>/trajectory_layers.csv with an `epoch` column.  Positions are sampled
+<out>/trajectory_layers.csv with an `epoch` column.  A resume.pt is written
+after every epoch and picked up automatically on restart with the same --out,
+so a run can be spread over several sessions (removed when the run finishes).  Positions are sampled
 per image exactly as in the ImageNet runs; at 32x32 input the test split's
 10,000 images x 16 positions give n/C >= 312 at C = 512.
 """
@@ -192,6 +194,27 @@ def main(argv=None) -> int:
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
 
     frames = []
+    state_path = os.path.join(args.out, "resume.pt")
+    start_epoch = 1
+    if os.path.exists(state_path):
+        # Resume: the run was interrupted (laptop closed, pod killed).  Model,
+        # optimiser, schedule, RNG and the measured frames all come back, so
+        # the trajectory is the same one, not a new one.
+        st = torch.load(state_path, map_location="cpu", weights_only=False)
+        model.load_state_dict(st["model"]); opt.load_state_dict(st["opt"]); sched.load_state_dict(st["sched"])
+        scaler.load_state_dict(st["scaler"])
+        torch.set_rng_state(st["rng_cpu"].cpu())
+        start_epoch = st["epoch"] + 1
+        traj = os.path.join(args.out, "trajectory_layers.csv")
+        if os.path.exists(traj):
+            frames.append(pd.read_csv(traj))
+        print(f"resumed from {state_path} at epoch {st['epoch']} (next: {start_epoch})", flush=True)
+
+    def save_state(epoch):
+        torch.save({"model": model.state_dict(), "opt": opt.state_dict(), "sched": sched.state_dict(),
+                    "scaler": scaler.state_dict(), "rng_cpu": torch.get_rng_state(), "epoch": epoch,
+                    "arch": args.arch, "seed": args.seed, "ortho": args.ortho}, state_path + ".tmp")
+        os.replace(state_path + ".tmp", state_path)
 
     def checkpoint(epoch):
         acc = evaluate(model, test_loader, args.device)
@@ -211,8 +234,9 @@ def main(argv=None) -> int:
             os.path.join(args.out, "trajectory_layers.csv"), index=False)
 
     print(f"schedule: {schedule}", flush=True)
-    checkpoint(0)
-    for ep in range(1, args.epochs + 1):
+    if start_epoch == 1:
+        checkpoint(0)
+    for ep in range(start_epoch, args.epochs + 1):
         model.train()
         t0 = time.time()
         for i, (x, y) in enumerate(train_loader):
@@ -233,9 +257,12 @@ def main(argv=None) -> int:
               f"({time.time() - t0:.0f}s)", flush=True)
         if ep in schedule:
             checkpoint(ep)
+        save_state(ep)
 
     tag = args.arch + ("" if args.ortho == "none" else f"_{args.ortho}")
     torch.save(model.state_dict(), os.path.join(args.out, f"{tag}_cifar10_final.pt"))
+    if os.path.exists(state_path):
+        os.remove(state_path)
     print("done", flush=True)
     return 0
 

@@ -242,8 +242,8 @@ cd ~/Downloads/effective-width-claude/results && tar tzf layerspec_results_*.tar
 git clone git@github.com:layerspec/effective-width.git && cd effective-width/code
 pip install -r requirements.txt
 python -c "import torchvision; torchvision.datasets.CIFAR10('../data', download=True); torchvision.datasets.CIFAR10('../data', train=False, download=True)"
-# 只跑 CIFAR（A2、A5、A9，約 6–9 GPU-hours on 3090）：
-nohup bash scripts/run_round3_pod.sh > ../results/round3.log 2>&1 &
+# 只跑 A2、A5（軌跡 A9 在本機分多天跑，用 SKIP_TRAJ=1 略過；約 5–7 GPU-hours on 3090）：
+SKIP_TRAJ=1 nohup bash scripts/run_round3_pod.sh > ../results/round3.log 2>&1 &
 # 連 A6 一起（需要 ImageNet val 50k）：
 hf auth login && python scripts/fetch_imagenet_val.py --out /data/imagenet_val
 nohup bash scripts/run_round3_pod.sh /data/imagenet_val > ../results/round3.log 2>&1 &
