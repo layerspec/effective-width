@@ -438,19 +438,36 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
        90  92.89   0.296       -0.68        +0.93         +1.00         0.004
       100  94.01   0.296       -0.68        +0.93         +1.00         0.000
 
-  [trajectory_resnet50]  53 conv layers, epochs measured 0..0  (IN PROGRESS: 'final' = latest epoch)
+  [trajectory_resnet50]  53 conv layers, epochs measured 0..3  (IN PROGRESS: 'final' = latest epoch)
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
-        0  10.24   0.185       -0.85        +1.00         +1.00         0.000
-    role 3x3: rho(init, final) +1.00   level init 0.244 -> final 0.244
-    role 1x1: rho(init, final) +1.00   level init 0.180 -> final 0.180
+        0  10.24   0.185       -0.85        +1.00         +0.25         0.192
+        1  45.46   0.352       +0.86        -0.60         +0.48         0.123
+        2  52.30   0.461       +0.74        -0.43         +0.67         0.076
+        3  57.82   0.414       +0.13        +0.25         +1.00         0.000
+    role 3x3: rho(init, final) +0.02   level init 0.244 -> final 0.453
+    role 1x1: rho(init, final) +0.35   level init 0.180 -> final 0.402
 
   Summary (settle = first measured epoch with rho vs final >= 0.95):
     run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
     trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
-    trajectory_resnet50      no      0      10.24     10.24            +1.00       -0.85 -> -0.85
+    trajectory_resnet50      no      3      57.82     57.82            +0.25       -0.85 -> +0.13
 
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
   is when the learned profile is in place; compare it with the accuracy
   column to see whether it precedes or follows the fit.  For the
   bottleneck run the question is whether rho(init, final) is near zero,
   as it is across the six ImageNet recipes (section 7), and when it drops.
+
+========================================================================
+10. Downstream anchor: project every conv output onto its top-k*(tau) directions
+========================================================================
+  scripts/projection_check.py: covariances from one half of the 6,400 images,
+  top-1 on the other half, all conv layers projected at once, no retraining.
+
+  resnet50: baseline top-1 76.03%  (calibrate 3200, evaluate 3200)
+       tau    k/C  k/rmax  principal   random
+     0.900  0.200   0.277     15.66%    0.00%
+     0.950  0.278   0.382     55.16%    0.09%
+     0.990  0.457   0.627     73.56%    0.16%
+     0.999  0.628   0.858     76.09%    0.12%
+  wrote ../paper/table_projection.tex
