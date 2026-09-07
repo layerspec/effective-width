@@ -9,7 +9,7 @@
 # Closing the lid stops it; nothing is lost beyond the current epoch.
 cd /Users/ccli/Downloads/effective-width-claude/code
 PY=$HOME/.venvs/effwidth/bin/python
-while pgrep -f 'results/.*_queue.sh' > /dev/null; do sleep 120; done
+while pgrep -f 'results/[a-z_0-9]*_queue[0-9]*.sh' > /dev/null; do sleep 120; done
 run() {
   local out=$1; shift
   if [ -f "$out/epoch_100_layers.csv" ]; then echo "=== $out done, skipping ==="; return; fi
