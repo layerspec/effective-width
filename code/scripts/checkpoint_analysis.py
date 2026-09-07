@@ -1077,10 +1077,13 @@ def section_decompose(results: str, latex: str | None = None) -> None:
                "\\begin{tabular}{lrrrrrrrrr}", "\\toprule",
                "Model & $L$ & $\\tau$ & out & kernel & data & ortho & $\\rho_{\\rm kernel}$ & $\\rho_{\\rm data}$ & ortho $>$ out \\\\",
                "\\midrule"]
+        order = {m: i for i, m in enumerate(MODEL_ORDER)}
+        rows.sort(key=lambda r: (order.get(r[0], order.get("timm_" + r[0].replace("timm:", ""), 99)), r[1]))
         for model, tau, L, o, k, da, ort, rk, rd, ro, n in rows:
-            name = MODEL_LABELS.get(model, MODEL_LABELS.get("timm_" + model.replace("timm:", ""), (model, "")))[0]
+            nm, recipe = MODEL_LABELS.get(model, MODEL_LABELS.get("timm_" + model.replace("timm:", ""), (model, "")))
+            name = f"{nm} {recipe}".strip()
             if model.endswith("_random"):
-                name = name.replace("_random", "") + " (random init)"
+                name = nm + " (random init)"
             out.append(f"{name} & {L} & {tau:g} & {o:.2f} & {k:.2f} & {da:.2f} & {ort:.2f} & {rk:+.2f} & {rd:+.2f} & {n}/{L} \\\\")
         out += ["\\bottomrule", "\\end{tabular}"]
         with open(latex, "w") as fh:
