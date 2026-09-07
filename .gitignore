@@ -24,3 +24,4 @@ results/measure_queue2.log
 results/projection_resnet50.log
 results/decompose_queue.log
 results/projection_queue.log
+results/cifar_queue.log
