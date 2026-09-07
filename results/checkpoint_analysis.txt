@@ -1,3 +1,7 @@
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/fromnumeric.py:3824: RuntimeWarning: Mean of empty slice
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
 loaded 22 layer tables from ../results
 duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
 
@@ -12,6 +16,49 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     features.3   ours 0.734  theirs 0.656  diff +0.078
   (their recipe is under-specified; the gate is about shape, and it passes)
   For contrast, the first-round ImageNet-vs-CIFAR comparison had r = 0.125.
+
+========================================================================
+0b. Second gate: block-output pooled PR vs Elmoznino & Bonner (2024), ResNet-50 V1
+========================================================================
+  trained: 16 blocks matched;  log-log Pearson r = +0.999   Spearman = +0.997   median |dlog| = 0.063   max = 0.112   ours higher on 15/16 (median ratio 1.065)
+    gated (pooled n/C >= 50, 7 blocks): max |dlog| = 0.098
+    block          C     ours      E&B  ratio
+    layer1.0     256     8.31     8.05  1.033
+    layer1.1     256     9.69     9.36  1.036
+    layer1.2     256    10.30     9.95  1.036
+    layer2.0     512     8.09     8.31  0.973
+    layer2.1     512    14.49    13.14  1.103
+    layer2.2     512    16.76    15.34  1.092
+    layer2.3     512    19.24    17.68  1.088
+    layer3.0    1024    20.07    18.09  1.110
+    layer3.1    1024    29.09    27.16  1.071
+    layer3.2    1024    31.89    30.50  1.045
+    layer3.3    1024    35.37    33.84  1.045
+    layer3.4    1024    40.30    38.04  1.060
+    layer3.5    1024    57.70    52.13  1.107
+    layer4.0    2048    61.78    57.25  1.079
+    layer4.1    2048    78.87    70.48  1.119
+    layer4.2    2048   123.14   117.46  1.048
+  untrained: 16 blocks matched;  log-log Pearson r = +0.976   Spearman = +0.985   median |dlog| = 0.031   max = 0.215   ours higher on 2/16 (median ratio 0.986)
+    gated (pooled n/C >= 50, 7 blocks): max |dlog| = 0.215
+    block          C     ours      E&B  ratio
+    layer1.0     256     2.63     2.12  1.240
+    layer1.1     256     2.53     2.20  1.151
+    layer1.2     256     1.75     1.79  0.978
+    layer2.0     512     1.60     1.68  0.950
+    layer2.1     512     1.45     1.55  0.934
+    layer2.2     512     1.28     1.41  0.907
+    layer2.3     512     1.22     1.27  0.961
+    layer3.0    1024     1.17     1.23  0.954
+    layer3.1    1024     1.13     1.19  0.948
+    layer3.2    1024     1.11     1.13  0.981
+    layer3.3    1024     1.09     1.10  0.992
+    layer3.4    1024     1.08     1.08  0.999
+    layer3.5    1024     1.06     1.07  0.991
+    layer4.0    2048     1.07     1.07  0.998
+    layer4.1    2048     1.06     1.06  1.000
+    layer4.2    2048     1.06     1.06  0.996
+  wrote ../paper/table_models.tex
 
 ========================================================================
 1. r_max as the denominator, on every checkpoint
@@ -211,6 +258,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       (DenseNet-121's jitter is the 1x1/3x3 alternation of its dense
        layers, which is structural; its ratio is below 1 with either
        denominator and is reported as such)
+  wrote ../paper/table_pooling.tex
 
 ========================================================================
 3b. Layers whose k*(.95)/C had not flattened at n/C = 250 (|delta| > 0.02)
@@ -391,10 +439,25 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     densenet121      all   120  2  3  +0.94 [+0.93,+0.96]  +0.91 [+0.91,+0.91]  +0.71 [+0.65,+0.75]  0.660/0.406    +0.165  0.56 0.64
     densenet121      3x3    58  2  3  +0.56 [+0.45,+0.71]  +0.68 [+0.68,+0.68]  -0.26 [-0.33,-0.09]  0.781/0.594    +0.180  0.73 0.81
     densenet121      1x1    61  2  3  +0.92 [+0.92,+0.93]  +0.93 [+0.93,+0.93]  +0.39 [+0.33,+0.44]  0.465/0.289    +0.152  0.40 0.48
-    resnet101        missing (0 trained, 3 random)
-    wide_resnet50_2  missing (0 trained, 2 random)
-    resnext50        missing (0 trained, 2 random)
-    mobilenetv2      missing (0 trained, 2 random)
+    resnet101        within-stage (pooled ranks, 103 layers): T-T +0.71  T-R +0.32  R-R +0.78
+    resnet101        under k*/C: R-R +0.94  T-T +0.91  T-R +0.68
+    resnet101        all   104  5  3  +0.85 [+0.84,+0.89]  +0.74 [+0.70,+0.86]  +0.20 [+0.06,+0.29]  0.441/0.316    +0.148  0.49 0.41 0.42 0.45 0.35
+    resnet101        3x3    33  5  3  +0.62 [+0.46,+0.63]  +0.51 [+0.43,+0.76]  -0.08 [-0.32,+0.23]  0.488/0.371    +0.103  0.53 0.46 0.46 0.49 0.40
+    resnet101        1x1    70  5  3  +0.88 [+0.88,+0.89]  +0.79 [+0.76,+0.86]  +0.11 [-0.03,+0.17]  0.422/0.234    +0.171  0.48 0.39 0.41 0.43 0.33
+    wide_resnet50_2  within-stage (pooled ranks, 52 layers): T-T +0.80  T-R +0.57  R-R +0.90
+    wide_resnet50_2  under k*/C: R-R +0.97  T-T +0.92  T-R +0.41
+    wide_resnet50_2  all    53  3  3  +0.93 [+0.92,+0.98]  +0.88 [+0.85,+0.90]  +0.33 [+0.09,+0.44]  0.332/0.211    +0.135  0.37 0.32 0.27
+    wide_resnet50_2  3x3    16  3  3  +0.67 [+0.62,+0.92]  +0.79 [+0.68,+0.84]  -0.17 [-0.42,+0.16]  0.418/0.255    +0.145  0.45 0.40 0.34
+    wide_resnet50_2  1x1    36  3  3  +0.95 [+0.95,+0.98]  +0.85 [+0.80,+0.88]  +0.22 [-0.07,+0.32]  0.282/0.160    +0.132  0.34 0.29 0.24
+    resnext50        within-stage (pooled ranks, 52 layers): T-T +0.89  T-R +0.66  R-R +0.87
+    resnext50        under k*/C: R-R +0.96  T-T +0.96  T-R +0.54
+    resnext50        all    53  5  3  +0.92 [+0.91,+0.94]  +0.92 [+0.87,+0.97]  +0.46 [+0.31,+0.64]  0.391/0.190    +0.197  0.42 0.36 0.36 0.37 0.34
+    resnext50        3x3    16  5  3  +0.73 [+0.67,+0.80]  +0.84 [+0.69,+0.91]  -0.22 [-0.53,+0.01]  0.496/0.246    +0.243  0.52 0.49 0.47 0.49 0.46
+    resnext50        1x1    36  5  3  +0.96 [+0.95,+0.96]  +0.91 [+0.87,+0.97]  +0.33 [+0.24,+0.51]  0.336/0.148    +0.181  0.39 0.32 0.32 0.33 0.29
+    mobilenetv2      under k*/C: R-R +0.97  T-T +nan  T-R +0.88
+    mobilenetv2      all    35  1  3  +0.85 [+0.85,+0.97]       n/a         +0.42 [+0.41,+0.42]  0.719/0.625    +0.124  0.71
+    mobilenetv2      1x1    34  1  3  +0.84 [+0.83,+0.97]       n/a         +0.37 [+0.36,+0.37]  0.719/0.625    +0.124  0.73
+    mobilenetv2      dw     17  1  3  +0.55 [+0.51,+0.84]       n/a         +0.15 [+0.03,+0.32]  0.419/0.388    +0.041  0.42
     mobilenetv3      under k*/C: R-R +0.94  T-T +0.64  T-R +0.72
     mobilenetv3      all    31  4  3  +0.75 [+0.68,+0.94]  -0.18 [-0.30,+0.86]  +0.14 [-0.66,+0.72]  0.525/0.525    -0.047  0.18 0.44 0.65 0.57
     mobilenetv3      1x1    30  4  3  +0.73 [+0.66,+0.94]  -0.13 [-0.34,+0.85]  +0.10 [-0.63,+0.69]  0.537/0.531    -0.050  0.18 0.45 0.65 0.59
@@ -409,6 +472,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   look at its per-checkpoint levels before saying anything about it.
   VGG-16's two checkpoints are with and without BN, so its T-T compares
   two architectures.
+  wrote ../paper/table_families.tex
 
 ========================================================================
 9. When does the profile become the trained one?  CIFAR-10 trajectories
@@ -435,21 +499,22 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
        90  92.89   0.296       -0.68        +0.93         +1.00         0.004
       100  94.01   0.296       -0.68        +0.93         +1.00         0.000
 
-  [trajectory_resnet50]  53 conv layers, epochs measured 0..7  (IN PROGRESS: 'final' = latest epoch)
+  [trajectory_resnet50]  53 conv layers, epochs measured 0..10  (IN PROGRESS: 'final' = latest epoch)
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
-        0  10.24   0.185       -0.85        +1.00         +0.87         0.102
-        1  45.46   0.352       +0.86        -0.60         -0.33         0.201
-        2  52.30   0.461       +0.74        -0.43         -0.12         0.175
-        3  57.82   0.414       +0.13        +0.25         +0.57         0.108
-        5  68.13   0.371       -0.64        +0.89         +0.99         0.025
-        7  76.51   0.352       -0.62        +0.87         +1.00         0.000
-    role 3x3: rho(init, final) +0.88   level init 0.244 -> final 0.373
-    role 1x1: rho(init, final) +0.87   level init 0.180 -> final 0.346
+        0  10.24   0.185       -0.85        +1.00         +0.84         0.090
+        1  44.43   0.391       +0.89        -0.65         -0.38         0.251
+        2  52.10   0.422       +0.63        -0.30         +0.03         0.174
+        3  57.66   0.527       +0.72        -0.41         -0.10         0.233
+        5  71.02   0.508       +0.24        +0.13         +0.44         0.210
+        7  74.55   0.438       -0.08        +0.39         +0.67         0.139
+       10  82.08   0.328       -0.62        +0.84         +1.00         0.000
+    role 3x3: rho(init, final) +0.85   level init 0.244 -> final 0.338
+    role 1x1: rho(init, final) +0.86   level init 0.180 -> final 0.316
 
   Summary (settle = first measured epoch with rho vs final >= 0.95):
     run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
     trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
-    trajectory_resnet50      no      5      68.13     76.51            +0.87       -0.85 -> -0.62
+    trajectory_resnet50      no     10      82.08     82.08            +0.84       -0.85 -> -0.62
 
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
   is when the learned profile is in place; compare it with the accuracy
@@ -530,3 +595,4 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   kernel spectrum alone; 'ortho' is the analytic prediction for orthogonalising
   the kernel with the data held fixed, to be tested against trained-with-
   orthogonality-penalty networks (submission bar A5).
+  wrote ../paper/table_decompose.tex
