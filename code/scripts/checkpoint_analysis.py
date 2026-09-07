@@ -693,9 +693,9 @@ ARCH_FAMILIES = {
                         "local6400/archs/seed*/timm_vgg16_bn.tv_in1k_random_layers.csv"),
     "densenet121":     ("local6400/archs/trained/timm_densenet121.*_layers.csv",
                         "local6400/archs/seed*/timm_densenet121.tv_in1k_random_layers.csv"),
-    "mobilenetv3":     ("local6400/archs/trained/timm_mobilenetv3_large_100.*_layers.csv",
+    "mobilenetv3":     ("local6400/archs/trained/timm_*mobilenetv3_large_100.*_layers.csv",
                         "local6400/archs/seed*/timm_mobilenetv3_large_100.ra_in1k_random_layers.csv"),
-    "efficientnet_b0": ("local6400/archs/trained/timm_efficientnet_b0.*_layers.csv",
+    "efficientnet_b0": ("local6400/archs/trained/timm_*efficientnet_b0.*_layers.csv",
                         "local6400/archs/seed*/timm_efficientnet_b0.ra_in1k_random_layers.csv"),
 }
 
