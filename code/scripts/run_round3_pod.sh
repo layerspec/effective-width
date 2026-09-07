@@ -3,6 +3,7 @@
 # Everything here is pre-registered in notes/analysis-plan.md section 9.
 #
 #   bash scripts/run_round3_pod.sh [/data/imagenet_val]      # imagenet dir optional (A6)
+#   SUBSET6400=/data/imagenet_val_6400 adds the A7 bootstrap; SKIP_TRAJ=1 skips A9
 #
 # Budget on one 3090: CIFAR runs ~10-25 min each x 33 runs ~ 6-9 h; A6 ~2 h.
 # Results land in ../results/round3/ (and results/fullval via run_local_seeds);
@@ -55,5 +56,17 @@ if [ -n "${1:-}" ]; then
   C6="--data $1 --device cuda --batch-size 64 --workers 8 --positions 16"
   for s in 1 2 3 4 5; do $PY -m layerspec.run $C6 --seed $s --models resnet50_random --out $OUT6/seed$s; done
   $PY -m layerspec.run $C6 --seed 0 --out $OUT6/trained --models resnet50 timm:resnet50.tv2_in1k timm:resnet50.a1_in1k timm:resnet50.a3_in1k timm:resnet50.gluon_in1k timm:resnet50.fb_ssl_yfcc100m_ft_in1k
+fi
+# A7: bootstrap over image subsets (analysis-plan 9.3).  20 draws of 3,200 images
+# from the same 6,400-image subset dir (fetch it with fetch_imagenet_val.py --limit 6400
+# --seed 0, or copy data/imagenet_val_6400 from the Mac), six ResNet-50 recipes each.
+if [ -n "${SUBSET6400:-}" ]; then
+  echo "=== A7 bootstrap $(date) ==="
+  OUT7=../results/bootstrap; mkdir -p $OUT7
+  for b in $(seq 1 20); do
+    $PY -m layerspec.run --data $SUBSET6400 --device cuda --batch-size 64 --workers 8 --positions 16 \
+      --limit 3200 --seed $b --out $OUT7/draw$b --models \
+      resnet50 timm:resnet50.tv2_in1k timm:resnet50.a1_in1k timm:resnet50.a3_in1k timm:resnet50.gluon_in1k timm:resnet50.fb_ssl_yfcc100m_ft_in1k
+  done
 fi
 echo "=== round 3 done $(date) ==="
