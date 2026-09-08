@@ -61,9 +61,7 @@ of a residual block exceeds the bound on its last convolution in 161 of 161
 bottleneck blocks, so block-output and convolution-output profiles are
 different objects. With these fixed, the protocol recovers the published
 CIFAR-10 profile of Garg \emph{et al.} ($r = 0.98$) and the ImageNet block
-values of Elmoznino and Bonner ($\rho = 0.997$); truncating every layer to
-its $k^*(0.999)$ principal directions leaves accuracy unchanged, while
-$k^*(0.95)$ does not. Because the output covariance before the nonlinearity
+values of Elmoznino and Bonner ($\rho = 0.997$); truncating every layer to its $k^*(0.999)$ principal directions leaves accuracy unchanged in six of eight checkpoints and costs the two RSB-trained ResNet-50s $1.7$ points, while $k^*(0.95)$ does not preserve it. Because the output covariance before the nonlinearity
 is exactly $W\Sigma_{\rm patch}W^{\top}$, the statistic separates into a kernel
 factor and a data factor, and training moves the bottleneck from the data
 to the kernel. Comparing eleven families with their own initialisations,
@@ -174,7 +172,7 @@ effective width. The contributions are:
 
   \item \textbf{An exact decomposition of the statistic.} Before the nonlinearity the output covariance is $W\Sigma_{\rm patch}W^{\top}$, so a layer's effective width separates into a kernel factor and a patch-covariance factor. Measuring both on ten checkpoints shows that training moves the bottleneck from the data to the kernel: at initialisation the patch covariance is low-rank and the kernel isotropic; after training the patch covariance is full-rank and the ordering of layers follows the kernels' Gram spectra ($\rho = 0.8$--$0.97$ in six of nine trained checkpoints). Orthogonalising a trained kernel with its input held fixed would raise its effective width by about $0.3$ of the attainable rank, which is a prediction the released plan registers for a later test (Section~\ref{sec:decompose}).
 
-  \item \textbf{Three further observations.} Truncating every convolution output to its top $k^*(\tau)$ principal channel directions at inference, the response-PCA operation of Zhang \emph{et al.} \cite{zhang2016accelerating} applied with the measured rank at every layer at once and without fine-tuning, keeps top-1 accuracy within the test's $0.75$-point resolution at $\tau = 0.999$ for ResNet-50, ResNet-18 and VGG-16 (mean $k^*/r_{\max}$ $0.84$--$0.93$), and costs $19$--$21$ points at the pre-registered $\tau = 0.95$; random directions of the same dimension give chance throughout. This calibrates what the statistic counts; it is not a compression result (Section~\ref{sec:projection}). Along one CIFAR-10 training run of VGG-16 the profile is in place by epoch 40, while test accuracy still rises from $84\%$ to $94\%$. And the position-sampled statistic
+  \item \textbf{Three further observations.} Truncating every convolution output to its top $k^*(\tau)$ principal channel directions at inference, the response-PCA operation of Zhang \emph{et al.} \cite{zhang2016accelerating} applied with the measured rank at every layer at once and without fine-tuning, leaves top-1 accuracy unchanged at $\tau = 0.999$ (McNemar) in six of eight checkpoints, including four ResNet-50 recipes, ResNet-18 and VGG-16, while the two ResNet-50 recipes of Wightman \emph{et al.} lose $1.7$ points; at the pre-registered $\tau = 0.95$ the cost ranges from $19$ points to near-total collapse depending on the recipe, and random directions of the same dimension give chance throughout. This calibrates what the statistic counts; it is not a compression result (Section~\ref{sec:projection}). Along one CIFAR-10 training run of VGG-16 the profile is in place by epoch 40, while test accuracy still rises from $84\%$ to $94\%$. And the position-sampled statistic
   computed from $6{,}400$ images agrees with the $50{,}000$-image value to
   within $0.016$ on every layer of six checkpoints, which bounds how much data such a measurement needs (Sections~\ref{sec:samplesize} and \ref{sec:learned}).
 \end{itemize}
@@ -1018,55 +1016,49 @@ thresholds as a rank rule appear there and as baselines in later work
 retrain at their $99.9\%$ criterion. We use the operation for one purpose
 only: with $k = k^*(\tau)$ from the measurement, at every dense convolution
 at once, with no fine-tuning and no rebuilding, does accuracy survive?
-On one half of the subset the channel covariance of every convolution
-output of four checkpoints (ResNet-50 under the \texttt{torchvision} V1
-and the A1 recipes, ResNet-18, VGG-16 with BN) was accumulated exactly as
-in the measurement; on the other half the network was evaluated with every
-convolution output truncated. The control truncates each layer to $k^*(\tau)$
-random orthonormal directions instead. Table~\ref{tab:projection} gives
-top-1 accuracy; with $3{,}200$ evaluation images its binomial standard
-error is about $0.75$ points, so ``unchanged'' below means within that.
+On one half of the subset the channel covariance of every convolution output of eight checkpoints (the six ResNet-50 recipes, ResNet-18, VGG-16 with BN) was accumulated exactly as in the measurement; on the other half the network was evaluated with every convolution output truncated. The control truncates each layer to $k^*(\tau)$
+random orthonormal directions instead. Table~\ref{tab:projection} gives top-1 accuracy, and since truncated and untruncated networks are scored on the same images, each difference has an exact McNemar test; ``unchanged'' below means that test does not reject at $p = 0.01$.
 
 \begin{table}[t]
   \centering
-  \caption{Top-1 on $3{,}200$ held-out images, with every convolution output
-  truncated to its top $k^*(\tau)$ principal channel directions
-  (\emph{principal}) or to $k^*(\tau)$ random orthonormal directions
-  (\emph{random}), all layers at once, no fine-tuning. The $k^*$ columns are
-  means over layers. Binomial SE $\approx 0.75$ points. Generated by
-  \texttt{checkpoint\_analysis.py} from \texttt{projection\_check.py}.}
+  \caption{Top-1 on $3{,}200$ held-out images with every convolution output truncated to its top $k^*(\tau)$ principal channel directions, all layers at once, no fine-tuning. Truncating to $k^*(\tau)$ random orthonormal directions instead gives at most $2\%$ in every case. $^*$: McNemar $p < 0.01$ against the untruncated network at $\tau = 0.999$. Generated by \texttt{checkpoint\_analysis.py} from \texttt{projection\_check.py}.}
   \label{tab:projection}
   \scriptsize\setlength{\tabcolsep}{3.5pt}
   \input{table_projection}
 \end{table}
 
-For ResNet-50 (V1), ResNet-18 and VGG-16 the pattern is the same. At
-$\tau = 0.999$ the truncation keeps $84$--$93\%$ of each layer's attainable
-rank ($63$--$86\%$ of nominal width) and accuracy moves by at most $0.4$
-points, within the resolution of the test ($76.0 \to 76.1$,
-$70.2 \to 69.8$, $74.5 \to 74.4$); at $0.99$ the cost is $1.6$--$2.6$
-points; at $0.95$, the pre-registered threshold, it is $19$--$21$ points;
-at $0.9$ the networks are largely destroyed. Random directions of the same
-dimension give chance accuracy throughout, so what is retained is the
-principal subspace and not merely the dimension count. In these three
-networks the directions beyond $k^*(0.999)$ carry no variance the
-classifier uses at the resolution of this test; those beyond $k^*(0.95)$
-do. The functional reading of $k^*$ is therefore threshold-specific:
-$k^*(0.999)$ bounds the width these networks use, and $k^*(0.95)$, which is
-what the profiles above are drawn with, orders layers and tracks training
-but does not by itself say how much width could be removed.
+At $\tau = 0.999$ the truncation keeps $84$--$93\%$ of each layer's
+attainable rank ($63$--$86\%$ of nominal width), and in six of the eight
+checkpoints accuracy is unchanged: ResNet-50 under the \texttt{torchvision}
+V1 and V2, GluonCV and semi-supervised recipes, ResNet-18 and VGG-16 move
+by $-0.3$ to $+0.2$ points (McNemar $p \ge 0.15$). The two exceptions are
+the ResNet-50 checkpoints trained with the A1 and A3 recipes of Wightman
+\emph{et al.} \cite{wightman2021rsb}, which lose $1.7$ points each
+($p < 10^{-4}$). The same architecture, the same data and the same $k^*$
+therefore give different answers depending on the recipe: the RSB recipes
+(binary cross-entropy, heavy augmentation) place function in channel
+directions that hold less than $0.1\%$ of the variance, and the
+conventional recipes do not. In every checkpoint the directions beyond
+$k^*(0.999)$ carry at most a few points of accuracy, and random directions
+of the same dimension give chance throughout, so what is retained is the
+principal subspace and not merely the dimension count.
 
-The ResNet-50 trained with the A1 recipe \cite{wightman2021rsb} behaves
-differently: truncating at $\tau = 0.999$ costs $1.8$ points
-($80.3 \to 78.6$), and at $0.99$ accuracy falls to $11\%$. We do not yet
-read this as a property of the recipe. In that checkpoint one layer,
-\texttt{layer1.0.conv3}, holds more than $99\%$ of its variance in a single
-direction, so at $\tau \le 0.99$ it is truncated to one dimension, and the
-collapse may be that layer's alone; a leave-one-layer-out check and the
-other four ResNet-50 recipes are required before the recipe-dependence can
-be stated, and are registered in the released plan. \todo{fill from
-projection\_queue2 (A1 leave-one-layer-out; tv2, a3, gluon, fb\_ssl; McNemar
-paired tests).}
+Below $\tau = 0.999$ the cost depends on the recipe far more than on the
+architecture. At $0.99$ four checkpoints lose $1.6$--$5.2$ points while A1
+and A3 fall to $11\%$ and $34\%$; at $0.95$, the pre-registered threshold,
+ResNet-50 V1, ResNet-18 and VGG-16 lose $19$--$21$ points but the other
+five ResNet-50 recipes fall to $0.3$--$6.6\%$. Part of that collapse is a
+single layer: in the A1 checkpoint \texttt{layer1.0.conv3} holds more than
+$99\%$ of its variance in one direction, so it is truncated to one
+dimension at $\tau \le 0.99$, and leaving that layer untruncated raises
+the A1 network from $11\%$ to $54\%$ at $0.99$; it does not change the
+$1.7$-point loss at $0.999$, which is spread over layers. The functional
+reading of $k^*$ is therefore threshold-specific and recipe-specific:
+$k^*(0.999)$ bounds the width used by conventionally trained networks and
+undercounts it by about two points of accuracy for the RSB recipes, and
+$k^*(0.95)$, which is what the profiles above are drawn with, orders layers
+and tracks training but says nothing about how much width could be
+removed.
 
 Two further things this experiment does not show. Read as a compression,
 the truncation is the rank-$k$ factorisation $W \mapsto U_k (U_k^{\top} W)$,
@@ -1265,7 +1257,7 @@ $10^5$ images. None of this is expensive. The whole first measurement took about
 
 \subsection{Implications for choosing width}
 
-The descriptive question was how much of its width a trained layer uses. Once the denominator is right the answer has two parts. At the $95\%$ criterion a trained dense convolution uses between $0.33$ and $0.72$ of its attainable rank in the median over layers, across eleven families; that number orders layers and tracks training but is not a count of removable width, since truncating to it costs ResNet-50 $21$ points (Section~\ref{sec:projection}). At the $99.9\%$ criterion it uses $0.84$--$0.93$ of its attainable rank, and in three of four checkpoints truncating to that costs nothing the test can resolve. For those networks the second number is the one a width-selection method has to explain: a seventh of the attainable rank, and a third of the nominal width, of a conventionally trained ResNet-50 carries no variance its classifier uses. Whether the fourth checkpoint shows that the margin depends on the training recipe is not yet settled. It is still not a pruning ratio (Section~\ref{sec:limits}), because a rank restriction on a trained network is not a narrower network trained from scratch.
+The descriptive question was how much of its width a trained layer uses. Once the denominator is right the answer has two parts. At the $95\%$ criterion a trained dense convolution uses between $0.33$ and $0.72$ of its attainable rank in the median over layers, across eleven families; that number orders layers and tracks training but is not a count of removable width, since truncating to it costs ResNet-50 $21$ points (Section~\ref{sec:projection}). At the $99.9\%$ criterion it uses $0.84$--$0.93$ of its attainable rank, and in six of eight checkpoints truncating to that costs nothing a paired test detects. For those networks the second number is the one a width-selection method has to explain: a seventh of the attainable rank, and a third of the nominal width, of a conventionally trained ResNet-50 carries no variance its classifier uses. The two RSB-trained checkpoints show that this margin is a property of the recipe: the same architecture trained with binary cross-entropy and heavy augmentation uses about two points' worth of the variance beyond $k^*(0.999)$. It is still not a pruning ratio (Section~\ref{sec:limits}), because a rank restriction on a trained network is not a narrower network trained from scratch.
 
 What differs across architectures is how much of the profile is learned.
 For plain and basic-residual networks the ordering of layers is the
