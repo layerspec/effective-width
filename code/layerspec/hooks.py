@@ -151,8 +151,10 @@ class SpectrumProbe:
         checkpoint_multiples: tuple[int, ...] = (1, 2, 5, 10, 25, 50, 100, 250),
         pooled: bool = True,
         include_blocks: bool = True,
+        include_bn: bool = False,
     ):
         self.model = model
+        self.include_bn = include_bn
         self.positions_per_image = int(positions_per_image)
         self.include_activations = include_activations
         self.include_linear = include_linear
@@ -180,7 +182,16 @@ class SpectrumProbe:
     # ---------------------------------------------------------------- attach
 
     def _attach(self) -> None:
+        last_conv = None      # (groups, is_depthwise, r_max) of the most recent conv, for BN outputs
         for name, module in self.model.named_modules():
+            if self.include_bn and type(module).__name__ in ("BatchNorm2d", "FrozenBatchNorm2d",
+                                                            "SyncBatchNorm") and last_conv is not None:
+                # A batch-norm output is the preceding conv output under a
+                # per-channel affine map: same rank bound, different spectrum.
+                # Recorded as kind="bn" only on request (ablation A12).
+                g, dw, rm = last_conv
+                self._register(name, module, kind="bn", groups=g, is_depthwise=dw, r_max=rm)
+                continue
             if isinstance(module, nn.Conv2d):
                 groups = module.groups
                 kh, kw = module.kernel_size
@@ -190,6 +201,7 @@ class SpectrumProbe:
                 # gives C_in and is very binding.
                 per_group = min((module.in_channels // groups) * kh * kw,
                                 module.out_channels // groups)
+                last_conv = (groups, groups > 1 and groups == module.in_channels, groups * per_group)
                 self._register(
                     name,
                     module,
@@ -343,6 +355,7 @@ def run_probe(
     progress: bool = True,
     pooled: bool = True,
     include_blocks: bool = True,
+    include_bn: bool = False,
 ) -> SpectrumProbe:
     """Push batches from `loader` through `model` with a probe attached."""
     model = model.to(device).eval()
@@ -353,6 +366,7 @@ def run_probe(
         seed=seed,
         pooled=pooled,
         include_blocks=include_blocks,
+        include_bn=include_bn,
     )
     try:
         for i, batch in enumerate(loader):

@@ -23,10 +23,11 @@ class SyntheticImages(Dataset):
     """Pink-ish noise with 1/f amplitude falloff, roughly natural-image second-order
     statistics.  Enough to exercise the pipeline; not a substitute for real data."""
 
-    def __init__(self, n: int = 512, size: int = 224, seed: int = 0):
+    def __init__(self, n: int = 512, size: int = 224, seed: int = 0, kind: str = "pink"):
         self.n = n
         self.size = size
         self.seed = seed
+        self.kind = kind          # "pink" (1/f) or "white" (i.i.d. Gaussian)
 
     def __len__(self) -> int:
         return self.n
@@ -35,6 +36,8 @@ class SyntheticImages(Dataset):
         g = torch.Generator().manual_seed(self.seed * 100003 + i)
         s = self.size
         white = torch.randn(3, s, s, generator=g)
+        if self.kind == "white":
+            return white, 0
         spec = torch.fft.rfft2(white)
         fy = torch.fft.fftfreq(s).unsqueeze(1)
         fx = torch.fft.rfftfreq(s).unsqueeze(0)
@@ -92,25 +95,25 @@ def build_loader(
     image_size: int = 224,
     limit: int | None = None,
     seed: int = 0,
+    preprocess: str = "crop",
 ) -> tuple[DataLoader, str]:
-    """Return (loader, source_tag).  `data=None` or "synthetic" uses fake images."""
-    if data in (None, "synthetic"):
-        ds = SyntheticImages(n=limit or 512, size=image_size, seed=seed)
+    """Return (loader, source_tag).  `data=None` or "synthetic" uses 1/f noise
+    images, "gaussian" i.i.d. white noise (ablation A15); `preprocess` is
+    "crop" (resize 256/224 then centre crop, the default) or "resize" (direct
+    resize to image_size x image_size, as Elmoznino & Bonner; ablation A14)."""
+    if data in (None, "synthetic", "gaussian"):
+        ds = SyntheticImages(n=limit or 512, size=image_size, seed=seed,
+                             kind="white" if data == "gaussian" else "pink")
         return (
             DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=0),
-            "synthetic",
+            data or "synthetic",
         )
 
     from torchvision import transforms
 
-    tf = transforms.Compose(
-        [
-            transforms.Resize(int(image_size * 256 / 224)),
-            transforms.CenterCrop(image_size),
-            transforms.ToTensor(),
-            transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD),
-        ]
-    )
+    geometry = ([transforms.Resize((image_size, image_size))] if preprocess == "resize"
+                else [transforms.Resize(int(image_size * 256 / 224)), transforms.CenterCrop(image_size)])
+    tf = transforms.Compose(geometry + [transforms.ToTensor(), transforms.Normalize(IMAGENET_MEAN, IMAGENET_STD)])
     # We never use labels -- every quantity here is computed from activation
     # covariances -- so there is no reason to demand the root/<class>/<image>
     # layout that ImageFolder wants.  A recursive scan accepts both that layout

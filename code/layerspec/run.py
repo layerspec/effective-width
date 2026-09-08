@@ -43,6 +43,7 @@ def measure_one(
         image_size=args.image_size,
         limit=args.limit,
         seed=args.seed,
+        preprocess=getattr(args, "preprocess", "crop"),
     )
 
     t0 = time.time()
@@ -52,6 +53,7 @@ def measure_one(
         device=args.device,
         positions_per_image=args.positions,
         include_activations=not args.conv_only,
+        include_bn=getattr(args, "bn", False),
         max_batches=args.max_batches,
         seed=args.seed,
     )
@@ -168,6 +170,9 @@ def main(argv=None) -> int:
     p.add_argument("--conv-only", action="store_true",
                    help="skip activation outputs, hook only Conv2d")
     p.add_argument("--seed", type=int, default=0)
+    p.add_argument("--bn", action="store_true", help="also record batch-norm outputs (kind=bn; ablation A12)")
+    p.add_argument("--preprocess", choices=["crop", "resize"], default="crop",
+                   help="centre crop (default) or direct resize (ablation A14)")
     p.add_argument("--min-n-over-C", type=float, default=50.0,
                    help="rows with fewer than this many samples per channel are "
                         "flagged n_over_C_ok=False and must not be reported")
