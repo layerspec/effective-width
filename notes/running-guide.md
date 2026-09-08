@@ -272,4 +272,9 @@ cd /workspace/effective-width && git config user.name layerspec && git config us
 nohup bash -c 'until grep -q "round 3 done" results/round3.log; do sleep 300; done; cd code && PY=python bash scripts/decompose_round3.sh cuda > ../results/round3_decompose.log 2>&1; cd .. && git add results/round3 results/round3_decompose results/round3_decompose.log && git commit -q -m "Round 3 results from the pod" && git push; runpodctl stop pod $RUNPOD_POD_ID' > results/autostop.log 2>&1 &
 ```
 
-- Stop 之後磁碟費約 US$0.3/天；拿到結果後到網頁 Terminate。
+- **`runpodctl stop pod` 在 2026-09-08 的 pod 上不能用**（config 後仍 Unauthorized）；改用 REST API：
+  先 `echo '<API key>' > /root/.runpod/restkey && chmod 600 /root/.runpod/restkey`（key 只貼在 pod 裡，
+  **不要貼進對話**），守護程序結尾用
+  `curl -s -X POST https://rest.runpod.io/v1/pods/$RUNPOD_POD_ID/stop -H "Authorization: Bearer $(cat /root/.runpod/restkey)"`。
+  先用 GET 同一網址確認回 200。key 權限 Read & Write 即可。
+- Stop 之後磁碟費約 US$0.3/天；拿到結果後到網頁 Terminate，並 Revoke 用過的 API key。
