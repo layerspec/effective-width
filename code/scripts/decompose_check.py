@@ -163,8 +163,11 @@ def main(argv=None) -> int:
         # over the r = rank(W) nonzero directions; hence for the variance-fraction count
         #   k*_out(tau) <= k*_ortho(tau')  with  tau' = kappa^2 tau / (1 - tau + kappa^2 tau),
         # kappa = sigma_max / sigma_min over the nonzero singular values.
-        r = int((sv > sv[0] * 1e-8).sum())
+        # numerical rank: singular values above 1e-6 of the largest (float32 weights);
+        # kappa is the condition number over those directions
+        r = int((sv > sv[0] * 1e-6).sum())
         kappa = float(sv[0] / sv[r - 1])
+        n_null = int(len(sv) - r)                      # numerically null kernel directions
         ratio = lam_out[:r] / np.clip(lam_ortho[:r], 1e-300, None)
         ostrowski_ok = bool(np.all(ratio >= sv[r - 1] ** 2 * (1 - 1e-6)) and np.all(ratio <= sv[0] ** 2 * (1 + 1e-6)))
         row = dict(model=a.model, layer=name, depth_index=meta["depth_index"], C_in=meta["C_in"],
@@ -172,7 +175,7 @@ def main(argv=None) -> int:
                    kernel_erank_over_rmax=erank(sv ** 2) / r_max,
                    kernel_cond_top_rmax=float(sv[0] / sv[min(r_max, len(sv)) - 1]),
                    data_erank_over_rmax=min(erank(lam_data), r_max) / r_max)
-        row.update(rank_W=r, kappa=kappa, ostrowski_ok=ostrowski_ok)
+        row.update(rank_W=r, n_null=n_null, kappa=kappa, ostrowski_ok=ostrowski_ok)
         for tau in TAUS:
             tau_k = kappa ** 2 * tau / (1 - tau + kappa ** 2 * tau)
             row[f"bound_{tau}"] = kstar(lam_ortho, tau_k) / r_max if tau_k < 1 else 1.0
