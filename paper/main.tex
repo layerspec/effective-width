@@ -61,7 +61,7 @@ of a residual block exceeds the bound on its last convolution in 161 of 161
 bottleneck blocks, so block-output and convolution-output profiles are
 different objects. With these fixed, the protocol recovers the published
 CIFAR-10 profile of Garg \emph{et al.} ($r = 0.98$) and the ImageNet block
-values of Elmoznino and Bonner ($\rho = 0.997$); truncating every layer to its $k^*(0.999)$ principal directions leaves accuracy unchanged in six of eight checkpoints and costs the two RSB-trained ResNet-50s $1.7$ points, while $k^*(0.95)$ does not preserve it. Because the output covariance before the nonlinearity
+values of Elmoznino and Bonner ($\rho = 0.997$); truncating every layer to its $k^*(0.999)$ principal directions leaves accuracy unchanged in six of eight checkpoints and costs $1.7$ points in the two ResNet-50s trained with binary cross-entropy and heavy augmentation, while $k^*(0.95)$ does not preserve it. Because the output covariance before the nonlinearity
 is exactly $W\Sigma_{\rm patch}W^{\top}$, the statistic separates into a kernel
 factor and a data factor, and training moves the bottleneck from the data
 to the kernel. Comparing eleven families with their own initialisations,
