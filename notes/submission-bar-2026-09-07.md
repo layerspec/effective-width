@@ -26,6 +26,8 @@
 - B4 analysis-plan.md 翻成英文，偏離紀錄補到投稿當天。
 - B5 §II 五條新 bib（Bansal、Massart、Huang×2、Wang）逐條核對原文；Massart 要看 IEEE 版。
 - B6 標題與摘要在全部結果出來後最後定。
+- B7 **頁數**：compsoc 樣式下目前 17 頁（2026-09-08）。投稿前查 TPAMI 當期的頁數規定（一般 14 頁內免費、超頁收費、有上限），必要時把三張 table* 與部分圖移附錄或補充材料。
+- B8 已套用 TPAMI 樣式：`\documentclass[10pt,journal,compsoc]{IEEEtran}`、`\IEEEtitleabstractindextext`、`\IEEEcompsocitemizethanks`、`\IEEEraisesectionheading`（2026-09-08）。
 
 ## C. 可重現性包
 
