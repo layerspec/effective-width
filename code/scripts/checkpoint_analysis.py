@@ -1255,6 +1255,86 @@ def section_round3_ortho(results: str) -> None:
 import re  # noqa: E402  (used by section_round3_ortho)
 
 
+# ------------------------------------------- section 15: ablations (A11-A15)
+
+def _conv_profile(path: str, kind: str = "conv"):
+    d = pd.read_csv(path); d = d[(d.kind == kind) & d.n_over_C_ok.astype(bool)]
+    d = d[~d.is_depthwise.astype(bool)] if "is_depthwise" in d else d
+    return d.sort_values("depth_index")[["layer", "C", "r_max", "k_star_0.95", "k_star_rmax_0.95", "k_star_ratio_0.95"]]
+
+
+def section_ablations(results: str) -> None:
+    A = os.path.join(results, "ablation")
+    if not os.path.isdir(A):
+        return
+    hdr("15. Ablations of the protocol on ResNet-50 V1 (A11-A15): k*(0.95)/r_max profile vs the reference run")
+    ref_path = os.path.join(results, "local6400", "trained", "resnet50_layers.csv")
+    if not os.path.exists(ref_path):
+        print("  reference run missing"); return
+    ref = _conv_profile(ref_path)
+    print("  reference: results/local6400/trained/resnet50 (6,400 images, 16 positions, crop, conv output)\n")
+    print(f"    {'ablation':34s} {'L':>3s}  {'rho vs ref':>10s} {'med|diff|':>9s} {'max|diff|':>9s}  {'level':>6s} {'ref level':>9s}")
+
+    def compare(label, prof):
+        m = ref.merge(prof, on="layer", suffixes=("_ref", ""))
+        if m.empty:
+            print(f"    {label:34s} no common layers"); return
+        a, b = m["k_star_rmax_0.95_ref"].to_numpy(), m["k_star_rmax_0.95"].to_numpy()
+        print(f"    {label:34s} {len(m):3d}  {_rho(a, b):+10.2f} {np.median(np.abs(a - b)):9.3f} {np.abs(a - b).max():9.3f}  "
+              f"{np.median(b):6.3f} {np.median(a):9.3f}")
+
+    for sub, label in (("pos4", "4 positions per image"), ("pos64", "64 positions per image"),
+                       ("resize", "direct resize 224x224 (no crop)"),
+                       ("gaussian", "white-noise inputs, trained"), ("pink", "1/f-noise inputs, trained")):
+        f = os.path.join(A, sub, "resnet50_layers.csv")
+        if os.path.exists(f):
+            compare(label, _conv_profile(f))
+    for sub, label in (("gaussian", "white-noise inputs, random init"), ("pink", "1/f-noise inputs, random init")):
+        f = os.path.join(A, sub, "resnet50_random_layers.csv")
+        if os.path.exists(f):
+            r = _conv_profile(f); rr = os.path.join(results, "local6400", "seed1", "resnet50_random_layers.csv")
+            if os.path.exists(rr):
+                m = _conv_profile(rr).merge(r, on="layer", suffixes=("_ref", ""))
+                a, b = m["k_star_rmax_0.95_ref"].to_numpy(), m["k_star_rmax_0.95"].to_numpy()
+                print(f"    {label:34s} {len(m):3d}  {_rho(a, b):+10.2f} {np.median(np.abs(a - b)):9.3f} {np.abs(a - b).max():9.3f}  "
+                      f"{np.median(b):6.3f} {np.median(a):9.3f}   (ref: random seed 1 on ImageNet images)")
+    # A12: BN output vs conv output, same layer
+    f = os.path.join(A, "bn", "resnet50_layers.csv")
+    if os.path.exists(f):
+        d = pd.read_csv(f); d = d[d.n_over_C_ok.astype(bool)]
+        conv = d[d.kind == "conv"].copy(); bn = d[d.kind == "bn"].copy()
+        conv["stem"] = conv.layer.str.replace(r"\.conv(\d)$", r".\1", regex=True).str.replace("^conv1$", "1", regex=True).str.replace(r"downsample\.0$", "downsample", regex=True)
+        bn["stem"] = bn.layer.str.replace(r"\.bn(\d)$", r".\1", regex=True).str.replace("^bn1$", "1", regex=True).str.replace(r"downsample\.1$", "downsample", regex=True)
+        m = conv.merge(bn, on="stem", suffixes=("_conv", "_bn"))
+        a, b = m["k_star_rmax_0.95_conv"].to_numpy(), m["k_star_rmax_0.95_bn"].to_numpy()
+        print(f"\n  A12 BatchNorm: {len(m)} conv/BN pairs (ResNet-50).  rho(conv, bn) = {_rho(a, b):+.2f};  "
+              f"median k*/r_max conv {np.median(a):.3f} vs bn {np.median(b):.3f};  bn higher on {int((b > a).sum())}/{len(m)};  "
+              f"median |diff| {np.median(np.abs(a - b)):.3f}")
+        for model in ("vgg16_bn", "resnet50_random"):
+            g = os.path.join(A, "bn", f"{model}_layers.csv")
+            if os.path.exists(g):
+                e = pd.read_csv(g); e = e[e.n_over_C_ok.astype(bool)]
+                c2 = e[e.kind == "conv"].sort_values("depth_index"); b2 = e[e.kind == "bn"].sort_values("depth_index")
+                if len(c2) == len(b2):
+                    a2, bb = c2["k_star_rmax_0.95"].to_numpy(), b2["k_star_rmax_0.95"].to_numpy()
+                    print(f"    {model}: rho(conv, bn) = {_rho(a2, bb):+.2f}; median conv {np.median(a2):.3f} vs bn {np.median(bb):.3f}; bn higher on {int((bb > a2).sum())}/{len(a2)}")
+    # A11: COCO
+    fc = os.path.join(A, "coco")
+    if os.path.isdir(fc):
+        print("\n  A11 COCO val2017 images (3,200), 16 positions:")
+        r50 = os.path.join(fc, "resnet50_layers.csv")
+        if os.path.exists(r50):
+            compare("ImageNet ResNet-50 on COCO images", _conv_profile(r50))
+        for det in ("tvdet_fasterrcnn_resnet50_fpn", "tvdet_maskrcnn_resnet50_fpn"):
+            g = os.path.join(fc, f"{det}_layers.csv")
+            if os.path.exists(g):
+                compare(f"{det.replace('tvdet_', '')} backbone", _conv_profile(g))
+                if os.path.exists(r50):
+                    m = _conv_profile(r50).merge(_conv_profile(g), on="layer", suffixes=("_cls", "_det"))
+                    print(f"      vs ImageNet ResNet-50 on the same COCO images: rho {_rho(m['k_star_rmax_0.95_cls'], m['k_star_rmax_0.95_det']):+.2f}, "
+                          f"levels {m['k_star_rmax_0.95_cls'].median():.3f} (cls) / {m['k_star_rmax_0.95_det'].median():.3f} (det)")
+
+
 # ------------------------------------------------------------------- main
 
 def main(argv=None) -> int:
@@ -1291,6 +1371,7 @@ def main(argv=None) -> int:
     section_decompose(a.results, latex=a.latex_decompose)
     section_round3(a.results)
     section_round3_ortho(a.results)
+    section_ablations(a.results)
     return 0
 
 
