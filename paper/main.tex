@@ -20,6 +20,7 @@
 \newtheorem{corollary}{Corollary}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{array}
 \usepackage{url}
 \usepackage[caption=false,font=footnotesize]{subfig}
 \usepackage[hidelinks]{hyperref}
@@ -228,36 +229,36 @@ training dynamics; Shape: reported profile along depth. ``Lin.\ rank'' groups
 numerical/stable/effective rank of the activation (or centred activation)
 matrix; ``ID'' is a manifold intrinsic-dimension estimator.}
 \label{tab:survey}
-\begin{tabular}{@{}p{2.0cm}p{3.3cm}p{2.5cm}p{1.9cm}p{2.3cm}p{1.1cm}cc p{2.3cm}@{}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.4cm}>{\raggedright\arraybackslash}p{3.0cm}>{\raggedright\arraybackslash}p{2.3cm}>{\raggedright\arraybackslash}p{1.7cm}>{\raggedright\arraybackslash}p{2.1cm}>{\raggedright\arraybackslash}p{1.1cm}cc>{\raggedright\arraybackslash}p{2.2cm}@{}}
 \toprule
 Work & Networks / data & Tensor & Samples & Statistic & Denom. & Untr. & Dyn. & Shape \\
 \midrule
 \multicolumn{9}{@{}l}{\emph{Manifold intrinsic dimension}} \\
-\cite{ansuini2019intrinsic} & AlexNet, VGG, ResNet; ImageNet & block / pool out & images (7$\times$500) & TwoNN ID, PC-ID & -- & \checkmark & (\checkmark) & hunchback \\
-\cite{recanatesi2019dimensionality} & MLP, ResNet; F-MNIST, CIFAR & layer out & images & local/global ID & -- & \checkmark & before/after & expand--compress \\
-\cite{cohen2020manifolds} & AlexNet, VGG-16, ResNet-50; ImageNet & every op.\ incl.\ pool & images (class clouds) & MFT manifold dim.\ $D_M$ & -- & \checkmark & -- & non-monotone; pool $\downarrow$ \\
-\cite{stephenson2021geometry} & VGG-16, ResNet-18; CIFAR-100 & layer out & images & MFT $D_M$ & -- & \checkmark & \checkmark & deep $\downarrow$ late \\
-\cite{konz2024preprocessing} & VGG-13/16/19, ResNet-18/34/50; 11 datasets & pool / block / FC & images & TwoNN ID & -- & -- & -- & hunchback (peak 0.57 vs 0.35) \\
-\cite{schulte2026rethinking} & AlexNet, VGG, ResNet; ImageNet & layer out & images & TwoNN, MLE (+theory) & -- & -- & -- & cannot rise (theory) \\
+Ansuini et al. \cite{ansuini2019intrinsic} & AlexNet, VGG, ResNet; ImageNet & block / pool out & images (7$\times$500) & TwoNN ID, PC-ID & -- & \checkmark & (\checkmark) & hunchback \\
+Recanatesi et al. \cite{recanatesi2019dimensionality} & MLP, ResNet; F-MNIST, CIFAR & layer out & images & local/global ID & -- & \checkmark & before/after & expand--compress \\
+Cohen et al. \cite{cohen2020manifolds} & AlexNet, VGG-16, ResNet-50; ImageNet & every op.\ incl.\ pool & images (class clouds) & MFT manifold dim.\ $D_M$ & -- & \checkmark & -- & non-monotone; pool $\downarrow$ \\
+Stephenson et al. \cite{stephenson2021geometry} & VGG-16, ResNet-18; CIFAR-100 & layer out & images & MFT $D_M$ & -- & \checkmark & \checkmark & deep $\downarrow$ late \\
+Konz et al. \cite{konz2024preprocessing} & VGG-13/16/19, ResNet-18/34/50; 11 datasets & pool / block / FC & images & TwoNN ID & -- & -- & -- & hunchback (peak 0.57 vs 0.35) \\
+Schulte and R\"ugamer \cite{schulte2026rethinking} & AlexNet, VGG, ResNet; ImageNet & layer out & images & TwoNN, MLE (+theory) & -- & -- & -- & cannot rise (theory) \\
 \midrule
 \multicolumn{9}{@{}l}{\emph{Linear rank / PCA / participation ratio}} \\
-\cite{garg2019lowEffort} & VGG/AlexNet-style; CIFAR & conv out, flattened & positions & \#PC at 99.9\% var. & -- & -- & -- & expand to layer 7, then contract \\
-\cite{elmoznino2024highDim} & 46 DNNs, 568 conv layers & conv out, GAP & images (10k) & PR & -- & \checkmark & -- & rising \\
-\cite{chen2025universal} & ResNet-18 $\times$20 seeds, ResNet-50 $\times$9 tasks & ReLU out, GMP & images (72k) & rank (matrix\_rank) & -- & \checkmark & -- & not reported \\
-\cite{agrawal2022alphaReq} & VGG-13/16/19, ResNet-50/101, ViT; ImageNet & pre-pool / block in & images & power-law $\alpha$ & -- & -- & -- & $\alpha<1$ mid, $\to1$ deep \\
-\cite{huh2023lowRank} & MLP, CNN, ResNet; CIFAR, ImageNet & penultimate Gram & images & erank & -- & \checkmark & \checkmark & vs.\ net depth $\downarrow$ \\
-\cite{smirnov2026erank} & ResNet-18 layers 1--4; ImageNet & feature map $HW\times C$ & positions (1 image) & erank & $\min(N,C)$ & -- & -- & per-layer, no profile \\
+Garg et al. \cite{garg2019lowEffort} & VGG/AlexNet-style; CIFAR & conv out, flattened & positions & \#PC at 99.9\% var. & -- & -- & -- & expand to layer 7, then contract \\
+Elmoznino and Bonner \cite{elmoznino2024highDim} & 46 DNNs, 568 conv layers & conv out, GAP & images (10k) & PR & -- & \checkmark & -- & rising \\
+Chen and Bonner \cite{chen2025universal} & ResNet-18 $\times$20 seeds, ResNet-50 $\times$9 tasks & ReLU out, GMP & images (72k) & rank (matrix\_rank) & -- & \checkmark & -- & not reported \\
+Agrawal et al. \cite{agrawal2022alphaReq} & VGG-13/16/19, ResNet-50/101, ViT; ImageNet & pre-pool / block in & images & power-law $\alpha$ & -- & -- & -- & $\alpha<1$ mid, $\to1$ deep \\
+Huh et al. \cite{huh2023lowRank} & MLP, CNN, ResNet; CIFAR, ImageNet & penultimate Gram & images & erank & -- & \checkmark & \checkmark & vs.\ net depth $\downarrow$ \\
+Smirnov \cite{smirnov2026erank} & ResNet-18 layers 1--4; ImageNet & feature map $HW\times C$ & positions (1 image) & erank & $\min(N,C)$ & -- & -- & per-layer, no profile \\
 \midrule
 \multicolumn{9}{@{}l}{\emph{Neural collapse / tunnel effect}} \\
-\cite{rangamani2023intermediate} & MLP, ConvNet, ResNet-18/34/50; MNIST, CIFAR-10, SVHN & centred within-class feat. & images & stable rank & -- & -- & \checkmark & rise then fall \\
-\cite{masarczyk2023tunnel} & MLP, VGG-19, ResNet-34 (conv2); CIFAR, CINIC & flattened (8k feats) & images & num.\ rank ($10^{-3}\sigma_1$) & -- & -- & \checkmark & collapse to \#classes \\
-\cite{harun2024tunnelVariables} & VGGm, ResNet, ViT; ImageNet-100 & flattened & images & num.\ rank (app.) & -- & -- & -- & collapse at $32^2$, kept at $224^2$ \\
-\cite{kubaty2025multiExit} & ResNet-20/34/50, ViT; CIFAR-100, ImageNet & activation matrix & images & num.\ rank & -- & -- & regimes & high early, low deep \\
+Rangamani et al. \cite{rangamani2023intermediate} & MLP, ConvNet, ResNet-18/34/50; MNIST, CIFAR-10, SVHN & centred within-class feat. & images & stable rank & -- & -- & \checkmark & rise then fall \\
+Masarczyk et al. \cite{masarczyk2023tunnel} & MLP, VGG-19, ResNet-34 (conv2); CIFAR, CINIC & flattened (8k feats) & images & num.\ rank ($10^{-3}\sigma_1$) & -- & -- & \checkmark & collapse to \#classes \\
+Harun et al. \cite{harun2024tunnelVariables} & VGGm, ResNet, ViT; ImageNet-100 & flattened & images & num.\ rank (app.) & -- & -- & -- & collapse at $32^2$, kept at $224^2$ \\
+Kubaty et al. \cite{kubaty2025multiExit} & ResNet-20/34/50, ViT; CIFAR-100, ImageNet & activation matrix & images & num.\ rank & -- & -- & regimes & high early, low deep \\
 \midrule
 \multicolumn{9}{@{}l}{\emph{Other objects (for contrast)}} \\
-\cite{feng2022rankDiminishing} & ResNet-18/50, Swin, ViT; ImageNet & \emph{Jacobian} & images & partial num.\ rank & -- & -- & -- & monotone $\downarrow$ \\
-\cite{lin2020hrank} & VGG-16, ResNet-50; CIFAR, ImageNet & single $H\times W$ map & per channel & SVD rank & $\min(H,W)$ & -- & -- & per-channel \\
-\cite{daneshmand2020bn} & MLP; VGG-19, ResNet-50; CIFAR-10 & last hidden layer & batch & soft rank & width $d$ & \checkmark & \checkmark & vs.\ net depth \\
+Feng et al. \cite{feng2022rankDiminishing} & ResNet-18/50, Swin, ViT; ImageNet & \emph{Jacobian} & images & partial num.\ rank & -- & -- & -- & monotone $\downarrow$ \\
+Lin et al. \cite{lin2020hrank} & VGG-16, ResNet-50; CIFAR, ImageNet & single $H\times W$ map & per channel & SVD rank & $\min(H,W)$ & -- & -- & per-channel \\
+Daneshmand et al. \cite{daneshmand2020bn} & MLP; VGG-19, ResNet-50; CIFAR-10 & last hidden layer & batch & soft rank & width $d$ & \checkmark & \checkmark & vs.\ net depth \\
 This work & 19 checkpoints, 11 families; ImageNet, CIFAR-10, COCO & conv out, pre-act., pre-residual (block out and BN out recorded) & positions $\times$ images & $k^*(\tau)$, PR, erank & $r_{\max}$ (and $C$) & \checkmark & \checkmark & Section~\ref{sec:results} \\
 \bottomrule
 \end{tabular}
