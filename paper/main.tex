@@ -179,6 +179,8 @@ effective width. The contributions are:
   within $0.016$ on every layer of six checkpoints, which bounds how much data such a measurement needs (Sections~\ref{sec:samplesize} and \ref{sec:learned}).
 \end{itemize}
 
+What the reader can take away is a ruler and three facts. The ruler is a protocol under which effective-width profiles from different papers are on one scale, validated against both published estimators at both tensors; it is released as code and can be run on any convolutional network in minutes. The facts are that the profile literature's disagreement is largely about tensors, denominators and tasks rather than about networks; that bottleneck networks have been misread as underused because of a denominator; and that what a trained layer uses is set jointly by its kernel and its input, with training moving the constraint from the second to the first, which gives orthogonality regularisation a quantified, testable prediction rather than an assumption.
+
 The analysis was specified before the ImageNet data were collected. The pre-registered hypotheses concerned the \emph{shape} of the profile, and none of them survived a paired test across all layers. The estimator comparison, the statistic comparison, the threshold sensitivity and the sample-size control were pre-registered; the attainable-rank denominator, the block-output comparison, the depthwise split and the block-type comparison were arrived at after the data were seen, and every result of the second kind is labelled exploratory where it appears. The plan, and a log of every departure from it, is released with the
 code (Section~\ref{sec:repro}).
 % =========================================================================
