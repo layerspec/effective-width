@@ -1,3 +1,7 @@
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/fromnumeric.py:3824: RuntimeWarning: Mean of empty slice
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
 loaded 22 layer tables from ../results
 duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
 
@@ -54,7 +58,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     layer4.0    2048     1.07     1.07  0.998
     layer4.1    2048     1.06     1.06  1.000
     layer4.2    2048     1.06     1.06  0.996
-  wrote ../paper/table_models.tex
 
 ========================================================================
 1. r_max as the denominator, on every checkpoint
@@ -254,7 +257,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       (DenseNet-121's jitter is the 1x1/3x3 alternation of its dense
        layers, which is structural; its ratio is below 1 with either
        denominator and is reported as such)
-  wrote ../paper/table_pooling.tex
 
 ========================================================================
 3b. Layers whose k*(.95)/C had not flattened at n/C = 250 (|delta| > 0.02)
@@ -468,7 +470,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   look at its per-checkpoint levels before saying anything about it.
   VGG-16's two checkpoints are with and without BN, so its T-T compares
   two architectures.
-  wrote ../paper/table_families.tex
 
 ========================================================================
 9. When does the profile become the trained one?  CIFAR-10 trajectories
@@ -495,22 +496,24 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
        90  92.89   0.296       -0.68        +0.93         +1.00         0.004
       100  94.01   0.296       -0.68        +0.93         +1.00         0.000
 
-  [trajectory_resnet50]  53 conv layers, epochs measured 0..10  (IN PROGRESS: 'final' = latest epoch)
+  [trajectory_resnet50]  53 conv layers, epochs measured 0..20  (IN PROGRESS: 'final' = latest epoch)
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
-        0  10.24   0.185       -0.85        +1.00         +0.84         0.090
-        1  44.43   0.391       +0.89        -0.65         -0.38         0.251
-        2  52.10   0.422       +0.63        -0.30         +0.03         0.174
-        3  57.66   0.527       +0.72        -0.41         -0.10         0.233
-        5  71.02   0.508       +0.24        +0.13         +0.44         0.210
-        7  74.55   0.438       -0.08        +0.39         +0.67         0.139
-       10  82.08   0.328       -0.62        +0.84         +1.00         0.000
-    role 3x3: rho(init, final) +0.85   level init 0.244 -> final 0.338
-    role 1x1: rho(init, final) +0.86   level init 0.180 -> final 0.316
+        0  10.24   0.185       -0.85        +1.00         +0.48         0.090
+        1  44.43   0.391       +0.89        -0.65         +0.07         0.220
+        2  52.10   0.422       +0.63        -0.30         +0.37         0.203
+        3  57.66   0.527       +0.72        -0.41         +0.34         0.286
+        5  71.02   0.508       +0.24        +0.13         +0.74         0.286
+        7  74.55   0.438       -0.08        +0.39         +0.86         0.218
+       10  82.08   0.328       -0.62        +0.84         +0.61         0.128
+       15  85.20   0.312       -0.12        +0.36         +0.92         0.084
+       20  83.28   0.222       -0.26        +0.48         +1.00         0.000
+    role 3x3: rho(init, final) +0.53   level init 0.244 -> final 0.264
+    role 1x1: rho(init, final) +0.46   level init 0.180 -> final 0.199
 
   Summary (settle = first measured epoch with rho vs final >= 0.95):
     run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
     trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
-    trajectory_resnet50      no     10      82.08     82.08            +0.84       -0.85 -> -0.62
+    trajectory_resnet50      no     20      83.28     83.28            +0.48       -0.85 -> -0.26
 
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
   is when the learned profile is in place; compare it with the accuracy
@@ -551,7 +554,20 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
      0.950  0.379   0.387     55.53%    0.09%
      0.990  0.625   0.635     72.91%    0.09%
      0.999  0.828   0.842     74.38%    0.28%
-  wrote ../paper/table_projection.tex
+
+========================================================================
+10b. The projection read as a rank-k factorisation: conv FLOPs kept, per tau
+========================================================================
+  FLOPs of W -> V_k (V_k^T W): k(d + C_out) vs C_out d per output position, dense convs only.
+
+    model                        conv GFLOPs     tau=0.9    tau=0.95    tau=0.99   tau=0.999
+    resnet18                            1.81        0.42        0.58        0.86        0.98
+    resnet50                            4.09        0.34        0.47        0.77        0.95
+    timm_resnet50.a1_in1k               4.09        0.42        0.58        0.86        0.96
+    vgg16_bn                           15.35        0.32        0.45        0.74        0.95
+
+  Reading: at tau = 0.999 the factorised network computes this fraction of the
+  dense conv FLOPs with the accuracy of section 10 (no retraining, no fine-tuning).
 
 ========================================================================
 11. Where the effective width comes from: Sigma_out = W Sigma_patch W^T
@@ -591,4 +607,3 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   kernel spectrum alone; 'ortho' is the analytic prediction for orthogonalising
   the kernel with the data held fixed, to be tested against trained-with-
   orthogonality-penalty networks (submission bar A5).
-  wrote ../paper/table_decompose.tex

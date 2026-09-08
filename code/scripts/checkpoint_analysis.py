@@ -1029,6 +1029,50 @@ def section_projection(results: str, latex: str | None = None) -> None:
         print(f"  wrote {latex}")
 
 
+# ------------------- section 10b: the projection as a low-rank factorisation
+
+def section_projection_flops(results: str, layers: dict) -> None:
+    """Projecting a conv output onto its top-k principal channel directions
+    equals replacing W (C_out x d) by V_k (V_k^T W): a rank-k factorisation with
+    k(d + C_out) multiply-adds per position instead of C_out d.  FLOPs are
+    summed over dense conv layers weighted by output positions H*W (from the
+    layer tables); the classifier and depthwise layers are left as they are."""
+    files = sorted(glob.glob(os.path.join(results, "projection", "*_projection_layers.csv")))
+    if not files:
+        return
+    hdr("10b. The projection read as a rank-k factorisation: conv FLOPs kept, per tau")
+    print("  FLOPs of W -> V_k (V_k^T W): k(d + C_out) vs C_out d per output position, dense convs only.\n")
+    print(f"    {'model':28s} {'conv GFLOPs':>11s}  " + "  ".join(f"{'tau=' + str(t):>10s}" for t in (0.9, 0.95, 0.99, 0.999)))
+    for f in files:
+        per = pd.read_csv(f)
+        model = os.path.basename(f).replace("_projection_layers.csv", "")
+        key = model if model in layers else model.replace("timm_", "timm_")
+        if key not in layers:
+            print(f"    {model}: no layer table"); continue
+        L = layers[key]; L = L[L.kind == "conv"][["layer", "H", "W"]]
+        m = per.merge(L, on="layer")
+        if m.empty:
+            continue
+        # d = k_h k_w C_in is not stored; recover from r_max = min(d, C_out): if r_max < C_out then d = r_max,
+        # else d >= C_out and we need C_in*k*k.  The decompose tables have d; use them when present.
+        dec = os.path.join(results, "decompose", f"{model}_decompose.csv")
+        if os.path.exists(dec):
+            D = pd.read_csv(dec)[["layer", "d"]]; m = m.merge(D, on="layer")
+        else:
+            continue
+        pos = m.H * m.W
+        full = (m.C * m.d * pos).sum()
+        out = []
+        for t in (0.9, 0.95, 0.99, 0.999):
+            k = m[f"k_{t}"]
+            fac = (k * (m.d + m.C) * pos)
+            kept = np.minimum(fac, m.C * m.d * pos).sum()      # never worse than the dense conv
+            out.append(kept / full)
+        print(f"    {model:28s} {full / 1e9:11.2f}  " + "  ".join(f"{v:10.2f}" for v in out))
+    print("\n  Reading: at tau = 0.999 the factorised network computes this fraction of the")
+    print("  dense conv FLOPs with the accuracy of section 10 (no retraining, no fine-tuning).")
+
+
 # ------------------------------------ section 11: kernel vs data decomposition
 
 def section_decompose(results: str, latex: str | None = None) -> None:
@@ -1214,6 +1258,7 @@ def main(argv=None) -> int:
     section_archs(a.results, latex=a.latex_families)
     section_trajectory(a.results)
     section_projection(a.results, latex=a.latex_projection)
+    section_projection_flops(a.results, layers)
     section_decompose(a.results, latex=a.latex_decompose)
     section_round3(a.results)
     section_round3_ortho(a.results)
