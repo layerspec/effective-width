@@ -1,12 +1,14 @@
 % ---------------------------------------------------------------------------
 % References for "How Much of a Convolutional Layer's Width Is Actually Used?"
 %
-% PROVENANCE WARNING.  Entries marked % UNVERIFIED were assembled from a
-% literature scan, not from reading the paper's own metadata.  Titles, authors
-% and years are reliable; page numbers, volume/issue and exact venue strings
-% are not.  Check every UNVERIFIED entry against the publisher record before
-% submission.  Three entries additionally need the PDF itself read, for
-% reasons noted inline.
+% PROVENANCE.  Every entry carries an annote saying how it was verified.
+% Two passes: 2026-09-07 (the six orthogonality references, read in full) and
+% 2026-09-08 (39 entries checked against Crossref, arXiv, the NeurIPS
+% proceedings site, PMLR and OpenReview; see notes/bib-check-2-2026-09-08.md).
+% Still open: page numbers for four pre-2020 NeurIPS papers (not on the
+% proceedings site), the ACM article number of waleffe2023pcn, the PMLR volume
+% of schulte2026rethinking (AISTATS 2026, not yet published), and the theorem
+% number of Cauchy interlacing in Horn & Johnson (check the book).
 % ---------------------------------------------------------------------------
 
 % ===== The two results this paper reconciles ==============================
@@ -18,10 +20,11 @@
   volume  = {8},
   pages   = {1347--1360},
   year    = {2020},
-  annote    = {arXiv:1812.06224. Table 2 is the reproduction target;
-             they excluded ResNets over shortcut connections},
+  doi     = {10.1109/ACCESS.2019.2961960},
+  annote  = {arXiv:1812.06224. Table 2 is the reproduction target;
+             they excluded ResNets over shortcut connections.
+             Verified 2026-09-08 via Crossref (volume, pages, year, DOI).},
 }
-% UNVERIFIED: volume/pages. arXiv preprint is 2018, IEEE Access publication 2019/2020.
 
 @article{elmoznino2024highDim,
   author  = {Elmoznino, Eric and Bonner, Michael F.},
@@ -30,13 +33,15 @@
   journal = {PLOS Computational Biology},
   volume  = {20},
   number  = {1},
+  pages   = {e1011792},
   year    = {2024},
-  annote    = {Participation ratio over globally-pooled features, 10{,}000 images.
+  doi     = {10.1371/journal.pcbi.1011792},
+  annote  = {Participation ratio over globally-pooled features, 10{,}000 images.
              S6 Text: encoding-performance results replicated on the entire
              flattened feature map (CHW features, images as samples); ED
-             levels under the two treatments are not reported},
+             levels under the two treatments are not reported.
+             Verified 2026-09-08 via Crossref.},
 }
-% UNVERIFIED: article number / pages.
 
 % ===== Dimensionality of representations ==================================
 
@@ -137,12 +142,17 @@
   title   = {Revisiting the High-dimensional Geometry of Population Responses
              in the Visual Cortex},
   journal = {Proceedings of the National Academy of Sciences},
+  volume  = {122},
+  number  = {45},
+  pages   = {e2506535122},
   year    = {2025},
-  annote    = {Broken power law, not a clean one; three estimator biases,
+  doi     = {10.1073/pnas.2506535122},
+  note    = {Correction: PNAS 122(50):e2533074122, doi:10.1073/pnas.2533074122},
+  annote  = {Broken power law, not a clean one; three estimator biases,
              including d < n giving only d nonzero eigenvalues.
-             All three apply to our setting},
+             All three apply to our setting. Verified 2026-09-08 via Crossref
+             (main article and the published correction).},
 }
-% UNVERIFIED: volume/pages; there is also a published correction.
 
 @article{martin2021implicitSelfReg,
   author  = {Martin, Charles H. and Mahoney, Michael W.},
@@ -170,18 +180,26 @@
   author  = {Waleffe, Roger and Rekatsinas, Theodoros},
   title   = {Principal Component Networks: Utilizing Low-Rank Activation
              Structure to Reduce Parameters Early in Training},
-  journal = {arXiv preprint arXiv:2006.13347},
-  year    = {2023},
+  journal = {ACM/IMS Journal of Data Science},
+  volume  = {1},
+  number  = {2},
+  year    = {2024},
+  doi     = {10.1145/3617778},
+  note    = {arXiv:2006.13347},
+  annote  = {Verified 2026-09-08 via Crossref (journal, volume 1 issue 2, 27 pages, published online 2024-04-08). ACM article number not retrievable (dl.acm.org blocked) and omitted. The 2020 arXiv v1 carries the shorter title "Principal Component Networks: Parameter Reduction Early in Training".},
 }
-% UNVERIFIED: also appeared in ACM/IMS Journal of Data Science.
 
 @inproceedings{nanda2023diffusedRedundancy,
-  author    = {Nanda, Vedant and others},
+  author    = {Nanda, Vedant and Speicher, Till and Dickerson, John P. and
+               Gummadi, Krishna P. and Feizi, Soheil and Weller, Adrian},
   title     = {Diffused Redundancy in Pre-trained Representations},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {36},
+  pages     = {4055--4079},
   year      = {2023},
+  doi       = {10.52202/075280-0177},
+  annote    = {arXiv:2306.00183. Verified 2026-09-08 via the NeurIPS proceedings PDF (author list and order as printed), the proceedings .bib record and Crossref. The arXiv listing orders Feizi before Gummadi; the published paper does not.},
 }
-% UNVERIFIED: full author list.
 
 @inproceedings{lin2020hrank,
   author    = {Lin, Mingbao and Ji, Rongrong and Wang, Yan and Zhang, Yichen and
@@ -282,14 +300,16 @@
 }
 
 @article{mitchell2024selfExpanding,
-  author  = {Mitchell, Rupert and Mundt, Martin and Kersting, Kristian},
+  author  = {Mitchell, Rupert and Menzenbach, Robin and Kersting, Kristian and Mundt, Martin},
   title   = {Self-Expanding Neural Networks},
   journal = {arXiv preprint arXiv:2307.04526},
-  year    = {2024},
-  annote    = {Natural expansion score with an explicit stopping rule and a
-             termination bound -- but tau and alpha are swept per dataset},
+  year    = {2023},
+  note    = {v3, February 2024},
+  annote  = {Natural expansion score with an explicit stopping rule and a
+             termination bound -- but tau and alpha are swept per dataset.
+             Verified 2026-09-08 via the arXiv API and the v3 PDF (four authors in this order;
+             v1 listed three). No peer-reviewed venue found on OpenReview or Crossref.},
 }
-% UNVERIFIED: author list beyond the first.
 
 @inproceedings{maile2022north,
   author    = {Maile, Kaitlin and Rachelson, Emmanuel and Luga, Herv{\'e} and
@@ -513,8 +533,7 @@
   publisher = {Curran Associates, Inc.},
   year      = {2018},
   note      = {arXiv:1810.09102},
-  annote    = {The paper PDF carries the title ``... in Training Deep CNNs?''; the proceedings index says Deep Networks.},
-  annote  = {SO/DSO/MC/SRIP definitions; states that for C_out > d the Gram matrix is rank-deficient and SO is a biased objective. Verify page numbers before submission.}
+  annote    = {The paper PDF carries the title ``... in Training Deep CNNs?''; the proceedings index says Deep Networks. SO/DSO/MC/SRIP definitions; states that for C_out > d the Gram matrix is rank-deficient and SO is a biased objective. Verified 2026-09-08 via the NeurIPS proceedings site (title, authors, editors, volume); page numbers could not be verified (not on the proceedings site; DBLP unreachable) and are deliberately omitted.},
 }
 
 @inproceedings{massart2022orthogonal,
@@ -525,7 +544,7 @@
   pages     = {1294--1299},
   year      = {2022},
   doi       = {10.1109/ICPR56361.2022.9956205},
-  annote  = {Minimiser sets of SO/DSO/SRIP/MC on wide matrices; SRIP minimised iff singular values in [0, sqrt 2]; MC at n = p-1 minimised by the regular simplex. Read from the author's version 2026-09-07; check the IEEE version.}
+  annote    = {Minimiser sets of SO/DSO/SRIP/MC on wide matrices; SRIP minimised iff singular values in [0, sqrt 2]; MC at n = p-1 minimised by the regular simplex. Read from the author's version 2026-09-07. Verified 2026-09-08 via Crossref (IEEE record: venue, pages, DOI).},
 }
 
 @inproceedings{huang2018own,
@@ -549,7 +568,7 @@
   year      = {2020},
   doi       = {10.1109/CVPR42600.2020.00646},
   note      = {arXiv:2004.00917},
-  annote  = {ONI; states that for n > d the rows cannot be orthogonal and that the decorrelation property holds only for n <= d. Verify author list before submission.}
+  annote    = {ONI; states that for n > d the rows cannot be orthogonal and that the decorrelation property holds only for n <= d. Verified 2026-09-08 via Crossref and the arXiv API (author list and order confirmed).},
 }
 
 @inproceedings{wang2020ocnn,
@@ -569,16 +588,16 @@
   howpublished = {arXiv:2110.00476},
   year         = {2021},
   note         = {NeurIPS 2021 Workshop ``ImageNet: Past, Present, and Future'', best paper award},
-  annote  = {The A1/A2/A3 recipes (BCE loss, heavy augmentation, 600/300/100 epochs). Verify before submission.}
+  annote       = {The A1/A2/A3 recipes (BCE loss, heavy augmentation, 600/300/100 epochs). Verified 2026-09-08 via the arXiv API, OpenReview (NG6MJnVl6M5, NeurIPS.cc/2021/Workshop/ImageNet_PPF) and the workshop site, which lists the best paper award (sponsored by Naver).},
 }
 
 @inproceedings{veit2016ensembles,
   author    = {Veit, Andreas and Wilber, Michael J. and Belongie, Serge},
   title     = {Residual Networks Behave Like Ensembles of Relatively Shallow Networks},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  booktitle = {Advances in Neural Information Processing Systems (NIPS)},
   volume    = {29},
   year      = {2016},
-  annote    = {Layer-dropping experiments on ResNets; the effective-depth question left to future work. Verify before submission.},
+  annote    = {arXiv:1605.06431. Layer-dropping experiments on ResNets; the effective-depth question left to future work. Verified 2026-09-08 via the NeurIPS proceedings site (title, authors, volume 29); page numbers not available from a primary source and omitted.},
 }
 
 @book{horn2013matrix,
@@ -587,7 +606,8 @@
   edition   = {2nd},
   publisher = {Cambridge University Press},
   year      = {2013},
-  annote    = {Ostrowski (Thm. 4.5.9) and Cauchy interlacing (Thm. 4.3.28); verify theorem numbers in the 2nd edition before submission.},
+  doi       = {10.1017/CBO9781139020411},
+  annote    = {Ostrowski (Thm. 4.5.9) and Cauchy interlacing (Thm. 4.3.28). Edition/publisher/DOI verified 2026-09-08 via Crossref (print date 2012-10-22; imprint year 2013). Thm. 4.5.9 = Ostrowski confirmed indirectly (arXiv:1909.06841 App. D.3 cites it against the CUP 2012 edition). Could not verify: that Cauchy interlacing is Thm. 4.3.28 in the 2nd edition -- check against the book before submission.},
 }
 
 @article{zhang2016accelerating,
@@ -650,10 +670,16 @@
   year={2017}, annote={arXiv:1709.02540}}
 
 @article{hanin2019universal,
-  author={Hanin, Boris},
-  title={Universal Function Approximation by Deep Neural Nets with Bounded Width and {ReLU} Activations},
-  journal={Mathematics}, volume={7}, number={10}, pages={992}, year={2019},
-  doi={10.3390/math7100992}, annote={Journal version of Hanin and Sellke, arXiv:1710.11278}}
+  author  = {Hanin, Boris},
+  title   = {Universal Function Approximation by Deep Neural Nets with Bounded Width and {ReLU} Activations},
+  journal = {Mathematics},
+  volume  = {7},
+  number  = {10},
+  pages   = {992},
+  year    = {2019},
+  doi     = {10.3390/math7100992},
+  annote  = {Journal version of arXiv:1708.02691 (Hanin, same title). NOT the journal version of Hanin and Sellke, arXiv:1710.11278 ("Approximating Continuous Functions by ReLU Nets of Minimal Width"), which is a separate paper. Verified 2026-09-08 via Crossref and the arXiv API (journal_ref on 1708.02691).},
+}
 
 @inproceedings{kidger2020universal,
   author={Kidger, Patrick and Lyons, Terry},
@@ -676,10 +702,16 @@
   booktitle={Advances in Neural Information Processing Systems 31}, year={2018}}
 
 @article{lee2020wide,
-  author={Lee, Jaehoon and Xiao, Lechao and Schoenholz, Samuel S. and Bahri, Yasaman and Novak, Roman and Sohl-Dickstein, Jascha and Pennington, Jeffrey},
-  title={Wide Neural Networks of Any Depth Evolve as Linear Models under Gradient Descent},
-  journal={J. Stat. Mech.: Theory Exp.}, volume={2020}, pages={124002}, year={2020},
-  doi={10.1088/1742-5468/abc62b}, annote={Conference version: NeurIPS 2019}}
+  author  = {Lee, Jaehoon and Xiao, Lechao and Schoenholz, Samuel S. and Bahri, Yasaman and Novak, Roman and Sohl-Dickstein, Jascha and Pennington, Jeffrey},
+  title   = {Wide Neural Networks of Any Depth Evolve as Linear Models under Gradient Descent},
+  journal = {J. Stat. Mech.: Theory Exp.},
+  volume  = {2020},
+  number  = {12},
+  pages   = {124002},
+  year    = {2020},
+  doi     = {10.1088/1742-5468/abc62b},
+  annote  = {Conference version: NeurIPS 2019 (arXiv:1902.06720). Verified 2026-09-08 via Crossref.},
+}
 
 @inproceedings{yang2021feature,
   author={Yang, Greg and Hu, Edward J.},
@@ -687,9 +719,14 @@
   booktitle={Proc. Int. Conf. Machine Learning (ICML)}, series={PMLR}, volume={139}, pages={11727--11737}, year={2021}}
 
 @inproceedings{vyas2023feature,
-  author={Vyas, Nikhil and Atanasov, Alexander and Bordelon, Blake and Morwani, Depen and Sainathan, Sabarish and Pehlevan, Cengiz},
-  title={Feature-Learning Networks Are Consistent Across Widths at Realistic Scales},
-  booktitle={Advances in Neural Information Processing Systems 36}, year={2023}, annote={arXiv:2305.18411}}
+  author    = {Vyas, Nikhil and Atanasov, Alexander and Bordelon, Blake and Morwani, Depen and Sainathan, Sabarish and Pehlevan, Cengiz},
+  title     = {Feature-Learning Networks Are Consistent Across Widths at Realistic Scales},
+  booktitle = {Advances in Neural Information Processing Systems 36},
+  pages     = {1036--1060},
+  year      = {2023},
+  doi       = {10.52202/075280-0050},
+  annote    = {arXiv:2305.18411. Verified 2026-09-08 via the NeurIPS proceedings site and Crossref.},
+}
 
 @inproceedings{mellor2021naswot,
   author={Mellor, Joe and Turner, Jack and Storkey, Amos and Crowley, Elliot J.},
@@ -707,14 +744,22 @@
   booktitle={Int. Conf. Learning Representations (ICLR)}, year={2021}, annote={arXiv:2102.11535}}
 
 @inproceedings{tanaka2020synflow,
-  author={Tanaka, Hidenori and Kunin, Daniel and Yamins, Daniel L. K. and Ganguli, Surya},
-  title={Pruning Neural Networks without Any Data by Iteratively Conserving Synaptic Flow},
-  booktitle={Advances in Neural Information Processing Systems 33}, year={2020}, annote={arXiv:2006.05467}}
+  author    = {Tanaka, Hidenori and Kunin, Daniel and Yamins, Daniel L. K. and Ganguli, Surya},
+  title     = {Pruning Neural Networks without Any Data by Iteratively Conserving Synaptic Flow},
+  booktitle = {Advances in Neural Information Processing Systems 33},
+  pages     = {6377--6389},
+  year      = {2020},
+  annote    = {arXiv:2006.05467. Verified 2026-09-08 via the NeurIPS proceedings site (pages from its .bib record).},
+}
 
 @inproceedings{daneshmand2020bn,
-  author={Daneshmand, Hadi and Kohler, Jonas and Bach, Francis and Hofmann, Thomas and Lucchi, Aurelien},
-  title={Batch Normalization Provably Avoids Rank Collapse for Randomly Initialised Deep Networks},
-  booktitle={Advances in Neural Information Processing Systems 33}, year={2020}, annote={arXiv:2003.01652}}
+  author    = {Daneshmand, Hadi and Kohler, Jonas and Bach, Francis and Hofmann, Thomas and Lucchi, Aurelien},
+  title     = {Batch Normalization Provably Avoids Ranks Collapse for Randomly Initialised Deep Networks},
+  booktitle = {Advances in Neural Information Processing Systems 33},
+  pages     = {18387--18398},
+  year      = {2020},
+  annote    = {arXiv:2003.01652 (arXiv title reads "Rank Collapse"; the NeurIPS proceedings title reads "Ranks Collapse"). Verified 2026-09-08 via the NeurIPS proceedings site and OpenReview.},
+}
 
 @article{jazayeri2021interpreting,
   author={Jazayeri, Mehrdad and Ostojic, Srdjan},
@@ -728,12 +773,14 @@
   title     = {The Tunnel Effect: Building Data Representations in Deep Neural Networks},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   volume    = {36},
+  pages     = {76772--76805},
   year      = {2023},
   doi       = {10.52202/075280-3355},
   annote    = {arXiv:2305.19753. Numerical rank (sigma > 1e-3 sigma_1) of a random
                8000-feature subset, flattened; ResNet-34 read at conv2 only.
                Rank collapses to ~#classes within the first 75 training steps and
-               stays there (Fig. 6). Tunnel length grows with VGG width, not ResNet},
+               stays there (Fig. 6). Tunnel length grows with VGG width, not ResNet.
+               Verified 2026-09-08 via the NeurIPS proceedings site and Crossref.},
 }
 
 @inproceedings{harun2024tunnelVariables,
@@ -743,24 +790,29 @@
                Pretrained Models?},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   volume    = {37},
+  pages     = {56479--56525},
   year      = {2024},
   doi       = {10.52202/079017-1799},
   annote    = {arXiv:2405.15018. 64 DNNs, 8,604 linear probes. Removing max-pool
                from the first two stages (VGGm-dagger) eliminates the tunnel;
                larger stems hurt OOD; among ImageNet-1k pretrained models only
-               ResNet-50 (SL and SSL) shows a tunnel. Numerical rank in App. Fig. 25},
+               ResNet-50 (SL and SSL) shows a tunnel. Numerical rank in App. Fig. 25.
+               Verified 2026-09-08 via the NeurIPS proceedings site and Crossref.},
 }
 
-@article{kubaty2025multiExit,
-  author  = {Kubaty, Piotr and W{\'o}jcik, Bartosz and Krzepkowski, Bart{\l}omiej and
-             Michaluk, Monika and Trzci{\'n}ski, Tomasz and Pomponi, Jary and
-             Adamczewski, Kamil},
-  title   = {How to Train Your Multi-Exit Model? Analyzing the Impact of Training
-             Strategies},
-  journal = {arXiv preprint arXiv:2407.14320},
-  year    = {2025},
-  annote  = {Numerical rank of backbone activation matrices per layer; higher in
-             early layers, lower in deep layers},
+@inproceedings{kubaty2025multiExit,
+  author    = {Kubaty, Piotr and W{\'o}jcik, Bartosz and Krzepkowski, Bart{\l}omiej Tomasz and
+               Michaluk, Monika and Trzci{\'n}ski, Tomasz and Pomponi, Jary and
+               Adamczewski, Kamil},
+  title     = {How to Train Your Multi-Exit Model? Analyzing the Impact of Training
+               Strategies},
+  booktitle = {Proceedings of the 42nd International Conference on Machine Learning (ICML)},
+  series    = {PMLR},
+  volume    = {267},
+  pages     = {31821--31840},
+  year      = {2025},
+  annote    = {arXiv:2407.14320. Numerical rank of backbone activation matrices per layer; higher in
+             early layers, lower in deep layers. Verified 2026-09-08 via proceedings.mlr.press/v267 and OpenReview (vhTPfOdwyQ).},
 }
 
 @article{cohen2020manifolds,
@@ -768,12 +820,14 @@
   title   = {Separability and Geometry of Object Manifolds in Deep Neural Networks},
   journal = {Nature Communications},
   volume  = {11},
+  number  = {1},
   pages   = {746},
   year    = {2020},
   doi     = {10.1038/s41467-020-14578-5},
   annote  = {Mean-field manifold dimension per operation in AlexNet/VGG-16
              (ResNet-50 in SI), ImageNet. Untrained: constant high dimension.
-             Fig. 7b: pooling decreases manifold dimension; ReLU increases it},
+             Fig. 7b: pooling decreases manifold dimension; ReLU increases it.
+             Verified 2026-09-08 via Crossref.},
 }
 
 @inproceedings{stephenson2021geometry,
@@ -800,14 +854,15 @@
                at relative depth 0.57 (natural) vs 0.35 (medical)},
 }
 
-@article{schulte2026rethinking,
-  author  = {Schulte, Rickmer and R{\"u}gamer, David},
-  title   = {Rethinking Intrinsic Dimension Estimation in Neural Representations},
-  journal = {arXiv preprint arXiv:2604.20276},
-  year    = {2026},
-  annote  = {Theorem: the ID cannot increase across layers of a Lipschitz network;
+@inproceedings{schulte2026rethinking,
+  author    = {Schulte, Rickmer and R{\"u}gamer, David},
+  title     = {Rethinking Intrinsic Dimension Estimation in Neural Representations},
+  booktitle = {Proceedings of the 29th International Conference on Artificial Intelligence and Statistics (AISTATS)},
+  year      = {2026},
+  note      = {arXiv:2604.20276},
+  annote    = {Theorem: the ID cannot increase across layers of a Lipschitz network;
              rising estimated-ID patterns are estimator artefacts. Applies to
-             manifold ID, not to linear rank},
+             manifold ID, not to linear rank. Verified 2026-09-08 via OpenReview (kH1gPRbYqh, AISTATS 2026 poster) and the arXiv API; PMLR volume/pages not yet published -- add when available.},
 }
 
 @article{huh2023lowRank,
@@ -826,13 +881,14 @@
   title   = {Universal Dimensions of Visual Representation},
   journal = {Science Advances},
   volume  = {11},
+  number  = {27},
   pages   = {eadw7697},
   year    = {2025},
   doi     = {10.1126/sciadv.adw7697},
   annote  = {arXiv:2408.12804. Global max-pooled ReLU outputs, PCA on 72,128 NSD
              images, PCs up to matrix_rank. 20 trained vs 20 untrained ResNet-18
              seeds: 36,596 vs 9,413 dimensions -- untrained activation matrices
-             are low-rank. No ED profile reported},
+             are low-rank. No ED profile reported. Verified 2026-09-08 via Crossref.},
 }
 
 @inproceedings{agrawal2022alphaReq,
@@ -863,11 +919,13 @@
 
 @inproceedings{chun2026estimating,
   author    = {Chun, Chanwoo and Canatar, Abdulkadir and Chung, SueYeon and
-               Lee, Daniel D.},
+               Lee, Daniel},
   title     = {Estimating Dimensionality of Neural Representations from Finite
                Samples},
   booktitle = {International Conference on Learning Representations (ICLR)},
   year      = {2026},
   annote    = {arXiv:2509.26560. Participation ratio is strongly biased at small
-               sample sizes; bias-corrected estimator; LLM layer profiles},
+               sample sizes; bias-corrected estimator; LLM layer profiles.
+               Last author printed as "Daniel Lee" in the paper, OpenReview and arXiv.
+               Verified 2026-09-08 via OpenReview (iM4o9a83F7, ICLR 2026 poster) and the arXiv v2 PDF.},
 }
