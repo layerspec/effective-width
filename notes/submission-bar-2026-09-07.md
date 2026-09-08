@@ -95,4 +95,4 @@ bib-check 七份筆記），不是系統性回顧。新增：
 
 | # | 項目 | 狀態 |
 |---|---|---|
-| B9 | 系統性掃描「卷積網路逐層表徵秩／有效維度」2014–2026，產出比較表（張量、估計量、統計量、分母、初始化對照、形狀），進 §II；必補 tunnel effect（Masarczyk 2023）、RankMe（Garrido 2023）、α-ReQ、low-rank simplicity bias（Huh 2023）、逐層 neural collapse | 代理掃描中（`depth-profile-survey-2026-09-08.md`） |
+| B9 | 系統性掃描「卷積網路逐層表徵秩／有效維度」2014–2026，產出比較表（張量、估計量、統計量、分母、初始化對照、形狀），進 §II；必補 tunnel effect（Masarczyk 2023）、RankMe（Garrido 2023）、α-ReQ、low-rank simplicity bias（Huh 2023）、逐層 neural collapse | ✔ 09-08：Table 1（19 篇）進 §II-B；tunnel／Cohen／Schulte／Feng／Chun／Daneshmand／Huh／Stephenson／Harun 已引並回應；12 條新 bib 待 Crossref |
