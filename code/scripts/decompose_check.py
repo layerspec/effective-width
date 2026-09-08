@@ -158,12 +158,25 @@ def main(argv=None) -> int:
         Wo = U @ Vt                                     # polar factor, nearest (semi-)isometry
         S_o = Wo @ Sig @ Wo.T
         lam_ortho = np.sort(np.linalg.eigvalsh((S_o + S_o.T) / 2))[::-1]
+        # Proposition 1 check: with W = P W_o (polar), Sigma_out = P Sigma_o P and
+        # (Ostrowski) lambda_i(out) = theta_i lambda_i(ortho), sigma_min^2 <= theta_i <= sigma_max^2
+        # over the r = rank(W) nonzero directions; hence for the variance-fraction count
+        #   k*_out(tau) <= k*_ortho(tau')  with  tau' = kappa^2 tau / (1 - tau + kappa^2 tau),
+        # kappa = sigma_max / sigma_min over the nonzero singular values.
+        r = int((sv > sv[0] * 1e-8).sum())
+        kappa = float(sv[0] / sv[r - 1])
+        ratio = lam_out[:r] / np.clip(lam_ortho[:r], 1e-300, None)
+        ostrowski_ok = bool(np.all(ratio >= sv[r - 1] ** 2 * (1 - 1e-6)) and np.all(ratio <= sv[0] ** 2 * (1 + 1e-6)))
         row = dict(model=a.model, layer=name, depth_index=meta["depth_index"], C_in=meta["C_in"],
                    C_out=C_out, k=meta["k"], d=d, r_max=r_max, n_samples=acc.n, n_over_d=acc.n / d,
                    kernel_erank_over_rmax=erank(sv ** 2) / r_max,
                    kernel_cond_top_rmax=float(sv[0] / sv[min(r_max, len(sv)) - 1]),
                    data_erank_over_rmax=min(erank(lam_data), r_max) / r_max)
+        row.update(rank_W=r, kappa=kappa, ostrowski_ok=ostrowski_ok)
         for tau in TAUS:
+            tau_k = kappa ** 2 * tau / (1 - tau + kappa ** 2 * tau)
+            row[f"bound_{tau}"] = kstar(lam_ortho, tau_k) / r_max if tau_k < 1 else 1.0
+            row[f"bound_ok_{tau}"] = bool(kstar(lam_out, tau) <= (kstar(lam_ortho, tau_k) if tau_k < 1 else r_max))
             row[f"out_{tau}"] = kstar(lam_out, tau) / r_max
             row[f"kernel_{tau}"] = kstar(lam_kernel, tau) / r_max
             row[f"data_{tau}"] = min(kstar(lam_data, tau), r_max) / r_max
@@ -174,6 +187,9 @@ def main(argv=None) -> int:
     df.to_csv(path, index=False)
     print(df[["layer", "d", "C_out", "n_over_d", "out_0.95", "kernel_0.95", "data_0.95", "ortho_0.95",
               "kernel_erank_over_rmax"]].to_string(index=False), flush=True)
+    print(f"Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on {int(df.ostrowski_ok.sum())}/{len(df)} layers; "
+          f"k*_out(tau) <= k*_ortho(tau') on " + ", ".join(f"tau={t}: {int(df[f'bound_ok_{t}'].sum())}/{len(df)}" for t in TAUS)
+          + f";  kappa median {df.kappa.median():.1f}, max {df.kappa.max():.1f}", flush=True)
     print("wrote", path, flush=True)
     return 0
 
