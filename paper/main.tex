@@ -588,9 +588,7 @@ what sample size it stops moving. We answer that before showing any profile.
 
 Two facts bound the exercise. A sample covariance formed from $n < C$
 observations is rank-deficient by construction, so its $k^*$ is a statement
-about $n$ and not about the network. Well above that point the small
-eigenvalues remain downward-biased, and $k^*(\tau)$ for $\tau$ near one depends
-on exactly those. The analysis plan therefore fixed, before the data existed, a
+about $n$ and not about the network. Well above that point the small eigenvalues remain downward-biased, and $k^*(\tau)$ for $\tau$ near one depends on exactly those; the participation ratio is biased in the same regime, and Chun \emph{et al.} \cite{chun2026estimating} give a corrected estimator for it. The analysis plan therefore fixed, before the data existed, a
 reporting rule: no row with $n/C < 50$ is reported, and every reported
 statistic must additionally be shown to have flattened in $n/C$.
 
@@ -818,7 +816,7 @@ step is structural rather than noise. We report it as it is.
   \input{table_pooling}
 \end{table*}
 
-What pooling does \emph{not} do is reorder the layers. The pre-registered
+Harun \emph{et al.} \cite{harun2024tunnelVariables} report a related architectural effect from the other direction: removing the max-pooling from the first stages of a ResNet removes the rank collapse of its deeper layers. What pooling in the \emph{estimator} does \emph{not} do is reorder the layers. The pre-registered
 shape test, a rank correlation between depth and the pooled-minus-sampled
 difference over all gated layers, is not significant for any of the three first-round architectures with enough dense layers to test (VGG-16 $\rho = -0.35$, $p = 0.24$; ResNet-18 $+0.26$, $p = 0.26$; ResNet-50 $+0.02$, $p = 0.87$), and for VGG-16 the sign is opposite to the one a
 ``pooling removes the terminal collapse'' account would need. The
@@ -988,7 +986,7 @@ ceilings of $0.79$--$0.98$, and training raises the median level by $0.09$ (VGG)
 each other ($0.84$) and with initialisation not at all ($-0.08$, range
 $-0.31$ to $+0.33$ over 30 pairs), against a random-vs-random ceiling of
 $0.94$; the five random draws are highly reproducible, so the disagreement
-is not draw noise. The trend with depth reverses: every random draw falls with depth (writing $\rho_{\text{depth}}$ for the Spearman correlation of a profile with layer index: $-0.53$ to $-0.81$) and every trained
+is not draw noise. This does not contradict the observation of Daneshmand \emph{et al.} \cite{daneshmand2020bn} that gradient descent largely preserves the initial rank of the \emph{last} hidden layer: their object is one layer's rank across networks of different depth, ours is the ordering of layers within one network, and the level of ResNet-50 does rise rather than fall. The trend with depth reverses: every random draw falls with depth (writing $\rho_{\text{depth}}$ for the Spearman correlation of a profile with layer index: $-0.53$ to $-0.81$) and every trained
 recipe rises (mean $+0.56$). Part of that disagreement is the trend itself: a sign flip in one monotone trend gives $\rho \approx 0$ over 53 layers without any reordering inside a stage. Ranking layers within each stage, where all share $C$ and no width or bound confound is possible, and pooling the ranks (column T--R$_{\rm stage}$ of Table~\ref{tab:families}) removes the trend: ResNet-50's within-stage agreement with initialisation is $0.27$ against a ceiling of $0.75$, ResNet-18's is $0.75$ against $0.92$ and ResNet-34's $0.55$ against $0.87$. The bottleneck network reorders its layers within a stage as well, but less completely than the whole-profile figure suggests.
 
 \emph{Inverted-residual checkpoints agree with one another weakly or not at all.} The four MobileNetV3-Large checkpoints do not share a profile (T--T $-0.18$) although their random draws do ($0.75$); the five EfficientNet-B0 checkpoints, all trained on ImageNet-1k alone, agree only moderately ($0.40$, against a random ceiling of $0.97$); MobileNetV2 has a single public checkpoint. What varies most is the level: the median $k^*(0.95)/r_{\max}$ of the $1\!\times\!1$ layers is $0.18$, $0.45$, $0.59$ and $0.65$ across the MobileNetV3 checkpoints and $0.10$, $0.26$, $0.70$, $0.71$ and $0.73$ across the EfficientNet-B0 ones, a $3.6$-fold and a $7$-fold range under one architecture and one dataset. The depthwise layers move against the rest of the study in two of the three families: in the median over checkpoints training roughly halves their effective width in MobileNetV3 ($0.41 \to 0.20$) and EfficientNet-B0 ($0.35 \to 0.22$), with trained values spread from $0.05$ to $0.34$, while MobileNetV2's single checkpoint leaves them where initialisation put them ($0.39 \to 0.42$).
@@ -1020,9 +1018,7 @@ towards it during the high-learning-rate phase, and is in place by epoch
 40: $\rho$ against the final profile is $0.98$ from epoch 40 onwards, while
 test accuracy still rises from $84\%$ to $94\%$. The final profile agrees
 with the initial one at $\rho = 0.93$, consistent with the plain-network
-row of Table~\ref{tab:families} and stronger. For a plain network, then,
-the effective-width structure is settled before the fit is, and it is
-largely the structure the architecture began with. Whether the reordering
+row of Table~\ref{tab:families} and stronger. For a plain network, then, the ordering of layers is settled before the fit is, and it is largely the ordering the architecture began with; the level moves earlier and non-monotonically, as the effective rank of penultimate features does in Huh \emph{et al.} \cite{huh2023lowRank} and the manifold dimension of deep layers does late in training in Stephenson \emph{et al.} \cite{stephenson2021geometry}, and Masarczyk \emph{et al.} \cite{masarczyk2023tunnel} report the rank collapse of the deeper layers within the first few hundred steps. What settles at epoch 40 in our run is the Spearman ordering under a one-cycle schedule whose peak learning rate falls at epoch 30; a different schedule could settle at a different epoch. Whether the reordering
 seen in ResNet-50 happens early or late is not answered by this run, which
 is of the wrong block type; it needs a bottleneck trajectory.
 
@@ -1057,9 +1053,7 @@ factorisation and apply, with a per-layer rank chosen under a speed budget
 and usually followed by fine-tuning, to SPP-net and VGG-16. Energy
 thresholds as a rank rule appear there and as baselines in later work
 \cite{liebenwein2021alds}, and Garg \emph{et al.} \cite{garg2019lowEffort}
-retrain at their $99.9\%$ criterion. We use the operation for one purpose
-only: with $k = k^*(\tau)$ from the measurement, at every dense convolution
-at once, with no fine-tuning and no rebuilding, does accuracy survive?
+retrain at their $99.9\%$ criterion. The closest precedent for reading a dimension count off accuracy is the ``classification dimension'' of Feng \emph{et al.} \cite{feng2022rankDiminishing}, the number of principal components of a layer that preserves $95\%$ of accuracy, measured one layer at a time. We use the truncation for one purpose only: with $k = k^*(\tau)$ from the measurement, at every dense convolution at once, with no fine-tuning and no rebuilding, does accuracy survive?
 On one half of the subset the channel covariance of every convolution output of eight checkpoints (the six ResNet-50 recipes, ResNet-18, VGG-16 with BN) was accumulated exactly as in the measurement; on the other half the network was evaluated with every convolution output truncated. The control truncates each layer to $k^*(\tau)$
 random orthonormal directions instead. Table~\ref{tab:projection} gives top-1 accuracy, and since truncated and untruncated networks are scored on the same images, each difference has an exact McNemar test; ``unchanged'' below means that test does not reject at $p = 0.01$.
 
