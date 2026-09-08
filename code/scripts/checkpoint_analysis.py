@@ -1126,6 +1126,21 @@ def section_decompose(results: str, latex: str | None = None) -> None:
             print(f"    {model:38s} {len(d):3d} {d.n_over_d.min():7.0f}  {tau:5.3f}  {o.median():5.2f} {k.median():6.2f} {da.median():5.2f} {ort.median():5.2f}  "
                   f"{_rho(k, o):+9.2f} {_rho(da, o):+9.2f} {_rho(ort, o):+10.2f}  {int((ort > o).sum()):4d}/{len(d):<4d}  "
                   + (f"{meas:10.3f}" if (meas is not None and tau == 0.95) else " " * 10))
+    # Proposition 1 verification, when decompose_check was run with the bound columns
+    withp = [f for f in files if "ostrowski_ok" in pd.read_csv(f, nrows=1).columns]
+    if withp:
+        print("\n  Proposition 1 check (Ostrowski ratios in [s_min^2, s_max^2]; k*_out(tau) <= k*_ortho(tau')):")
+        print(f"    {'model':38s} {'L':>3s} {'null dirs':>9s} {'ostrowski':>9s} {'bound .95':>9s} {'bound .999':>10s} {'informative .95':>15s} {'kappa med':>9s}")
+        tot = np.zeros(5, int)
+        for f in withp:
+            d = pd.read_csv(f); model = d.model.iloc[0]
+            inf = int((d["bound_0.95"] < 1).sum())
+            print(f"    {model:38s} {len(d):3d} {int((d.n_null > 0).sum()):9d} {int(d.ostrowski_ok.sum()):9d} "
+                  f"{int(d['bound_ok_0.95'].sum()):9d} {int(d['bound_ok_0.999'].sum()):10d} {inf:15d} {d.kappa.median():9.1f}")
+            tot += [len(d), int(d.ostrowski_ok.sum()), int(d['bound_ok_0.95'].sum()), int(d['bound_ok_0.999'].sum()), inf]
+        print(f"    {'TOTAL':38s} {tot[0]:3d} {'':9s} {tot[1]:9d} {tot[2]:9d} {tot[3]:10d} {tot[4]:15d}")
+        print("    (a layer with numerically null kernel directions has kappa set by the tolerance;")
+        print("     the bound then degenerates to r_max and 'informative' counts layers where it does not)")
     print("\n  Reading: 'kernel' vs 'out' says how much the layer's width is set by the")
     print("  kernel spectrum alone; 'ortho' is the analytic prediction for orthogonalising")
     print("  the kernel with the data held fixed, to be tested against trained-with-")
