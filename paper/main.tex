@@ -13,7 +13,7 @@
 % Build:  make          Outstanding items:  make todo
 % =========================================================================
 
-\documentclass[journal]{IEEEtran}
+\documentclass[10pt,journal,compsoc]{IEEEtran}
 
 \usepackage{amsmath,amssymb,amsthm}
 \newtheorem{proposition}{Proposition}
@@ -37,42 +37,56 @@
 \title{Measuring the Effective Width of Convolutional Layers: Protocol, Pitfalls, and the Comparison with Initialisation}
 
 \author{Cheng-Chung~Li%
-\thanks{C.-C. Li is with the Taiwan Power Research Institute, Taiwan Power
-Company, Taipei, Taiwan (e-mail: u324057@taipower.com.tw).}}
+\IEEEcompsocitemizethanks{\IEEEcompsocthanksitem C.-C. Li is with the Taiwan Power
+Research Institute, Taiwan Power Company, Taipei, Taiwan.\protect\\
+E-mail: u324057@taipower.com.tw}%
+}
 
 \markboth{IEEE Transactions on Pattern Analysis and Machine Intelligence}%
 {Li: Measuring the Effective Width of Convolutional Layers}
 
-\maketitle
-
-% =========================================================================
+\IEEEtitleabstractindextext{%
 \begin{abstract}
 How much of a convolutional layer's channel width does a trained network
-use? Two published depth profiles of this quantity disagree. We show that three choices the profile literature makes silently each move a profile by more than the differences it reports, and that the two published shapes are separated by dataset and by the tensor read, not by the estimator or the statistic. Measuring the channel covariance of every convolutional layer in 19 public ImageNet checkpoints of twelve architectures, we isolate three pitfalls. First, a $1\!\times\!1$ expansion layer cannot have
-output rank above its input width; a known bound that the measurement
-literature has never carried into its denominator. Normalising by attainable
+use? Two published depth profiles of this quantity disagree. Measuring the
+channel covariance of every convolutional layer in 19 public ImageNet
+checkpoints, we show that three choices the profile literature makes
+silently each move a profile by more than the differences it reports. A
+$1\!\times\!1$ expansion layer cannot have output rank above its input width,
+a known bound never carried into the denominator: dividing by attainable
 rather than nominal width removes an apparent two-population structure in
-every one of the 14 models that contain such layers. Second, estimating the
-covariance from globally pooled features lowers the measured dimensionality in
-687 of 703 dense layers, and 14 of the 16 exceptions are ties. Third, the
-output of a residual block exceeds the bound that binds its last convolution in
-161 of 161 bottleneck blocks, so profiles taken at block outputs and at
-convolution outputs are different objects. With these fixed, the protocol recovers the published CIFAR-10 profile of Garg \emph{et al.} on a network we train ourselves ($r = 0.98$ over 13 layers), agrees with the ImageNet block-output values of Elmoznino and Bonner ($\rho = 0.997$), and the statistic has a functional calibration: truncating every convolution output to its $k^*(0.999)$ principal directions at inference, a known response-PCA operation, keeps top-1 accuracy within the $0.75$-point resolution of the test in three of four checkpoints, while $k^*(0.95)$ costs about $20$ points. Because the output covariance before the nonlinearity is exactly $W\Sigma_{\rm patch}W^{\top}$, the statistic also separates into a kernel factor and a data factor, and training turns out to move the bottleneck from the data to the kernel. We then ask what training changes,
-using one to six checkpoints and three to five random initialisations for each of eleven families on one image set. The answer differs by family. In plain, basic-residual and dense networks the layer ordering is largely the architecture's and training raises the level. In bottleneck ResNet-50 the
-ordering is learned: six training recipes agree with each other
-($\rho = 0.84$) and not with initialisation ($\rho = -0.08$), and the depth
-trend reverses sign. The available inverted-residual checkpoints agree with one another weakly or not at all. Code, spectra and the pre-registered analysis plan with its
-deviation log are released.
+all 14 models with such layers. Estimating the covariance from globally
+pooled features lowers the value in 687 of 703 dense layers. And the output
+of a residual block exceeds the bound on its last convolution in 161 of 161
+bottleneck blocks, so block-output and convolution-output profiles are
+different objects. With these fixed, the protocol recovers the published
+CIFAR-10 profile of Garg \emph{et al.} ($r = 0.98$) and the ImageNet block
+values of Elmoznino and Bonner ($\rho = 0.997$); truncating every layer to
+its $k^*(0.999)$ principal directions leaves accuracy unchanged, while
+$k^*(0.95)$ does not. Because the output covariance before the nonlinearity
+is exactly $W\Sigma_{\rm patch}W^{\top}$, the statistic separates into a kernel
+factor and a data factor, and training moves the bottleneck from the data
+to the kernel. Comparing eleven families with their own initialisations,
+plain, basic-residual and dense networks keep the architecture's layer
+ordering and gain a level, whereas bottleneck ResNet-50 learns an ordering
+uncorrelated with initialisation ($\rho = -0.08$) and reverses its depth
+trend. Code, spectra and the pre-registered analysis plan are released.
 \end{abstract}
 
 \begin{IEEEkeywords}
 Convolutional networks, effective dimensionality, channel covariance,
 network width, representation analysis.
-\end{IEEEkeywords}
+\end{IEEEkeywords}}
+
+\maketitle
 
 % =========================================================================
-\section{Introduction}
-\label{sec:intro}
+\IEEEdisplaynontitleabstractindextext
+\IEEEpeerreviewmaketitle
+
+
+% =========================================================================
+\IEEEraisesectionheading{\section{Introduction}\label{sec:intro}}
 
 \IEEEPARstart{T}{he} number of channels in each layer of a convolutional
 network is, in almost all practice, either inherited from a published
@@ -981,7 +995,7 @@ error is about $0.75$ points, so ``unchanged'' below means within that.
   means over layers. Binomial SE $\approx 0.75$ points. Generated by
   \texttt{checkpoint\_analysis.py} from \texttt{projection\_check.py}.}
   \label{tab:projection}
-  \footnotesize
+  \scriptsize\setlength{\tabcolsep}{3.5pt}
   \input{table_projection}
 \end{table}
 
@@ -1363,13 +1377,9 @@ be the fractions of total variance in the top $k$ eigenvalues of the two
 spectra. From $\sigma_{\min}^2 \lambda_i(\Sigma_{\circ}) \le
 \lambda_i(\Sigma_{\rm out}) \le \sigma_{\max}^2 \lambda_i(\Sigma_{\circ})$,
 \[
-  F_{\rm out}(k) \;\ge\;
-  \frac{\sigma_{\min}^2 \sum_{i \le k} \lambda_i(\Sigma_{\circ})}
-       {\sigma_{\min}^2 \sum_{i \le k} \lambda_i(\Sigma_{\circ})
-        + \sigma_{\max}^2 \sum_{i > k} \lambda_i(\Sigma_{\circ})}
-  \;=\; \frac{F_{\circ}(k)}{F_{\circ}(k) + \kappa^2 (1 - F_{\circ}(k))},
+  F_{\rm out}(k) \;\ge\; \frac{F_{\circ}(k)}{F_{\circ}(k) + \kappa^2 \bigl(1 - F_{\circ}(k)\bigr)},
 \]
-and the right-hand side is at least $\tau$ exactly when
+since the top-$k$ sum is scaled by at least $\sigma_{\min}^2$ and the tail by at most $\sigma_{\max}^2$. The right-hand side is at least $\tau$ exactly when
 $F_{\circ}(k) \ge \kappa^2 \tau / (1 - \tau + \kappa^2 \tau) = \tau'$. Hence
 the smallest $k$ with $F_{\circ}(k) \ge \tau'$ satisfies
 $F_{\rm out}(k) \ge \tau$, which is the inequality. For $\kappa = 1$ the
