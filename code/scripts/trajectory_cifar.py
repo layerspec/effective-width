@@ -123,6 +123,48 @@ def ortho_penalty(model, kind: str) -> "torch.Tensor":
 DEFAULT_SCHEDULE = [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 
 
+class GPUCifarTrain:
+    """The CIFAR-10 training split held on the device as uint8, with the same
+    augmentation as reproduce_garg.cifar_loaders (RandomCrop(32, padding=4) +
+    RandomHorizontalFlip + Normalize) applied on the device per batch.  Same
+    distribution, no CPU data loading: on a pod whose CPUs are shared between
+    several runs the loader, not the GPU, was the bottleneck (2026-09-08)."""
+
+    def __init__(self, root, batch_size, device, seed):
+        from torchvision import datasets
+        from scripts.reproduce_garg import CIFAR_STATS
+        ds = datasets.CIFAR10(root, train=True, download=True)
+        self.x = torch.from_numpy(ds.data).permute(0, 3, 1, 2).contiguous().to(device)   # N,3,32,32 uint8
+        self.y = torch.tensor(ds.targets, device=device)
+        mean, std, _ = CIFAR_STATS["cifar10"]
+        self.mean = torch.tensor(mean, device=device).view(1, 3, 1, 1)
+        self.std = torch.tensor(std, device=device).view(1, 3, 1, 1)
+        self.bs, self.device = batch_size, device
+        self.gen = torch.Generator(device=device).manual_seed(seed)
+
+    def __len__(self):
+        return len(self.x) // self.bs          # drop_last, as the loader does
+
+    def __iter__(self):
+        N = len(self.x)
+        perm = torch.randperm(N, generator=self.gen, device=self.device)
+        ar = torch.arange(32, device=self.device)
+        for i in range(len(self)):
+            idx = perm[i * self.bs:(i + 1) * self.bs]
+            xb = self.x[idx].float().div_(255)
+            xp = F.pad(xb, (4, 4, 4, 4))
+            n = xb.shape[0]
+            oh = torch.randint(0, 9, (n,), generator=self.gen, device=self.device)
+            ow = torch.randint(0, 9, (n,), generator=self.gen, device=self.device)
+            ih = (oh[:, None] + ar)[:, :, None].expand(n, 32, 32)
+            iw = (ow[:, None] + ar)[:, None, :].expand(n, 32, 32)
+            nidx = torch.arange(n, device=self.device)[:, None, None]
+            xc = xp.permute(0, 2, 3, 1)[nidx, ih, iw].permute(0, 3, 1, 2)      # n,3,32,32
+            flip = torch.rand(n, generator=self.gen, device=self.device) < 0.5
+            xc = torch.where(flip[:, None, None, None], xc.flip(3), xc)
+            yield (xc - self.mean) / self.std, self.y[idx]
+
+
 def measure(model, loader, device, positions, epoch, acc, seed,
             max_batches=None) -> pd.DataFrame:
     was_training = model.training
@@ -173,6 +215,8 @@ def main(argv=None) -> int:
                    help="smoke-test aid: stop each epoch after this many batches")
     p.add_argument("--max-measure-batches", type=int, default=None,
                    help="smoke-test aid: measure on this many test batches only")
+    p.add_argument("--gpu-data", action="store_true",
+                   help="hold the training split on the device and augment there (no loader workers)")
     args = p.parse_args(argv)
 
     schedule = sorted(set(args.schedule or [e for e in DEFAULT_SCHEDULE if e <= args.epochs]))
@@ -183,6 +227,8 @@ def main(argv=None) -> int:
 
     train_loader, test_loader = cifar_loaders(args.data_root, args.batch_size,
                                               args.workers, "cifar10")
+    if args.gpu_data:
+        train_loader = GPUCifarTrain(args.data_root, args.batch_size, args.device, args.seed)
     model = ARCHS[args.arch]().to(args.device)
     opt = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9,
                           weight_decay=5e-4, nesterov=True)

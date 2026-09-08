@@ -15,7 +15,7 @@ cd "$(dirname "$0")/.."
 PY=${PY:-python}
 OUT=../results/round3
 mkdir -p $OUT
-COMMON="--device cuda --epochs 100 --workers 4 --data-root ../data"
+COMMON="--device cuda --epochs 100 --workers 2 --gpu-data --data-root ../data"
 
 run() {  # name, then trajectory_cifar.py args   (foreground)
   local name=$1; shift
