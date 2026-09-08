@@ -87,3 +87,12 @@ A7、A8、A10 各一兩天 Mac。加 B、C，約兩到三個月。
 
 方法論原創性的誠實定位（寫在 §I 末段）：綜合與校準＋新量測結果（r_max 進分母、估計量配對、
 張量量化、分解反事實、跨家族初始化比較、瓶頸從資料到核），不是新演算法；零件各歸原主。
+
+## G. 2026-09-08 作者問「文獻整理做過嗎」
+
+已做的是逐主張的新穎性查證（rmax、pooling、orthogonality、lowrank、width-theory、eb-validation、
+bib-check 七份筆記），不是系統性回顧。新增：
+
+| # | 項目 | 狀態 |
+|---|---|---|
+| B9 | 系統性掃描「卷積網路逐層表徵秩／有效維度」2014–2026，產出比較表（張量、估計量、統計量、分母、初始化對照、形狀），進 §II；必補 tunnel effect（Masarczyk 2023）、RankMe（Garrido 2023）、α-ReQ、low-rank simplicity bias（Huh 2023）、逐層 neural collapse | 代理掃描中（`depth-profile-survey-2026-09-08.md`） |
