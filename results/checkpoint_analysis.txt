@@ -496,24 +496,26 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
        90  92.89   0.296       -0.68        +0.93         +1.00         0.004
       100  94.01   0.296       -0.68        +0.93         +1.00         0.000
 
-  [trajectory_resnet50]  53 conv layers, epochs measured 0..20  (IN PROGRESS: 'final' = latest epoch)
+  [trajectory_resnet50]  53 conv layers, epochs measured 0..40  (IN PROGRESS: 'final' = latest epoch)
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
-        0  10.24   0.185       -0.85        +1.00         +0.48         0.090
-        1  44.43   0.391       +0.89        -0.65         +0.07         0.220
-        2  52.10   0.422       +0.63        -0.30         +0.37         0.203
-        3  57.66   0.527       +0.72        -0.41         +0.34         0.286
-        5  71.02   0.508       +0.24        +0.13         +0.74         0.286
-        7  74.55   0.438       -0.08        +0.39         +0.86         0.218
-       10  82.08   0.328       -0.62        +0.84         +0.61         0.128
-       15  85.20   0.312       -0.12        +0.36         +0.92         0.084
-       20  83.28   0.222       -0.26        +0.48         +1.00         0.000
-    role 3x3: rho(init, final) +0.53   level init 0.244 -> final 0.264
-    role 1x1: rho(init, final) +0.46   level init 0.180 -> final 0.199
+        0  10.24   0.185       -0.85        +1.00         +0.54         0.101
+        1  44.43   0.391       +0.89        -0.65         -0.04         0.262
+        2  52.10   0.422       +0.63        -0.30         +0.27         0.255
+        3  57.66   0.527       +0.72        -0.41         +0.27         0.339
+        5  71.02   0.508       +0.24        +0.13         +0.66         0.341
+        7  74.55   0.438       -0.08        +0.39         +0.77         0.272
+       10  82.08   0.328       -0.62        +0.84         +0.58         0.153
+       15  85.20   0.312       -0.12        +0.36         +0.73         0.139
+       20  83.28   0.222       -0.26        +0.48         +0.90         0.055
+       30  85.94   0.156       -0.38        +0.55         +0.99         0.007
+       40  84.34   0.141       -0.37        +0.54         +1.00         0.000
+    role 3x3: rho(init, final) +0.33   level init 0.244 -> final 0.234
+    role 1x1: rho(init, final) +0.57   level init 0.180 -> final 0.125
 
   Summary (settle = first measured epoch with rho vs final >= 0.95):
     run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
     trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
-    trajectory_resnet50      no     20      83.28     83.28            +0.48       -0.85 -> -0.26
+    trajectory_resnet50      no     30      85.94     84.34            +0.54       -0.85 -> -0.37
 
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
   is when the learned profile is in place; compare it with the accuracy
@@ -701,6 +703,40 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   orthogonality-penalty networks (submission bar A5).
 
 ========================================================================
+12. Round 3, controlled block type on CIFAR-10 (analysis-plan 9.1)
+========================================================================
+  same recipe, same dataset, same conv count for basic vs bottleneck; k*(0.95)/r_max
+    group                  seeds     R-R    T-T    T-R                    T-R per seed     acc
+    basic (52 conv)            3   +0.92  +0.98  +0.54               +0.56 +0.54 +0.47   95.45
+    bottleneck (53 conv)       3   +0.94  +0.99  +0.50               +0.40 +0.50 +0.52   95.50
+    mobilenetv2 (CIFAR)        3   +0.85  +0.99  +0.56               +0.56 +0.48 +0.69   93.16
+
+  H9.1 (bottleneck T-R below basic T-R): max bottleneck +0.52 vs min basic +0.47; Mann-Whitney one-sided p = 0.2  -> NOT supported
+  H9.2 (MobileNetV2 seeds share a profile, T-T >= 0.7): pairwise ['+0.99', '+1.00', '+0.99'] -> SUPPORTED
+
+========================================================================
+13. Round 3, orthogonality penalties vs the analytic prediction (analysis-plan 9.2)
+========================================================================
+  For each penalty arm (so, srip), per layer: measured k*(0.95)/r_max of the
+  penalised network vs the 'ortho' counterfactual of the matching no-penalty
+  network (same arch, same seed).  P9.3: median |diff| < 0.1 for SO; P9.4: SRIP does not.
+    arch      arm   seed   L  med|out-pred| med(out-pred)  med gain vs none  kernel erank/rmax
+    basic52   so       0  41          0.172        -0.172            +0.172              0.845
+    basic52   so       1  41          0.168        -0.168            +0.180              0.837
+    basic52   so       2  41          0.180        -0.180            +0.160              0.835
+    basic52   srip     0  41          0.172        -0.172            +0.148              0.832
+    basic52   srip     1  41          0.180        -0.180            +0.148              0.812
+    basic52   srip     2  41          0.164        -0.164            +0.172              0.830
+    vgg16_bn  so       0   8          0.154        -0.154            +0.156              0.849
+    vgg16_bn  so       1   8          0.154        -0.154            +0.158              0.849
+    vgg16_bn  so       2   8          0.156        -0.156            +0.145              0.848
+    vgg16_bn  srip     0   8          0.217        -0.217            +0.076              0.797
+    vgg16_bn  srip     1   8          0.217        -0.217            +0.080              0.797
+    vgg16_bn  srip     2   8          0.219        -0.219            +0.074              0.795
+  SO: median |out - prediction| over arms = 0.162  -> not within 0.1
+  SRIP: median |out - prediction| over arms = 0.198  -> not within 0.1
+
+========================================================================
 15. Ablations of the protocol on ResNet-50 V1 (A11-A15): k*(0.95)/r_max profile vs the reference run
 ========================================================================
   reference: results/local6400/trained/resnet50 (6,400 images, 16 positions, crop, conv output)
@@ -724,4 +760,3 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       vs ImageNet ResNet-50 on the same COCO images: rho +0.92, levels 0.406 (cls) / 0.289 (det)
     Mask R-CNN R50-FPN backbone, COCO-trained  49       +0.91     0.062     0.205   0.309     0.406
       vs ImageNet ResNet-50 on the same COCO images: rho +0.92, levels 0.406 (cls) / 0.309 (det)
-  wrote ../paper/table_ablation.tex
