@@ -562,6 +562,13 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
      0.990  0.481   0.652     33.50%    0.19%
      0.999  0.642   0.870     75.59%    0.09%
 
+  timm:resnet50.fb_ssl_yfcc100m_ft_in1k: baseline top-1 80.03%  (calibrate 3200, evaluate 3200)
+       tau    k/C  k/rmax  principal   random
+     0.900  0.242   0.335      0.41%    0.12%
+     0.950  0.337   0.464      6.56%    0.03%
+     0.990  0.530   0.726     76.91%    0.16%
+     0.999  0.672   0.918     80.22%    0.06%
+
   timm:resnet50.gluon_in1k: baseline top-1 78.44%  (calibrate 3200, evaluate 3200)
        tau    k/C  k/rmax  principal   random
      0.900  0.221   0.306      0.06%    0.06%
@@ -585,14 +592,30 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
 
   McNemar (exact, two-sided) baseline vs principal truncation, same images:
     model                                     tau     n b->wrong wrong->b delta pp         p
+    resnet18                                  0.9  3200     1538       55   -46.34  0.00e+00
+    resnet18                                 0.95  3200      768       92   -21.12 1.43e-133
+    resnet18                                 0.99  3200      141       57    -2.62  2.12e-09
+    resnet18                                0.999  3200       30       19    -0.34  1.52e-01
+    resnet50                                  0.9  3200     1972       40   -60.38  0.00e+00
+    resnet50                                 0.95  3200      759       91   -20.88 5.70e-132
+    resnet50                                 0.99  3200      151       72    -2.47  1.31e-07
+    resnet50                                0.999  3200       19       21    +0.06  8.75e-01
     timm_resnet50.a1_in1k_lolo                0.9  3200     2549        3   -79.56  0.00e+00
     timm_resnet50.a1_in1k_lolo               0.95  3200     2297       17   -71.25  0.00e+00
     timm_resnet50.a1_in1k_lolo               0.99  3200      923       65   -26.81 5.28e-195
     timm_resnet50.a1_in1k_lolo              0.999  3200       93       37    -1.75  9.70e-07
+    timm_resnet50.a1_in1k                     0.9  3200     2567        2   -80.16  0.00e+00
+    timm_resnet50.a1_in1k                    0.95  3200     2562        3   -79.97  0.00e+00
+    timm_resnet50.a1_in1k                    0.99  3200     2230       12   -69.31  0.00e+00
+    timm_resnet50.a1_in1k                   0.999  3200      107       51    -1.75  9.90e-06
     timm_resnet50.a3_in1k                     0.9  3200     2470        2   -77.12  0.00e+00
     timm_resnet50.a3_in1k                    0.95  3200     2453        6   -76.47  0.00e+00
     timm_resnet50.a3_in1k                    0.99  3200     1447       46   -43.78  0.00e+00
     timm_resnet50.a3_in1k                   0.999  3200      119       65    -1.69  8.38e-05
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k     0.9  3200     2548        0   -79.62  0.00e+00
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k    0.95  3200     2371       20   -73.47  0.00e+00
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k    0.99  3200      180       80    -3.12  5.10e-10
+    timm_resnet50.fb_ssl_yfcc100m_ft_in1k   0.999  3200       24       30    +0.19  4.97e-01
     timm_resnet50.gluon_in1k                  0.9  3200     2509        1   -78.38  0.00e+00
     timm_resnet50.gluon_in1k                 0.95  3200     2476        5   -77.22  0.00e+00
     timm_resnet50.gluon_in1k                 0.99  3200      244       79    -5.16  9.66e-21
@@ -601,6 +624,11 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     timm_resnet50.tv2_in1k                   0.95  3200     2493        7   -77.69  0.00e+00
     timm_resnet50.tv2_in1k                   0.99  3200      217       67    -4.69  1.25e-19
     timm_resnet50.tv2_in1k                  0.999  3200       31       20    -0.34  1.61e-01
+    vgg16_bn                                  0.9  3200     1451       54   -43.66  0.00e+00
+    vgg16_bn                                 0.95  3200      690       84   -18.94 2.91e-119
+    vgg16_bn                                 0.99  3200      107       57    -1.56  1.16e-04
+    vgg16_bn                                0.999  3200       16       13    -0.09  7.11e-01
+  wrote ../paper/table_projection.tex
 
 ========================================================================
 10b. The projection read as a rank-k factorisation: conv FLOPs kept, per tau
@@ -672,4 +700,10 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   kernel spectrum alone; 'ortho' is the analytic prediction for orthogonalising
   the kernel with the data held fixed, to be tested against trained-with-
   orthogonality-penalty networks (submission bar A5).
-  wrote ../paper/table_decompose.tex
+
+========================================================================
+15. Ablations of the protocol on ResNet-50 V1 (A11-A15): k*(0.95)/r_max profile vs the reference run
+========================================================================
+  reference: results/local6400/trained/resnet50 (6,400 images, 16 positions, crop, conv output)
+
+    ablation                             L  rho vs ref med|diff| max|diff|   level ref level
