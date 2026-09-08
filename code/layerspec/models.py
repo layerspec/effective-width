@@ -82,6 +82,8 @@ def parse(name: str) -> tuple[str, str, bool]:
     base = name[: -len("_random")] if random_init else name
     if base.startswith("timm:"):
         return "timm", base[len("timm:"):], random_init
+    if base.startswith("tvdet:"):
+        return "tvdet", base[len("tvdet:"):], random_init
     return "torchvision", base, random_init
 
 
@@ -104,6 +106,13 @@ def build(name: str, pretrained: bool = True, seed: int = 0) -> tuple[nn.Module,
     if random_init or not pretrained:
         torch.manual_seed(seed)
 
+    if backend == "tvdet":
+        # The ResNet body of a torchvision detection model (COCO-trained, FrozenBatchNorm);
+        # ablation A11.  The forward returns a dict of feature maps; only the hooks matter.
+        import torchvision.models.detection as tvd
+        ctor = getattr(tvd, base)
+        m = ctor(weights=None) if (random_init or not pretrained) else ctor(weights="DEFAULT")
+        return m.backbone.body, (f"random_init(seed={seed})" if random_init else f"torchvision/{base}.DEFAULT (backbone.body)")
     if backend == "timm":
         import timm
 
