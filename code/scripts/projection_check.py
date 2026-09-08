@@ -64,12 +64,17 @@ def kstar(eig: np.ndarray, tau: float) -> int:
 
 
 @torch.no_grad()
-def top1(model, loader, device) -> float:
+def top1(model, loader, device, record: list | None = None) -> float:
+    """Top-1 in percent; if `record` is given, the per-image 0/1 correctness is
+    appended to it (for paired tests between settings on the same images)."""
     model.eval()
     correct = n = 0
     for x, y in loader:
         x, y = x.to(device), y.to(device)
-        correct += (model(x).argmax(1) == y).sum().item()
+        hit = (model(x).argmax(1) == y)
+        if record is not None:
+            record.extend(hit.int().tolist())
+        correct += hit.sum().item()
         n += len(y)
     return 100.0 * correct / n
 
@@ -106,6 +111,9 @@ def main(argv=None) -> int:
     p.add_argument("--eval", type=int, default=None, help="evaluation images (default: the other half)")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default="../results/projection")
+    p.add_argument("--skip-layers", nargs="*", default=[],
+                   help="leave these conv layers unprojected (leave-one-layer-out check)")
+    p.add_argument("--tag", default="", help="suffix for the output files")
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
 
@@ -142,8 +150,11 @@ def main(argv=None) -> int:
     print(f"  {len(layers)} conv layers calibrated ({time.time() - t0:.0f}s)", flush=True)
 
     rows = []
-    base = top1(model, ev_loader, a.device)
+    per_image = {}
+    rec = []; base = top1(model, ev_loader, a.device, rec); per_image["baseline"] = rec
     rows.append(dict(setting="baseline", tau=np.nan, top1=base, mean_k_over_C=1.0, mean_k_over_rmax=np.nan))
+    if a.skip_layers:
+        print(f"  leaving unprojected: {a.skip_layers}", flush=True)
     print(f"  baseline top-1 {base:.2f}%", flush=True)
     rng = np.random.default_rng(a.seed)
     for tau in a.taus:
@@ -151,6 +162,8 @@ def main(argv=None) -> int:
             proj = {}
             kc, kr = [], []
             for name, (mean, V, w, C, rmax) in layers.items():
+                if name in a.skip_layers:
+                    continue
                 k = kstar(w, tau)
                 kc.append(k / C); kr.append(k / rmax)
                 if setting == "principal":
@@ -159,7 +172,7 @@ def main(argv=None) -> int:
                     Q, _ = np.linalg.qr(rng.standard_normal((C, C)))
                     proj[name] = (mean, Q, k)
             P = Projector(model, proj, a.device)
-            acc = top1(model, ev_loader, a.device)
+            rec = []; acc = top1(model, ev_loader, a.device, rec); per_image[f"{setting}_{tau}"] = rec
             P.remove()
             rows.append(dict(setting=setting, tau=tau, top1=acc,
                              mean_k_over_C=float(np.mean(kc)), mean_k_over_rmax=float(np.mean(kr))))
@@ -167,11 +180,13 @@ def main(argv=None) -> int:
                   f"mean k/r_max {np.mean(kr):.3f}", flush=True)
     df = pd.DataFrame(rows)
     df["model"], df["n_calib"], df["n_eval"] = a.model, n_cal, n_eval
-    path = os.path.join(a.out, f"{a.model.replace(':', '_')}_projection.csv")
+    stem = a.model.replace(':', '_') + a.tag
+    pd.DataFrame(per_image).to_csv(os.path.join(a.out, f"{stem}_projection_perimage.csv"), index=False)
+    path = os.path.join(a.out, f"{stem}_projection.csv")
     df.to_csv(path, index=False)
     per = pd.DataFrame([dict(layer=n, C=C, r_max=r, **{f"k_{t}": kstar(w, t) for t in a.taus})
                         for n, (m, V, w, C, r) in layers.items()])
-    per.to_csv(os.path.join(a.out, f"{a.model.replace(':', '_')}_projection_layers.csv"), index=False)
+    per.to_csv(os.path.join(a.out, f"{stem}_projection_layers.csv"), index=False)
     print("wrote", path, flush=True)
     return 0
 
