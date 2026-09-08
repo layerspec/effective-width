@@ -721,3 +721,142 @@
   title={Interpreting Neural Computations by Examining Intrinsic and Embedding Dimensionality of Neural Activity},
   journal={Current Opinion in Neurobiology}, volume={70}, pages={113--120}, year={2021},
   doi={10.1016/j.conb.2021.08.002}}
+
+@inproceedings{masarczyk2023tunnel,
+  author    = {Masarczyk, Wojciech and Ostaszewski, Mateusz and Imani, Ehsan and
+               Pascanu, Razvan and Mi{\l}o{\'s}, Piotr and Trzci{\'n}ski, Tomasz},
+  title     = {The Tunnel Effect: Building Data Representations in Deep Neural Networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {36},
+  year      = {2023},
+  doi       = {10.52202/075280-3355},
+  annote    = {arXiv:2305.19753. Numerical rank (sigma > 1e-3 sigma_1) of a random
+               8000-feature subset, flattened; ResNet-34 read at conv2 only.
+               Rank collapses to ~#classes within the first 75 training steps and
+               stays there (Fig. 6). Tunnel length grows with VGG width, not ResNet},
+}
+
+@inproceedings{harun2024tunnelVariables,
+  author    = {Harun, Md Yousuf and Lee, Kyungbok and Gallardo, Jhair and
+               Krishnan, Giri and Kanan, Christopher},
+  title     = {What Variables Affect Out-of-Distribution Generalization in
+               Pretrained Models?},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {37},
+  year      = {2024},
+  doi       = {10.52202/079017-1799},
+  annote    = {arXiv:2405.15018. 64 DNNs, 8,604 linear probes. Removing max-pool
+               from the first two stages (VGGm-dagger) eliminates the tunnel;
+               larger stems hurt OOD; among ImageNet-1k pretrained models only
+               ResNet-50 (SL and SSL) shows a tunnel. Numerical rank in App. Fig. 25},
+}
+
+@article{kubaty2025multiExit,
+  author  = {Kubaty, Piotr and W{\'o}jcik, Bartosz and Krzepkowski, Bart{\l}omiej and
+             Michaluk, Monika and Trzci{\'n}ski, Tomasz and Pomponi, Jary and
+             Adamczewski, Kamil},
+  title   = {How to Train Your Multi-Exit Model? Analyzing the Impact of Training
+             Strategies},
+  journal = {arXiv preprint arXiv:2407.14320},
+  year    = {2025},
+  annote  = {Numerical rank of backbone activation matrices per layer; higher in
+             early layers, lower in deep layers},
+}
+
+@article{cohen2020manifolds,
+  author  = {Cohen, Uri and Chung, SueYeon and Lee, Daniel D. and Sompolinsky, Haim},
+  title   = {Separability and Geometry of Object Manifolds in Deep Neural Networks},
+  journal = {Nature Communications},
+  volume  = {11},
+  pages   = {746},
+  year    = {2020},
+  doi     = {10.1038/s41467-020-14578-5},
+  annote  = {Mean-field manifold dimension per operation in AlexNet/VGG-16
+             (ResNet-50 in SI), ImageNet. Untrained: constant high dimension.
+             Fig. 7b: pooling decreases manifold dimension; ReLU increases it},
+}
+
+@inproceedings{stephenson2021geometry,
+  author    = {Stephenson, Cory and Padhy, Suchismita and Ganesh, Abhinav and
+               Hui, Yue and Tang, Hanlin and Chung, SueYeon},
+  title     = {On the Geometry of Generalization and Memorization in Deep Neural
+               Networks},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2021},
+  annote    = {arXiv:2105.14602. Manifold dimension per layer and per epoch in
+               VGG-16/CIFAR-100; memorization changes deep-layer dimension late
+               in training; dimension shows double descent across ResNet-18 width},
+}
+
+@inproceedings{konz2024preprocessing,
+  author    = {Konz, Nicholas and Mazurowski, Maciej A.},
+  title     = {Pre-processing and Compression: Understanding Hidden Representation
+               Refinement Across Imaging Domains via Intrinsic Dimension},
+  booktitle = {NeurIPS 2024 Workshop on Scientific Methods for Understanding Deep
+               Learning (SciForDL)},
+  year      = {2024},
+  annote    = {arXiv:2408.08381. TwoNN per layer for VGG-13/16/19 and
+               ResNet-18/34/50 on 4 natural + 7 medical datasets; hunchback peak
+               at relative depth 0.57 (natural) vs 0.35 (medical)},
+}
+
+@article{schulte2026rethinking,
+  author  = {Schulte, Rickmer and R{\"u}gamer, David},
+  title   = {Rethinking Intrinsic Dimension Estimation in Neural Representations},
+  journal = {arXiv preprint arXiv:2604.20276},
+  year    = {2026},
+  annote  = {Theorem: the ID cannot increase across layers of a Lipschitz network;
+             rising estimated-ID patterns are estimator artefacts. Applies to
+             manifold ID, not to linear rank},
+}
+
+@article{huh2023lowRank,
+  author  = {Huh, Minyoung and Mobahi, Hossein and Zhang, Richard and Cheung, Brian
+             and Agrawal, Pulkit and Isola, Phillip},
+  title   = {The Low-Rank Simplicity Bias in Deep Networks},
+  journal = {Transactions on Machine Learning Research},
+  year    = {2023},
+  annote  = {arXiv:2103.10427. Effective rank of the penultimate-layer Gram matrix
+             (cosine kernel). Low rank already at initialisation; during training
+             on CIFAR-100 the effective rank contracts and then rises again},
+}
+
+@article{chen2025universal,
+  author  = {Chen, Zirui and Bonner, Michael F.},
+  title   = {Universal Dimensions of Visual Representation},
+  journal = {Science Advances},
+  volume  = {11},
+  pages   = {eadw7697},
+  year    = {2025},
+  doi     = {10.1126/sciadv.adw7697},
+  annote  = {arXiv:2408.12804. Global max-pooled ReLU outputs, PCA on 72,128 NSD
+             images, PCs up to matrix_rank. 20 trained vs 20 untrained ResNet-18
+             seeds: 36,596 vs 9,413 dimensions -- untrained activation matrices
+             are low-rank. No ED profile reported},
+}
+
+@inproceedings{agrawal2022alphaReq,
+  author    = {Agrawal, Kumar Krishna and Mondal, Arnab Kumar and Ghosh, Arna and
+               Richards, Blake A.},
+  title     = {$\alpha$-{ReQ}: Assessing Representation Quality in Self-Supervised
+               Learning by Measuring Eigenspectrum Decay},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {35},
+  pages     = {17626--17638},
+  year      = {2022},
+  doi       = {10.52202/068431-1281},
+  annote    = {Power-law exponent alpha per layer; VGG read at MaxPool/dropout
+               inputs, ResNet at residual-block inputs. CNN intermediate alpha<1,
+               deepest layers alpha~1 regardless of depth or SSL objective},
+}
+
+@article{smirnov2026erank,
+  author  = {Smirnov, Maksim and Kononov, Grigory and Linich, Anastasiia and
+             Surkov, Egor and Shvetsov, Egor},
+  title   = {{ERank} in Latent Space as an Image-Complexity and Richness Measure},
+  journal = {arXiv preprint arXiv:2607.19315},
+  year    = {2026},
+  annote  = {Effective rank of the channel covariance of ONE image's HW x C
+             feature map (positions as samples), ResNet-18 layers 1-4 and CLIP;
+             the only other work using spatial positions as samples},
+}
