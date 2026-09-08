@@ -62,18 +62,17 @@ of a residual block exceeds the bound on its last convolution in 161 of 161
 bottleneck blocks, so block-output and convolution-output profiles are
 different objects. With these fixed, the protocol recovers the published
 CIFAR-10 profile of Garg \emph{et al.} ($r = 0.98$) and the ImageNet block
-values of Elmoznino and Bonner ($\rho = 0.997$); truncating every layer to its $k^*(0.999)$ principal directions leaves accuracy unchanged in six of eight checkpoints and costs $1.7$ points in the two ResNet-50s trained with binary cross-entropy and heavy augmentation, while $k^*(0.95)$ does not preserve it. Because the output covariance before the nonlinearity
+values of Elmoznino and Bonner ($\rho = 0.997$); truncating every layer to its $k^*(0.999)$ principal directions leaves accuracy unchanged in six of eight checkpoints and costs $1.7$ points in two, while $k^*(0.95)$ does not preserve it. Because the output covariance before the nonlinearity
 is exactly $W\Sigma_{\rm patch}W^{\top}$, the statistic separates into a kernel
 factor and a data factor, and training moves the bottleneck from the data
-to the kernel. Compared with their own initialisations, trained networks
-largely keep the ordering of layers the architecture gave them and gain a
-level; the profile is in place by mid-training, before accuracy is; and a
-pre-registered controlled experiment on CIFAR-10 shows that the block type
-does not change this, so the one family whose public checkpoints reorder
-their layers, ImageNet ResNet-50, owes it to its training regime. Orthogonality
-penalties realise half of the width gain the decomposition predicts for an
-isometric kernel, in the layers it predicts. Code, spectra and the
-pre-registered analysis plan are released.
+to the kernel. Against their own initialisations, trained networks largely
+keep the architecture's layer ordering and gain a level, in place before
+accuracy is; a pre-registered controlled experiment shows the block type
+does not change this, so ImageNet ResNet-50, the one family whose
+checkpoints reorder their layers, owes it to its training regime.
+Orthogonality penalties realise half of the width gain the decomposition
+predicts, in the layers it predicts. Code, spectra and the pre-registered
+analysis plan are released.
 \end{abstract}
 
 \begin{IEEEkeywords}
