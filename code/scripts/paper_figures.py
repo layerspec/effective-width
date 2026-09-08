@@ -158,6 +158,42 @@ def fig_decompose(results: str, out: str) -> list[str]:
     return made
 
 
+def fig_blockout(results: str, out: str) -> str | None:
+    """Block-level depth profile for the six ResNet-50 recipes: k*(0.999)/C at
+    the conv3 (1x1 expansion) output, capped at 0.25 by r_max, against the
+    same statistic at the block output (after the shortcut and the ReLU),
+    which is the tensor Ansuini et al. and Elmoznino & Bonner read."""
+    from layerspec.figures import load
+    layers, _ = load(results)
+    recipes = ["timm_resnet50.tv_in1k", "timm_resnet50.tv2_in1k", "timm_resnet50.a1_in1k",
+               "timm_resnet50.a3_in1k", "timm_resnet50.gluon_in1k", "timm_resnet50.fb_ssl_yfcc100m_ft_in1k"]
+    recipes = [r for r in recipes if r in layers]
+    if not recipes:
+        return None
+    _style()
+    fig, ax = plt.subplots(figsize=(ONE_COL, 2.3), constrained_layout=True)
+    for i, r in enumerate(recipes):
+        d = layers[r]
+        blk = d[d.kind == "block"].sort_values("depth_index")
+        c3 = d[(d.kind == "conv") & d.layer.str.endswith(".conv3")].sort_values("depth_index")
+        x = np.arange(1, len(blk) + 1)
+        ax.plot(x, blk["k_star_ratio_0.999"], color=SERIES[0], lw=0.9, alpha=0.8, marker="o", markersize=2,
+                label="block output" if i == 0 else None)
+        ax.plot(x, c3["k_star_ratio_0.999"], color=SERIES[1], lw=0.9, alpha=0.8, marker="s", markersize=2,
+                dashes=(5, 2), label="conv3 output" if i == 0 else None)
+    ax.axhline(0.25, color=MUTED, lw=0.7, ls=(0, (2, 3)))
+    ax.text(len(blk) + 0.3, 0.25, r"$r_{\max}/C$", color=MUTED, fontsize=6, va="center")
+    ax.axhline(1.0, color=MUTED, lw=0.7, ls=(0, (2, 3)))
+    ax.set_xlim(1, len(blk)); ax.set_ylim(0, 1.05)
+    ax.set_xlabel("bottleneck block (depth order)")
+    ax.set_ylabel(r"$k^*(0.999)/C$")
+    _tidy(ax)
+    ax.legend(frameon=False, loc="center right", fontsize=6)
+    path = os.path.join(out, "fig7_blockout.pdf")
+    fig.savefig(path); fig.savefig(path.replace(".pdf", ".png")); plt.close(fig)
+    return path
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--results", default="../results")
@@ -165,8 +201,9 @@ def main(argv=None) -> int:
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     for f in [fig_profile_r50(a.results, a.out), fig_metrics_subset(a.results, a.out),
-              fig_threshold_vgg(a.results, a.out)] + fig_trajectory(a.results, a.out) + fig_decompose(a.results, a.out):
-        print("wrote", f)
+              fig_threshold_vgg(a.results, a.out)] + fig_trajectory(a.results, a.out) + fig_decompose(a.results, a.out) + [fig_blockout(a.results, a.out)]:
+        if f:
+            print("wrote", f)
     return 0
 
 
