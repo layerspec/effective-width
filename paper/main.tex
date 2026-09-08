@@ -69,7 +69,10 @@ to the kernel. Comparing eleven families with their own initialisations,
 plain, basic-residual and dense networks keep the architecture's layer
 ordering and gain a level, whereas bottleneck ResNet-50 learns an ordering
 uncorrelated with initialisation ($\rho = -0.08$) and reverses its depth
-trend. Code, spectra and the pre-registered analysis plan are released.
+trend; a pre-registered controlled experiment on CIFAR-10 finds the block is
+not the cause. Orthogonality penalties realise half of the width gain the
+decomposition predicts for an isometric kernel, in the layers it predicts.
+Code, spectra and the pre-registered analysis plan are released.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -168,10 +171,10 @@ effective width. The contributions are:
   ($\rho_{\rm trained,random} = 0.6$--$0.75$) and training raises the level by $0.09$--$0.19$ in the median over layers. That rise exceeds the profile's own adjacent-layer step in three of the four families. In bottleneck ResNet-50 the ordering is learned: six recipes
   agree with each other ($\rho = 0.84$), agree with initialisation not at all
   ($\rho = -0.08$, against a random-versus-random ceiling of $0.94$), and the
-  trend with depth reverses from falling to rising. For the inverted-residual networks (MobileNetV3, EfficientNet-B0) the available checkpoints do not share a profile, the level of the $1\!\times\!1$ layers varies four- to seven-fold across them, and in two of the three families the depthwise layers halve their effective width on training
+  trend with depth reverses from falling to rising. A controlled experiment registered before its data were seen, basic-block and bottleneck ResNets of equal depth, width pattern and recipe on CIFAR-10 with three seeds each, shows no such contrast ($\rho = 0.55$ against $0.50$): the block is not the cause, and the ImageNet difference falls to the data or the recipe. For the inverted-residual networks (MobileNetV3, EfficientNet-B0) the available checkpoints do not share a profile, the level of the $1\!\times\!1$ layers varies four- to seven-fold across them, and in two of the three families the depthwise layers halve their effective width on training; three seeds of one recipe agree at $\rho \ge 0.99$, so that disagreement is the recipes'
   (Section~\ref{sec:learned}).
 
-  \item \textbf{An exact decomposition of the statistic.} Before the nonlinearity the output covariance is $W\Sigma_{\rm patch}W^{\top}$, so a layer's effective width separates into a kernel factor and a patch-covariance factor. Measuring both on ten checkpoints shows that training moves the bottleneck from the data to the kernel: at initialisation the patch covariance is low-rank and the kernel isotropic; after training the patch covariance is full-rank and the ordering of layers follows the kernels' Gram spectra ($\rho = 0.8$--$0.97$ in six of nine trained checkpoints). Orthogonalising a trained kernel with its input held fixed would raise its effective width by about $0.3$ of the attainable rank, which is a prediction the released plan registers for a later test (Section~\ref{sec:decompose}).
+  \item \textbf{An exact decomposition of the statistic.} Before the nonlinearity the output covariance is $W\Sigma_{\rm patch}W^{\top}$, so a layer's effective width separates into a kernel factor and a patch-covariance factor. Measuring both on ten checkpoints shows that training moves the bottleneck from the data to the kernel: at initialisation the patch covariance is low-rank and the kernel isotropic; after training the patch covariance is full-rank and the ordering of layers follows the kernels' Gram spectra ($\rho = 0.8$--$0.97$ in six of nine trained checkpoints). Orthogonalising a trained kernel with its input held fixed would raise its effective width by about $0.3$ of the attainable rank. Tested as registered, with soft-orthogonality and SRIP penalties on CIFAR-10, the penalties realise half of that gain, and the soft penalty realises it in the layers the decomposition predicts (Section~\ref{sec:decompose}).
 
   \item \textbf{Three further observations.} Truncating every convolution output to its top $k^*(\tau)$ principal channel directions at inference, the response-PCA operation of Zhang \emph{et al.} \cite{zhang2016accelerating} applied with the measured rank at every layer at once and without fine-tuning, leaves top-1 accuracy unchanged at $\tau = 0.999$ (McNemar) in six of eight checkpoints, including four ResNet-50 recipes, ResNet-18 and VGG-16, while the two ResNet-50 recipes of Wightman \emph{et al.} lose $1.7$ points; at the pre-registered $\tau = 0.95$ the cost ranges from $19$ points to near-total collapse depending on the recipe, and random directions of the same dimension give chance throughout. This calibrates what the statistic counts; it is not a compression result (Section~\ref{sec:projection}). Along one CIFAR-10 training run of VGG-16 the profile is in place by epoch 40, while test accuracy still rises from $84\%$ to $94\%$. And the position-sampled statistic
   computed from $6{,}400$ images agrees with the $50{,}000$-image value to
@@ -976,13 +979,13 @@ trained and random profiles.
   \input{table_families}
 \end{table*}
 
-Three behaviours appear in the families measured, and they sort by block type; whether the block is the cause is taken up below.
+Three behaviours appear in the families measured, and they sort by block type; whether the block is the cause is taken up below, with a controlled experiment that says it is not.
 
 \emph{Plain, basic-residual and densely connected networks learn a level, not an ordering.} This is the case Ansuini \emph{et al.} \cite{ansuini2019intrinsic} saw in VGG-16, where the linear PC-ID profile was qualitatively unchanged by training. For VGG-16, ResNet-18, ResNet-34 and DenseNet-121 the
 trained profiles agree with the random ones at $\rho = 0.61$--$0.75$, against
 ceilings of $0.79$--$0.98$, and training raises the median level by $0.09$ (VGG) to $0.19$ (ResNet-18). The profiles' own adjacent-layer steps are $0.05$, $0.14$, $0.10$ and $0.30$ (Table~\ref{tab:pooling}), so the rise exceeds the step in all but DenseNet-121, whose step is the structural $1\!\times\!1$/$3\!\times\!3$ alternation noted in Section~\ref{sec:estimator}.
 
-\emph{Bottleneck ResNet-50 learns its ordering.} The six recipes agree with
+\emph{The ImageNet ResNet-50 checkpoints learn their ordering.} The six recipes agree with
 each other ($0.84$) and with initialisation not at all ($-0.08$, range
 $-0.31$ to $+0.33$ over 30 pairs), against a random-vs-random ceiling of
 $0.94$; the five random draws are highly reproducible, so the disagreement
@@ -999,11 +1002,66 @@ architecture put them, does not survive the role split. In ResNet-50 both
 kinds are reordered (T--R $+0.09$ for $3\!\times\!3$, $-0.28$ for
 $1\!\times\!1$); in DenseNet-121 the $3\!\times\!3$ layers are the ones
 that move ($-0.26$) while the $1\!\times\!1$ layers stay ($+0.39$). What
-sorts the families is the block, not the kernel.
+sorts the ImageNet families is the block, not the kernel.
+
+\emph{Is the block the cause? Under one recipe on CIFAR-10 it is not.} The
+released plan (its Section~9.1) registered, before any of its data were
+seen, the experiment that separates the block from everything that varies
+between public checkpoints: with the recipe of
+Section~\ref{sec:repro-garg}, a basic-block ResNet $[6,6,6,6]$ and a
+bottleneck ResNet-50 $[3,4,6,3]$ with the same stage widths
+($64$--$512$ at the block input), the same CIFAR stem and the same number of
+convolutions ($52$ and $53$), and a CIFAR variant of MobileNetV2, three
+seeds each, measured at initialisation, at 17 points along training and at
+the end, on the CIFAR-10 test images. The registered hypothesis H9.1 was
+that the bottleneck network's trained-versus-random agreement lies below the
+basic network's (every pair, or Mann--Whitney $p < 0.01$); its registered
+consequence, if it failed, was that the ImageNet contrast is attributed to
+depth or recipe and this section is rewritten accordingly.
+Table~\ref{tab:round3} gives the outcome. H9.1 fails: the basic network
+agrees with its initialisation at $\rho = 0.55$ ($0.46$--$0.57$ over the
+nine trained-random pairs), the bottleneck network at $0.50$
+($0.38$--$0.54$), $p = 0.2$, and the MobileNetV2 at $0.44$; under one recipe
+at this scale the three block types keep the same share of their initial
+ordering. The other two ImageNet signatures of ResNet-50 are absent as well:
+the level of the CIFAR bottleneck network \emph{falls} on training ($0.20
+\to 0.16$; the basic network rises, $0.21 \to 0.32$, as its ImageNet
+relatives do), and its depth trend flattens ($-0.78 \to -0.21$) rather than
+reversing. The registered attribution therefore stands: what makes the six
+ImageNet ResNet-50 recipes reorder their layers is not the bottleneck block
+as such but something they share and this experiment lacks, the dataset or the
+ImageNet recipes, which the experiment does not separate (Section~\ref{sec:limits}); the four-family
+gradient above already excludes depth alone. Two exploratory readings
+survive. Within stages the bottleneck network does reorder more than the
+basic one (T--R$_{\rm stage}$ $0.25$ against $0.50$), the same direction as
+on ImageNet ($0.27$ against $0.75$), but this comparison was not registered
+and rests on three seeds. And the second registered hypothesis, H9.2, holds:
+the three MobileNetV2 seeds share their trained profile at $\rho =
+0.99$--$1.00$ against a random-versus-random ceiling of $0.68$, so an
+inverted-residual network trained under one recipe does have a profile, and
+the disagreement among the public MobileNetV3 and EfficientNet checkpoints
+is the recipes' doing.
+
+\begin{table*}[t]
+  \centering
+  \caption{The controlled experiment (pre-registered, plan Section~9.1):
+  CIFAR-10, one recipe, three seeds per architecture, $k^*(0.95)/r_{\max}$
+  over the dense convolutions on the test images. R--R, T--T and T--R as in
+  Table~\ref{tab:families}, T--R with its range over the nine pairs;
+  $L$ dense convolutions;
+  T--R$_{\rm stage}$ ranks within stages; $R \to T$ is the median level at
+  initialisation and at the end; $\rho_{\rm depth}$ likewise; settle is the
+  first measured epoch at which $\rho$ against the final profile reaches
+  $0.95$ (median over seeds); accuracy is the mean final top-1. Generated by
+  \texttt{checkpoint\_analysis.py}.}
+  \label{tab:round3}
+  \footnotesize
+  \input{table_round3}
+\end{table*}
 
 Three cautions. The threshold sets how much room this comparison has: at $\tau = 0.999$ the
 trained-versus-random agreement for ResNet-50 is $0.25$ rather than
-$-0.07$, because the ceiling compresses both. The inverted-residual checkpoints differ in more than the optimiser: one MobileNetV3 was pre-trained on ImageNet-21k and the longest-trained checkpoints ran for $3{,}600$ epochs, and even the five same-dataset EfficientNet-B0 checkpoints span three training frameworks. ``Weak agreement'' is therefore a statement about the checkpoints one can download, and the same-recipe, several-seed study registered in the released plan is needed to say whether it is a property of the block. That is also the practical content of the finding: a single MobileNet or EfficientNet checkpoint does not stand for its architecture.
+$-0.07$, because the ceiling compresses both. The inverted-residual checkpoints differ in more than the optimiser: one MobileNetV3 was pre-trained on ImageNet-21k and the longest-trained checkpoints ran for $3{,}600$ epochs, and even the five same-dataset EfficientNet-B0 checkpoints span three training frameworks. ``Weak agreement'' is therefore a statement about the checkpoints one can download; the same-recipe, several-seed study registered in the released plan (the CIFAR-10 MobileNetV2 of Table~\ref{tab:round3}) finds the seeds agreeing at $0.99$--$1.00$, so it is not a property of the block. That is also the practical content of the finding: a single MobileNet or EfficientNet checkpoint does not stand for its architecture.
 And MobileNetV3's random draws agree only at $0.75$ ($0.37$ for the
 depthwise layers), so its random profile is itself unstable, possibly a
 consequence of its hard-swish nonlinearity and squeeze-excitation blocks.
@@ -1018,9 +1076,26 @@ towards it during the high-learning-rate phase, and is in place by epoch
 40: $\rho$ against the final profile is $0.98$ from epoch 40 onwards, while
 test accuracy still rises from $84\%$ to $94\%$. The final profile agrees
 with the initial one at $\rho = 0.93$, consistent with the plain-network
-row of Table~\ref{tab:families} and stronger. For a plain network, then, the ordering of layers is settled before the fit is, and it is largely the ordering the architecture began with; the level moves earlier and non-monotonically, as the effective rank of penultimate features does in Huh \emph{et al.} \cite{huh2023lowRank} and the manifold dimension of deep layers does late in training in Stephenson \emph{et al.} \cite{stephenson2021geometry}, and Masarczyk \emph{et al.} \cite{masarczyk2023tunnel} report the rank collapse of the deeper layers within the first few hundred steps. What settles at epoch 40 in our run is the Spearman ordering under a one-cycle schedule whose peak learning rate falls at epoch 30; a different schedule could settle at a different epoch. Whether the reordering
-seen in ResNet-50 happens early or late is not answered by this run, which
-is of the wrong block type; it needs a bottleneck trajectory.
+row of Table~\ref{tab:families} and stronger. For a plain network, then, the ordering of layers is settled before the fit is, and it is largely the ordering the architecture began with (the controlled runs below extend this to the other two block types); the level moves earlier and non-monotonically, as the effective rank of penultimate features does in Huh \emph{et al.} \cite{huh2023lowRank} and the manifold dimension of deep layers does late in training in Stephenson \emph{et al.} \cite{stephenson2021geometry}, and Masarczyk \emph{et al.} \cite{masarczyk2023tunnel} report the rank collapse of the deeper layers within the first few hundred steps. What settles at epoch 40 in our run is the Spearman ordering under a one-cycle schedule whose peak learning rate falls at epoch 30; a different schedule could settle at a different epoch.
+
+The nine runs of the controlled experiment, under the same schedule, give
+the same picture with seeds (Table~\ref{tab:round3}, medians over three
+seeds). All three architectures leave their initialisation in the first
+epoch, and further than VGG-16 does: after one epoch the profile is
+\emph{anti}-correlated with the initial one ($\rho = -0.50$ for both
+ResNets), the depth trend has reversed from falling ($-0.90$, $-0.78$) to
+rising ($+0.69$, $+0.86$) and the level has doubled or tripled ($0.22 \to
+0.63$, $0.20 \to 0.37$). The rising trend of the trained ImageNet ResNet-50
+is thus present transiently in every CIFAR-10 network, basic or bottleneck,
+and is undone during the high-learning-rate phase: by epoch 15--20 the
+trend is falling again and the agreement with initialisation has climbed
+back to $0.6$--$0.9$, from where it drifts down to its final $0.50$--$0.54$.
+The profile then settles at epoch 60 (basic), 40 (bottleneck) and 40
+(MobileNetV2) while accuracy is still $84$--$88\%$ on its way to
+$93$--$95\%$. The bottleneck trajectory that the VGG-16 run could not supply
+therefore shows no late reordering: on CIFAR-10 the bottleneck network's
+ordering is in place as early as the others' and ends as close to
+initialisation as theirs.
 
 Along this CIFAR-10 run the profile also falls with depth from epoch 10 onwards ($\rho_{\text{depth}}$ $-0.6$ to $-0.9$; only $-0.2$ during the first epochs), and the last three layers end at $k^*(0.95)/C$ of $0.05$--$0.07$ ($0.08$ at $\tau = 0.999$): the terminal collapse of \cite{garg2019lowEffort} is present in our own CIFAR-10 network and absent in our ImageNet VGG-16, where the same layers read $0.44$--$0.53$ ($0.92$--$0.97$ at $\tau = 0.999$). Neural
 collapse \cite{papyan2020neuralCollapse} predicts a penultimate rank of
@@ -1231,7 +1306,7 @@ isometric kernel passes the effective width of its input through unchanged
 which reaches the ceiling only if the input is also white).
 Proposition~\ref{prop:depth} is the second bound on a layer's width, set by
 the data and the preceding layer rather than by the architecture; it is the
-bound that binds at initialisation. The propositions give the four quantities below their meaning, and they are checked on the data. Over the 465 dense convolutions of the ten checkpoints in Table~\ref{tab:decompose}, with the numerical rank of $W$ taken at $10^{-6}$ of its largest singular value, the eigenvalue ratios of Proposition~\ref{prop:ostrowski} lie within $[\sigma_{\min}^2, \sigma_{\max}^2]$ on 464 (the exception is a DenseNet-121 layer whose smallest retained singular value sits at the tolerance), and the inequality of Corollary~\ref{cor:kstar} holds on 465 at both $\tau = 0.95$ and $0.999$. The corollary is informative, that is, gives a bound below $r_{\max}$, on 246 of the 465 layers at $\tau = 0.95$; on the rest the condition number $\kappa$ is large enough that $\tau'$ is close to one. Twenty-four layers of the trained checkpoints have numerically null kernel directions (in ResNet-50 all six are in the stem and the first stage), and none of the random initialisation does: training empties some kernel directions outright, which the polar factor $W_{\circ}$ simply omits.
+bound that binds at initialisation. The propositions give the four quantities below their meaning, and they are checked on the data. Over the 465 dense convolutions of the ten checkpoints in Table~\ref{tab:decompose}, with the numerical rank of $W$ taken at $10^{-6}$ of its largest singular value, the eigenvalue ratios of Proposition~\ref{prop:ostrowski} lie within $[\sigma_{\min}^2, \sigma_{\max}^2]$ on 464 (the exception is a DenseNet-121 layer whose smallest retained singular value sits at the tolerance), and the inequality of Corollary~\ref{cor:kstar} holds on 465 at both $\tau = 0.95$ and $0.999$. The corollary is informative, that is, gives a bound below $r_{\max}$, on 246 of the 465 layers at $\tau = 0.95$; on the rest the condition number $\kappa$ is large enough that $\tau'$ is close to one. The tolerance is not doing the work: repeating the ResNet-50 check at $10^{-4}$ and $10^{-8}$ gives 53 and 51 of 53 layers within the Ostrowski bounds (the two exceptions again have a retained singular value at the tolerance), the corollary holds on every layer at every $\tau$ at all three settings, and the median $\kappa$ is $10.6$ throughout; only its maximum moves. Twenty-four layers of the trained checkpoints have numerically null kernel directions (in ResNet-50 all six are in the stem and the first stage), and none of the random initialisation does: training empties some kernel directions outright, which the polar factor $W_{\circ}$ simply omits.
 
 We accumulated $\Sigma_{\rm patch}$ for every dense convolution of ten
 checkpoints on the subset ($n/d \ge 67$ throughout) and compared four
@@ -1300,9 +1375,62 @@ that in trained networks the input is not white but is full-rank, so
 orthogonalisation would raise the effective width by about $0.3$ of
 $r_{\max}$ rather than to the ceiling. That number is a prediction, made
 here with the kernels held at their trained values and the patches held
-fixed; a network trained with an orthogonality penalty changes both, and
-the comparison is registered in the released analysis plan (Section 9) and
-not yet run.
+fixed; a network trained with an orthogonality penalty changes both.
+
+\emph{The prediction, tested.} The released plan (its Section~9.2)
+registered the test before its data were seen. VGG-16 (BN) and the
+basic-block ResNet of Table~\ref{tab:round3} were trained on CIFAR-10 under
+the recipe of Section~\ref{sec:repro-garg} with no penalty, with the soft
+orthogonality penalty SO ($\|WW^{\top} - I\|_F^2$, $\lambda = 10^{-4}$) and
+with SRIP ($\lambda = 10^{-2}$), the strengths of Bansal \emph{et al.}
+\cite{bansal2018orthogonality}, three seeds each; for every dense
+convolution the measured $k^*(0.95)/r_{\max}$ of the penalised network is
+compared with the \emph{ortho} counterfactual of the unpenalised network of
+the same seed. Three outcomes were registered: P9.3, that the SO arm lands
+within $0.1$ of the counterfactual in the median over layers; P9.4, that
+SRIP does not (its minimisers need not be isometries
+\cite{massart2022orthogonal}); and P9.5, that the width gained bears no monotone
+relation to accuracy. Table~\ref{tab:ortho} gives the result.
+
+\begin{table*}[t]
+  \centering
+  \caption{Orthogonality penalties against the counterfactual
+  (pre-registered, plan Section~9.2): CIFAR-10, three seeds, medians over
+  seeds of per-network medians over the $L$ dense convolutions passing
+  $n/d \ge 50$. \emph{none}, \emph{penalised}: measured $k^*(0.95)/r_{\max}$;
+  \emph{predicted}: the \emph{ortho} counterfactual of the unpenalised
+  network; \emph{realised}: the fraction of the predicted gain obtained;
+  $\rho$(gain, pred.): Spearman across layers between the gain obtained and
+  the gain predicted; kernel erank: effective rank of $W$ over $r_{\max}$,
+  unpenalised $\to$ penalised. Generated by
+  \texttt{checkpoint\_analysis.py}.}
+  \label{tab:ortho}
+  \footnotesize
+  \input{table_ortho}
+\end{table*}
+
+P9.3 fails. Both penalties raise the level, from $0.35$--$0.36$ to
+$0.53$--$0.56$ under SO and $0.42$--$0.54$ under SRIP, which is half of the
+predicted gain (median fraction realised $0.50$ under SO, $0.24$ and $0.43$
+under SRIP), leaving the SO arm $0.15$--$0.17$ below the counterfactual of
+$0.71$--$0.73$. The shortfall has a visible cause. At these strengths the
+penalties do not make the kernels isometric: their effective rank rises
+from $0.53$--$0.56$ of $r_{\max}$ to $0.80$--$0.85$, and the counterfactual
+recomputed from the penalised kernels themselves is still $0.72$--$0.76$
+against their measured $0.42$--$0.56$, so the anisotropy that remains is
+aligned against the input as it was before. The alternative the plan named,
+that the penalty moves $\Sigma_{\rm patch}$, has no room at this threshold:
+the patch covariance is full-rank at the $95\%$ criterion in every arm.
+What the counterfactual does predict is the \emph{ordering} of the gains.
+Across the layers of the SO networks the gain obtained correlates with the
+gain predicted at $\rho = 0.72$ (ResNet, 41 layers) and $0.91$ (VGG-16, 8
+layers); across the SRIP networks it does not ($-0.14$ and $-0.19$), which is
+the form in which P9.4 holds. P9.5 holds as registered: over the twelve
+penalised runs accuracy moves by $-0.1$ to $+0.3$ points, uncorrelated with
+the width gained ($\rho = 0.15$). The counterfactual is therefore an upper
+bound that a soft penalty approaches by about half, in the right layers; the
+direct test, an exact isometry constraint such as ONI \cite{huang2020oni},
+was not run.
 
 % =========================================================================
 \section{Discussion}
@@ -1355,13 +1483,19 @@ What differs across architectures is how much of the profile is learned.
 For plain and basic-residual networks the ordering of layers is the
 architecture's and training adds a level; a method that sets widths from
 the architecture alone, or from the network at initialisation, would get
-the ordering right for those families. For bottleneck networks it would
-not: the trained ordering is uncorrelated with the initial one and the
-depth trend has the opposite sign, so any width chosen before training
-would be chosen against a profile the network will not have. The
-trajectory of Section~\ref{sec:learned} adds, for the plain case, that the
-profile settles well before accuracy does; whether the reordering in
-bottleneck networks is also early is the next measurement to make, and it is cheap.
+the ordering right for those families. For the ImageNet ResNet-50
+checkpoints it would not: their trained ordering is uncorrelated with the
+initial one and the depth trend has the opposite sign, so any width chosen
+before training would be chosen against a profile the network will not
+have. The controlled experiment of Section~\ref{sec:learned} says that
+this is not the bottleneck block's doing, since under one CIFAR-10 recipe
+the bottleneck network keeps as much of its initial ordering as the basic
+one; what a width chosen at initialisation is worth therefore depends on
+the training regime, not on the block, and the regime that produces the
+ImageNet reordering is not identified here. The trajectories add that the
+profile settles well before accuracy does in all four architectures
+measured, and that the ImageNet-like reversal of the depth trend appears
+in every CIFAR-10 network in its first epoch and is undone.
 
 What a width criterion should target follows from the same numbers. A criterion that reads $k^*(0.95)$ as ``the width in use'' would remove directions the classifier depends on (Section~\ref{sec:projection}); the functional count is nearer $k^*(0.999)$.
 A criterion must divide by the attainable rank, or it will report every
@@ -1370,7 +1504,9 @@ by regularisation is not a matter of pushing the kernel toward an isometry
 alone: Section~\ref{sec:decompose} shows the trained kernel's low-variance
 directions are aligned with the input's high-variance ones, so the
 prediction for orthogonalisation is a rise of about $0.3$ of $r_{\max}$,
-not a jump to the ceiling. A width-selection method built on this
+not a jump to the ceiling, and the penalties actually used realise half of
+that rise, in the layers the decomposition names, because they leave the
+kernel well short of an isometry. A width-selection method built on this
 statistic is a separate piece of work; what this paper fixes is the
 quantity it should optimise and the checks it must pass.
 
@@ -1414,8 +1550,10 @@ Six recipes and five seeds put a between-checkpoint spread beside every
 ResNet-50 number. The other families have one to six trained checkpoints and three seeds, enough for the ordering statistics of
 Table~\ref{tab:families} and not for any statement about one of their
 layers; VGG-16's two checkpoints are with and without batch normalisation,
-so its recipe agreement compares two architectures. The CIFAR-10 trajectory
-is one seed.
+so its recipe agreement compares two architectures. The VGG-16 trajectory
+is one seed; the controlled experiment and the penalty test have three
+seeds per arm, enough for their registered tests and not for layer-level
+statements.
 
 \emph{The pooled estimator is sample-limited for wide layers, ours included.}
 Under pooling $n$ is the image count, so no dataset smaller than $10^5$ images
@@ -1437,9 +1575,16 @@ literature on lottery tickets and on over-parameterised optimisation gives
 ample reason to keep those separate.
 
 \emph{Scope.} ImageNet classification only: no detection, no segmentation,
-and no transformer. The one other dataset, CIFAR-10, enters only through the
-validation gate and the trajectory, and the comparison between them
+and no transformer. The one other dataset, CIFAR-10, enters through the
+validation gate, the trajectories, the controlled block experiment and the
+penalty test, and the comparison between the two datasets
 (Section~\ref{sec:learned}) confounds class count with head depth. The
+controlled experiment shows that the block is not what makes the ImageNet
+ResNet-50 recipes reorder their layers, but it varies the block at CIFAR-10
+scale ($32 \times 32$ inputs, ten classes, 100 epochs) and so cannot say
+whether the ImageNet effect is the dataset's or the recipes'; the
+experiment that would, the same three architectures under one ImageNet
+recipe with several seeds, is the one this study could not afford. The
 pre-registered experiment that separates the two, varying head depth at
 fixed class count, was not run, and the terminal collapse reported on
 CIFAR-10 remains unexplained here. Arguments about the first convolutional
@@ -1448,7 +1593,7 @@ confounded by the observation of Bell and Sejnowski \cite{bell1997ica} that
 such layers learn filters resembling independent rather than principal
 components.
 
-\emph{The inverted-residual finding is about available checkpoints.} The MobileNetV3 checkpoints differ in pre-training data and training length as well as in optimiser, and the five same-dataset EfficientNet-B0 checkpoints, which agree only moderately, span three training frameworks; the weak agreement is not yet attributable to the block type.
+\emph{The inverted-residual finding is about available checkpoints.} The MobileNetV3 checkpoints differ in pre-training data and training length as well as in optimiser, and the five same-dataset EfficientNet-B0 checkpoints, which agree only moderately, span three training frameworks. The controlled MobileNetV2 (Table~\ref{tab:round3}) shows that the block does have a profile under one recipe, so the weak agreement is the recipes'; which ingredient of the recipes is not determined.
 
 % =========================================================================
 \section{Conclusion}
@@ -1460,8 +1605,8 @@ reports: normalising by nominal rather than attainable width caps every
 expansion layer at the expansion ratio and misreads bottleneck networks as
 underused, in all 14 networks that have such layers; estimating the covariance after global pooling lowers the value at 687 of 703 layers, and by more than the profile's own step in 18 of 19 networks; and reading the block output instead of
 the convolution output raises it by the expansion ratio in 161 of 161
-blocks. With those choices fixed and stated, the protocol reproduces the one published CIFAR-10 table it can be compared with ($r = 0.98$, two layers differing by $0.2$), and what training changes differs across the families measured: plain, basic-residual and dense networks largely keep the ordering the architecture gave them and gain a level; bottleneck networks learn an ordering uncorrelated
-with initialisation and reverse the trend with depth; inverted-residual checkpoints agree weakly or not at all. Measurement code, the eigenvalue
+blocks. With those choices fixed and stated, the protocol reproduces the one published CIFAR-10 table it can be compared with ($r = 0.98$, two layers differing by $0.2$), and what training changes differs across the families measured: plain, basic-residual and dense networks largely keep the ordering the architecture gave them and gain a level; the ImageNet bottleneck checkpoints learn an ordering uncorrelated
+with initialisation and reverse the trend with depth, but a controlled experiment registered in advance finds the block is not the cause; inverted-residual checkpoints agree weakly or not at all, and three seeds of one recipe agree almost perfectly, so that too is the recipes' doing. Measurement code, the eigenvalue
 spectra of every layer, and the analysis plan with its deviation log are
 released so that the next profile can be compared with these on stated
 terms.
@@ -1560,13 +1705,17 @@ rests on, whether it was pre-registered, and where the numbers are.
   Trained $\ne$ random (ResNet-50) & six recipes vs one draw, 45--50/53, $p \le 4 \times 10^{-8}$; level $0.23 \to 0.47$ vs step $0.09$ & expl. & Sec.~\ref{sec:learned} \\
   Plain/basic/dense families keep the architecture's ordering & T--R $0.61$--$0.75$ vs ceilings $0.79$--$0.98$, four families & expl. & Table~\ref{tab:families} \\
   Bottleneck families learn their ordering, as a gradient & T--R $-0.08$, $0.20$, $0.33$, $0.46$; within-stage $0.27$--$0.66$; ResNet-101 above ResNet-50 & expl. & Table~\ref{tab:families} \\
-  Block type is the cause & controlled CIFAR-10 experiment, same depth and recipe & pre-reg. (round 3) & pending \\
+  Block type is the cause & H9.1 \emph{not supported}: basic T--R $0.55$ vs bottleneck $0.50$, $p = 0.2$; level and depth trend of ImageNet ResNet-50 also absent & pre-reg. (round 3) & Table~\ref{tab:round3} \\
+  An inverted-residual network under one recipe has a profile & H9.2 supported: MobileNetV2 seeds T--T $0.99$--$1.00$ vs R--R $0.68$ & pre-reg. (round 3) & Table~\ref{tab:round3} \\
   Inverted-residual checkpoints agree weakly or not at all & T--T $-0.18$ (4 ckpts), $0.40$ (5 same-dataset ckpts) & expl. & Table~\ref{tab:families} \\
-  The profile settles before accuracy does (plain, CIFAR-10) & epoch 40: $\rho$ vs final $0.98$, accuracy $84 \to 94\%$; one seed & expl. & Fig.~\ref{fig:traj} \\
+  The profile settles before accuracy does (CIFAR-10) & VGG-16 epoch 40 ($\rho$ vs final $0.98$, accuracy $84 \to 94\%$, one seed); basic/bottleneck/MobileNetV2 epochs 60/40/40 at $84$--$88\%$, three seeds & expl. & Fig.~\ref{fig:traj}, Table~\ref{tab:round3} \\
   $k^*(0.999)$ bounds the width used (conventional recipes) & 6/8 checkpoints unchanged (McNemar); RSB recipes lose $1.7$ & expl. & Table~\ref{tab:projection} \\
   $\Sigma_{\rm out} = W \Sigma_{\rm patch} W^{\top}$ holds in the data & recomputed vs measured within $0.008$, five checkpoints & check & Sec.~\ref{sec:decompose} \\
   Training moves the bottleneck from data to kernel & random: follows data ($\rho = 0.94$); trained: follows kernel ($0.8$--$0.97$ in 6/9) & expl. & Table~\ref{tab:decompose}, Fig.~\ref{fig:decompose} \\
-  Orthogonalising a trained kernel would add $\approx 0.3\,r_{\max}$ & 401/412 layers, nine checkpoints; Proposition~\ref{prop:ostrowski} & prediction (pre-reg., round 3) & Table~\ref{tab:decompose}; test pending \\
+  Orthogonalising a trained kernel would add $\approx 0.3\,r_{\max}$ & 401/412 layers, nine checkpoints; Proposition~\ref{prop:ostrowski} & prediction & Table~\ref{tab:decompose} \\
+  Penalised networks reach the counterfactual & P9.3 \emph{not supported}: half the predicted gain (SO $0.50$, SRIP $0.24$--$0.43$); kernels not isometric (erank $0.80$--$0.85$) & pre-reg. (round 3) & Table~\ref{tab:ortho} \\
+  SO gains follow the predicted layer order, SRIP's do not & $\rho$(gain, pred.) $0.72$, $0.91$ vs $-0.14$, $-0.19$ (P9.4) & pre-reg. (round 3) & Table~\ref{tab:ortho} \\
+  Width gained is unrelated to accuracy & P9.5: 12 runs, $\rho = 0.15$, accuracy within $\pm 0.3$ points & pre-reg. (round 3) & Table~\ref{tab:ortho} \\
   Propositions~\ref{prop:ostrowski}--\ref{prop:depth} hold on the data & Ostrowski 464/465, corollary 465/465 & check & Sec.~\ref{sec:decompose} \\
   \bottomrule
   \end{tabular}

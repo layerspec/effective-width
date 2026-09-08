@@ -1,7 +1,3 @@
-/opt/homebrew/lib/python3.14/site-packages/numpy/_core/fromnumeric.py:3824: RuntimeWarning: Mean of empty slice
-  return _methods._mean(a, axis=axis, dtype=dtype,
-/opt/homebrew/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
-  ret = ret.dtype.type(ret / rcount)
 loaded 22 layer tables from ../results
 duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
 
@@ -58,6 +54,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     layer4.0    2048     1.07     1.07  0.998
     layer4.1    2048     1.06     1.06  1.000
     layer4.2    2048     1.06     1.06  0.996
+  wrote ../paper/table_models.tex
 
 ========================================================================
 1. r_max as the denominator, on every checkpoint
@@ -257,6 +254,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       (DenseNet-121's jitter is the 1x1/3x3 alternation of its dense
        layers, which is structural; its ratio is below 1 with either
        denominator and is reported as such)
+  wrote ../paper/table_pooling.tex
 
 ========================================================================
 3b. Layers whose k*(.95)/C had not flattened at n/C = 250 (|delta| > 0.02)
@@ -470,6 +468,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   look at its per-checkpoint levels before saying anything about it.
   VGG-16's two checkpoints are with and without BN, so its T-T compares
   two architectures.
+  wrote ../paper/table_families.tex
 
 ========================================================================
 9. When does the profile become the trained one?  CIFAR-10 trajectories
@@ -630,6 +629,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     vgg16_bn                                 0.95  3200      690       84   -18.94 2.91e-119
     vgg16_bn                                 0.99  3200      107       57    -1.56  1.16e-04
     vgg16_bn                                0.999  3200       16       13    -0.09  7.11e-01
+  wrote ../paper/table_projection.tex
 
 ========================================================================
 10b. The projection read as a rank-k factorisation: conv FLOPs kept, per tau
@@ -701,18 +701,80 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   kernel spectrum alone; 'ortho' is the analytic prediction for orthogonalising
   the kernel with the data held fixed, to be tested against trained-with-
   orthogonality-penalty networks (submission bar A5).
+  wrote ../paper/table_decompose.tex
 
 ========================================================================
 12. Round 3, controlled block type on CIFAR-10 (analysis-plan 9.1)
 ========================================================================
-  same recipe, same dataset, same conv count for basic vs bottleneck; k*(0.95)/r_max
-    group                  seeds     R-R    T-T    T-R                    T-R per seed     acc
-    basic (52 conv)            3   +0.92  +0.98  +0.54               +0.56 +0.54 +0.47   95.45
-    bottleneck (53 conv)       3   +0.94  +0.99  +0.50               +0.40 +0.50 +0.52   95.50
-    mobilenetv2 (CIFAR)        3   +0.85  +0.99  +0.56               +0.56 +0.48 +0.69   93.16
+  same recipe, same dataset, same conv count for basic vs bottleneck; k*(0.95)/r_max, dense conv
+    group                  seeds     R-R    T-T    T-R    T-R range T-R_stage    level R->T  rho_depth R->T  settle     acc
+    basic (52 conv)            3   +0.92  +0.98  +0.55 +0.46..+0.57     +0.50   0.21 -> 0.32   -0.90 -> -0.43      60   95.45
+                           T-R same seed: +0.56 +0.54 +0.47;  settle per seed: [60, 60, 60];  rho_depth final per seed: -0.42 -0.43 -0.43
+                           L = 52 dense conv; per-epoch medians over seeds:
+                           epoch   acc%  level rho(depth) rho vs init rho vs final
+                               0  10.00  0.224      -0.90       +1.00        +0.54
+                               1  51.34  0.633      +0.69       -0.50        +0.08
+                               2  62.59  0.635      +0.40       -0.17        +0.41
+                               3  65.22  0.634      +0.07       +0.17        +0.60
+                               5  76.40  0.609      -0.28       +0.50        +0.67
+                               7  79.69  0.566      -0.31       +0.54        +0.66
+                              10  82.29  0.500      -0.46       +0.67        +0.66
+                              15  82.75  0.352      -0.72       +0.89        +0.65
+                              20  84.53  0.289      -0.78       +0.90        +0.69
+                              30  85.54  0.281      -0.70       +0.83        +0.83
+                              40  86.51  0.289      -0.63       +0.76        +0.89
+                              50  87.15  0.289      -0.58       +0.71        +0.93
+                              60  88.02  0.297      -0.53       +0.66        +0.96
+                              70  89.68  0.297      -0.50       +0.60        +0.98
+                              80  92.26  0.297      -0.46       +0.58        +0.99
+                              90  94.45  0.312      -0.43       +0.54        +1.00
+                             100  95.47  0.316      -0.43       +0.54        +1.00
+    bottleneck (53 conv)       3   +0.94  +0.99  +0.50 +0.38..+0.54     +0.25   0.20 -> 0.16   -0.78 -> -0.21      40   95.50
+                           T-R same seed: +0.40 +0.50 +0.52;  settle per seed: [40, 40, 30];  rho_depth final per seed: -0.21 -0.21 -0.21
+                           L = 53 dense conv; per-epoch medians over seeds:
+                           epoch   acc%  level rho(depth) rho vs init rho vs final
+                               0  10.00  0.199      -0.78       +1.00        +0.50
+                               1  46.37  0.367      +0.86       -0.50        +0.17
+                               2  53.13  0.424      +0.52       -0.18        +0.40
+                               3  60.21  0.367      -0.03       +0.47        +0.43
+                               5  70.83  0.398      -0.44       +0.87        +0.61
+                               7  75.35  0.459      -0.13       +0.42        +0.75
+                              10  76.49  0.406      +0.09       +0.24        +0.75
+                              15  81.70  0.297      -0.05       +0.40        +0.78
+                              20  81.19  0.227      -0.30       +0.60        +0.90
+                              30  78.70  0.156      -0.40       +0.65        +0.94
+                              40  83.74  0.141      -0.39       +0.62        +0.96
+                              50  86.23  0.145      -0.36       +0.60        +0.97
+                              60  87.35  0.148      -0.34       +0.60        +0.97
+                              70  87.85  0.148      -0.30       +0.56        +0.99
+                              80  90.64  0.152      -0.27       +0.54        +0.99
+                              90  94.33  0.160      -0.21       +0.50        +1.00
+                             100  95.53  0.164      -0.21       +0.50        +1.00
+    MobileNetV2 (CIFAR)        3   +0.68  +1.00  +0.44 +0.39..+0.67      +nan   0.39 -> 0.28   -0.13 -> -0.76      40   93.16
+                           T-R same seed: +0.42 +0.40 +0.66;  settle per seed: [40, 40, 40];  rho_depth final per seed: -0.76 -0.76 -0.75
+                           L = 35 dense conv; per-epoch medians over seeds:
+                           epoch   acc%  level rho(depth) rho vs init rho vs final
+                               0   9.78  0.375      -0.13       +1.00        +0.42
+                               1  45.01  0.667      +0.43       +0.47        +0.10
+                               2  54.88  0.635      +0.23       +0.56        +0.29
+                               3  61.19  0.625      +0.09       +0.67        +0.44
+                               5  72.91  0.581      -0.01       +0.72        +0.49
+                               7  77.05  0.550      -0.07       +0.77        +0.48
+                              10  80.42  0.500      -0.14       +0.81        +0.56
+                              15  81.37  0.406      -0.28       +0.83        +0.65
+                              20  82.65  0.375      -0.35       +0.79        +0.71
+                              30  79.27  0.312      -0.67       +0.58        +0.94
+                              40  82.12  0.266      -0.73       +0.44        +0.98
+                              50  82.40  0.250      -0.76       +0.42        +0.99
+                              60  82.68  0.250      -0.78       +0.39        +0.99
+                              70  83.39  0.250      -0.77       +0.40        +0.99
+                              80  88.39  0.266      -0.77       +0.40        +0.99
+                              90  91.76  0.281      -0.76       +0.42        +1.00
+                             100  93.12  0.281      -0.76       +0.42        +1.00
 
   H9.1 (bottleneck T-R below basic T-R): max bottleneck +0.52 vs min basic +0.47; Mann-Whitney one-sided p = 0.2  -> NOT supported
-  H9.2 (MobileNetV2 seeds share a profile, T-T >= 0.7): pairwise ['+0.99', '+1.00', '+0.99'] -> SUPPORTED
+  H9.2 (MobileNetV2 seeds share a profile, T-T >= 0.7): pairwise ['+0.99', '+1.00', '+1.00'] -> SUPPORTED
+  wrote ../paper/table_round3.tex
 
 ========================================================================
 13. Round 3, orthogonality penalties vs the analytic prediction (analysis-plan 9.2)
@@ -720,21 +782,24 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   For each penalty arm (so, srip), per layer: measured k*(0.95)/r_max of the
   penalised network vs the 'ortho' counterfactual of the matching no-penalty
   network (same arch, same seed).  P9.3: median |diff| < 0.1 for SO; P9.4: SRIP does not.
-    arch      arm   seed   L  med|out-pred| med(out-pred)  med gain vs none  kernel erank/rmax
-    basic52   so       0  41          0.172        -0.172            +0.172              0.845
-    basic52   so       1  41          0.168        -0.168            +0.180              0.837
-    basic52   so       2  41          0.180        -0.180            +0.160              0.835
-    basic52   srip     0  41          0.172        -0.172            +0.148              0.832
-    basic52   srip     1  41          0.180        -0.180            +0.148              0.812
-    basic52   srip     2  41          0.164        -0.164            +0.172              0.830
-    vgg16_bn  so       0   8          0.154        -0.154            +0.156              0.849
-    vgg16_bn  so       1   8          0.154        -0.154            +0.158              0.849
-    vgg16_bn  so       2   8          0.156        -0.156            +0.145              0.848
-    vgg16_bn  srip     0   8          0.217        -0.217            +0.076              0.797
-    vgg16_bn  srip     1   8          0.217        -0.217            +0.080              0.797
-    vgg16_bn  srip     2   8          0.219        -0.219            +0.074              0.795
+    arch      arm   seed   L  out none out pen   pred  |out-pred|   gain pred gain rho(gain,pred)  ortho pen  kernel erank n->p  data erank n->p  data k*.999 n->p  out.999 n->p->pred       acc n->p
+    basic52   so       0  41     0.359   0.562  0.734       0.172 +0.172    +0.344          +0.75      0.758     0.534 -> 0.845   1.000 -> 1.000   1.000 -> 1.000  0.891 -> 0.977 -> 0.996  95.33 -> 95.39
+    basic52   so       1  41     0.359   0.562  0.734       0.168 +0.180    +0.359          +0.68      0.758     0.525 -> 0.837   1.000 -> 1.000   1.000 -> 1.000  0.895 -> 0.977 -> 0.996  95.55 -> 95.51
+    basic52   so       2  41     0.375   0.547  0.742       0.180 +0.160    +0.359          +0.72      0.750     0.529 -> 0.835   1.000 -> 1.000   1.000 -> 1.000  0.895 -> 0.977 -> 0.996  95.47 -> 95.40
+    basic52   srip     0  41     0.359   0.531  0.734       0.172 +0.148    +0.344          -0.14      0.758     0.534 -> 0.832   1.000 -> 1.000   1.000 -> 1.000  0.891 -> 0.980 -> 0.996  95.33 -> 95.37
+    basic52   srip     1  41     0.359   0.539  0.734       0.180 +0.148    +0.359          -0.14      0.758     0.525 -> 0.812   1.000 -> 1.000   1.000 -> 1.000  0.895 -> 0.980 -> 0.996  95.55 -> 95.57
+    basic52   srip     2  41     0.375   0.547  0.742       0.164 +0.172    +0.359          -0.06      0.754     0.529 -> 0.830   1.000 -> 1.000   1.000 -> 1.000  0.895 -> 0.984 -> 0.996  95.47 -> 95.40
+    vgg16_bn  so       0   8     0.356   0.525  0.714       0.154 +0.156    +0.312          +0.91      0.733     0.555 -> 0.849   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.976 -> 0.993  93.83 -> 94.14
+    vgg16_bn  so       1   8     0.342   0.526  0.715       0.154 +0.158    +0.314          +0.81      0.734     0.556 -> 0.849   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.976 -> 0.993  93.74 -> 93.87
+    vgg16_bn  so       2   8     0.350   0.526  0.713       0.156 +0.145    +0.309          +0.93      0.730     0.563 -> 0.848   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.976 -> 0.993  93.74 -> 93.74
+    vgg16_bn  srip     0   8     0.356   0.418  0.714       0.217 +0.076    +0.312          -0.20      0.719     0.555 -> 0.797   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.952 -> 0.993  93.83 -> 93.90
+    vgg16_bn  srip     1   8     0.342   0.424  0.715       0.217 +0.080    +0.314          -0.19      0.719     0.556 -> 0.797   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.952 -> 0.993  93.74 -> 93.66
+    vgg16_bn  srip     2   8     0.350   0.418  0.713       0.219 +0.074    +0.309          -0.06      0.722     0.563 -> 0.795   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.951 -> 0.993  93.74 -> 93.64
   SO: median |out - prediction| over arms = 0.162  -> not within 0.1
   SRIP: median |out - prediction| over arms = 0.198  -> not within 0.1
+  P9.5 (gain vs accuracy change, 12 runs): Spearman rho = +0.15; accuracy change -0.10..+0.31 points  -> no monotone relation (|rho| < 0.5)
+  Fraction of the predicted gain realised, median over runs: 0.46 (range 0.24..0.50)
+  wrote ../paper/table_ortho.tex
 
 ========================================================================
 15. Ablations of the protocol on ResNet-50 V1 (A11-A15): k*(0.95)/r_max profile vs the reference run
@@ -760,3 +825,4 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       vs ImageNet ResNet-50 on the same COCO images: rho +0.92, levels 0.406 (cls) / 0.289 (det)
     Mask R-CNN R50-FPN backbone, COCO-trained  49       +0.91     0.062     0.205   0.309     0.406
       vs ImageNet ResNet-50 on the same COCO images: rho +0.92, levels 0.406 (cls) / 0.309 (det)
+  wrote ../paper/table_ablation.tex

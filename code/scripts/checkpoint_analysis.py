@@ -929,6 +929,8 @@ def _load_trajectory(path: str):
     # trajectory_cifar.py writes the raw metric rows; derive the gate and the
     # r_max-normalised statistic here exactly as run.py does.
     d = d[(d.kind == "conv") & (d.n_over_C >= 50)].copy()
+    if "is_depthwise" in d:                      # rule 5: depthwise layers are a different object
+        d = d[~d.is_depthwise.astype(bool)]
     d["k_star_rmax_0.95"] = d["k_star_0.95"] / d["r_max"]
     epochs = sorted(d.epoch.unique())
     P = {e: d[d.epoch == e].sort_values("depth_index")["k_star_rmax_0.95"].to_numpy() for e in epochs}
@@ -1180,55 +1182,113 @@ def section_decompose(results: str, latex: str | None = None) -> None:
 # --------------------------- section 12: round 3 (controlled block experiment)
 
 def _final_profiles(results: str, prefix: str):
-    """{seed: (init profile, final profile)} for results/round3/<prefix>_s<seed>/."""
+    """{seed: dict(init, final, acc, layers, settle, rho_depth_init, rho_depth_final)}
+    for results/round3/<prefix>_s<seed>/ (finished runs only)."""
     out = {}
     for path in sorted(glob.glob(os.path.join(results, "round3", f"{prefix}_s*", "trajectory_layers.csv"))):
         seed = os.path.basename(os.path.dirname(path)).rsplit("_s", 1)[1]
         epochs, P, acc, layers = _load_trajectory(path)
         if epochs[-1] < 100:
             continue
-        out[seed] = (P[epochs[0]], P[epochs[-1]], acc[epochs[-1]], layers)
+        init, final = P[epochs[0]], P[epochs[-1]]
+        depth = np.arange(len(final))
+        out[seed] = dict(init=init, final=final, acc=acc[epochs[-1]], layers=layers, epochs=epochs, P=P, accs=acc,
+                         settle=next((e for e in epochs if _rho(final, P[e]) >= 0.95), None),
+                         rho_depth_init=_rho(depth, init), rho_depth_final=_rho(depth, final))
     return out
 
 
-def section_round3(results: str) -> None:
-    fams = {"basic52": ("a2_basic52", "trajectory_resnet50"), }
+def section_round3(results: str, latex: str | None = None) -> None:
     groups = {"basic (52 conv)": _final_profiles(results, "a2_basic52"),
-              "bottleneck (53 conv)": {**_final_profiles(results, "trajectory_resnet50"),
-                                       **_final_profiles(results, "a2_bottleneck")},
-              "mobilenetv2 (CIFAR)": _final_profiles(results, "a2_mobilenetv2")}
+              "bottleneck (53 conv)": _final_profiles(results, "a2_bottleneck"),
+              "MobileNetV2 (CIFAR)": _final_profiles(results, "a2_mobilenetv2")}
+    labels = {"basic (52 conv)": "basic $[6,6,6,6]$ & 52",
+              "bottleneck (53 conv)": "bottleneck $[3,4,6,3]$ & 53",
+              "MobileNetV2 (CIFAR)": "MobileNetV2 & 35"}
     if not any(groups.values()):
         return
     hdr("12. Round 3, controlled block type on CIFAR-10 (analysis-plan 9.1)")
-    print("  same recipe, same dataset, same conv count for basic vs bottleneck; k*(0.95)/r_max")
-    print(f"    {'group':22s} {'seeds':>5s}  {'R-R':>6s} {'T-T':>6s} {'T-R':>6s}  {'T-R per seed':>30s}  {'acc':>6s}")
-    tr_by_group = {}
+    print("  same recipe, same dataset, same conv count for basic vs bottleneck; k*(0.95)/r_max, dense conv")
+    print(f"    {'group':22s} {'seeds':>5s}  {'R-R':>6s} {'T-T':>6s} {'T-R':>6s} {'T-R range':>12s} {'T-R_stage':>9s}  "
+          f"{'level R->T':>12s}  {'rho_depth R->T':>14s}  {'settle':>6s}  {'acc':>6s}")
+    tr_by_group, latex_rows = {}, []
     for name, runs in groups.items():
         if not runs:
             print(f"    {name:22s} (no finished runs)"); continue
-        inits = [v[0] for v in runs.values()]; finals = [v[1] for v in runs.values()]
+        inits = [v["init"] for v in runs.values()]; finals = [v["final"] for v in runs.values()]
         rr = [_rho(a, b) for a, b in itertools.combinations(inits, 2)]
         tt = [_rho(a, b) for a, b in itertools.combinations(finals, 2)]
-        tr = [_rho(v[0], v[1]) for v in runs.values()]
-        tr_by_group[name] = tr
+        tr = [_rho(a, b) for a in finals for b in inits]          # all trained x random pairs, as in Table families
+        tr_same = [_rho(v["init"], v["final"]) for v in runs.values()]
+        tr_by_group[name] = tr_same
+        layers = next(iter(runs.values()))["layers"]
+        Rst = _stage_ranks(np.column_stack(inits + finals), layers)
+        if Rst is not None:
+            n = len(inits)
+            trs = [_rho(Rst[:, n + i], Rst[:, j]) for i in range(n) for j in range(n)]
+            trs_med = float(np.median(trs))
+        else:
+            trs_med = float("nan")
+        lvl_r, lvl_t = float(np.median(np.concatenate(inits))), float(np.median(np.concatenate(finals)))
+        rd_r = float(np.median([v["rho_depth_init"] for v in runs.values()]))
+        rd_t = float(np.median([v["rho_depth_final"] for v in runs.values()]))
+        settles = [v["settle"] for v in runs.values() if v["settle"] is not None]
+        settle = float(np.median(settles)) if settles else float("nan")
+        acc = float(np.mean([v["acc"] for v in runs.values()]))
         fmt = lambda v: f"{np.median(v):+6.2f}" if v else "   n/a"
-        print(f"    {name:22s} {len(runs):5d}  {fmt(rr)} {fmt(tt)} {fmt(tr)}  "
-              f"{' '.join(f'{x:+.2f}' for x in tr):>30s}  {np.mean([v[2] for v in runs.values()]):6.2f}")
+        print(f"    {name:22s} {len(runs):5d}  {fmt(rr)} {fmt(tt)} {fmt(tr)} {min(tr):+5.2f}..{max(tr):+5.2f} "
+              f"{trs_med:+9.2f}  {lvl_r:5.2f} -> {lvl_t:4.2f}  {rd_r:+6.2f} -> {rd_t:+5.2f}  {settle:6.0f}  {acc:6.2f}")
+        print(f"    {'':22s} T-R same seed: {' '.join(f'{x:+.2f}' for x in tr_same)};  "
+              f"settle per seed: {[int(v['settle']) for v in runs.values() if v['settle'] is not None]};  "
+              f"rho_depth final per seed: {' '.join(f'{v["rho_depth_final"]:+.2f}' for v in runs.values())}")
+        ep = next(iter(runs.values()))["epochs"]
+        print(f"    {'':22s} L = {len(layers)} dense conv; per-epoch medians over seeds:")
+        print(f"    {'':22s} {'epoch':>5s} {'acc%':>6s} {'level':>6s} {'rho(depth)':>10s} {'rho vs init':>11s} {'rho vs final':>12s}")
+        for e in ep:
+            vals = [v["P"][e] for v in runs.values() if e in v["P"]]
+            print(f"    {'':22s} {e:5d} {np.median([v['accs'][e] for v in runs.values()]):6.2f} "
+                  f"{np.median([np.median(x) for x in vals]):6.3f} "
+                  f"{np.median([_rho(np.arange(len(x)), x) for x in vals]):+10.2f} "
+                  f"{np.median([_rho(v['init'], v['P'][e]) for v in runs.values()]):+11.2f} "
+                  f"{np.median([_rho(v['final'], v['P'][e]) for v in runs.values()]):+12.2f}")
+        latex_rows.append((labels[name], len(runs), np.median(rr), np.median(tt), np.median(tr), min(tr), max(tr),
+                           trs_med, lvl_r, lvl_t, rd_r, rd_t, settle, acc))
     b, t = tr_by_group.get("basic (52 conv)"), tr_by_group.get("bottleneck (53 conv)")
     if b and t:
         p = mannwhitneyu(t, b, alternative="less").pvalue if len(b) > 1 and len(t) > 1 else float("nan")
         print(f"\n  H9.1 (bottleneck T-R below basic T-R): max bottleneck {max(t):+.2f} vs min basic {min(b):+.2f}; "
               f"Mann-Whitney one-sided p = {p:.3g}  -> {'SUPPORTED' if max(t) < min(b) or p < 0.01 else 'NOT supported'}")
-    m = groups["mobilenetv2 (CIFAR)"]
+    m = groups["MobileNetV2 (CIFAR)"]
     if len(m) >= 2:
-        tt = [_rho(a[1], b[1]) for a, b in itertools.combinations(m.values(), 2)]
+        tt = [_rho(a["final"], b["final"]) for a, b in itertools.combinations(m.values(), 2)]
         print(f"  H9.2 (MobileNetV2 seeds share a profile, T-T >= 0.7): pairwise {[f'{x:+.2f}' for x in tt]} "
               f"-> {'SUPPORTED' if min(tt) >= 0.7 else 'NOT supported'}")
+    if latex and latex_rows:
+        out = ["% Generated by scripts/checkpoint_analysis.py --latex-round3.  Do not edit by hand.",
+               "\\begin{tabular}{lrrrrrrrrrr}", "\\toprule",
+               "Block & $L$ & $n$ & R--R & T--T & T--R (range) & T--R$_{\\rm stage}$ & level $R \\to T$ & $\\rho_{\\rm depth}$ $R \\to T$ & settle & acc. \\\\",
+               "\\midrule"]
+        for lab, n, rr, tt, tr, lo, hi, trs, lr, lt, rdr, rdt, st, acc in latex_rows:
+            trs_s = "--" if np.isnan(trs) else f"{trs:+.2f}"
+            out.append(f"{lab} & {n} & {rr:+.2f} & {tt:+.2f} & {tr:+.2f} ({lo:+.2f}, {hi:+.2f}) & {trs_s} & "
+                       f"{lr:.2f} $\\to$ {lt:.2f} & {rdr:+.2f} $\\to$ {rdt:+.2f} & {st:.0f} & {acc:.1f} \\\\")
+        out += ["\\bottomrule", "\\end{tabular}"]
+        with open(latex, "w") as fh:
+            fh.write("\n".join(out) + "\n")
+        print(f"  wrote {latex}")
 
 
 # ------------------- section 13: round 3, orthogonality intervention (A5)
 
-def section_round3_ortho(results: str) -> None:
+def _run_acc(results: str, run: str) -> float:
+    path = os.path.join(results, "round3", run, "trajectory_layers.csv")
+    if not os.path.exists(path):
+        return float("nan")
+    epochs, _, acc, _ = _load_trajectory(path)
+    return acc[epochs[-1]]
+
+
+def section_round3_ortho(results: str, latex: str | None = None) -> None:
     d = os.path.join(results, "round3_decompose")
     files = glob.glob(os.path.join(d, "a5_*_decompose.csv"))
     if not files:
@@ -1253,16 +1313,62 @@ def section_round3_ortho(results: str) -> None:
         P = P[P.n_over_d_pen >= 50]
         diff = (P["out_0.95_pen"] - P["ortho_0.95_none"]).to_numpy()
         gain = (P["out_0.95_pen"] - P["out_0.95_none"]).to_numpy()
-        rows.append((arch, o, k, len(P), float(np.median(np.abs(diff))), float(np.median(diff)),
-                     float(np.median(gain)), float(np.median(P["kernel_erank_over_rmax_pen"]))))
-    print(f"    {'arch':9s} {'arm':5s} {'seed':>4s} {'L':>3s}  {'med|out-pred|':>13s} {'med(out-pred)':>13s}  {'med gain vs none':>16s}  {'kernel erank/rmax':>17s}")
-    for arch, o, k, L, mad, md, g, ke in rows:
-        print(f"    {arch:9s} {o:5s} {k:>4s} {L:3d}  {mad:13.3f} {md:+13.3f}  {g:+16.3f}  {ke:17.3f}")
+        pred_gain = (P["ortho_0.95_none"] - P["out_0.95_none"]).to_numpy()
+        rows.append(dict(arch=arch, arm=o, seed=k, L=len(P),
+                         mad=float(np.median(np.abs(diff))), md=float(np.median(diff)),
+                         gain=float(np.median(gain)), pred_gain=float(np.median(pred_gain)),
+                         out_none=float(np.median(P["out_0.95_none"])), out_pen=float(np.median(P["out_0.95_pen"])),
+                         pred=float(np.median(P["ortho_0.95_none"])), ortho_pen=float(np.median(P["ortho_0.95_pen"])),
+                         ker_none=float(np.median(P["kernel_erank_over_rmax_none"])),
+                         ker_pen=float(np.median(P["kernel_erank_over_rmax_pen"])),
+                         data_none=float(np.median(P["data_erank_over_rmax_none"])),
+                         data_pen=float(np.median(P["data_erank_over_rmax_pen"])),
+                         kdata_none=float(np.median(P["data_0.999_none"])), kdata_pen=float(np.median(P["data_0.999_pen"])),
+                         out999_none=float(np.median(P["out_0.999_none"])), out999_pen=float(np.median(P["out_0.999_pen"])),
+                         pred999=float(np.median(P["ortho_0.999_none"])),
+                         rho_gain=_rho(gain, pred_gain),
+                         acc_none=_run_acc(results, none_of[arch][k]), acc_pen=_run_acc(results, run)))
+    print(f"    {'arch':9s} {'arm':5s} {'seed':>4s} {'L':>3s}  {'out none':>8s} {'out pen':>7s} {'pred':>6s}  "
+          f"{'|out-pred|':>10s} {'gain':>6s} {'pred gain':>9s} {'rho(gain,pred)':>14s}  "
+          f"{'ortho pen':>9s}  {'kernel erank n->p':>17s}  {'data erank n->p':>15s}  {'data k*.999 n->p':>16s}  {'out.999 n->p->pred':>18s}  {'acc n->p':>13s}")
+    for r in rows:
+        print(f"    {r['arch']:9s} {r['arm']:5s} {r['seed']:>4s} {r['L']:3d}  {r['out_none']:8.3f} {r['out_pen']:7.3f} {r['pred']:6.3f}  "
+              f"{r['mad']:10.3f} {r['gain']:+6.3f} {r['pred_gain']:+9.3f} {r['rho_gain']:+14.2f}  "
+              f"{r['ortho_pen']:9.3f}  {r['ker_none']:8.3f} -> {r['ker_pen']:5.3f}  {r['data_none']:6.3f} -> {r['data_pen']:5.3f}  "
+              f"{r['kdata_none']:6.3f} -> {r['kdata_pen']:5.3f}  {r['out999_none']:5.3f} -> {r['out999_pen']:5.3f} -> {r['pred999']:5.3f}  "
+              f"{r['acc_none']:5.2f} -> {r['acc_pen']:5.2f}")
     for o in ("so", "srip"):
-        v = [r[4] for r in rows if r[1] == o]
+        v = [r["mad"] for r in rows if r["arm"] == o]
         if v:
             print(f"  {o.upper()}: median |out - prediction| over arms = {np.median(v):.3f}  -> "
                   f"{'within 0.1 (prediction holds)' if np.median(v) < 0.1 else 'not within 0.1'}")
+    if len(rows) >= 4:
+        g = [r["gain"] for r in rows]; da = [r["acc_pen"] - r["acc_none"] for r in rows]
+        print(f"  P9.5 (gain vs accuracy change, {len(rows)} runs): Spearman rho = {_rho(g, da):+.2f}; "
+              f"accuracy change {min(da):+.2f}..{max(da):+.2f} points  -> {'no monotone relation (|rho| < 0.5)' if abs(_rho(g, da)) < 0.5 else 'monotone relation'}")
+        fr = [r["gain"] / r["pred_gain"] for r in rows if r["pred_gain"] > 0]
+        print(f"  Fraction of the predicted gain realised, median over runs: {np.median(fr):.2f} (range {min(fr):.2f}..{max(fr):.2f})")
+    if latex and rows:
+        out = ["% Generated by scripts/checkpoint_analysis.py --latex-ortho.  Do not edit by hand.",
+               "\\begin{tabular}{llrrrrrrrr}", "\\toprule",
+               "Network & penalty & $L$ & none & pen. & pred. & realised & $\\rho$(gain, pred.) & kernel erank & acc. \\\\",
+               "\\midrule"]
+        names = {"vgg16_bn": "VGG-16 (BN)", "basic52": "basic $[6,6,6,6]$"}
+        arms = {"so": "SO", "srip": "SRIP"}
+        for arch in ("vgg16_bn", "basic52"):
+            for o in ("so", "srip"):
+                R = [r for r in rows if r["arch"] == arch and r["arm"] == o]
+                if not R:
+                    continue
+                med = lambda key: float(np.median([r[key] for r in R]))
+                frac = float(np.median([r["gain"] / r["pred_gain"] for r in R]))
+                out.append(f"{names[arch]} & {arms[o]} & {R[0]['L']} & {med('out_none'):.2f} & {med('out_pen'):.2f} & {med('pred'):.2f} & "
+                           f"{frac:.2f} & {med('rho_gain'):+.2f} & {med('ker_none'):.2f} $\\to$ {med('ker_pen'):.2f} & "
+                           f"{med('acc_none'):.1f} $\\to$ {med('acc_pen'):.1f} \\\\")
+        out += ["\\bottomrule", "\\end{tabular}"]
+        with open(latex, "w") as fh:
+            fh.write("\n".join(out) + "\n")
+        print(f"  wrote {latex}")
 
 
 import re  # noqa: E402  (used by section_round3_ortho)
@@ -1374,6 +1480,8 @@ def main(argv=None) -> int:
     p.add_argument("--latex-projection", default=None, help="write the section-10 projection table here")
     p.add_argument("--latex-decompose", default=None, help="write the section-11 decomposition table here")
     p.add_argument("--latex-ablation", default=None, help="write the section-15 ablation table here")
+    p.add_argument("--latex-round3", default=None, help="write the section-12 controlled-block table here")
+    p.add_argument("--latex-ortho", default=None, help="write the section-13 orthogonality table here")
     a = p.parse_args(argv)
     layers = load_all(a.results)
     layers = {m: df for m, df in layers.items()
@@ -1397,8 +1505,8 @@ def main(argv=None) -> int:
     section_projection(a.results, latex=a.latex_projection)
     section_projection_flops(a.results, layers)
     section_decompose(a.results, latex=a.latex_decompose)
-    section_round3(a.results)
-    section_round3_ortho(a.results)
+    section_round3(a.results, latex=a.latex_round3)
+    section_round3_ortho(a.results, latex=a.latex_ortho)
     section_ablations(a.results, latex=a.latex_ablation)
     return 0
 

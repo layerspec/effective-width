@@ -44,6 +44,13 @@ r_max 分母 14/14 模型成立；池化壓低 687/703；block 輸出超過 conv
 161/161；Garg 關卡 r=0.981 通過；trained≠random 只在 ResNet-50 成立，ConvNeXt
 分開 depthwise 後不顯著。數字由 `code/scripts/checkpoint_analysis.py` 產生。
 
+### 第三輪結果（2026-09-08 pod 跑、2026-09-09 判定；詳見 `notes/analysis-plan.md` §10）
+
+- A2 受控 block 實驗：**H9.1 不成立**（basic T-R 0.55、bottleneck 0.50、MobileNetV2 0.44，p=0.2）。block 不是 ImageNet ResNet-50 重排的原因；歸因改為資料集或 ImageNet 配方。H9.2 成立（MobileNetV2 三種子 T-T 0.99）。
+- A5 正交介入：**P9.3 不成立**，實現預測增益一半（核 erank 只到 0.80–0.85）；SO 的逐層增益排序命中預測（ρ 0.72／0.91），SRIP 不命中（P9.4）；P9.5 成立。
+- 論文 §V.J、§V-L、§VI-E、摘要、§I、結論、附錄 B 已依預登記後果改寫；新表 Table round3、Table ortho 由 `make analysis` 生成。PDF 22 頁。
+- 24 個最終權重備份在 `results/round3_pt/`（2.1 GB，不進 git）。
+
 ### 下一步
 
 0. ~~查證 r_max 的文獻新穎性~~ —— 已查（2026-09-03），見 `notes/rmax-novelty-2026-09-03.md`
