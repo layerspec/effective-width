@@ -196,10 +196,7 @@ principal components at a $90\%$ variance criterion---one to two orders of
 magnitude apart. They state explicitly that their findings cannot be recovered
 by linear estimates such as PCA.
 
-Everything measured in this paper is linear: every quantity we report is a
-function of the eigenvalues of a channel-space covariance matrix. We make no
-claim about manifold dimension, and where prior results are cited we name the
-quantity rather than the word.
+Everything measured in this paper is linear: every quantity we report is a function of the eigenvalues of a channel-space covariance matrix. We make no claim about manifold dimension, and where prior results are cited we name the quantity rather than the word. The linear count is nonetheless the right object for the question of width, for a reason that does not depend on the geometry of the representation: the consumer of a layer's output is the next convolution, which is linear in its input patch, and what a linear map can use of its input is exactly the linear span of that input. A layer whose output covariance has rank $k$ presents $k$ directions to the next kernel whatever the curvature of the manifold those directions carry, so the number of channels the next layer needs is a statement about the linear span, and the manifold dimension is a statement about what the network has encoded within it. Section~\ref{sec:projection} makes the first statement operational: the directions beyond the counted ones can be removed at inference without loss.
 
 \subsection{Depth profiles of representation dimensionality}
 \label{sec:profiles}
