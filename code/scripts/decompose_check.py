@@ -115,6 +115,7 @@ def main(argv=None) -> int:
                         "decompose a network trained by trajectory_cifar.py on the CIFAR-10 test split")
     p.add_argument("--checkpoint", default=None, help="state_dict .pt for --cifar-arch (omit = random init)")
     p.add_argument("--name", default=None, help="output name (default: --model or the checkpoint stem)")
+    p.add_argument("--rank-tol", type=float, default=1e-6, help="numerical rank: singular values above this fraction of the largest (ablation A16)")
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
 
@@ -165,7 +166,7 @@ def main(argv=None) -> int:
         # kappa = sigma_max / sigma_min over the nonzero singular values.
         # numerical rank: singular values above 1e-6 of the largest (float32 weights);
         # kappa is the condition number over those directions
-        r = int((sv > sv[0] * 1e-6).sum())
+        r = int((sv > sv[0] * a.rank_tol).sum())
         kappa = float(sv[0] / sv[r - 1])
         n_null = int(len(sv) - r)                      # numerically null kernel directions
         ratio = lam_out[:r] / np.clip(lam_ortho[:r], 1e-300, None)
