@@ -1,0 +1,50 @@
+[
+  {
+    "model": "tvdet:fasterrcnn_resnet50_fpn",
+    "weights": "torchvision/fasterrcnn_resnet50_fpn.DEFAULT (backbone.body)",
+    "source": "imagenet_val[3200]",
+    "device": "mps",
+    "positions_per_image": 16,
+    "batch_size": 32,
+    "image_size": 224,
+    "seed": 0,
+    "n_layers": 171,
+    "elapsed_sec": 251.8,
+    "torch": "2.14.0",
+    "rmax_check_max": 0.96875,
+    "rmax_check_layer": "layer1.2.conv2",
+    "rmax_check_ok": true
+  },
+  {
+    "model": "tvdet:maskrcnn_resnet50_fpn",
+    "weights": "torchvision/maskrcnn_resnet50_fpn.DEFAULT (backbone.body)",
+    "source": "imagenet_val[3200]",
+    "device": "mps",
+    "positions_per_image": 16,
+    "batch_size": 32,
+    "image_size": 224,
+    "seed": 0,
+    "n_layers": 171,
+    "elapsed_sec": 241.8,
+    "torch": "2.14.0",
+    "rmax_check_max": 0.96875,
+    "rmax_check_layer": "layer1.2.conv2",
+    "rmax_check_ok": true
+  },
+  {
+    "model": "resnet50",
+    "weights": "ResNet50_Weights.IMAGENET1K_V1",
+    "source": "imagenet_val[3200]",
+    "device": "mps",
+    "positions_per_image": 16,
+    "batch_size": 32,
+    "image_size": 224,
+    "seed": 0,
+    "n_layers": 172,
+    "elapsed_sec": 224.0,
+    "torch": "2.14.0",
+    "rmax_check_max": 0.9765625,
+    "rmax_check_layer": "layer2.3.conv2",
+    "rmax_check_ok": true
+  }
+]

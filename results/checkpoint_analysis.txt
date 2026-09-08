@@ -628,7 +628,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     vgg16_bn                                 0.95  3200      690       84   -18.94 2.91e-119
     vgg16_bn                                 0.99  3200      107       57    -1.56  1.16e-04
     vgg16_bn                                0.999  3200       16       13    -0.09  7.11e-01
-  wrote ../paper/table_projection.tex
 
 ========================================================================
 10b. The projection read as a rank-k factorisation: conv FLOPs kept, per tau
@@ -707,3 +706,22 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   reference: results/local6400/trained/resnet50 (6,400 images, 16 positions, crop, conv output)
 
     ablation                             L  rho vs ref med|diff| max|diff|   level ref level
+    4 positions per image               42       +1.00     0.000     0.016   0.402     0.402
+    64 positions per image              53       +1.00     0.000     0.004   0.422     0.422
+    direct resize to $224\times224$ (no crop)  53       +1.00     0.000     0.016   0.406     0.422
+    white-noise inputs, trained         53       +0.32     0.148     0.389   0.238     0.422
+    1/f-noise inputs, trained           53       +0.70     0.070     0.336   0.285     0.422
+    white-noise inputs, random init     53       +0.78     0.078     0.719   0.293     0.227   (ref: random seed 1 on ImageNet images)
+    1/f-noise inputs, random init       53       +0.88     0.086     0.438   0.320     0.227   (ref: random seed 1 on ImageNet images)
+
+  A12 BatchNorm: 53 conv/BN pairs (ResNet-50).  rho(conv, bn) = +0.99;  median k*/r_max conv 0.422 vs bn 0.420;  bn higher on 28/53;  median |diff| 0.008
+    vgg16_bn: rho(conv, bn) = +0.99; median conv 0.422 vs bn 0.422; bn higher on 5/13
+    resnet50_random: rho(conv, bn) = +1.00; median conv 0.195 vs bn 0.195; bn higher on 2/53
+
+  A11 COCO val2017 images (3,200), 16 positions:
+    ImageNet ResNet-50 on COCO images   49       +1.00     0.000     0.016   0.406     0.406
+    Faster R-CNN R50-FPN backbone, COCO-trained  49       +0.91     0.090     0.227   0.289     0.406
+      vs ImageNet ResNet-50 on the same COCO images: rho +0.92, levels 0.406 (cls) / 0.289 (det)
+    Mask R-CNN R50-FPN backbone, COCO-trained  49       +0.91     0.062     0.205   0.309     0.406
+      vs ImageNet ResNet-50 on the same COCO images: rho +0.92, levels 0.406 (cls) / 0.309 (det)
+  wrote ../paper/table_ablation.tex
