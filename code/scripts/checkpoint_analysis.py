@@ -1151,7 +1151,7 @@ def section_round3_ortho(results: str) -> None:
     print("  For each penalty arm (so, srip), per layer: measured k*(0.95)/r_max of the")
     print("  penalised network vs the 'ortho' counterfactual of the matching no-penalty")
     print("  network (same arch, same seed).  P9.3: median |diff| < 0.1 for SO; P9.4: SRIP does not.")
-    none_of = {"vgg16_bn": {"0": "trajectory", "1": "trajectory_vgg16_bn_s1", "2": "trajectory_vgg16_bn_s2"},
+    none_of = {"vgg16_bn": {k: f"a5_vgg16_bn_none_s{k}" for k in "012"},
                "basic52": {k: f"a2_basic52_s{k}" for k in "012"}}
     rows = []
     for f in sorted(files):
