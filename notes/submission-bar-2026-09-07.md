@@ -8,10 +8,10 @@
 | # | 項目 | 為什麼 | 成本 | 狀態 |
 |---|---|---|---|---|
 | A1 | ResNet-101／WRN／ResNeXt／MobileNetV2 各 3 種子＋多配方，補進家族表 | 深度與寬度和 block 類型混淆 | Mac | ✔ 09-08 |
-| A2 | 受控 block 實驗：CIFAR-10 同深度 basic vs bottleneck ResNet、各 3 種子；CIFAR MobileNetV2 3 種子；量 R-R／T-T／T-R 與軌跡 | 「依 block 類型」唯一乾淨的檢定 | RunPod ≈ US$20 | 未開始，**先寫進 analysis-plan §9 再跑** |
+| A2 | 受控 block 實驗：CIFAR-10 同深度 basic vs bottleneck ResNet、各 3 種子；CIFAR MobileNetV2 3 種子；量 R-R／T-T／T-R 與軌跡 | 「依 block 類型」唯一乾淨的檢定 | RunPod ≈ US$20 | ✔ 09-08 跑完、09-09 判定：**H9.1 不成立**（block 不是原因）、H9.2 成立；plan §10.1，論文 §V.J 已依預登記後果改寫 |
 | A3 | inverted residual 同配方多種子（自己訓練 MobileNetV3-L／EfficientNet-B0 ImageNet，各 3 種子） | 「現有 checkpoint 不共享剖面」升級為可判定主張的唯一方法 | RunPod ≈ US$60–100 | 未開始；先看 A1 與四個 tf_ 權重的結果再決定 |
 | A4 | 分解量測（Σ_out = W Σ_patch Wᵀ）十組權重（含隨機） | §VI 新節的證據 | Mac | ✔ 09-08（22 組全跑待排） |
-| A5 | 正交正則化介入：CIFAR VGG-16／ResNet-18，無／SO／SRIP／ONI 各 3 種子，逐層對照 A4 的反事實預測 | 「理論預測 → 實驗命中」是這篇唯一能放的理論味 | RunPod ≈ US$20 | 未開始，先預先登記 |
+| A5 | 正交正則化介入：CIFAR VGG-16／ResNet-18，無／SO／SRIP／ONI 各 3 種子，逐層對照 A4 的反事實預測 | 「理論預測 → 實驗命中」是這篇唯一能放的理論味 | RunPod ≈ US$20 | ✔ 09-08 跑完、09-09 判定：**P9.3 不成立**（實現預測增益一半，核未等距）、P9.4 以排序形式成立、P9.5 成立；ONI 未跑列限制；plan §10.2，論文 §V-L 已寫 |
 | A6 | 子集結果在全驗證集重跑一次（六配方五種子、七家族） | 消除「6,400 張子集」這個現成質疑 | RunPod ≈ US$5 | 未開始 |
 | A7 | 多個影像子集的 bootstrap，給每個承重數字信賴區間 | 現在只有跨配方 SD，沒有抽樣 CI | Mac | 未開始 |
 | A8 | 第二個驗證關卡：對 Elmoznino & Bonner 的 ResNet-50 block 輸出 PR 值 | 只對 Garg 一張表驗證 | Mac | ✔ 09-08（ρ 0.997） |

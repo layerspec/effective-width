@@ -65,7 +65,7 @@
 | trained ≠ random | ResNet-50 六配方全 p ≤ 3e-8；ConvNeXt dense/dw 分開後 p=0.013／0.21 | **ResNet-50 倖存，ConvNeXt 降級**。舊的 p=6.3e-4 混了 dw 與 dense，違反規則 5，不得引用 |
 | Garg 驗證關卡 | CIFAR-10 全 13 層 r=0.981 | **通過** |
 | 剖面的形狀（駝峰／上升） | 見規則 7 | **不倖存**。六個 ResNet-50 配方的 k*/r_max 剖面順序兩兩 ρ 0.79–0.92 是可以講的（探索性） |
-| 訓練對剖面的作用依 block 類型分三種 | 7 個家族、各 2–6 組權重＋3–5 個隨機種子、同一批影像：plain/basic/dense 順序為架構決定（T-R 0.6–0.75）＋水準抬高；bottleneck 順序學出來（T-R −0.08、T-T 0.84）；inverted residual 無跨配方共同剖面（T-T ≈ 0），水準隨配方差 4 倍，depthwise 訓練後減半 | **候選主張**（2026-09-04）。VGG/CIFAR 軌跡：最終剖面與初始化 ρ 0.93、epoch 40 定型（§9）。見 `notes/round2-2026-09-04.md` §7–9 |
+| 訓練對剖面的作用依 block 類型分三種 | 7 個家族、各 2–6 組權重＋3–5 個隨機種子、同一批影像：plain/basic/dense 順序為架構決定（T-R 0.6–0.75）＋水準抬高；bottleneck 順序學出來（T-R −0.08、T-T 0.84）；inverted residual 無跨配方共同剖面（T-T ≈ 0），水準隨配方差 4 倍，depthwise 訓練後減半 | **ImageNet 觀察倖存、block 因果不倖存**（2026-09-09 第三輪，plan §10）：同配方 CIFAR-10 上 basic／bottleneck／MobileNetV2 的 T-R 0.55／0.50／0.44，H9.1 不成立；歸因改為「資料集或 ImageNet 配方」。H9.2 成立（MobileNetV2 三種子 T-T 0.99）。A5：正交懲罰只實現反事實預測增益的一半（核 erank 0.84 未等距），SO 逐層排序命中（ρ 0.7–0.9）、SRIP 不命中。**論文不得再寫「block 決定」** |
 
 論文的標題、H1–H4 與整個 §V 目前都繞著最後一列寫，必須重整。
 
