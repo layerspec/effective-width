@@ -65,14 +65,15 @@ CIFAR-10 profile of Garg \emph{et al.} ($r = 0.98$) and the ImageNet block
 values of Elmoznino and Bonner ($\rho = 0.997$); truncating every layer to its $k^*(0.999)$ principal directions leaves accuracy unchanged in six of eight checkpoints and costs $1.7$ points in the two ResNet-50s trained with binary cross-entropy and heavy augmentation, while $k^*(0.95)$ does not preserve it. Because the output covariance before the nonlinearity
 is exactly $W\Sigma_{\rm patch}W^{\top}$, the statistic separates into a kernel
 factor and a data factor, and training moves the bottleneck from the data
-to the kernel. Comparing eleven families with their own initialisations,
-plain, basic-residual and dense networks keep the architecture's layer
-ordering and gain a level, whereas bottleneck ResNet-50 learns an ordering
-uncorrelated with initialisation ($\rho = -0.08$) and reverses its depth
-trend; a pre-registered controlled experiment on CIFAR-10 finds the block is
-not the cause. Orthogonality penalties realise half of the width gain the
-decomposition predicts for an isometric kernel, in the layers it predicts.
-Code, spectra and the pre-registered analysis plan are released.
+to the kernel. Compared with their own initialisations, trained networks
+largely keep the ordering of layers the architecture gave them and gain a
+level; the profile is in place by mid-training, before accuracy is; and a
+pre-registered controlled experiment on CIFAR-10 shows that the block type
+does not change this, so the one family whose public checkpoints reorder
+their layers, ImageNet ResNet-50, owes it to its training regime. Orthogonality
+penalties realise half of the width gain the decomposition predicts for an
+isometric kernel, in the layers it predicts. Code, spectra and the
+pre-registered analysis plan are released.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -165,13 +166,10 @@ effective width. The contributions are:
   bound of its last convolution in 161 of 161 blocks, by a factor of about
   four (Sections~\ref{sec:rmax}, \ref{sec:estimator} and \ref{sec:blockout}).
 
-  \item \textbf{What training changes, compared with initialisation.} With one to six trained checkpoints and three to five random initialisations for each of eleven families, measured on the same images, we compare the ordering of layers in the trained profile with the ordering at initialisation. In the families measured the answer differs by family. In plain,
+  \item \textbf{What training changes, compared with initialisation.} With one to six trained checkpoints and three to five random initialisations for each of eleven families, measured on the same images, we compare the ordering of layers in the trained profile with the ordering at initialisation. In plain,
   basic-residual and densely connected networks (VGG-16, ResNet-18/34,
   DenseNet-121) the ordering is largely architectural
-  ($\rho_{\rm trained,random} = 0.6$--$0.75$) and training raises the level by $0.09$--$0.19$ in the median over layers. That rise exceeds the profile's own adjacent-layer step in three of the four families. In bottleneck ResNet-50 the ordering is learned: six recipes
-  agree with each other ($\rho = 0.84$), agree with initialisation not at all
-  ($\rho = -0.08$, against a random-versus-random ceiling of $0.94$), and the
-  trend with depth reverses from falling to rising. A controlled experiment registered before its data were seen, basic-block and bottleneck ResNets of equal depth, width pattern and recipe on CIFAR-10 with three seeds each, shows no such contrast ($\rho = 0.55$ against $0.50$): the block is not the cause, and the ImageNet difference falls to the data or the recipe. For the inverted-residual networks (MobileNetV3, EfficientNet-B0) the available checkpoints do not share a profile, the level of the $1\!\times\!1$ layers varies four- to seven-fold across them, and in two of the three families the depthwise layers halve their effective width on training; three seeds of one recipe agree at $\rho \ge 0.99$, so that disagreement is the recipes'
+  ($\rho_{\rm trained,random} = 0.6$--$0.75$) and training raises the level by $0.09$--$0.19$ in the median over layers, more than the profile's own adjacent-layer step in three of the four families. A controlled experiment registered before its data were seen, basic-block and bottleneck ResNets of equal depth, width pattern and recipe on CIFAR-10 with three seeds each, finds the same for both block types ($\rho = 0.55$ and $0.50$), and nine training trajectories find the ordering in place by epoch 40--60 while accuracy is still at $84$--$88\%$. The exception among public checkpoints is ImageNet ResNet-50, whose six recipes agree with each other ($\rho = 0.84$) and with initialisation not at all ($-0.08$); the controlled experiment says this is not the bottleneck block's doing but the training regime's, which the experiment does not identify. The inverted-residual checkpoints one can download (MobileNetV3, EfficientNet-B0) do not share a profile and their $1\!\times\!1$ levels vary four- to seven-fold, but three seeds of one recipe agree at $\rho \ge 0.99$, so that disagreement is the recipes'
   (Section~\ref{sec:learned}).
 
   \item \textbf{An exact decomposition of the statistic.} Before the nonlinearity the output covariance is $W\Sigma_{\rm patch}W^{\top}$, so a layer's effective width separates into a kernel factor and a patch-covariance factor. Measuring both on ten checkpoints shows that training moves the bottleneck from the data to the kernel: at initialisation the patch covariance is low-rank and the kernel isotropic; after training the patch covariance is full-rank and the ordering of layers follows the kernels' Gram spectra ($\rho = 0.8$--$0.97$ in six of nine trained checkpoints). Orthogonalising a trained kernel with its input held fixed would raise its effective width by about $0.3$ of the attainable rank. Tested as registered, with soft-orthogonality and SRIP penalties on CIFAR-10, the penalties realise half of that gain, and the soft penalty realises it in the layers the decomposition predicts (Section~\ref{sec:decompose}).
@@ -1605,8 +1603,7 @@ reports: normalising by nominal rather than attainable width caps every
 expansion layer at the expansion ratio and misreads bottleneck networks as
 underused, in all 14 networks that have such layers; estimating the covariance after global pooling lowers the value at 687 of 703 layers, and by more than the profile's own step in 18 of 19 networks; and reading the block output instead of
 the convolution output raises it by the expansion ratio in 161 of 161
-blocks. With those choices fixed and stated, the protocol reproduces the one published CIFAR-10 table it can be compared with ($r = 0.98$, two layers differing by $0.2$), and what training changes differs across the families measured: plain, basic-residual and dense networks largely keep the ordering the architecture gave them and gain a level; the ImageNet bottleneck checkpoints learn an ordering uncorrelated
-with initialisation and reverse the trend with depth, but a controlled experiment registered in advance finds the block is not the cause; inverted-residual checkpoints agree weakly or not at all, and three seeds of one recipe agree almost perfectly, so that too is the recipes' doing. Measurement code, the eigenvalue
+blocks. With those choices fixed and stated, the protocol reproduces the one published CIFAR-10 table it can be compared with ($r = 0.98$, two layers differing by $0.2$), and what training changes differs across the families measured: trained networks largely keep the ordering the architecture gave them and gain a level, the profile is in place before the fit is, and a controlled experiment registered in advance finds that the block type does not alter this; the ImageNet ResNet-50 checkpoints, which do reorder their layers, and the inverted-residual checkpoints, which do not agree with one another, are both the work of their training regimes rather than of their blocks. Measurement code, the eigenvalue
 spectra of every layer, and the analysis plan with its deviation log are
 released so that the next profile can be compared with these on stated
 terms.
