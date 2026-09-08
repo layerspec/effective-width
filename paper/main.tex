@@ -1103,11 +1103,7 @@ isometric kernel passes the effective width of its input through unchanged
 which reaches the ceiling only if the input is also white).
 Proposition~\ref{prop:depth} is the second bound on a layer's width, set by
 the data and the preceding layer rather than by the architecture; it is the
-bound that binds at initialisation. The propositions give the four
-quantities below their meaning, and they are checked on the data: the
-Ostrowski relation and the corollary's inequality are verified on every
-layer where the kernel's numerical rank is unambiguous \todo{fill counts
-from decompose\_check (rerun with the 1e-6 tolerance in progress)}.
+bound that binds at initialisation. The propositions give the four quantities below their meaning, and they are checked on the data. Over the 465 dense convolutions of the ten checkpoints in Table~\ref{tab:decompose}, with the numerical rank of $W$ taken at $10^{-6}$ of its largest singular value, the eigenvalue ratios of Proposition~\ref{prop:ostrowski} lie within $[\sigma_{\min}^2, \sigma_{\max}^2]$ on 464 (the exception is a DenseNet-121 layer whose smallest retained singular value sits at the tolerance), and the inequality of Corollary~\ref{cor:kstar} holds on 465 at both $\tau = 0.95$ and $0.999$. The corollary is informative, that is, gives a bound below $r_{\max}$, on 246 of the 465 layers at $\tau = 0.95$; on the rest the condition number $\kappa$ is large enough that $\tau'$ is close to one. Twenty-four layers of the trained checkpoints have numerically null kernel directions (in ResNet-50 all six are in the stem and the first stage), and none of the random initialisation does: training empties some kernel directions outright, which the polar factor $W_{\circ}$ simply omits.
 
 We accumulated $\Sigma_{\rm patch}$ for every dense convolution of ten
 checkpoints on the subset ($n/d \ge 67$ throughout) and compared four
