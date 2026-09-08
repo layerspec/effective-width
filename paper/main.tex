@@ -88,18 +88,26 @@ network width, representation analysis.
 % =========================================================================
 \IEEEraisesectionheading{\section{Introduction}\label{sec:intro}}
 
-\IEEEPARstart{T}{he} number of channels in each layer of a convolutional
-network is, in almost all practice, either inherited from a published
-architecture or found by search. Neural architecture search returns a width
-for a stated compute budget at a cost that can reach \num{$10^3$} GPU-hours
-\cite{cai2020ofa}; structured pruning returns a smaller network, but only
-after being \emph{given} a target ratio \cite{fang2023depgraph}. There is
-reason to think per-layer width is the variable that matters: Frankle
-\emph{et al.} \cite{frankle2021missingMark} showed that the per-weight
-decisions of pruning-at-initialisation methods can be replaced by a per-layer
-keep fraction without loss, and Liu \emph{et al.}
-\cite{liu2019rethinkingPruning} found that the pruned architecture, not the
-inherited weights, carries the benefit of pruning.
+\IEEEPARstart{H}{ow} many channels a convolutional layer should have is,
+in almost all practice, decided before training by inheritance from a
+published architecture or by search, and how many it ends up using is
+known only afterwards. Theory bounds the number from above, by the rank a
+convolution can attain and by the rank of what it receives, and for
+normalised linear networks from below \cite{daneshmand2020bn}; the
+minimum-width theorems of approximation theory
+\cite{lu2017expressive,park2021minimum} bound a different quantity, the
+width a family of networks needs to be dense in a function class. Outside
+the lazy regime in which features do not move \cite{jacot2018ntk,lee2020wide},
+no estimator predicts the width a trained layer will actually realise:
+every such number in the literature is taken after training
+\cite{zhang2016accelerating,ansuini2019intrinsic,lin2020hrank}, from a
+narrower network that was itself trained \cite{vyas2023feature}, or from
+random weights without a guarantee \cite{han2021rexnet}. If the post-hoc
+number is to inform design, three things must be settled first: how it is
+to be measured so that two papers' values are comparable; what it counts,
+in the sense of which directions carry function; and how much of it was
+fixed before training by the architecture and the data, as opposed to
+learned. This paper is about those three things.
 
 A prior question is descriptive: of the width a trained network \emph{has},
 how much does it use? Concretely, how many directions in a layer's channel
@@ -263,8 +271,7 @@ random-weight networks only. Saxe \emph{et al.} \cite{saxe2014exact} show,
 for deep linear networks, that the singular structure of the representation
 is set by the input--output covariance and the initialisation together, which
 makes the comparison of a trained profile with its own initialisation the
-natural control. We are not aware of a published depth profile that reports
-it. Section~\ref{sec:learned} does so for eleven architecture families, with several trained checkpoints and several random initialisations each, and finds that the answer differs by family.
+natural control. Ansuini \emph{et al.} \cite{ansuini2019intrinsic} report one such comparison: the PC-ID profile of an untrained VGG-16 is ``qualitatively the same'' as the trained one (their Fig.~5C), while the TwoNN intrinsic dimension changes shape. Section~\ref{sec:learned} makes the comparison for eleven architecture families, with several trained checkpoints and several random initialisations each, and finds that their observation holds for plain, basic-residual and dense families and fails for bottleneck ones.
 
 A third literature bears on the same quantity from the weight side.
 Orthogonality regularisers penalise the distance of a layer's kernel matrix $W \in \mathbb{R}^{C_{\rm out} \times d}$, $d = C_{\rm in} k_h k_w$ \cite{bansal2018orthogonality,huang2018own}, or of its convolution operator \cite{wang2020ocnn}, from an isometry; when $C_{\rm out} > d$ the $C_{\rm out}$ filters cannot be mutually orthogonal, since $WW^{\top}$ has rank at most $d$, and Massart \cite{massart2022orthogonal} characterises what each penalty minimises instead (the spectral restricted
@@ -294,6 +301,42 @@ here---sampling noise in the covariance, and the fact that $n$ observations
 yield at most $n$ nonzero eigenvalues---and Section~\ref{sec:samplesize}
 addresses both; we use no cross-validated estimator, so their third does
 not arise.
+
+\subsection{Minimum width, lazy training, and training-free proxies}
+\label{sec:widththeory}
+
+Three lines of theory concern width without concerning the quantity
+measured here. Approximation theory asks how narrow a network can be and
+remain a universal approximator: width $n + 4$ suffices and width $n$ does
+not for ReLU networks on $\mathbb{R}^n$ \cite{lu2017expressive}, the uniform
+threshold is $d_{\rm in} + 1$ \cite{hanin2019universal}, general activations
+need $n + m + 2$ \cite{kidger2020universal}, and the exact $L^p$ threshold is
+$\max\{d_x + 1, d_y\}$ \cite{park2021minimum}, with $\max\{d_x, d_y\}$ as a
+universal lower bound \cite{cai2023achieve}. These are worst-case statements
+over a function class in the input and output dimensions, two orders of
+magnitude below the channel counts of practical networks, and no
+convolutional analogue in terms of channels and kernel support is known to
+us. Infinite-width theory \cite{jacot2018ntk,lee2020wide} describes the lazy
+regime in which features, and so the rank of every layer's output, stay at
+their initial values; feature learning is what moves them
+\cite{yang2021feature}, and Vyas \emph{et al.} \cite{vyas2023feature} find
+that once it does, representations are consistent across widths, so that a
+narrower trained network predicts a wider one. Training-free architecture
+scores use quantities available at initialisation, the overlap of activation
+codes \cite{mellor2021naswot}, pruning saliencies \cite{tanaka2020synflow,abdelfattah2021zero},
+or the kernel's condition number and the number of linear regions
+\cite{chen2021tenas}; each gives one score per network for ranking
+candidates, and none estimates the width a given layer will use after
+training. Rank-collapse theory gives the behaviour at initialisation:
+Daneshmand \emph{et al.} \cite{daneshmand2020bn} prove that batch
+normalisation keeps the rank of a deep linear network at least of order the
+square root of its width, and report that on CIFAR-10 stochastic gradient
+descent ``preserves the initial magnitude of the rank to a large extent''
+in the last hidden layer. The closest a-priori per-layer quantity is the
+rank ratio of randomly initialised expansion layers that Han \emph{et al.}
+\cite{han2021rexnet} use as a design rule. Section~\ref{sec:learned}
+measures what these leave open: across the convolutional layers of ImageNet
+networks, how much of the trained width was already set at initialisation.
 
 \subsection{Redundancy, pruning, and the selection of width}
 
@@ -893,8 +936,7 @@ trained and random profiles.
 
 Three behaviours appear in the families measured, and they sort by block type; whether the block is the cause is taken up below.
 
-\emph{Plain, basic-residual and densely connected networks learn a level,
-not an ordering.} For VGG-16, ResNet-18, ResNet-34 and DenseNet-121 the
+\emph{Plain, basic-residual and densely connected networks learn a level, not an ordering.} This is the case Ansuini \emph{et al.} \cite{ansuini2019intrinsic} saw in VGG-16, where the linear PC-ID profile was qualitatively unchanged by training. For VGG-16, ResNet-18, ResNet-34 and DenseNet-121 the
 trained profiles agree with the random ones at $\rho = 0.61$--$0.75$, against
 ceilings of $0.79$--$0.98$, and training raises the median level by $0.09$ (VGG) to $0.19$ (ResNet-18). The profiles' own adjacent-layer steps are $0.05$, $0.14$, $0.10$ and $0.30$ (Table~\ref{tab:pooling}), so the rise exceeds the step in all but DenseNet-121, whose step is the structural $1\!\times\!1$/$3\!\times\!3$ alternation noted in Section~\ref{sec:estimator}.
 
