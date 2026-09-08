@@ -269,9 +269,14 @@ tar czf round3_$(date +%Y%m%dT%H%M%SZ).tar.gz ../results/round3 ../results/fullv
 
 ```
 cd /workspace/effective-width && git config user.name layerspec && git config user.email 325815311+layerspec@users.noreply.github.com
-nohup bash -c 'until grep -q "round 3 done" results/round3.log; do sleep 300; done; cd code && PY=python bash scripts/decompose_round3.sh cuda > ../results/round3_decompose.log 2>&1; cd .. && git add results/round3 results/round3_decompose results/round3_decompose.log && git commit -q -m "Round 3 results from the pod" && git push; runpodctl stop pod $RUNPOD_POD_ID' > results/autostop.log 2>&1 &
+nohup bash -c 'until grep -q "round 3 done" results/round3.log; do sleep 300; done; cd code && PY=python bash scripts/decompose_round3.sh cuda > ../results/round3_decompose.log 2>&1; cd .. && git add results/round3 results/round3_decompose results/round3_decompose.log && git commit -q -m "Round 3 results from the pod" && git fetch -q origin && git rebase origin/master && git push origin master; runpodctl stop pod $RUNPOD_POD_ID' > results/autostop.log 2>&1 &
 ```
 
+- **push 前一定要 `git fetch && git rebase origin/master`**（2026-09-08 的教訓：pod clone 後 Mac 又推了 39 個 commit，
+  pod 跑完的 `git push` 被 non-fast-forward 拒絕，結果卡在 pod 的 /workspace 裡；守護程序照樣停機，外面看不出來）。
+  補救：從 Mac `git fetch ssh://root@<ip>:<port>/workspace/effective-width master` 再 cherry-pick，不必在 pod 上補 key。
+- **Stop 再 Start 會重置容器磁碟（/root）**：deploy key、`/root/.runpod/restkey`、known_hosts 全部消失，只有 /workspace 留著。
+  不想重貼 key 的話，結果一律從 Mac 端拉。
 - **`runpodctl stop pod` 在 2026-09-08 的 pod 上不能用**（config 後仍 Unauthorized）；改用 REST API：
   先 `echo '<API key>' > /root/.runpod/restkey && chmod 600 /root/.runpod/restkey`（key 只貼在 pod 裡，
   **不要貼進對話**），守護程序結尾用
