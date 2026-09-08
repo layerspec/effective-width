@@ -258,3 +258,18 @@ tar czf round3_$(date +%Y%m%dT%H%M%SZ).tar.gz ../results/round3 ../results/fullv
 拉回本機解到 `results/`，然後 `python3 scripts/checkpoint_analysis.py --results ../results`
 （§9 會自動掃 `results/round3/*/trajectory_layers.csv`，A2／A5 的判定規則要另寫 §12，見 plan §9）。
 私人 repo 的 clone 需要把 pod 的 SSH 公鑰加到 layerspec 帳號，或用 https + token。
+
+### 2026-09-08 實跑筆記（3090，CPU 少）
+
+- 三個種子平行跑沒有加速（GPU 2%，瓶頸是 CPU 發指令），每 epoch 約 51 s；`--gpu-data`
+  在這種 pod 上也救不了。24 個 run 約 11–12 小時、US$4。下次選 vCPU 多的機型再考慮平行。
+- 私人 repo 用 deploy key（勾 write）讓 pod 自己推結果；`*.pt` 在 .gitignore，所以分解量測
+  （`decompose_round3.sh cuda`）要在 pod 上做完再推 CSV。
+- 跑完自動推送＋停機的守護程序（貼在 pod 上，長跑啟動後）：
+
+```
+cd /workspace/effective-width && git config user.name layerspec && git config user.email 325815311+layerspec@users.noreply.github.com
+nohup bash -c 'until grep -q "round 3 done" results/round3.log; do sleep 300; done; cd code && PY=python bash scripts/decompose_round3.sh cuda > ../results/round3_decompose.log 2>&1; cd .. && git add results/round3 results/round3_decompose results/round3_decompose.log && git commit -q -m "Round 3 results from the pod" && git push; runpodctl stop pod $RUNPOD_POD_ID' > results/autostop.log 2>&1 &
+```
+
+- Stop 之後磁碟費約 US$0.3/天；拿到結果後到網頁 Terminate。
