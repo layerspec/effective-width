@@ -7,6 +7,9 @@
 # Usage on the pod:  cd code && nohup bash scripts/run_a18_pod.sh > ../results/a18.log 2>&1 &
 set -u
 PY=${PY:-python}
+# Three trainers plus a decomposition on one 48-vCPU pod oversubscribed the CPU (load 85, no
+# epoch in 10 min, 2026-09-10); with four threads each an epoch takes 20 s.
+export OMP_NUM_THREADS=${OMP_NUM_THREADS:-4} MKL_NUM_THREADS=${MKL_NUM_THREADS:-4}
 OUT=../results/a18
 W=$OUT/widths.json
 [ -f "$W" ] || { echo "missing $W: run scripts/width_from_ruler.py first"; exit 1; }
