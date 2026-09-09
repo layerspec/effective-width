@@ -22,6 +22,8 @@ only scripts that train anything.
 
 ## Use it on your own model
 
+[![PyPI](https://img.shields.io/pypi/v/layerspec.svg)](https://pypi.org/project/layerspec/)
+
 ```bash
 pip install layerspec            # torch, numpy, pandas
 pip install "layerspec[models]"  # + torchvision, timm for the named checkpoints

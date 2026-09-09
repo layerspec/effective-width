@@ -67,7 +67,7 @@ A7、A8、A10 各一兩天 Mac。加 B、C，約兩到三個月。
 | T6 | 命題（截斷一階效應）：tr(J Σ^⊥ Jᵀ) ≤ ‖J‖²(1−τ)trΣ，τ=0.999 對 0.95 能量差 50 倍；A19 逐層敏感度對照留一 | ✔ 09-09 進 §V-K＋附錄；A19 腳本待跑 |
 | T7 | 命題（閘門）：Lawley 一階偏差 ≤ (2C/n)(1−τ)；ResNet-50 實算中位 1.8%、最大 3.3%；k*(0.999) 在 n/C=50 差 ≤ 1 | ✔ 09-09 進 §IV＋附錄，`checkpoint_analysis` §19 |
 | T8 | 推論雙邊界 k*_ortho(τ'') ≤ k*_out(τ) ≤ k*_ortho(τ') | ✔ 09-09 進論文；465 層的區間資訊量待 P9.10 那趟分解重跑後更新 §V-L 的「246/465」句 |
-| I1 | `layerspec.profile(model, loader)` API：k*(τ)/r_max、閘門、W／patch 分解、投影檢查；文件、測試、PyPI | ✔ 09-09：layerspec 0.2（profile／decompose API、CLI、pyproject、測試 27 個、ResNet-50 回歸逐層一致）；PyPI 上傳待作者註冊帳號後 `python -m twine upload dist/*` |
+| I1 | `layerspec.profile(model, loader)` API：k*(τ)/r_max、閘門、W／patch 分解、投影檢查；文件、測試、PyPI | ✔ 09-09：layerspec 0.2（profile／decompose API、CLI、pyproject、測試 27 個、ResNet-50 回歸逐層一致）；**PyPI 已上傳 0.2.0（2026-09-09，https://pypi.org/project/layerspec/）** |
 | I2 | ~~應用段~~ → 降級為一句話：k*(0.999) 投影 = W = V_k(V_kᵀW) 分解，但 conv FLOPs 只省 2–5%（1×1 層 d<C_out 分解反而變貴；§10b），**不是壓縮方法**，只是解釋性錨點；仍引 Zhang 2015 TPAMI 定位 | FLOPs 已算，待寫一句 |
 | M1 | §I 以「所有可靠的 k 都是事後的」缺口開場（限定版三句）＋三件要先解決的事 | ✔ 09-08 |
 | W1 | 附錄 B 主張總表（Table 7） | ✔ 09-08 |
