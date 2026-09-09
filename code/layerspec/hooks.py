@@ -211,7 +211,11 @@ class SpectrumProbe:
                     r_max=groups * per_group,
                 )
             elif isinstance(module, nn.Linear) and self.include_linear:
-                self._register(name, module, kind="linear")
+                # A linear layer is a 1x1 "convolution" over its input vector:
+                # the same rank bound, min(in, out).  Token outputs (N, T, D)
+                # are sampled over T exactly as conv outputs are over H x W.
+                self._register(name, module, kind="linear",
+                               r_max=min(module.in_features, module.out_features))
             elif self.include_activations and isinstance(module, ACTIVATIONS):
                 self._register(name, module, kind="act")
             elif (self.include_blocks
@@ -222,7 +226,7 @@ class SpectrumProbe:
         base = f"{name}::{kind}"
 
         def hook(_mod, _inp, out, _base=base, _name=name, _kind=kind, _extra=extra):
-            if not isinstance(out, torch.Tensor) or out.dim() not in (2, 4):
+            if not isinstance(out, torch.Tensor) or out.dim() not in (2, 3, 4):
                 return
             idx = self._calls.get(_base, 0)
             self._calls[_base] = idx + 1
@@ -245,6 +249,10 @@ class SpectrumProbe:
             # position-sampled estimators coincide here, so only one is kept.
             N, C = out.shape
             H = W = None
+        elif out.dim() == 3:
+            # (N, T, C): a token sequence; tokens play the role of positions.
+            N, T, C = out.shape
+            H, W = T, 1
         else:
             N, C, H, W = out.shape
             if kind == "conv" and H * W == 1:
@@ -286,7 +294,8 @@ class SpectrumProbe:
 
         if rec.acc_pooled is not None:
             # (N, C): one sample per image, spatial extent averaged away.
-            self._fold(rec.acc_pooled, out.mean(dim=(2, 3)).to(work_dtype))
+            self._fold(rec.acc_pooled,
+                       (out.mean(dim=1) if out.dim() == 3 else out.mean(dim=(2, 3))).to(work_dtype))
 
     @staticmethod
     def _fold(acc: CovarianceAccumulator, x: torch.Tensor) -> None:
@@ -322,7 +331,7 @@ class SpectrumProbe:
         """Return (N * p, C) with p random spatial positions drawn per image."""
         hw = H * W
         p = min(self.positions_per_image, hw)
-        flat = out.permute(0, 2, 3, 1).reshape(N, hw, C)   # (N, HW, C)
+        flat = out if out.dim() == 3 else out.permute(0, 2, 3, 1).reshape(N, hw, C)   # (N, HW, C)
         if p == hw:
             return flat.reshape(N * hw, C)
         idx = torch.randint(0, hw, (N, p), generator=self._gen)   # cpu generator

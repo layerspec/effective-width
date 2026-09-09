@@ -44,7 +44,7 @@ class PatchProbe:
     """Forward-pre-hooks on every dense (groups == 1) nn.Conv2d that accumulate
     the covariance of `positions` sampled im2col columns per image."""
 
-    def __init__(self, model: nn.Module, positions: int, seed: int):
+    def __init__(self, model: nn.Module, positions: int, seed: int, include_linear: bool = False):
         self.acc: dict[str, CovarianceAccumulator] = {}
         self.meta: dict[str, dict] = {}
         self.handles = []
@@ -57,6 +57,36 @@ class PatchProbe:
                 order += 1
                 self.handles.append(m.register_forward_pre_hook(
                     lambda mod, inp, _n=name: self._consume(_n, mod, inp[0])))
+            elif include_linear and isinstance(m, nn.Linear):
+                self.meta[name] = dict(depth_index=order, module=m)
+                order += 1
+                self.handles.append(m.register_forward_pre_hook(
+                    lambda mod, inp, _n=name: self._consume_linear(_n, mod, inp[0])))
+
+    @torch.no_grad()
+    def _consume_linear(self, name: str, m: nn.Linear, x: torch.Tensor) -> None:
+        """A linear layer's 'patch' is its input vector; over a token sequence
+        (N, T, D) the tokens are the positions.  Unlike the conv path, all
+        tokens are taken when positions >= T (exact covariance)."""
+        if x.dim() == 3:
+            N, T, D = x.shape
+            p = min(self.p, T)
+            if p < T:
+                idx = torch.randint(0, T, (N, p), generator=self.gen).to(x.device)
+                x = torch.gather(x, 1, idx.unsqueeze(-1).expand(N, p, D))
+            xs = x.reshape(-1, D)
+        elif x.dim() == 2:
+            xs = x
+        else:
+            return
+        xs = xs.to(torch.float32)
+        acc = self.acc.get(name)
+        if acc is None:
+            acc = self.acc[name] = CovarianceAccumulator(xs.shape[1])
+            self.meta[name].update(d=m.in_features, C_in=m.in_features, C_out=m.out_features, k=1)
+        bm = xs.mean(0)
+        xc = xs - bm
+        acc.update_precomputed(xs.shape[0], bm.cpu().double().numpy(), (xc.T @ xc).cpu().double().numpy())
 
     @torch.no_grad()
     def _consume(self, name: str, m: nn.Conv2d, x: torch.Tensor) -> None:

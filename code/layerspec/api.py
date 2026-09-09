@@ -74,7 +74,7 @@ class Profile:
     spectra: dict = field(default_factory=dict, repr=False)
     meta: dict = field(default_factory=dict)
 
-    def dense(self, tau: float = 0.95) -> pd.DataFrame:
+    def dense(self, tau: float = 0.95, kinds: tuple[str, ...] = ("conv",)) -> pd.DataFrame:
         """Dense convolutions that pass the sample-size gate, in depth order:
         the rows the paper's profiles are made of.  "Dense" here means
         ``kind == "conv" and not is_depthwise`` -- note ``decompose()``'s
@@ -95,11 +95,11 @@ class Profile:
             available = sorted(float(c.rsplit("_", 1)[-1]) for c in t.columns
                                if c.startswith("k_star_rmax_"))
             raise ValueError(f"tau {tau} was not measured; available: {available}")
-        keep = (t.kind == "conv") & t["ok"].astype(bool) & ~t["is_depthwise"].astype(bool)
+        keep = t.kind.isin(kinds) & t["ok"].astype(bool) & ~t["is_depthwise"].astype(bool)
         return (t.loc[keep, empty_cols]
                 .sort_values("depth_index").reset_index(drop=True))
 
-    def summary(self, tau: float = 0.95) -> dict:
+    def summary(self, tau: float = 0.95, kinds: tuple[str, ...] = ("conv",)) -> dict:
         """L, median level, rho(depth) and the r_max sanity check, over
         `dense(tau)`.  Returns L=0 and NaNs (never raises) when the table is
         empty or lacks a `kind` column; raises ValueError, via `dense()`, if
@@ -108,7 +108,7 @@ class Profile:
             return {"L": 0, "median_level": float("nan"), "rho_depth": float("nan"),
                     "rmax_check_max": float("nan"), "rmax_check_ok": True,
                     "rmax_check_tau": float("nan")}
-        d = self.dense(tau)
+        d = self.dense(tau, kinds)
         col = f"k_star_rmax_{_tau_key(tau)}"
         # r_max sanity check: use the *largest* available tau's k_star_rmax
         # column -- the check is tightest there -- rather than hardcoding
@@ -169,7 +169,7 @@ class Profile:
 
 
 def _has_conv(model: nn.Module) -> bool:
-    return any(isinstance(m, nn.Conv2d) for m in model.modules())
+    return any(isinstance(m, (nn.Conv2d, nn.Linear)) for m in model.modules())
 
 
 @torch.no_grad()
@@ -190,7 +190,7 @@ def profile(model: nn.Module, loader, *, device: str | None = None, positions: i
     eval mode only while the forward passes run.
     """
     if not _has_conv(model):
-        raise ValueError("profile() needs a model with at least one nn.Conv2d")
+        raise ValueError("profile() needs a model with at least one nn.Conv2d or nn.Linear")
     device = select_device(device)
     was_training = model.training
     try:
@@ -231,7 +231,7 @@ class Decomposition:
 @torch.no_grad()
 def decompose(model: nn.Module, loader, *, device: str | None = None, positions: int = 48,
               taus: tuple[float, ...] = DEFAULT_TAUS, rank_tol: float = 1e-6,
-              max_batches: int | None = None, seed: int = 0) -> Decomposition:
+              max_batches: int | None = None, seed: int = 0, include_linear: bool = False) -> Decomposition:
     """Accumulate the receptive-field patch covariance of every dense
     convolution and split k*/r_max into out / kernel / data / ortho.
 
@@ -244,12 +244,13 @@ def decompose(model: nn.Module, loader, *, device: str | None = None, positions:
     there afterward.  `model.training` is restored to its original value
     before returning (even if the measurement raises).
     """
-    if not any(isinstance(m, nn.Conv2d) and m.groups == 1 for m in model.modules()):
+    if not any((isinstance(m, nn.Conv2d) and m.groups == 1) or (include_linear and isinstance(m, nn.Linear))
+               for m in model.modules()):
         raise ValueError("decompose() needs at least one dense (groups == 1) nn.Conv2d")
     device = select_device(device)
     was_training = model.training
     model = model.to(device).eval()
-    probe = _dec.PatchProbe(model, positions, seed)
+    probe = _dec.PatchProbe(model, positions, seed, include_linear=include_linear)
     try:
         for i, batch in enumerate(loader):
             if max_batches is not None and i >= max_batches:
