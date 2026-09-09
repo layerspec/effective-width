@@ -1,5 +1,38 @@
 # layerspec
 
+## Use it on your own model
+
+```bash
+pip install layerspec            # torch, numpy, pandas
+pip install "layerspec[models]"  # + torchvision, timm for the named checkpoints
+```
+
+```python
+import layerspec
+
+model  = layerspec.load_model("resnet50")                  # or any torch.nn.Module with Conv2d layers
+loader = layerspec.image_loader("/path/to/6400/images")    # or any DataLoader yielding images or (x, y)
+
+prof = layerspec.profile(model, loader)     # one forward pass; 16 positions per image
+prof.dense(tau=0.95)                        # layer, depth_index, r_max, k*(0.95)/r_max  (gated, dense convs only)
+prof.summary()                              # L, median level, rho(depth), max k*(0.999)/r_max (must be <= 1)
+prof.to_csv("resnet50_layers.csv")
+
+dec = layerspec.decompose(model, loader)    # out / kernel / data / ortho per dense conv
+dec.table[["layer", "out_0.95", "kernel_0.95", "data_0.95", "ortho_0.95"]]
+dec.check()                                 # Proposition-1 counts
+```
+
+Or from the shell: `layerspec profile --model resnet50 --data /path/to/images --out resnet50.csv`.
+
+What the numbers mean: `k*(tau)/r_max` is the number of principal directions of a
+convolution's output covariance (before the nonlinearity) carrying a fraction
+`tau` of its variance, divided by the rank the layer can attain
+(`groups * min(C_in/groups * kh * kw, C_out/groups)`). Rows with `ok == False`
+have fewer than 50 samples per channel and are not reportable. Depthwise
+convolutions are flagged and left out of `dense()`. A `k*(0.999)/r_max` above 1
+means `r_max` is wrong for that layer type; please report it.
+
 Per-layer effective width of trained convolutional networks: the measurement
 behind *Measuring the Effective Width of Convolutional Layers* (see the
 repository README for the paper and the findings).
