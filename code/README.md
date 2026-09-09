@@ -1,5 +1,25 @@
 # layerspec
 
+Per-layer effective width of trained convolutional networks: the measurement
+behind *Measuring the Effective Width of Convolutional Layers* (see the
+repository README for the paper and the findings).
+
+For every convolutional layer of a network, `layerspec` accumulates the
+channel-space covariance of the layer's output (at the convolution output,
+before the nonlinearity and before any residual addition; post-activation and
+block outputs are recorded separately), from sampled spatial positions and,
+in parallel, from globally pooled features. From each spectrum it reports
+$k^*(\tau)$, participation ratio, effective rank and stable rank, each divided
+by the nominal channel count $C$ and by the attainable rank
+$r_{\max} = g\cdot\min((C_{\rm in}/g)\,k_h k_w,\ C_{\rm out}/g)$, together
+with the sample-to-channel ratio at which each statistic was estimated and a
+convergence curve in $n/C$.
+
+**No training is needed** to reproduce the paper's ImageNet measurements:
+everything runs on downloaded pretrained weights, one forward pass per
+checkpoint. The CIFAR-10 validation gate and the training trajectory are the
+only scripts that train anything.
+
 ## Use it on your own model
 
 ```bash
@@ -31,27 +51,9 @@ convolution's output covariance (before the nonlinearity) carrying a fraction
 (`groups * min(C_in/groups * kh * kw, C_out/groups)`). Rows with `ok == False`
 have fewer than 50 samples per channel and are not reportable. Depthwise
 convolutions are flagged and left out of `dense()`. A `k*(0.999)/r_max` above 1
-means `r_max` is wrong for that layer type; please report it.
-
-Per-layer effective width of trained convolutional networks: the measurement
-behind *Measuring the Effective Width of Convolutional Layers* (see the
-repository README for the paper and the findings).
-
-For every convolutional layer of a network, `layerspec` accumulates the
-channel-space covariance of the layer's output (at the convolution output,
-before the nonlinearity and before any residual addition; post-activation and
-block outputs are recorded separately), from sampled spatial positions and,
-in parallel, from globally pooled features. From each spectrum it reports
-$k^*(\tau)$, participation ratio, effective rank and stable rank, each divided
-by the nominal channel count $C$ and by the attainable rank
-$r_{\max} = g\cdot\min((C_{\rm in}/g)\,k_h k_w,\ C_{\rm out}/g)$, together
-with the sample-to-channel ratio at which each statistic was estimated and a
-convergence curve in $n/C$.
-
-**No training is needed** to reproduce the paper's ImageNet measurements:
-everything runs on downloaded pretrained weights, one forward pass per
-checkpoint. The CIFAR-10 validation gate and the training trajectory are the
-only scripts that train anything.
+means `r_max` is wrong for that layer type; please report it. Grouped
+convolutions that are not depthwise (ResNeXt) appear in `profile().dense()`
+but are not decomposed by `decompose()`, which only handles `groups == 1`.
 
 ---
 
