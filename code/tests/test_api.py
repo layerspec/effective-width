@@ -59,8 +59,9 @@ def test_profile_summary_and_csv_roundtrip(tmp_path):
     import layerspec
     prof = layerspec.profile(small_cnn(), random_loader(n_images=256), device="cpu", positions=16)
     s = prof.summary(tau=0.95)
-    assert set(s) == {"L", "median_level", "rho_depth", "rmax_check_max", "rmax_check_ok"}
+    assert set(s) == {"L", "median_level", "rho_depth", "rmax_check_max", "rmax_check_ok", "rmax_check_tau"}
     assert s["rmax_check_ok"] is True and s["L"] == 3
+    assert s["rmax_check_tau"] == 0.999
     path = tmp_path / "p.csv"
     prof.to_csv(path)
     back = layerspec.Profile.from_csv(path)
@@ -79,6 +80,126 @@ def test_profile_summary_without_default_taus():
                              taus=(0.9, 0.95))
     s = prof.summary(tau=0.95)
     assert s["rmax_check_ok"] is True
+    assert s["rmax_check_tau"] == 0.95    # largest available tau, not a hardcoded 0.999
+
+
+class _UnusedConv(nn.Module):
+    """Holds a Conv2d it never calls in forward -- the hook never fires."""
+    def __init__(self):
+        super().__init__()
+        self.conv = nn.Conv2d(3, 4, 3)
+
+    def forward(self, x):
+        return x
+
+
+def test_profile_dense_and_summary_on_empty_table():
+    import layerspec
+    # Conv2d present structurally (so profile() itself does not reject the
+    # model) but never invoked in forward: no LayerRecord is ever created.
+    prof = layerspec.profile(_UnusedConv(), random_loader(n_images=4, batch=4, size=8), device="cpu")
+    assert prof.table.empty
+    d = prof.dense()
+    assert d.empty
+    assert list(d.columns) == ["layer", "depth_index", "r_max", "k_star_rmax_0.95"]
+    s = prof.summary()
+    assert s["L"] == 0
+    assert np.isnan(s["median_level"]) and np.isnan(s["rho_depth"]) and np.isnan(s["rmax_check_max"])
+
+    # Same for an empty loader.
+    empty_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(torch.empty(0, 3, 8, 8)),
+                                               batch_size=4)
+    prof2 = layerspec.profile(small_cnn(), empty_loader, device="cpu")
+    assert prof2.table.empty
+    assert prof2.dense().empty
+    assert prof2.summary()["L"] == 0
+
+
+def test_profile_dense_and_summary_raise_on_missing_tau():
+    import layerspec
+    prof = layerspec.profile(small_cnn(), random_loader(n_images=256), device="cpu",
+                             taus=(0.9, 0.95))
+    with pytest.raises(ValueError, match="0.99"):
+        prof.dense(tau=0.99)
+    with pytest.raises(ValueError, match="0.99"):
+        prof.summary(tau=0.99)
+
+
+def test_decompose_raises_when_no_patch_covariance():
+    import layerspec
+    # 3x3 conv on a 3x3 input: output is 1x1, F.unfold gives L == 1, so
+    # PatchProbe never accumulates -- probe.acc stays empty.
+    net = nn.Sequential(nn.Conv2d(3, 4, 3))
+    loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(torch.randn(8, 3, 3, 3)), batch_size=4)
+    with pytest.raises(ValueError, match="no dense convolution accumulated a patch covariance"):
+        layerspec.decompose(net, loader, device="cpu")
+
+    empty_loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(torch.empty(0, 3, 8, 8)),
+                                               batch_size=4)
+    with pytest.raises(ValueError, match="no dense convolution accumulated a patch covariance"):
+        layerspec.decompose(small_cnn(), empty_loader, device="cpu")
+
+
+def test_profile_warnings():
+    import layerspec
+    prof = layerspec.profile(small_cnn(), random_loader(n_images=4, batch=4), device="cpu", positions=4)
+    w = prof.warnings()
+    assert len(w) > 0
+    assert "under-sampled" in w[0]
+    conv = prof.table[prof.table.kind == "conv"]
+    worst = conv.loc[conv.n_over_C.idxmin()]
+    assert worst.layer in w[0]
+
+    prof2 = layerspec.profile(small_cnn(), random_loader(n_images=256), device="cpu", positions=16)
+    assert prof2.warnings() == []
+
+
+def test_decompose_check_flags_undersampled():
+    import layerspec
+    dec = layerspec.decompose(small_cnn(), random_loader(n_images=4, batch=4), device="cpu", positions=4)
+    c = dec.check()
+    assert c["n_below_50"] == len(dec.table) > 0
+    assert "n_over_d_min" in c
+    assert "n_below_50" not in dec.table.columns          # check_rows()-only, not a new CSV column
+
+
+def test_profile_and_decompose_restore_training_mode():
+    import layerspec
+    m = small_cnn()
+    m.train()
+    layerspec.profile(m, random_loader(n_images=256), device="cpu", positions=16)
+    assert m.training is True
+
+    m2 = small_cnn()
+    m2.train()
+    layerspec.decompose(m2, random_loader(n_images=256), device="cpu", positions=16)
+    assert m2.training is True
+
+
+def test_record_row_matches_paper_csv_header():
+    import os
+    from layerspec import api, metrics
+    from layerspec.hooks import SpectrumProbe
+
+    path = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..",
+                                         "results", "local6400", "trained", "resnet50_layers.csv"))
+    if not os.path.exists(path):
+        pytest.skip(f"{path} not present")
+
+    net = small_cnn()
+    probe = SpectrumProbe(net, positions_per_image=16, pooled=True)
+    with torch.no_grad():
+        for x, _ in random_loader(n_images=256):
+            net(x)
+    probe.remove()
+    rec = next(r for r in probe.records() if r.kind == "conv")
+    row = api.record_row(rec, min_n_over_C=50, taus=metrics.DEFAULT_TAUS)
+    assert row is not None
+    row_cols = set(row) | {"model", "weights", "source"}
+
+    import pandas as pd
+    header = set(pd.read_csv(path, nrows=0).columns)
+    assert row_cols == header
 
 
 def test_profile_rejects_models_without_conv():
