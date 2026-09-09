@@ -106,6 +106,7 @@
   進度看 `results/cifar_local.log`；`trajectory_cifar.py` 每個 epoch 存 `resume.pt`，蓋上蓋子只損失當前 epoch。
 - 長時間本機工作用 `nohup caffeinate -i <script> > log &`，不要放在 session scratchpad 裡（會被清）。目前的隊列：`results/{cifar,measure,measure2,decompose,projection}_queue.sh`（log 同名 .log；cifar 取代了出錯的 trajectory_queue）。**同時跑多條會讓 DataLoader 共享記憶體逾時**，隊列之間要用 pgrep 互等
 - 論文編譯：本機已裝 tectonic（`brew install tectonic`，2026-09-07），`cd paper && make tectonic` 產生 `main.pdf`（自動抓 IEEEtran）；也可用 Overleaf
+- **本機隊列在跑時不要改 `layerspec/`**（2026-09-09 教訓）：`trajectory_cifar.py` 的 DataLoader 子程序會重新 import 套件，改到一半的檔案讓 ResNet-50 軌跡在 epoch 57 崩潰、VGG 兩個種子沒開始，隊列還誤報完成。要重構就先 `pgrep -f trajectory_cifar` 確認沒在跑，或等隊列跑完。
 - 改動 `hooks.py` 的鍵值方式時要格外小心：ResNet block 會重用同一個
   `nn.ReLU`，只用模組名當鍵會**靜默地**把不同的激活位置合併起來。已用
   call index 修掉，並有測試。
