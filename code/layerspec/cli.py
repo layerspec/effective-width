@@ -53,6 +53,10 @@ def main(argv=None) -> int:
         if c["n_below_50"] > 0:
             print(f"!! {c['n_below_50']}/{len(res.table)} dense convolutions have n/d < 50; "
                   f"their four quantities are sampling artefacts")
+    if a.cmd == "profile" and (res.table.kind == "linear").any():
+        s2 = res.summary(kinds=("linear",))
+        print(f"{a.model}: {s2['L']} linear layers pass the gate; median k*(0.95)/r_max {s2['median_level']:.3f}; "
+              f"rho(depth) {s2['rho_depth']:+.2f}")
     res.to_csv(a.out)
     print("wrote", a.out)
     return 0

@@ -205,7 +205,7 @@ def test_record_row_matches_paper_csv_header():
 def test_profile_rejects_models_without_conv():
     import layerspec
     with pytest.raises(ValueError):
-        layerspec.profile(nn.Sequential(nn.Flatten(), nn.Linear(192, 4)), random_loader(), device="cpu")
+        layerspec.profile(nn.Sequential(nn.Flatten(), nn.ReLU()), random_loader(), device="cpu")   # neither Conv2d nor Linear
 
 
 def test_select_device_prefers_available_accelerator():
