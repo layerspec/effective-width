@@ -23,9 +23,19 @@ run() {  # name, then trajectory_cifar.py args   (foreground)
 }
 
 mkdir -p $OUT
-for arm in ruler uniform ruler95; do
-  w=$(widths $arm)
-  echo "arm $arm widths: $w"
-  for s in 0 1 2; do run vgg16_bn_${arm}_s$s --widths $w --seed $s; done
-done
+# PAR=1 (default): the nine runs one after another (a CPU-poor pod, 2026-09-08 note).
+# PAR=3: the three seeds of every arm in parallel, one process each (a 48-vCPU pod, 2026-09-10).
+PAR=${PAR:-1}
+if [ "$PAR" -ge 3 ]; then
+  for s in 0 1 2; do
+    ( for arm in ruler uniform ruler95; do run vgg16_bn_${arm}_s$s --widths $(widths $arm) --seed $s; done ) &
+  done
+  wait
+else
+  for arm in ruler uniform ruler95; do
+    w=$(widths $arm)
+    echo "arm $arm widths: $w"
+    for s in 0 1 2; do run vgg16_bn_${arm}_s$s --widths $w --seed $s; done
+  done
+fi
 echo "=== A18 done $(date) ==="
