@@ -112,3 +112,11 @@ bib-check 七份筆記），不是系統性回顧。新增：
 | # | 項目 | 狀態 |
 |---|---|---|
 | B9 | 系統性掃描「卷積網路逐層表徵秩／有效維度」2014–2026，產出比較表（張量、估計量、統計量、分母、初始化對照、形狀），進 §II；必補 tunnel effect（Masarczyk 2023）、RankMe（Garrido 2023）、α-ReQ、low-rank simplicity bias（Huh 2023）、逐層 neural collapse | ✔ 09-08：Table 1（19 篇）進 §II-B；tunnel／Cohen／Schulte／Feng／Chun／Daneshmand／Huh／Stephenson／Harun 已引並回應；39 條 bib 已於 09-08 核對、09-09 套用（`notes/bib-check-2-2026-09-08.md`；仍缺四篇 2020 前 NeurIPS 頁碼、Horn & Johnson 定理號待查書） |
+
+## H. 2026-09-09 作者引 TPAMI 審稿標準（理論嚴密、SOTA 橫向對比、極詳消融、極端與失效案例）後新增
+
+| # | 項目 | 為什麼 | 成本 | 狀態 |
+|---|---|---|---|---|
+| B10 | **估計量橫向對比表**：同一批層、同一批影像上，k*(τ)/r_max 對 RankMe（Garrido 2023）、α-ReQ（Agrawal 2022）、Chun 2026 偏差校正 PR、TwoNN（非線性對照）；報排序一致性（ρ）與水準 | 沒有演算法的論文，「SOTA 對比」的等價物就是這張表；現在只比了自家三個統計量 | 前三個從已存的譜算（1 天）；TwoNN 要原始激活（Mac 半天） | 未做；排在 A18 之後 |
+| B11 | **§VI「Where the ruler fails」一節**：池化估計量在 C=2048 過不了閘門、stem 只到上界 0.3–0.4、ConvNeXt dw/dense 分開後 p=0.21、DenseNet 池化下降 < 自身抖動、RSB 配方 τ=0.999 掉 1.7、H9.1 與 P9.3 兩個否定、SO 只實現一半、MobileNetV3 隨機初始化 R-R 0.75、κ 大時推論無資訊、白噪聲 ρ 0.32、A18／A17 若負 | 失效案例集中一節是「作者知道方法邊界」的證據 | 1 天 | 未做；A18 結果後寫 |
+| T9 | 命題的極端情況各一句：κ→∞ 推論退化、r<d 命題 2 等號條件、τ→1 命題 5 的界、命題 6 無譜隙時的鬆度 | 理論嚴密的審稿人會問邊界 | 半天 | 未做；審計輪 |
