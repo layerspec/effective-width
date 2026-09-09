@@ -592,6 +592,19 @@ about $n$ and not about the network. Well above that point the small eigenvalues
 reporting rule: no row with $n/C < 50$ is reported, and every reported
 statistic must additionally be shown to have flattened in $n/C$.
 
+The number $50$ was a convention when the plan was written; it has a derivation. Lawley's expansion \cite{lawley1956latentRoots} gives the expected sample eigenvalues to first order in $1/n$, and summing it over the top $k$ gives the bias of the variance fraction that $k^*$ reads.
+
+\begin{proposition}[finite-sample bias of the captured fraction]
+\label{prop:gate}
+Let $l_1 \ge \cdots \ge l_C$ be the eigenvalues of the sample covariance of $n$ observations with population eigenvalues $\lambda_1 \ge \cdots \ge \lambda_C$, and $\hat F(k) = \sum_{i \le k} l_i / \sum_i l_i$. Then, to first order in $1/n$,
+\[
+  \mathbb{E}\,\hat F(k) - F(k) \;=\; \frac{1}{n\,\operatorname{tr}\Sigma} \sum_{i \le k} \sum_{j > k} \frac{\lambda_i \lambda_j}{\lambda_i - \lambda_j} \;\ge\; 0,
+\]
+and if $\lambda_{k+1} \le \lambda_k / 2$ then $\mathbb{E}\,\hat F(k) - F(k) \le (2k/n)\,(1 - F(k)) \le (2C/n)\,(1 - F(k))$.
+\end{proposition}
+
+The captured fraction is biased upward, so $k^*(\tau)$ is biased downward, by an amount that at $n/C = 50$ is at most $4\%$ of the residual $1 - \tau$ under a factor-two spectral gap at $k$. The gap is an assumption; the double sum is not, and it can be evaluated on the measured spectra. On the 53 convolutions of ResNet-50 the predicted bias at $n = 50\,C$ and $\tau = 0.999$ is $1.8\%$ of the residual in the median and $3.3\%$ at most, and in the convergence data $k^*(0.999)$ at the $n/C = 50$ checkpoint equals its final value on 40 of the 53 layers and differs by one component on the rest. The gate is therefore the sample size at which the first-order bias of the statistic falls below a few percent of what the statistic measures; it is derived in Appendix~\ref{app:proofs} and checked by \texttt{checkpoint\_analysis.py} (its Section~19).
+
 Under the position-sampled estimator of Equation~\eqref{eq:covpos} with
 $p = 16$ positions per image over $50{,}000$ images, each convolutional layer
 receives $n = 8 \times 10^5$ observations. This gives $n/C$ between $391$ ($2048$-channel layers) and $50{,}000$ ($16$-channel layers), so every convolutional row in the study clears the gate by a factor of at least seven. Fig.~\ref{fig:conv} shows the convergence itself: metrics are
@@ -1132,6 +1145,19 @@ and usually followed by fine-tuning, to SPP-net and VGG-16. Energy
 thresholds as a rank rule appear there and as baselines in later work
 \cite{liebenwein2021alds}, and Garg \emph{et al.} \cite{garg2019lowEffort}
 retrain at their $99.9\%$ criterion. The closest precedent for reading a dimension count off accuracy is the ``classification dimension'' of Feng \emph{et al.} \cite{feng2022rankDiminishing}, the number of principal components of a layer that preserves $95\%$ of accuracy, measured one layer at a time. We use the truncation for one purpose only: with $k = k^*(\tau)$ from the measurement, at every dense convolution at once, with no fine-tuning and no rebuilding, does accuracy survive?
+
+What the answer should depend on is fixed to first order by the discarded variance.
+
+\begin{proposition}[first-order effect of truncation]
+\label{prop:truncation}
+Let $z$ be the output of layer $\ell$ at a position, $\Sigma_\ell = \sum_i \lambda_i u_i u_i^{\top}$ its covariance, $r = (I - U_k U_k^{\top})(z - \bar z)$ the discarded component, and $J_\ell$ the Jacobian of the logits with respect to $z$. Then $\mathbb{E}\|r\|^2 = (1 - \tau_k)\operatorname{tr}\Sigma_\ell$ with $\tau_k$ the captured fraction, and to first order
+\[
+  \mathbb{E}\|J_\ell r\|^2 = \operatorname{tr}\bigl(J_\ell \Sigma_\ell^{\perp}(k) J_\ell^{\top}\bigr) \le \|J_\ell\|_{\rm op}^2 (1 - \tau_k) \operatorname{tr}\Sigma_\ell,
+\]
+where $\Sigma_\ell^{\perp}(k) = \sum_{i > k} \lambda_i u_i u_i^{\top}$; truncating $L$ layers at once perturbs the logits by at most $\sum_\ell (\mathbb{E}\|J_\ell r_\ell\|^2)^{1/2}$ in root mean square.
+\end{proposition}
+
+The proposition does not predict an accuracy, since that depends on the logit margins and on the nonlinearity beyond first order, but it fixes the scale: between $\tau = 0.999$ and $0.95$ the discarded energy per layer differs by a factor of $50$ and its amplitude by $7$, and the layers add. A criterion that keeps $0.1\%$ of the variance at each of 53 layers and one that keeps $95\%$ are therefore not two settings of one knob but an order of magnitude apart in what they inject, which is what the measurement below finds. The proof is in Appendix~\ref{app:proofs}; a per-layer evaluation of $\operatorname{tr}(J_\ell \Sigma_\ell^{\perp} J_\ell^{\top})$ against the leave-one-layer-out losses is left to the released code.
 On one half of the subset the channel covariance of every convolution output of eight checkpoints (the six ResNet-50 recipes, ResNet-18, VGG-16 with BN) was accumulated exactly as in the measurement; on the other half the network was evaluated with every convolution output truncated. The control truncates each layer to $k^*(\tau)$
 random orthonormal directions instead. Table~\ref{tab:projection} gives top-1 accuracy, and since truncated and untruncated networks are scored on the same images, each difference has an exact McNemar test; ``unchanged'' below means that test does not reject at $p = 0.01$.
 
@@ -1269,8 +1295,8 @@ spectra vanish beyond $r$.
 
 \begin{corollary}
 \label{cor:kstar}
-With $\kappa = \sigma_{\max}/\sigma_{\min}$ and $\tau' = \kappa^2\tau / (1 - \tau + \kappa^2 \tau)$,
-$k^*(\tau; \Sigma_{\rm out}) \le k^*(\tau'; \Sigma_{\circ})$ for every $\tau \in (0, 1)$.
+With $\kappa = \sigma_{\max}/\sigma_{\min}$, $\tau' = \kappa^2\tau / (1 - \tau + \kappa^2 \tau)$ and $\tau'' = \tau / (\kappa^2 (1 - \tau) + \tau)$,
+$k^*(\tau''; \Sigma_{\circ}) \le k^*(\tau; \Sigma_{\rm out}) \le k^*(\tau'; \Sigma_{\circ})$ for every $\tau \in (0, 1)$.
 If the nonzero singular values of $W$ are equal ($\kappa = 1$) then
 $k^*(\tau; \Sigma_{\rm out}) = k^*(\tau; \Sigma_{\circ})$, and if moreover
 $C_{\rm out} \ge d$ then $k^*(\tau; \Sigma_{\rm out}) = \min(k^*(\tau; \Sigma_{\rm patch}), r_{\max})$.
@@ -1674,11 +1700,15 @@ spectra. From $\sigma_{\min}^2 \lambda_i(\Sigma_{\circ}) \le
 since the top-$k$ sum is scaled by at least $\sigma_{\min}^2$ and the tail by at most $\sigma_{\max}^2$. The right-hand side is at least $\tau$ exactly when
 $F_{\circ}(k) \ge \kappa^2 \tau / (1 - \tau + \kappa^2 \tau) = \tau'$. Hence
 the smallest $k$ with $F_{\circ}(k) \ge \tau'$ satisfies
-$F_{\rm out}(k) \ge \tau$, which is the inequality. For $\kappa = 1$ the
+$F_{\rm out}(k) \ge \tau$, which is the upper bound. The same two inequalities read the other way give $F_{\rm out}(k) \le \kappa^2 F_{\circ}(k) / (\kappa^2 F_{\circ}(k) + 1 - F_{\circ}(k))$, which is below $\tau$ exactly when $F_{\circ}(k) < \tau''$; hence every $k$ below $k^*(\tau''; \Sigma_{\circ})$ has $F_{\rm out}(k) < \tau$, which is the lower bound. For $\kappa = 1$ the
 two spectra are proportional and the counts coincide; if also
 $C_{\rm out} \ge d$ then $W_{\circ}$ has orthonormal columns, so
 $\Sigma_{\circ}$ has the nonzero spectrum of $\Sigma_{\rm patch}$ truncated to
 $r_{\max} = d$ dimensions. \qed
+
+\emph{Proposition~\ref{prop:gate}.} Lawley's first-order expansion is $\mathbb{E}\,l_i = \lambda_i + (\lambda_i/n)\sum_{j \ne i} \lambda_j/(\lambda_i - \lambda_j) + O(n^{-2})$, and the trace of the sample covariance is unbiased. Summing over $i \le k$, the terms with both indices at most $k$ cancel in pairs ($\lambda_i\lambda_j/(\lambda_i - \lambda_j)$ is antisymmetric), leaving the double sum over $i \le k < j$, each term of which is nonnegative. Under $\lambda_j \le \lambda_i/2$ for $j > k$, $\lambda_i/(\lambda_i - \lambda_j) \le 2$, so each term is at most $2\lambda_j$ and the sum is at most $2k \sum_{j > k}\lambda_j = 2k\,(1 - F(k))\operatorname{tr}\Sigma$. \qed
+
+\emph{Proposition~\ref{prop:truncation}.} $\mathbb{E}\|r\|^2 = \operatorname{tr}\bigl((I - U_kU_k^{\top})\Sigma_\ell\bigr) = \sum_{i > k}\lambda_i$. The first-order change of the logits is $J_\ell r$, whose second moment is $\operatorname{tr}(J_\ell\,\mathbb{E}[rr^{\top}]\,J_\ell^{\top}) = \operatorname{tr}(J_\ell \Sigma_\ell^{\perp} J_\ell^{\top}) \le \|J_\ell\|_{\rm op}^2 \operatorname{tr}\Sigma_\ell^{\perp}$. For several layers the perturbations add and Minkowski's inequality bounds the root mean square of the sum by the sum of the root mean squares. \qed
 
 \emph{Proposition~\ref{prop:compression}.} Let $Q$ ($r \times d$) have
 orthonormal rows spanning the row space of $W$; then
