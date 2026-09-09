@@ -92,3 +92,50 @@ def test_select_device_prefers_available_accelerator():
     assert select_device("cpu") == "cpu"
     auto = select_device(None)
     assert auto in ("cuda", "mps", "cpu")
+
+
+def test_decompose_columns_and_propositions():
+    import layerspec
+    dec = layerspec.decompose(small_cnn(), random_loader(n_images=256), device="cpu", positions=16)
+    t = dec.table
+    for col in ["layer", "depth_index", "C_in", "C_out", "k", "d", "r_max", "n_samples", "n_over_d",
+                "kernel_erank_over_rmax", "kernel_cond_top_rmax", "data_erank_over_rmax",
+                "out_0.95", "kernel_0.95", "data_0.95", "ortho_0.95", "ostrowski_ok", "kappa"]:
+        assert col in t.columns, col
+    assert len(t) == 3                                   # the depthwise layer (groups=64) is not dense
+    assert t.ostrowski_ok.all()
+    for tau in (0.9, 0.95, 0.99, 0.999):
+        assert t[f"bound_ok_{tau}"].all()               # corollary: k*_out(tau) <= k*_ortho(tau')
+    c = dec.check()
+    assert c["ostrowski"] == (3, 3) and c["kappa_median"] > 0
+
+
+def test_decompose_identity_matches_direct_measurement():
+    """Sigma_out = W Sigma_patch W^T: the spectrum recomputed from the kernel
+    and the patch covariance agrees with the directly accumulated output
+    spectrum on a 1x1 layer (patch == input pixel), up to sampling noise."""
+    import layerspec
+    from layerspec.hooks import SpectrumProbe
+    torch.manual_seed(1)
+    net = nn.Sequential(nn.Conv2d(16, 8, 1))
+    loader = torch.utils.data.DataLoader(
+        torch.utils.data.TensorDataset(torch.randn(2000, 16, 8, 8, generator=torch.Generator().manual_seed(3))),
+        batch_size=100)
+    dec = layerspec.decompose(net, loader, device="cpu", positions=16, seed=0)
+    probe = SpectrumProbe(net, positions_per_image=16, pooled=False, include_activations=False, seed=0)
+    with torch.no_grad():
+        for (x,) in loader:
+            net(x)
+    rec = [r for r in probe.records() if r.kind == "conv"][0]
+    probe.remove()
+    lam_direct = np.sort(rec.acc.eigenvalues())[::-1]
+    W = net[0].weight.detach().double().reshape(8, 16).numpy()
+    Sig = dec.patch_covariance["0"]
+    lam_recomputed = np.sort(np.linalg.eigvalsh(W @ Sig @ W.T))[::-1]
+    assert np.allclose(lam_direct / lam_direct.sum(), lam_recomputed / lam_recomputed.sum(), atol=0.02)
+
+
+def test_decompose_rejects_models_without_dense_conv():
+    import layerspec
+    with pytest.raises(ValueError):
+        layerspec.decompose(nn.Sequential(nn.Conv2d(4, 4, 3, groups=4)), random_loader(), device="cpu")
