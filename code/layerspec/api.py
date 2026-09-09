@@ -158,3 +158,47 @@ def profile(model: nn.Module, loader, *, device: str | None = None, positions: i
     meta = {"device": device, "positions_per_image": positions, "seed": seed,
             "min_n_over_C": min_n_over_C, "torch": torch.__version__, "n_rows": len(table)}
     return Profile(table=table, spectra=spectra, meta=meta)
+
+
+from . import decompose as _dec
+
+
+@dataclass
+class Decomposition:
+    """Kernel/data decomposition of the effective width, one row per dense convolution."""
+    table: pd.DataFrame
+    patch_covariance: dict = field(default_factory=dict, repr=False)
+    meta: dict = field(default_factory=dict)
+
+    def check(self) -> dict:
+        return _dec.check_rows(self.table, tuple(self.meta.get("taus", _dec.DEFAULT_TAUS)))
+
+    def to_csv(self, path) -> None:
+        self.table.to_csv(path, index=False)
+
+
+@torch.no_grad()
+def decompose(model: nn.Module, loader, *, device: str | None = None, positions: int = 48,
+              taus: tuple[float, ...] = DEFAULT_TAUS, rank_tol: float = 1e-6,
+              max_batches: int | None = None, seed: int = 0) -> Decomposition:
+    """Accumulate the receptive-field patch covariance of every dense
+    convolution and split k*/r_max into out / kernel / data / ortho."""
+    if not any(isinstance(m, nn.Conv2d) and m.groups == 1 for m in model.modules()):
+        raise ValueError("decompose() needs at least one dense (groups == 1) nn.Conv2d")
+    device = select_device(device)
+    model = model.to(device).eval()
+    probe = _dec.PatchProbe(model, positions, seed)
+    try:
+        for i, batch in enumerate(loader):
+            if max_batches is not None and i >= max_batches:
+                break
+            x = batch[0] if isinstance(batch, (list, tuple)) else batch
+            model(x.to(device))
+    finally:
+        probe.remove()
+    rows = _dec.decompose_rows(probe, taus, rank_tol)
+    table = pd.DataFrame(rows).sort_values("depth_index").reset_index(drop=True)
+    cov = {name: acc.covariance for name, acc in probe.acc.items()}
+    meta = {"device": device, "positions": positions, "seed": seed, "rank_tol": rank_tol,
+            "taus": tuple(taus), "torch": torch.__version__}
+    return Decomposition(table=table, patch_covariance=cov, meta=meta)
