@@ -28,7 +28,17 @@
 - B4 analysis-plan.md 翻成英文，偏離紀錄補到投稿當天。
 - B5 §II 五條新 bib（Bansal、Massart、Huang×2、Wang）逐條核對原文；Massart 要看 IEEE 版。
 - B6 標題與摘要在全部結果出來後最後定。
-- B7 **頁數**：compsoc 樣式下目前 17 頁（2026-09-08）。投稿前查 TPAMI 當期的頁數規定（一般 14 頁內免費、超頁收費、有上限），必要時把三張 table* 與部分圖移附錄或補充材料。
+- B7 **頁數**：2026-09-09 已 23 頁（§I 1–3、§II 3–6 含 Table 1 綜述表、§III–IV 5–8、§V 8–19、§VI 19–20、參考文獻 21、附錄 21–23）。
+  TPAMI 規定（2026-09-09 查）：regular paper **14 頁**含參考文獻，超頁收費（mandatory overlength page charges）；作者說篇幅不是限制，但 23 頁會讓審稿人先入為主。
+  **計畫：主文 16 頁＋補充材料**，投稿前執行、審計那一輪一起做：
+  1. 附錄 A 證明、附錄 B 主張總表 → 補充材料（−2.5 頁）
+  2. Table 1 綜述表縮成 8 列版（−0.7），完整版進補充
+  3. §V-G 統計量一致性、§V-H 閾值敏感度 → 各留三句＋補充（−1.0）
+  4. §V-K 消融小節 → 表留、文字縮半（−0.5）
+  5. §V-I depthwise、§V-D 池化細節、§V-J inverted residual 段 → 各縮（−1.0）
+  6. Fig. 6 分解圖與 Fig. 7 block 剖面 → 補充（−0.8）
+  7. §II-D／II-E 各縮三分之一（−0.5）
+  合計約 −7 頁 → 16 頁。判斷標準：主文只留承重主張與預登記結果；任何「探索性、標示」的細節優先進補充。
 - B8 已套用 TPAMI 樣式：`\documentclass[10pt,journal,compsoc]{IEEEtran}`、`\IEEEtitleabstractindextext`、`\IEEEcompsocitemizethanks`、`\IEEEraisesectionheading`（2026-09-08）。
 
 ## C. 可重現性包
