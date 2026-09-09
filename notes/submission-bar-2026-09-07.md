@@ -53,7 +53,7 @@ A7、A8、A10 各一兩天 Mac。加 B、C，約兩到三個月。
 | T2 ✔ | 命題 2（正交化反事實）：W_o Σ W_oᵀ 的譜 = Σ 在 W 列空間壓縮的譜；Table VI 的 ortho 欄由此定義 | 未寫 |
 | T3 ✔ | 命題 3（跨層遞迴）：Σ_patch^(ℓ+1) 是 post-activation 空間共變異數的線性像（unfold），給沿深度的上界；連到 Feng 2022 | 未寫 |
 | T4 | 十組分解資料逐層驗證：Ostrowski 464/465、推論 465/465 | ✔ 09-08 |
-| I1 | `layerspec.profile(model, loader)` API：k*(τ)/r_max、閘門、W／patch 分解、投影檢查；文件、測試、PyPI | 未做 |
+| I1 | `layerspec.profile(model, loader)` API：k*(τ)/r_max、閘門、W／patch 分解、投影檢查；文件、測試、PyPI | ✔ 09-09：layerspec 0.2（profile／decompose API、CLI、pyproject、測試 27 個、ResNet-50 回歸逐層一致）；PyPI 上傳待作者註冊帳號後 `python -m twine upload dist/*` |
 | I2 | ~~應用段~~ → 降級為一句話：k*(0.999) 投影 = W = V_k(V_kᵀW) 分解，但 conv FLOPs 只省 2–5%（1×1 層 d<C_out 分解反而變貴；§10b），**不是壓縮方法**，只是解釋性錨點；仍引 Zhang 2015 TPAMI 定位 | FLOPs 已算，待寫一句 |
 | M1 | §I 以「所有可靠的 k 都是事後的」缺口開場（限定版三句）＋三件要先解決的事 | ✔ 09-08 |
 | W1 | 附錄 B 主張總表（Table 7） | ✔ 09-08 |
