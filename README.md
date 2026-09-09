@@ -89,7 +89,7 @@ dec.table[["layer", "out_0.95", "kernel_0.95", "data_0.95", "ortho_0.95"]]
 dec.check()                                 # Proposition-1 counts
 ```
 
-Or from the shell: `layerspec profile --model resnet50 --data /path/to/images --out resnet50.csv`.
+Or from the shell: `layerspec profile --model resnet50 --data /path/to/images --out resnet50.csv`. Linear layers are measured too (`r_max = min(in, out)`, tokens as positions), so a ViT profiles out of the box: `layerspec profile --model timm:vit_base_patch16_224.augreg_in21k_ft_in1k --positions 32 ...`; read them with `prof.dense(kinds=("linear",))`.
 
 What the numbers mean: `k*(tau)/r_max` is the number of principal directions of a
 convolution's output covariance (before the nonlinearity) carrying a fraction
