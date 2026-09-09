@@ -71,6 +71,16 @@ def test_profile_summary_and_csv_roundtrip(tmp_path):
     pd.testing.assert_frame_equal(back.dense(), prof.dense(), check_dtype=False)
 
 
+def test_profile_summary_without_default_taus():
+    import layerspec
+    # taus does not include 0.999: summary()'s r_max sanity check must not
+    # hardcode that column name.
+    prof = layerspec.profile(small_cnn(), random_loader(n_images=256), device="cpu",
+                             taus=(0.9, 0.95))
+    s = prof.summary(tau=0.95)
+    assert s["rmax_check_ok"] is True
+
+
 def test_profile_rejects_models_without_conv():
     import layerspec
     with pytest.raises(ValueError):

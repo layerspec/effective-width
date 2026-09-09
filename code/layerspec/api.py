@@ -90,8 +90,16 @@ class Profile:
     def summary(self, tau: float = 0.95) -> dict:
         d = self.dense(tau)
         col = f"k_star_rmax_{_tau_key(tau)}"
-        conv = self.table[(self.table.kind == "conv") & self.table["k_star_rmax_0.999"].notna()]
-        rmax_max = float(conv["k_star_rmax_0.999"].max()) if len(conv) else float("nan")
+        # r_max sanity check: use the *largest* available tau's k_star_rmax
+        # column -- the check is tightest there -- rather than hardcoding
+        # 0.999, since `taus=` may not include it.
+        rmax_cols = [c for c in self.table.columns if c.startswith("k_star_rmax_")]
+        conv = self.table.iloc[0:0]
+        rmax_max = float("nan")
+        if rmax_cols:
+            check_col = max(rmax_cols, key=lambda c: float(c.split("_")[-1]))
+            conv = self.table[(self.table.kind == "conv") & self.table[check_col].notna()]
+            rmax_max = float(conv[check_col].max()) if len(conv) else float("nan")
         rho = float("nan")
         if len(d) >= 3:
             rho = _spearman(np.arange(len(d)), d[col].to_numpy())
