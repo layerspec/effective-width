@@ -2,8 +2,8 @@
 
 Measurement code, results, and paper for
 
-> **Measuring the Effective Width of Convolutional Layers: Three Pitfalls, and
-> What Training Changes Depends on the Block**
+> **Measuring the Effective Width of Convolutional Layers: Protocol, Pitfalls,
+> and the Comparison with Initialisation**
 
 For every convolutional layer of a trained network, we ask how many directions
 in channel space carry its activation variance, as a fraction of the directions
@@ -21,12 +21,11 @@ channel covariance after global average pooling gives a lower value than
 sampling spatial positions on 687 of 703 dense layers. (3) The output of a
 residual block exceeds the rank bound of its last convolution in 161 of 161
 bottleneck blocks, so profiles read at block outputs and at convolution outputs
-are different objects. With the protocol fixed, what training changes depends on
-the block type: plain, basic-residual and dense networks keep the layer ordering
-the architecture gave them and gain a level; bottleneck ResNet-50 learns an
-ordering uncorrelated with initialisation (six recipes agree at ρ = 0.84, with
-initialisation at ρ = −0.08) and reverses its trend with depth; the available
-inverted-residual checkpoints share no profile.
+are different objects. With the protocol fixed, trained networks largely keep the layer ordering the
+architecture gave them and gain a level, and the profile is in place before
+accuracy is; a pre-registered controlled experiment on CIFAR-10 shows the block
+type does not change this, so the one family whose public checkpoints reorder
+their layers, ImageNet ResNet-50, owes it to its training regime.
 
 ## Reproducing the numbers
 
@@ -66,6 +65,39 @@ measurement (six ResNet-50 recipes and five random seeds on a fixed
 Apple silicon: `code/scripts/run_local_seeds.sh`, `run_local_archs.sh`. The
 CIFAR-10 validation gate and training trajectory are `reproduce_garg.py` and
 `trajectory_cifar.py`.
+
+## Use it on your own model
+
+```bash
+pip install layerspec            # torch, numpy, pandas
+pip install "layerspec[models]"  # + torchvision, timm for the named checkpoints
+```
+
+```python
+import layerspec
+
+model  = layerspec.load_model("resnet50")                  # or any torch.nn.Module with Conv2d layers
+loader = layerspec.image_loader("/path/to/6400/images")    # or any DataLoader yielding images or (x, y)
+
+prof = layerspec.profile(model, loader)     # one forward pass; 16 positions per image
+prof.dense(tau=0.95)                        # layer, depth_index, r_max, k*(0.95)/r_max  (gated, dense convs only)
+prof.summary()                              # L, median level, rho(depth), max k*(0.999)/r_max (must be <= 1)
+prof.to_csv("resnet50_layers.csv")
+
+dec = layerspec.decompose(model, loader)    # out / kernel / data / ortho per dense conv
+dec.table[["layer", "out_0.95", "kernel_0.95", "data_0.95", "ortho_0.95"]]
+dec.check()                                 # Proposition-1 counts
+```
+
+Or from the shell: `layerspec profile --model resnet50 --data /path/to/images --out resnet50.csv`.
+
+What the numbers mean: `k*(tau)/r_max` is the number of principal directions of a
+convolution's output covariance (before the nonlinearity) carrying a fraction
+`tau` of its variance, divided by the rank the layer can attain
+(`groups * min(C_in/groups * kh * kw, C_out/groups)`). Rows with `ok == False`
+have fewer than 50 samples per channel and are not reportable. Depthwise
+convolutions are flagged and left out of `dense()`. A `k*(0.999)/r_max` above 1
+means `r_max` is wrong for that layer type; please report it.
 
 ## Layout
 
