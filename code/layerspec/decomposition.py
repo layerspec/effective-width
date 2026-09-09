@@ -137,6 +137,27 @@ def rho_align(sv: np.ndarray, Vt: np.ndarray, Sig: np.ndarray, r: int) -> float:
     return float(np.corrcoef(ra, rb)[0, 1])
 
 
+def rho_align_sigma(W: np.ndarray, Sig: np.ndarray, rank_tol: float = 1e-6) -> float:
+    """The alignment index in the eigenbasis of Sigma_patch (Proposition 4):
+    Spearman correlation, over the principal directions q_j of the patch
+    covariance with lambda_j above rank_tol of the largest, between the
+    kernel gain ||W q_j||^2 and the input variance lambda_j.  For the
+    least-squares layer the gain is c_j / lambda_j^2, so a flat task relevance
+    c_j gives -1 (whitening) and an isotropic kernel gives 0."""
+    lam, Q = np.linalg.eigh(Sig)
+    order = np.argsort(lam)[::-1]; lam, Q = lam[order], Q[:, order]
+    r = int((lam > lam[0] * rank_tol).sum())
+    if r < 3:
+        return float("nan")
+    gain = np.sum((W @ Q[:, :r]) ** 2, axis=0)
+    if np.ptp(gain) <= 1e-6 * gain.max():
+        return float("nan")
+    ra = pd.Series(gain).rank().to_numpy(); rb = pd.Series(lam[:r]).rank().to_numpy()
+    if ra.std() == 0 or rb.std() == 0:
+        return float("nan")
+    return float(np.corrcoef(ra, rb)[0, 1])
+
+
 def _sym_eigs(S: np.ndarray) -> np.ndarray:
     return np.sort(np.linalg.eigvalsh((S + S.T) / 2))[::-1]
 
@@ -184,6 +205,7 @@ def decompose_rows(probe: PatchProbe, taus: tuple[float, ...] = DEFAULT_TAUS,
             row[f"data_{tk}"] = min(kstar(lam_data, tau), r_max) / r_max
             row[f"ortho_{tk}"] = kstar(lam_ortho, tau) / r_max
         row["rho_align"] = rho_align(sv, Vt, Sig, r)
+        row["rho_align_sigma"] = rho_align_sigma(W, Sig, rank_tol)
         rows.append(row)
     return rows
 
