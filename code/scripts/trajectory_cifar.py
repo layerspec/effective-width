@@ -38,6 +38,32 @@ from scripts.reproduce_garg import (build_vgg16_bn_cifar,        # noqa: E402
                                     cifar_loaders, evaluate)
 
 
+VGG16_WIDTHS = (64, 64, 128, 128, 256, 256, 256, 512, 512, 512, 512, 512, 512)
+_VGG16_POOL_AFTER = {1, 3, 6, 9, 12}      # torchvision cfg "D": M after these conv indices
+
+
+def build_vgg16_bn_cifar_widths(widths, num_classes: int = 10):
+    """VGG-16_BN (CIFAR head, as build_vgg16_bn_cifar(head="small")) with the 13
+    conv widths given explicitly.  With VGG16_WIDTHS it is the standard network,
+    parameter for parameter and (under the same seed) weight for weight; with
+    the widths read off a trained network's profile it is the arm of the
+    width-from-the-ruler experiment (analysis-plan 9.5)."""
+    import torch.nn as nn
+    from torchvision.models.vgg import VGG, make_layers
+    widths = [int(w) for w in widths]
+    if len(widths) != 13 or min(widths) < 1:
+        raise ValueError(f"--widths needs 13 positive integers, got {widths}")
+    cfg = []
+    for i, w in enumerate(widths):
+        cfg.append(w)
+        if i in _VGG16_POOL_AFTER:
+            cfg.append("M")
+    m = VGG(make_layers(cfg, batch_norm=True), num_classes=num_classes)
+    m.avgpool = nn.AdaptiveAvgPool2d(1)
+    m.classifier = nn.Linear(widths[-1], num_classes)
+    return m
+
+
 def build_resnet50_cifar(num_classes: int = 10):
     """torchvision ResNet-50 with the usual CIFAR stem: 3x3 stride-1 conv1
     and no max-pool, so a 32x32 input reaches layer4 at 4x4.  Bottleneck
@@ -217,7 +243,13 @@ def main(argv=None) -> int:
                    help="smoke-test aid: measure on this many test batches only")
     p.add_argument("--gpu-data", action="store_true",
                    help="hold the training split on the device and augment there (no loader workers)")
+    p.add_argument("--widths", type=int, nargs=13, default=None, metavar="W",
+                   help="vgg16_bn only: the 13 conv widths (analysis-plan 9.5 arms b/c/d)")
+    p.add_argument("--save-checkpoints", action="store_true",
+                   help="also write epoch_<E>.pt (state_dict) at every measured epoch (analysis-plan 9.6)")
     args = p.parse_args(argv)
+    if args.widths is not None and args.arch != "vgg16_bn":
+        p.error("--widths is only defined for --arch vgg16_bn")
 
     schedule = sorted(set(args.schedule or [e for e in DEFAULT_SCHEDULE if e <= args.epochs]))
     if args.epochs not in schedule:
@@ -229,7 +261,8 @@ def main(argv=None) -> int:
                                               args.workers, "cifar10")
     if args.gpu_data:
         train_loader = GPUCifarTrain(args.data_root, args.batch_size, args.device, args.seed)
-    model = ARCHS[args.arch]().to(args.device)
+    model = (build_vgg16_bn_cifar_widths(args.widths, 10) if args.widths is not None
+             else ARCHS[args.arch]()).to(args.device)
     opt = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9,
                           weight_decay=5e-4, nesterov=True)
     steps = len(train_loader) if args.max_train_batches is None \
@@ -268,6 +301,9 @@ def main(argv=None) -> int:
         df = measure(model, test_loader, args.device, args.positions, epoch, acc,
                      args.seed, max_batches=args.max_measure_batches)
         df.to_csv(os.path.join(args.out, f"epoch_{epoch:03d}_layers.csv"), index=False)
+        if args.save_checkpoints:
+            torch.save({k: v.detach().cpu() for k, v in model.state_dict().items()},
+                       os.path.join(args.out, f"epoch_{epoch:03d}.pt"))
         frames.append(df)
         conv = df[df.kind == "conv"].sort_values("depth_index")
         r = conv["k_star_ratio_0.95"].to_numpy()
