@@ -155,7 +155,7 @@ def test_cli_profile_writes_csv(tmp_path):
     from layerspec.cli import main
     out = tmp_path / "prof.csv"
     rc = main(["profile", "--model", "resnet18_random", "--data", "synthetic", "--limit", "8",
-               "--image-size", "32", "--batch-size", "4", "--positions", "4", "--device", "cpu",
+               "--image-size", "64", "--batch-size", "4", "--positions", "4", "--device", "cpu",
                "--out", str(out)])
     assert rc == 0 and out.exists()
     import pandas as pd
@@ -167,7 +167,7 @@ def test_cli_decompose_writes_csv(tmp_path):
     from layerspec.cli import main
     out = tmp_path / "dec.csv"
     rc = main(["decompose", "--model", "resnet18_random", "--data", "synthetic", "--limit", "8",
-               "--image-size", "32", "--batch-size", "4", "--positions", "4", "--device", "cpu",
+               "--image-size", "64", "--batch-size", "4", "--positions", "4", "--device", "cpu",
                "--out", str(out)])
     assert rc == 0 and out.exists()
     import pandas as pd
