@@ -17,7 +17,7 @@ analysis:
 	  --latex-models ../$(P)/table_models.tex --latex-pooling ../$(P)/table_pooling.tex \
 	  --latex-families ../$(P)/table_families.tex --latex-projection ../$(P)/table_projection.tex \
 	  --latex-decompose ../$(P)/table_decompose.tex --latex-ablation ../$(P)/table_ablation.tex \
-	  --latex-round3 ../$(P)/table_round3.tex --latex-ortho ../$(P)/table_ortho.tex > ../$(R)/checkpoint_analysis.txt
+	  --latex-round3 ../$(P)/table_round3.tex --latex-ortho ../$(P)/table_ortho.tex --latex-a18 ../$(P)/table_a18.tex > ../$(R)/checkpoint_analysis.txt
 
 figures:
 	cd code && $(PY) -m layerspec.figures --results ../$(R) --out ../$(R)/figures > /dev/null
