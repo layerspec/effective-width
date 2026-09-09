@@ -84,6 +84,29 @@ class PatchProbe:
         self.handles.clear()
 
 
+def rho_align(sv: np.ndarray, Vt: np.ndarray, Sig: np.ndarray, r: int) -> float:
+    """Kernel-data alignment index (analysis-plan 9.6): Spearman correlation,
+    over the r retained right-singular directions v_i of W, between the
+    kernel gain s_i^2 and the input variance carried by that direction,
+    v_i^T Sigma_patch v_i.  Positive: the kernel amplifies the data's
+    high-variance directions (widening); negative: it suppresses them
+    (compressive); an isometric or isotropic kernel gives 0 (returned as nan
+    when either sequence is constant)."""
+    if r < 3:
+        return float("nan")
+    V = Vt[:r]                                         # (r, d)
+    v_in = np.einsum("id,de,ie->i", V, Sig, V)         # v_i^T Sig v_i
+    gain = sv[:r] ** 2
+    # A kernel whose retained singular values are equal up to float error
+    # (an isometry) has no ordering to correlate: nan, not noise.
+    if np.ptp(gain) <= 1e-6 * gain.max() or np.ptp(v_in) <= 1e-6 * abs(v_in).max():
+        return float("nan")
+    ra = pd.Series(gain).rank().to_numpy(); rb = pd.Series(v_in).rank().to_numpy()
+    if ra.std() == 0 or rb.std() == 0:
+        return float("nan")
+    return float(np.corrcoef(ra, rb)[0, 1])
+
+
 def _sym_eigs(S: np.ndarray) -> np.ndarray:
     return np.sort(np.linalg.eigvalsh((S + S.T) / 2))[::-1]
 
@@ -130,6 +153,7 @@ def decompose_rows(probe: PatchProbe, taus: tuple[float, ...] = DEFAULT_TAUS,
             row[f"kernel_{tk}"] = kstar(lam_kernel, tau) / r_max
             row[f"data_{tk}"] = min(kstar(lam_data, tau), r_max) / r_max
             row[f"ortho_{tk}"] = kstar(lam_ortho, tau) / r_max
+        row["rho_align"] = rho_align(sv, Vt, Sig, r)
         rows.append(row)
     return rows
 
@@ -147,7 +171,8 @@ def check_rows(df: pd.DataFrame, taus: tuple[float, ...] = DEFAULT_TAUS) -> dict
             "kappa_max": float(df.kappa.max()) if n else float("nan"),
             "n_null_layers": int((df.n_null > 0).sum()),
             "n_over_d_min": float(df.n_over_d.min()) if n else float("nan"),
-            "n_below_50": int((df.n_over_d < 50).sum()) if n else 0}
+            "n_below_50": int((df.n_over_d < 50).sum()) if n else 0,
+            "rho_align_median": float(df.rho_align.median()) if n and "rho_align" in df else float("nan")}
 
 
 def format_check(c: dict) -> str:
