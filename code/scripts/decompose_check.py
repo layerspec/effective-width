@@ -33,70 +33,15 @@ import os
 import sys
 import time
 
-import numpy as np
 import pandas as pd
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from layerspec.accumulate import CovarianceAccumulator   # noqa: E402
 from layerspec.data import build_loader                  # noqa: E402
 from layerspec.models import build                       # noqa: E402
+from layerspec.decompose import PatchProbe, decompose_rows, check_rows, format_check   # noqa: E402
 
-TAUS = [0.9, 0.95, 0.99, 0.999]
-
-
-def kstar(eig: np.ndarray, tau: float) -> int:
-    eig = np.clip(eig, 0, None)
-    if eig.sum() <= 0:
-        return 0
-    c = np.cumsum(eig) / eig.sum()
-    return int(np.searchsorted(c, tau) + 1)
-
-
-def erank(eig: np.ndarray) -> float:
-    eig = np.clip(eig, 0, None); p = eig / eig.sum()
-    p = p[p > 0]
-    return float(np.exp(-(p * np.log(p)).sum()))
-
-
-class PatchProbe:
-    def __init__(self, model: nn.Module, positions: int, seed: int, device):
-        self.acc, self.meta, self.handles = {}, {}, []
-        self.p = positions
-        self.gen = torch.Generator().manual_seed(seed)
-        self.device = device
-        order = 0
-        for name, m in model.named_modules():
-            if isinstance(m, nn.Conv2d) and m.groups == 1:
-                self.meta[name] = dict(depth_index=order, module=m)
-                order += 1
-                self.handles.append(m.register_forward_pre_hook(
-                    lambda mod, inp, _n=name: self._consume(_n, mod, inp[0])))
-
-    @torch.no_grad()
-    def _consume(self, name, m: nn.Conv2d, x: torch.Tensor):
-        N = x.shape[0]
-        cols = F.unfold(x, m.kernel_size, dilation=m.dilation, padding=m.padding, stride=m.stride)  # (N, d, L)
-        d, L = cols.shape[1], cols.shape[2]
-        if L == 1:
-            return                                   # conv on a pooled tensor: not in the profile
-        p = min(self.p, L)
-        idx = torch.randint(0, L, (N, p), generator=self.gen).to(cols.device)
-        cols = torch.gather(cols, 2, idx.unsqueeze(1).expand(N, d, p))   # (N, d, p)
-        xs = cols.permute(0, 2, 1).reshape(N * p, d).to(torch.float32)
-        acc = self.acc.get(name)
-        if acc is None:
-            acc = self.acc[name] = CovarianceAccumulator(d)
-            self.meta[name].update(d=d, C_in=m.in_channels, C_out=m.out_channels,
-                                   k=m.kernel_size[0] * m.kernel_size[1])
-        bm = xs.mean(0); xc = xs - bm
-        acc.update_precomputed(xs.shape[0], bm.cpu().double().numpy(), (xc.T @ xc).cpu().double().numpy())
-
-    def remove(self):
-        for h in self.handles:
-            h.remove()
+TAUS = (0.9, 0.95, 0.99, 0.999)
 
 
 def main(argv=None) -> int:
@@ -135,7 +80,7 @@ def main(argv=None) -> int:
         model, tag = build(a.model, pretrained=True, seed=a.seed)
         a.model = a.name or a.model
     model = model.to(a.device).eval()
-    probe = PatchProbe(model, a.positions, a.seed, a.device)
+    probe = PatchProbe(model, a.positions, a.seed)
     t0 = time.time()
     with torch.no_grad():
         for i, (x, _) in enumerate(loader):
@@ -143,57 +88,16 @@ def main(argv=None) -> int:
     probe.remove()
     print(f"{a.model} ({tag}): {len(probe.acc)} dense conv layers, {time.time() - t0:.0f}s", flush=True)
 
-    rows = []
-    for name, acc in probe.acc.items():
-        meta = probe.meta[name]; m = meta["module"]
-        d, C_out = meta["d"], meta["C_out"]
-        r_max = min(d, C_out)
-        W = m.weight.detach().cpu().double().reshape(C_out, d).numpy()
-        Sig = acc.covariance
-        lam_data = np.sort(np.linalg.eigvalsh(Sig))[::-1]
-        S_out = W @ Sig @ W.T
-        lam_out = np.sort(np.linalg.eigvalsh((S_out + S_out.T) / 2))[::-1]
-        G = W @ W.T
-        lam_kernel = np.sort(np.linalg.eigvalsh((G + G.T) / 2))[::-1]
-        U, sv, Vt = np.linalg.svd(W, full_matrices=False)
-        Wo = U @ Vt                                     # polar factor, nearest (semi-)isometry
-        S_o = Wo @ Sig @ Wo.T
-        lam_ortho = np.sort(np.linalg.eigvalsh((S_o + S_o.T) / 2))[::-1]
-        # Proposition 1 check: with W = P W_o (polar), Sigma_out = P Sigma_o P and
-        # (Ostrowski) lambda_i(out) = theta_i lambda_i(ortho), sigma_min^2 <= theta_i <= sigma_max^2
-        # over the r = rank(W) nonzero directions; hence for the variance-fraction count
-        #   k*_out(tau) <= k*_ortho(tau')  with  tau' = kappa^2 tau / (1 - tau + kappa^2 tau),
-        # kappa = sigma_max / sigma_min over the nonzero singular values.
-        # numerical rank: singular values above 1e-6 of the largest (float32 weights);
-        # kappa is the condition number over those directions
-        r = int((sv > sv[0] * a.rank_tol).sum())
-        kappa = float(sv[0] / sv[r - 1])
-        n_null = int(len(sv) - r)                      # numerically null kernel directions
-        ratio = lam_out[:r] / np.clip(lam_ortho[:r], 1e-300, None)
-        ostrowski_ok = bool(np.all(ratio >= sv[r - 1] ** 2 * (1 - 1e-6)) and np.all(ratio <= sv[0] ** 2 * (1 + 1e-6)))
-        row = dict(model=a.model, layer=name, depth_index=meta["depth_index"], C_in=meta["C_in"],
-                   C_out=C_out, k=meta["k"], d=d, r_max=r_max, n_samples=acc.n, n_over_d=acc.n / d,
-                   kernel_erank_over_rmax=erank(sv ** 2) / r_max,
-                   kernel_cond_top_rmax=float(sv[0] / sv[min(r_max, len(sv)) - 1]),
-                   data_erank_over_rmax=min(erank(lam_data), r_max) / r_max)
-        row.update(rank_W=r, n_null=n_null, kappa=kappa, ostrowski_ok=ostrowski_ok)
-        for tau in TAUS:
-            tau_k = kappa ** 2 * tau / (1 - tau + kappa ** 2 * tau)
-            row[f"bound_{tau}"] = kstar(lam_ortho, tau_k) / r_max if tau_k < 1 else 1.0
-            row[f"bound_ok_{tau}"] = bool(kstar(lam_out, tau) <= (kstar(lam_ortho, tau_k) if tau_k < 1 else r_max))
-            row[f"out_{tau}"] = kstar(lam_out, tau) / r_max
-            row[f"kernel_{tau}"] = kstar(lam_kernel, tau) / r_max
-            row[f"data_{tau}"] = min(kstar(lam_data, tau), r_max) / r_max
-            row[f"ortho_{tau}"] = kstar(lam_ortho, tau) / r_max
-        rows.append(row)
+    rows = decompose_rows(probe, TAUS, a.rank_tol)
+    for r in rows:
+        r["model"] = a.model
     df = pd.DataFrame(rows).sort_values("depth_index")
+    df = df[["model"] + [c for c in df.columns if c != "model"]]
     path = os.path.join(a.out, f"{a.model.replace(':', '_')}_decompose.csv")
     df.to_csv(path, index=False)
     print(df[["layer", "d", "C_out", "n_over_d", "out_0.95", "kernel_0.95", "data_0.95", "ortho_0.95",
               "kernel_erank_over_rmax"]].to_string(index=False), flush=True)
-    print(f"Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on {int(df.ostrowski_ok.sum())}/{len(df)} layers; "
-          f"k*_out(tau) <= k*_ortho(tau') on " + ", ".join(f"tau={t}: {int(df[f'bound_ok_{t}'].sum())}/{len(df)}" for t in TAUS)
-          + f";  kappa median {df.kappa.median():.1f}, max {df.kappa.max():.1f}", flush=True)
+    print(format_check(check_rows(df, TAUS)), flush=True)
     print("wrote", path, flush=True)
     return 0
 
