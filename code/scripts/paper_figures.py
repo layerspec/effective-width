@@ -107,6 +107,58 @@ def _fig_trajectory_one(path_in: str, path: str) -> str:
     return path
 
 
+def _traj_curves(path_in: str):
+    d = pd.read_csv(path_in)
+    d = d[(d.kind == "conv") & (d.n_over_C >= 50)].copy()
+    if "is_depthwise" in d:
+        d = d[~d.is_depthwise.astype(bool)]
+    d[COL] = d["k_star_0.95"] / d["r_max"]
+    epochs = sorted(d.epoch.unique())
+    P = {e: d[d.epoch == e].sort_values("depth_index")[COL].to_numpy() for e in epochs}
+    acc = d.groupby("epoch")["test_acc"].first()
+    init, final = P[epochs[0]], P[epochs[-1]]
+    return (np.array(epochs), np.array([_rho(init, P[e]) for e in epochs]),
+            np.array([_rho(final, P[e]) for e in epochs]), np.array([np.median(P[e]) for e in epochs]),
+            np.array([acc[e] / 100 for e in epochs]))
+
+
+def fig_trajectory_grid(results: str, out: str) -> str | None:
+    """Fig. 5 as four panels: VGG-16 (one seed) and the three controlled
+    architectures of round 3 (median over three seeds, thin lines per seed)."""
+    groups = [("VGG-16 (BN), one seed", [os.path.join(results, "trajectory", "trajectory_layers.csv")]),
+              ("basic ResNet [6,6,6,6], 3 seeds", sorted(glob.glob(os.path.join(results, "round3", "a2_basic52_s*", "trajectory_layers.csv")))),
+              ("bottleneck ResNet-50, 3 seeds", sorted(glob.glob(os.path.join(results, "round3", "a2_bottleneck_s*", "trajectory_layers.csv")))),
+              ("MobileNetV2, 3 seeds", sorted(glob.glob(os.path.join(results, "round3", "a2_mobilenetv2_s*", "trajectory_layers.csv"))))]
+    if not all(paths and all(os.path.exists(p) for p in paths) for _, paths in groups):
+        return None
+    _style()
+    fig, axes = plt.subplots(2, 2, figsize=(2 * ONE_COL + 0.3, 4.2), constrained_layout=True, sharex=True, sharey=True)
+    for ax, (title, paths) in zip(axes.ravel(), groups):
+        runs = [_traj_curves(p) for p in paths]
+        ep = runs[0][0]
+        series = [np.median(np.stack([r[i] for r in runs]), axis=0) for i in (1, 2, 3, 4)]
+        specs = [(SERIES[0], "o", None, r"$\rho$ vs initial profile"), (SERIES[1], "s", (5, 2), r"$\rho$ vs final profile"),
+                 (SERIES[2], "^", (1.5, 1.5), "median level"), (INK, None, (7, 2, 1.5, 2), "test accuracy")]
+        for r in runs if len(runs) > 1 else []:
+            for i, (c, _, _, _) in zip((1, 2, 3, 4), specs):
+                ax.plot(r[0], r[i], color=c, lw=0.5, alpha=0.35)
+        for y, (c, m, dsh, lab) in zip(series, specs):
+            ax.plot(ep, y, color=c, marker=m, ms=3, lw=1.2 if m else 0.9, dashes=dsh if dsh else (None, None), label=lab)
+        ax.axhline(0, color=INK, lw=0.4, alpha=0.4)
+        ax.set_title(title, fontsize=8, loc="left")
+        ax.set_xlim(0, ep.max()); ax.set_ylim(-0.7, 1.02)
+        _tidy(ax)
+    for ax in axes[1]:
+        ax.set_xlabel("epoch")
+    for ax in axes[:, 0]:
+        ax.set_ylabel(r"$\rho$ / level / accuracy")
+    axes[0, 0].legend(frameon=False, loc="lower right", fontsize=6.5)
+    path = os.path.join(out, "fig5_trajectory_grid.pdf")
+    fig.savefig(path); fig.savefig(path.replace(".pdf", ".png"), dpi=150)
+    plt.close(fig)
+    return path
+
+
 def fig_metrics_subset(results: str, out: str) -> str:
     layers, _ = load(results)
     pick = {"VGG-16 (BN)": "vgg16_bn", "ResNet-18": "resnet18",
@@ -201,7 +253,7 @@ def main(argv=None) -> int:
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     for f in [fig_profile_r50(a.results, a.out), fig_metrics_subset(a.results, a.out),
-              fig_threshold_vgg(a.results, a.out)] + fig_trajectory(a.results, a.out) + fig_decompose(a.results, a.out) + [fig_blockout(a.results, a.out)]:
+              fig_threshold_vgg(a.results, a.out)] + fig_trajectory(a.results, a.out) + [fig_trajectory_grid(a.results, a.out)] + fig_decompose(a.results, a.out) + [fig_blockout(a.results, a.out)]:
         if f:
             print("wrote", f)
     return 0
