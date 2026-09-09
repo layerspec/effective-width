@@ -1598,6 +1598,45 @@ def section_diagnostic(results: str, latex: str | None = None) -> None:
         print(f"  wrote {latex}")
 
 
+# ------------------- section 19: the gate as a derived number (Proposition 6, Lawley bias)
+
+def section_gate_theory(results: str) -> None:
+    """Lawley's first-order bias of the top-k partial eigenvalue sum at n = 50 C,
+    computed from the measured spectra of ResNet-50, against the observed
+    k*(0.999) at the n/C = 50 checkpoint of the convergence file."""
+    sp_path = os.path.join(results, "local6400", "trained", "resnet50_spectra.npz")
+    cv_path = os.path.join(results, "local6400", "trained", "resnet50_convergence.csv")
+    ly_path = os.path.join(results, "local6400", "trained", "resnet50_layers.csv")
+    if not all(os.path.exists(p) for p in (sp_path, cv_path, ly_path)):
+        return
+    sp = np.load(sp_path); conv = pd.read_csv(cv_path); lay = pd.read_csv(ly_path)
+    lay = lay[lay.kind == "conv"].set_index("layer")
+    hdr("19. The n/C >= 50 gate as a derived number (Proposition 6): Lawley bias at n = 50 C vs the convergence file")
+    rows = []
+    for key in sp.files:
+        if not key.endswith("::conv"):
+            continue
+        name = key.split("::")[0]
+        lam = np.sort(np.clip(sp[key], 0, None))[::-1]; lam = lam[lam > 0]
+        C = int(lay.loc[name, "C"]); tot = lam.sum(); cum = np.cumsum(lam) / tot
+        k = int(np.searchsorted(cum, 0.999) + 1)
+        li, lj = lam[:k], lam[k:]
+        if len(lj) == 0:
+            continue
+        D = li[:, None] - lj[None, :]
+        bias = (li[:, None] * lj[None, :] / np.where(D > 0, D, np.inf)).sum() / (50 * C)
+        c = conv[(conv.layer == name) & (conv.kind == "conv")]
+        at50 = c[c.n_over_C == 50]["k_star_0.999"]
+        final = c.loc[c.n_over_C.idxmax(), "k_star_0.999"] if len(c) else np.nan
+        rows.append((name, C, k, bias / tot / (1 - 0.999), int(at50.iloc[0]) if len(at50) else np.nan, final))
+    r = pd.DataFrame(rows, columns=["layer", "C", "k999", "bias_over_resid", "k999_at50", "k999_final"])
+    print(f"  {len(r)} layers; predicted bias of the captured fraction at n/C = 50, as a fraction of (1 - tau) at tau = 0.999:")
+    print(f"    median {r.bias_over_resid.median():.3f}, max {r.bias_over_resid.max():.3f}  (Proposition 6 bound with a factor-2 gap: 2C/n = 0.04)")
+    d = (r.k999_at50 - r.k999_final).abs()
+    print(f"  observed k*(0.999) at the n/C = 50 checkpoint vs the final value: identical on {int((d == 0).sum())}/{len(r)} layers, "
+          f"max |diff| {int(d.max())}, i.e. at most one component")
+
+
 # ------------------------------------------- section 15: ablations (A11-A15)
 
 def _conv_profile(path: str, kind: str = "conv"):
@@ -1737,6 +1776,7 @@ def main(argv=None) -> int:
     section_a18(a.results, latex=a.latex_a18)
     section_alignment(a.results)
     section_diagnostic(a.results, latex=a.latex_diagnostic)
+    section_gate_theory(a.results)
     return 0
 
 
