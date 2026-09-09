@@ -33,6 +33,13 @@ import numpy as np
 DEFAULT_TAUS = (0.90, 0.95, 0.99, 0.999)
 
 
+def tau_key(tau: float) -> str:
+    """Column-name suffix for a tau value (e.g. 0.990 -> "0.99").  The one
+    place this formatting is decided; `api.py` and `decompose.py` both import
+    it rather than each picking their own `f"{tau:g}"` / `f"{tau}"`."""
+    return f"{tau:g}"
+
+
 @dataclass
 class SpectrumMetrics:
     C: int
@@ -152,7 +159,7 @@ def compute(
         nonzero_eigs=int((eigenvalues > total * 1e-12).sum()) if total > 0 else 0,
     )
     for tau in taus:
-        key = f"{tau:g}"
+        key = tau_key(tau)
         k = k_star(eigenvalues, tau)
         m.k_star[key] = k
         m.k_star_ratio[key] = k / C if C else float("nan")

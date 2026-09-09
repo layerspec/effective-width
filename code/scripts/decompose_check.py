@@ -39,7 +39,7 @@ import torch
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from layerspec.data import build_loader                  # noqa: E402
 from layerspec.models import build                       # noqa: E402
-from layerspec.decompose import PatchProbe, decompose_rows, check_rows, format_check   # noqa: E402
+from layerspec.decomposition import PatchProbe, decompose_rows, check_rows, format_check   # noqa: E402
 
 TAUS = (0.9, 0.95, 0.99, 0.999)
 

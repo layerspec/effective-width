@@ -22,8 +22,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from .accumulate import CovarianceAccumulator
-
-DEFAULT_TAUS = (0.9, 0.95, 0.99, 0.999)
+from .metrics import DEFAULT_TAUS, tau_key
 
 
 def kstar(eig: np.ndarray, tau: float) -> int:
@@ -123,25 +122,32 @@ def decompose_rows(probe: PatchProbe, taus: tuple[float, ...] = DEFAULT_TAUS,
                    data_erank_over_rmax=min(erank(lam_data), r_max) / r_max,
                    rank_W=r, n_null=n_null, kappa=kappa, ostrowski_ok=ostrowski_ok)
         for tau in taus:
+            tk = tau_key(tau)
             tau_k = kappa ** 2 * tau / (1 - tau + kappa ** 2 * tau)
-            row[f"bound_{tau}"] = kstar(lam_ortho, tau_k) / r_max if tau_k < 1 else 1.0
-            row[f"bound_ok_{tau}"] = bool(kstar(lam_out, tau) <= (kstar(lam_ortho, tau_k) if tau_k < 1 else r_max))
-            row[f"out_{tau}"] = kstar(lam_out, tau) / r_max
-            row[f"kernel_{tau}"] = kstar(lam_kernel, tau) / r_max
-            row[f"data_{tau}"] = min(kstar(lam_data, tau), r_max) / r_max
-            row[f"ortho_{tau}"] = kstar(lam_ortho, tau) / r_max
+            row[f"bound_{tk}"] = kstar(lam_ortho, tau_k) / r_max if tau_k < 1 else 1.0
+            row[f"bound_ok_{tk}"] = bool(kstar(lam_out, tau) <= (kstar(lam_ortho, tau_k) if tau_k < 1 else r_max))
+            row[f"out_{tk}"] = kstar(lam_out, tau) / r_max
+            row[f"kernel_{tk}"] = kstar(lam_kernel, tau) / r_max
+            row[f"data_{tk}"] = min(kstar(lam_data, tau), r_max) / r_max
+            row[f"ortho_{tk}"] = kstar(lam_ortho, tau) / r_max
         rows.append(row)
     return rows
 
 
 def check_rows(df: pd.DataFrame, taus: tuple[float, ...] = DEFAULT_TAUS) -> dict:
-    """Proposition-1 counts over a decomposition table."""
+    """Proposition-1 counts over a decomposition table, plus the sample-size
+    gate: `n_over_d` < 50 means the patch covariance (and therefore all four
+    of out/kernel/data/ortho) is a sampling artefact for that row, same
+    reasoning as `n_over_C_ok` in `record_row` -- not added as a CSV column,
+    since the decomposition table's own header must not change."""
     n = len(df)
     return {"ostrowski": (int(df.ostrowski_ok.sum()), n),
-            "corollary": {tau: (int(df[f"bound_ok_{tau}"].sum()), n) for tau in taus},
+            "corollary": {tau: (int(df[f"bound_ok_{tau_key(tau)}"].sum()), n) for tau in taus},
             "kappa_median": float(df.kappa.median()) if n else float("nan"),
             "kappa_max": float(df.kappa.max()) if n else float("nan"),
-            "n_null_layers": int((df.n_null > 0).sum())}
+            "n_null_layers": int((df.n_null > 0).sum()),
+            "n_over_d_min": float(df.n_over_d.min()) if n else float("nan"),
+            "n_below_50": int((df.n_over_d < 50).sum()) if n else 0}
 
 
 def format_check(c: dict) -> str:
