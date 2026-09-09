@@ -202,3 +202,23 @@ def decompose(model: nn.Module, loader, *, device: str | None = None, positions:
     meta = {"device": device, "positions": positions, "seed": seed, "rank_tol": rank_tol,
             "taus": tuple(taus), "torch": torch.__version__}
     return Decomposition(table=table, patch_covariance=cov, meta=meta)
+
+
+def load_model(name: str, *, pretrained: bool = True, seed: int = 0) -> nn.Module:
+    """A torchvision model by registry name ("resnet50", "vgg16_bn", ...), a timm
+    checkpoint ("timm:resnet50.a1_in1k"), or either with the suffix "_random"
+    for the same architecture at initialisation.  Needs the [models] extra."""
+    from .models import build
+    model, _tag = build(name, pretrained=pretrained, seed=seed)
+    return model
+
+
+def image_loader(path: str | None, *, batch_size: int = 32, workers: int = 4, image_size: int = 224,
+                 limit: int | None = None, seed: int = 0, preprocess: str = "crop"):
+    """A DataLoader over every image under `path` (any directory layout; labels
+    are not needed), with ImageNet normalisation.  `path=None` or "synthetic"
+    gives 1/f-noise images for smoke tests.  Needs the [models] extra for real images."""
+    from .data import build_loader
+    loader, _src = build_loader(path, batch_size=batch_size, num_workers=workers, image_size=image_size,
+                                limit=limit, seed=seed, preprocess=preprocess)
+    return loader
