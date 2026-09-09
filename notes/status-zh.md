@@ -50,6 +50,7 @@ r_max 分母 14/14 模型成立；池化壓低 687/703；block 輸出超過 conv
 - A5 正交介入：**P9.3 不成立**，實現預測增益一半（核 erank 只到 0.80–0.85）；SO 的逐層增益排序命中預測（ρ 0.72／0.91），SRIP 不命中（P9.4）；P9.5 成立。
 - 論文 §V.J、§V-L、§VI-E、摘要、§I、結論、附錄 B 已依預登記後果改寫；新表 Table round3、Table ortho 由 `make analysis` 生成。PDF 22 頁。
 - 24 個最終權重備份在 `results/round3_pt/`（2.1 GB，不進 git）。
+- layerspec 0.2：decompose 搬進套件後在 ResNet-50 6,400 張子集重跑，與 results/decompose/resnet50_decompose.csv 逐層一致（全部數值欄 rtol 1e-6、ostrowski_ok 相同；2026-09-09）。
 
 ### 下一步
 
