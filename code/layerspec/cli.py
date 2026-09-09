@@ -40,14 +40,19 @@ def main(argv=None) -> int:
                           min_n_over_C=a.min_n_over_C, seed=a.seed, progress=True)
         s = res.summary()
         print(f"{a.model}: {s['L']} dense conv layers pass the gate; median k*(0.95)/r_max {s['median_level']:.3f}; "
-              f"rho(depth) {s['rho_depth']:+.2f}; max k*(0.999)/r_max {s['rmax_check_max']:.3f}"
+              f"rho(depth) {s['rho_depth']:+.2f}; max k*({s['rmax_check_tau']:g})/r_max {s['rmax_check_max']:.3f}"
               + ("" if s["rmax_check_ok"] else "  ** exceeds 1: r_max is wrong for some layer **"))
+        for line in res.warnings():
+            print(line)
     else:
         res = api.decompose(model, loader, device=a.device, positions=a.positions,
                             rank_tol=a.rank_tol, seed=a.seed)
         c = res.check()
         print(f"{a.model}: {len(res.table)} dense conv layers; Ostrowski {c['ostrowski'][0]}/{c['ostrowski'][1]}; "
               f"kappa median {c['kappa_median']:.1f}")
+        if c["n_below_50"] > 0:
+            print(f"!! {c['n_below_50']}/{len(res.table)} dense convolutions have n/d < 50; "
+                  f"their four quantities are sampling artefacts")
     res.to_csv(a.out)
     print("wrote", a.out)
     return 0
