@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "layerspec"
+version = "0.2.0"
+description = "Per-layer effective width of convolutional networks: k*(tau)/r_max with a sample-size gate, and its kernel/data decomposition"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "layerspec"}]
+dependencies = [
+  "torch>=2.0",
+  "numpy>=1.24",
+  "pandas>=2.0",
+]
+
+[project.optional-dependencies]
+models = ["torchvision>=0.15", "timm>=0.9", "pillow>=10.0"]
+dev = ["pytest>=7"]
+
+[project.scripts]
+layerspec = "layerspec.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/layerspec/effective-width"
+
+[tool.setuptools.packages.find]
+include = ["layerspec*"]
