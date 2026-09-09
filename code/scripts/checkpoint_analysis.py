@@ -1585,12 +1585,12 @@ def section_diagnostic(results: str, latex: str | None = None) -> None:
                "Role & stage 1 & stage 2 & stage 3 & stage 4 \\\\", "\\midrule"]
         labels = {"conv1": "$1\\!\\times\\!1$ reduce", "conv2": "$3\\!\\times\\!3$", "conv3": "$1\\!\\times\\!1$ expand", "shortcut": "projection shortcut"}
         stem = res.loc["conv1"]
-        out.append(f"stem ($7\\!\\times\\!7$) & {stem.med999:.2f} / {stem.med95:.2f} & & & \\\\")
+        out.append(f"stem ($7\\!\\times\\!7$) & {stem.med999:.2f}/{stem.med95:.2f} & & & \\\\")
         for role in ["conv1", "conv2", "conv3", "shortcut"]:
             cells = []
             for st in stages[1:]:
                 sub = res[(res.stage == st) & (res.role == role)]
-                cells.append(f"{sub.med999.median():.2f} / {sub.med95.median():.2f}" if len(sub) else "")
+                cells.append(f"{sub.med999.median():.2f}/{sub.med95.median():.2f}" if len(sub) else "")
             out.append(f"{labels[role]} & " + " & ".join(cells) + " \\\\")
         out += ["\\bottomrule", "\\end{tabular}"]
         with open(latex, "w") as fh:
