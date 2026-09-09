@@ -17,6 +17,8 @@
 | A8 | 第二個驗證關卡：對 Elmoznino & Bonner 的 ResNet-50 block 輸出 PR 值 | 只對 Garg 一張表驗證 | Mac | ✔ 09-08（ρ 0.997） |
 | A9 | 軌跡：ResNet-50 CIFAR＋VGG 三種子 | §V.J 的時間面 | Mac，跑 | 跑 |
 | A10 | 投影校準：八組（六配方＋R18＋VGG）、McNemar、A1 逐層留一 | 一個模型一個子集不夠 | Mac | ✔ 09-08 |
+| A17 | **ImageNet 受控 block 實驗**：§9.1 三架構在 ImageNet-1k 同配方各 3 種子（plan §9.4） | 回答「ResNet-50 為什麼重排」：資料集 vs 配方 vs block；把第三輪的否定升級為指認原因 | RunPod A100 ≈ 160 h、US$250–350 | 已預登記 09-09，未跑 |
+| A18 | **用尺定寬度再重訓**：CIFAR VGG-16_BN，全寬／尺定寬 τ=0.999／均勻縮窄同參數／尺定寬 τ=0.95，各 3 種子（plan §9.5） | 「尺能指導設計決定」的直接檢驗，回答「所以呢」 | 本機或 3090 ≈ 9 h、US$10 | 已預登記 09-09，未跑；需 `trajectory_cifar.py --widths` |
 
 ## B. 論文本身
 
