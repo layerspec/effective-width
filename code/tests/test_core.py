@@ -207,6 +207,11 @@ def test_block_outputs_are_hooked_separately():
     off.remove()
 
 
+def test_package_version():
+    import layerspec
+    assert layerspec.__version__ == "0.2.0"
+
+
 if __name__ == "__main__":
     import sys
     import traceback

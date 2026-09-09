@@ -12,7 +12,7 @@ or ConvNeXt at ImageNet scale, and nobody has computed both metrics on the same
 layers of the same models -- which is what would reconcile the two results.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 from .accumulate import CovarianceAccumulator, merge  # noqa: F401
 from . import metrics  # noqa: F401
