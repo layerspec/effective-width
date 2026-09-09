@@ -495,26 +495,41 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
        90  92.89   0.296       -0.68        +0.93         +1.00         0.004
       100  94.01   0.296       -0.68        +0.93         +1.00         0.000
 
-  [trajectory_resnet50]  53 conv layers, epochs measured 0..40  (IN PROGRESS: 'final' = latest epoch)
+  [trajectory_resnet50]  53 conv layers, epochs measured 0..100
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
-        0  10.24   0.185       -0.85        +1.00         +0.54         0.101
-        1  44.43   0.391       +0.89        -0.65         -0.04         0.262
-        2  52.10   0.422       +0.63        -0.30         +0.27         0.255
-        3  57.66   0.527       +0.72        -0.41         +0.27         0.339
-        5  71.02   0.508       +0.24        +0.13         +0.66         0.341
-        7  74.55   0.438       -0.08        +0.39         +0.77         0.272
-       10  82.08   0.328       -0.62        +0.84         +0.58         0.153
-       15  85.20   0.312       -0.12        +0.36         +0.73         0.139
-       20  83.28   0.222       -0.26        +0.48         +0.90         0.055
-       30  85.94   0.156       -0.38        +0.55         +0.99         0.007
-       40  84.34   0.141       -0.37        +0.54         +1.00         0.000
-    role 3x3: rho(init, final) +0.33   level init 0.244 -> final 0.234
-    role 1x1: rho(init, final) +0.57   level init 0.180 -> final 0.125
+        0  10.24   0.185       -0.85        +1.00         +0.39         0.107
+        1  44.43   0.391       +0.89        -0.65         +0.10         0.237
+        2  52.10   0.422       +0.63        -0.30         +0.38         0.229
+        3  57.66   0.527       +0.72        -0.41         +0.40         0.313
+        5  71.02   0.508       +0.24        +0.13         +0.75         0.314
+        7  74.55   0.438       -0.08        +0.39         +0.83         0.246
+       10  82.08   0.328       -0.62        +0.84         +0.50         0.146
+       15  85.20   0.312       -0.12        +0.36         +0.81         0.113
+       20  83.28   0.222       -0.26        +0.48         +0.92         0.042
+       30  85.94   0.156       -0.38        +0.55         +0.96         0.025
+       40  84.34   0.141       -0.37        +0.54         +0.96         0.028
+       50  85.03   0.141       -0.34        +0.50         +0.97         0.028
+       60  85.93   0.145       -0.32        +0.49         +0.98         0.026
+       70  89.97   0.148       -0.29        +0.46         +0.98         0.022
+       80  90.72   0.148       -0.26        +0.43         +0.99         0.015
+       90  94.24   0.164       -0.23        +0.41         +1.00         0.003
+      100  95.35   0.164       -0.21        +0.39         +1.00         0.000
+    role 3x3: rho(init, final) +0.12   level init 0.244 -> final 0.234
+    role 1x1: rho(init, final) +0.41   level init 0.180 -> final 0.143
+
+  [trajectory_seed1]  13 conv layers, epochs measured 0..5  (IN PROGRESS: 'final' = latest epoch)
+    epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
+        0  11.97   0.369       -0.46        +1.00         +0.88         0.064
+        1  58.26   0.449       -0.23        +0.90         +0.97         0.060
+        2  68.67   0.439       -0.29        +0.91         +0.98         0.047
+        3  73.14   0.402       -0.20        +0.86         +0.97         0.041
+        5  79.75   0.352       -0.25        +0.88         +1.00         0.000
 
   Summary (settle = first measured epoch with rho vs final >= 0.95):
     run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
     trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
-    trajectory_resnet50      no     30      85.94     84.34            +0.54       -0.85 -> -0.37
+    trajectory_resnet50     yes     30      85.94     95.35            +0.39       -0.85 -> -0.21
+    trajectory_seed1         no      1      58.26     79.75            +0.88       -0.46 -> -0.25
 
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
   is when the learned profile is in place; compare it with the accuracy
@@ -826,3 +841,175 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     Mask R-CNN R50-FPN backbone, COCO-trained  49       +0.91     0.062     0.205   0.309     0.406
       vs ImageNet ResNet-50 on the same COCO images: rho +0.92, levels 0.406 (cls) / 0.309 (det)
   wrote ../paper/table_ablation.tex
+
+========================================================================
+18. The profile as a diagnostic: six-recipe consensus on ResNet-50 (exploratory, not pre-registered)
+========================================================================
+  k*(tau)/r_max per layer, median / min / max over the six recipes on the 6,400-image subset
+  tau = 0.999: 29/53 layers above 0.9 in every recipe; 4 layers below 0.7 in every recipe: conv1, layer1.0.conv1, layer1.0.conv3, layer1.0.downsample.0
+  tau = 0.95: 6/53 layers above 0.5 in every recipe
+
+    layer                        C r_max    tau=.999 med (min-max)   tau=.95 med (min-max)
+    conv1                       64    64    0.49 (0.36-0.53)          0.16 (0.06-0.19)        <-- under-used in all six
+    layer1.0.conv1              64    64    0.48 (0.42-0.56)          0.16 (0.12-0.17)        <-- under-used in all six
+    layer1.0.conv2              64    64    0.70 (0.53-0.84)          0.22 (0.19-0.30)      
+    layer1.0.conv3             256    64    0.40 (0.25-0.55)          0.02 (0.02-0.16)        <-- under-used in all six
+    layer1.0.downsample.0      256    64    0.61 (0.52-0.66)          0.10 (0.06-0.17)        <-- under-used in all six
+    layer1.1.conv1              64    64    0.83 (0.70-0.89)          0.28 (0.23-0.39)      
+    layer1.1.conv2              64    64    0.95 (0.86-0.98)          0.52 (0.42-0.64)      
+    layer1.1.conv3             256    64    0.91 (0.77-0.95)          0.47 (0.33-0.55)      
+    layer1.2.conv1              64    64    0.91 (0.84-0.94)          0.38 (0.30-0.47)      
+    layer1.2.conv2              64    64    0.98 (0.97-0.98)          0.60 (0.52-0.64)      
+    layer1.2.conv3             256    64    0.95 (0.94-0.95)          0.51 (0.45-0.58)      
+    layer2.0.conv1             128   128    0.82 (0.73-0.90)          0.29 (0.25-0.40)      
+    layer2.0.conv2             128   128    0.96 (0.95-0.98)          0.54 (0.46-0.59)      
+    layer2.0.conv3             512   128    0.93 (0.90-0.95)          0.45 (0.40-0.52)      
+    layer2.0.downsample.0      512   256    0.72 (0.50-0.80)          0.21 (0.13-0.25)      
+    layer2.1.conv1             128   128    0.82 (0.49-0.91)          0.29 (0.10-0.33)      
+    layer2.1.conv2             128   128    0.93 (0.66-0.96)          0.41 (0.20-0.48)      
+    layer2.1.conv3             512   128    0.90 (0.60-0.95)          0.44 (0.19-0.52)      
+    layer2.2.conv1             128   128    0.91 (0.84-0.94)          0.36 (0.30-0.46)      
+    layer2.2.conv2             128   128    0.96 (0.95-0.98)          0.49 (0.45-0.59)      
+    layer2.2.conv3             512   128    0.94 (0.86-0.98)          0.51 (0.41-0.59)      
+    layer2.3.conv1             128   128    0.95 (0.91-0.98)          0.47 (0.37-0.55)      
+    layer2.3.conv2             128   128    0.98 (0.98-0.98)          0.59 (0.55-0.61)      
+    layer2.3.conv3             512   128    0.95 (0.94-0.98)          0.55 (0.48-0.59)      
+    layer3.0.conv1             256   256    0.89 (0.86-0.91)          0.34 (0.31-0.38)      
+    layer3.0.conv2             256   256    0.96 (0.95-0.96)          0.49 (0.44-0.54)      
+    layer3.0.conv3            1024   256    0.92 (0.89-0.96)          0.39 (0.36-0.52)      
+    layer3.0.downsample.0     1024   512    0.85 (0.75-0.87)          0.27 (0.21-0.31)      
+    layer3.1.conv1             256   256    0.85 (0.79-0.94)          0.29 (0.25-0.41)      
+    layer3.1.conv2             256   256    0.96 (0.92-0.97)          0.47 (0.37-0.52)      
+    layer3.1.conv3            1024   256    0.94 (0.87-0.95)          0.46 (0.41-0.55)      
+    layer3.2.conv1             256   256    0.89 (0.87-0.93)          0.31 (0.29-0.42)      
+    layer3.2.conv2             256   256    0.97 (0.95-0.98)          0.50 (0.43-0.55)      
+    layer3.2.conv3            1024   256    0.94 (0.89-0.96)          0.49 (0.45-0.55)      
+    layer3.3.conv1             256   256    0.95 (0.92-0.96)          0.44 (0.34-0.50)      
+    layer3.3.conv2             256   256    0.97 (0.96-0.98)          0.54 (0.49-0.59)      
+    layer3.3.conv3            1024   256    0.96 (0.92-0.97)          0.53 (0.49-0.58)      
+    layer3.4.conv1             256   256    0.96 (0.95-0.98)          0.50 (0.46-0.59)      
+    layer3.4.conv2             256   256    0.98 (0.97-0.98)          0.55 (0.54-0.62)      
+    layer3.4.conv3            1024   256    0.97 (0.93-0.97)          0.51 (0.49-0.62)      
+    layer3.5.conv1             256   256    0.98 (0.96-0.98)          0.54 (0.52-0.60)      
+    layer3.5.conv2             256   256    0.98 (0.97-0.98)          0.54 (0.50-0.60)      
+    layer3.5.conv3            1024   256    0.97 (0.95-0.98)          0.52 (0.42-0.62)      
+    layer4.0.conv1             512   512    0.94 (0.94-0.95)          0.43 (0.42-0.50)      
+    layer4.0.conv2             512   512    0.96 (0.96-0.97)          0.48 (0.45-0.51)      
+    layer4.0.conv3            2048   512    0.98 (0.96-0.98)          0.61 (0.46-0.69)      
+    layer4.0.downsample.0     2048  1024    0.94 (0.92-0.95)          0.47 (0.38-0.49)      
+    layer4.1.conv1             512   512    0.97 (0.91-0.98)          0.51 (0.37-0.66)      
+    layer4.1.conv2             512   512    0.97 (0.97-0.98)          0.52 (0.49-0.55)      
+    layer4.1.conv3            2048   512    0.97 (0.96-0.98)          0.66 (0.57-0.71)      
+    layer4.2.conv1             512   512    0.97 (0.94-0.98)          0.58 (0.47-0.65)      
+    layer4.2.conv2             512   512    0.95 (0.95-0.98)          0.48 (0.45-0.58)      
+    layer4.2.conv3            2048   512    0.93 (0.92-0.99)          0.49 (0.42-0.70)      
+
+  by stage x role (median over layers of the six-recipe median):
+                 med999  med95
+stage  role                   
+stem   stem        0.49   0.16
+layer1 conv1       0.83   0.28
+       conv2       0.95   0.52
+       conv3       0.91   0.47
+       shortcut    0.61   0.10
+layer2 conv1       0.87   0.32
+       conv2       0.96   0.52
+       conv3       0.93   0.48
+       shortcut    0.72   0.21
+layer3 conv1       0.92   0.39
+       conv2       0.97   0.52
+       conv3       0.95   0.50
+       shortcut    0.85   0.27
+layer4 conv1       0.97   0.51
+       conv2       0.96   0.48
+       conv3       0.97   0.61
+       shortcut    0.94   0.47
+  wrote ../paper/table_diagnostic.tex
+
+========================================================================
+19. The n/C >= 50 gate as a derived number (Proposition 6): Lawley bias at n = 50 C vs the convergence file
+========================================================================
+  53 layers; predicted bias of the captured fraction at n/C = 50, as a fraction of (1 - tau) at tau = 0.999:
+    median 0.018, max 0.033  (Proposition 6 bound with a factor-2 gap: 2C/n = 0.04)
+  observed k*(0.999) at the n/C = 50 checkpoint vs the final value: identical on 40/53 layers, max |diff| 1, i.e. at most one component
+
+========================================================================
+20. A19: first-order truncation sensitivity tr(J Sigma_perp J^T) vs the actual single-layer truncation (exploratory)
+========================================================================
+
+  timm:resnet50.a1_in1k: 53 layers, 64 eval images, 256 calibration images
+       tau rho(lin,act) lin/act med   sum act                      max act (layer)
+      0.95        +0.99        1.26   1.4e+04 3.73e+03 (layer1.0.downsample.0, layer1.0.conv3, conv1)
+      0.99        +0.99        1.17  5.23e+03  2.9e+03 (layer1.0.conv3, conv1, layer1.0.downsample.0)
+     0.999        +1.00        1.29       245     98.2 (conv1, layer1.0.conv3, layer1.0.downsample.0)
+    logit margin^2: median 54.8, 10th percentile 3.91
+
+========================================================================
+21. The ruler on a transformer: ViT-B/16 (exploratory, one checkpoint, 6,400 images x 32 tokens)
+========================================================================
+
+  vit_base_patch16_224: 49 linear/conv layers pass the gate
+    role                n     C r_max   k*(.95)/r_max med (min-max)  k*(.999)/r_max med  rho(block)
+    patch embedding     1   768   768    0.07 (0.07-0.07)                         0.22        +nan
+    qkv                12  2304   768    0.27 (0.07-0.65)                         0.84       +0.99
+    attention proj.    12   768   768    0.31 (0.08-0.52)                         0.74       +0.98
+    MLP fc1            12  3072   768    0.38 (0.14-0.72)                         0.91       +0.99
+    MLP fc2            12   768   768    0.50 (0.17-0.74)                         0.96       +0.76
+    r_max check: max k*(0.999)/r_max over all rows 0.987 (must be <= 1)
+  wrote ../paper/table_vit.tex
+
+========================================================================
+22. Estimator comparison (B10, plan section 11): the ruler against RankMe, alpha-ReQ, corrected PR, on identical layers and images
+========================================================================
+  21 checkpoints with saved spectra, 894 gate-passing dense conv layers (random inits: ['convnext_tiny_random', 'resnet50_random'])
+  bound check: max estimator / r_max over all rows = 1.000 (must be <= 1)
+  PR correction |PRc-PR|/PR: median 0.00%, max 0.03% (at n/C = 1042, convnext_tiny features.6.1); rows with > 5%: 0, > 10%: 0
+
+  1. per-model Spearman rho between each estimator/r_max and the ruler (over layers; 19 trained + 2 random checkpoints, >= 5 layers each)
+     estimator       vs k*(.999)/r_max: med [min, max]     vs k*(.95)/r_max: med [min, max]   n>=0.8
+     k95                          +0.93 [+0.50, +0.98]                                     --    15/18
+     k999                                           --                   +0.93 [+0.50, +0.98]  
+     PR                           +0.41 [-0.52, +0.82]                   +0.47 [-0.45, +0.87]     1/18
+     PRc                          +0.41 [-0.52, +0.82]                   +0.47 [-0.45, +0.87]     1/18
+     erank                        +0.63 [-0.25, +0.92]                   +0.75 [-0.11, +0.96]     3/18
+     RankMe                       +0.94 [+0.54, +0.98]                   +0.99 [+0.87, +1.00]    17/18
+     alpha                        -0.66 [-0.94, -0.14]                   -0.60 [-0.93, +0.04]     2/18
+
+  2. level: median of estimator / r_max over all gate-passing dense conv layers (trained only)
+     (alpha defined on 833/837 layers; the fit window [10, C] needs C >= 18)
+     k95 0.474  k999 0.950  PR 0.150  PRc 0.150  erank 0.296  RankMe 0.707  alpha 2.576
+
+  3. six ResNet-50 recipes: median pairwise layer-ordering rho, per estimator
+     k95          median +0.85 [+0.79, +0.91]  (15 pairs, 6 recipes)
+     k999         median +0.85 [+0.80, +0.89]  (15 pairs, 6 recipes)
+     PR           median +0.73 [+0.48, +0.90]  (15 pairs, 6 recipes)
+     PRc          median +0.73 [+0.48, +0.90]  (15 pairs, 6 recipes)
+     erank        median +0.70 [+0.47, +0.87]  (15 pairs, 6 recipes)
+     RankMe       median +0.82 [+0.74, +0.91]  (15 pairs, 6 recipes)
+     alpha        median +0.97 [+0.95, +0.99]  (15 pairs, 6 recipes)
+
+  6. pooling: layers where position-sampled > globally pooled, per estimator (trained, gate-passing dense conv, both gates)
+     k*(0.95)   687/703
+     PR         669/703
+     erank      688/703
+
+  per-checkpoint rho vs k*(0.999)/r_max (trained):
+     model                                      layers     k95      PR     PRc   erank  RankMe   alpha
+     resnet18                                       20    +0.94   +0.23   +0.23   +0.55   +0.94   -0.75
+     timm_densenet121.tv_in1k                      120    +0.94   +0.82   +0.82   +0.92   +0.95   -0.74
+     timm_efficientnet_b0.ra_in1k                   33    +0.78   +0.78   +0.78   +0.84   +0.80   -0.48
+     timm_mobilenetv2_100.ra_in1k                   35    +0.50   +0.68   +0.68   +0.62   +0.54   -0.14
+     timm_mobilenetv3_large_100.ra_in1k             31    +0.85   +0.56   +0.56   +0.67   +0.82   -0.58
+     timm_resnet101.tv_in1k                        104    +0.97   +0.54   +0.54   +0.80   +0.97   -0.65
+     timm_resnet34.a1_in1k                          36    +0.93   +0.45   +0.45   +0.68   +0.91   -0.77
+     timm_resnet50.a1_in1k                          53    +0.84   +0.41   +0.41   +0.63   +0.85   -0.64
+     timm_resnet50.a3_in1k                          53    +0.92   +0.43   +0.43   +0.64   +0.94   -0.67
+     timm_resnet50.fb_ssl_yfcc100m_ft_in1k          53    +0.94   +0.25   +0.25   +0.52   +0.90   -0.47
+     timm_resnet50.gluon_in1k                       53    +0.96   +0.38   +0.38   +0.70   +0.95   -0.44
+     timm_resnet50.tv2_in1k                         53    +0.88   +0.40   +0.40   +0.58   +0.85   -0.52
+     timm_resnet50.tv_in1k                          53    +0.97   +0.48   +0.48   +0.75   +0.95   -0.52
+     timm_resnext50_32x4d.tv_in1k                   53    +0.91   +0.15   +0.15   +0.57   +0.96   -0.67
+     timm_vgg16.tv_in1k                             13    +0.94   -0.52   -0.52   -0.25   +0.96   -0.94
+     timm_wide_resnet50_2.tv_in1k                   53    +0.97   +0.33   +0.33   +0.78   +0.98   -0.67
+     vgg16_bn                                       13    +0.98   -0.46   -0.46   +0.28   +0.97   -0.94
+  wrote ../paper/table_estimators.tex

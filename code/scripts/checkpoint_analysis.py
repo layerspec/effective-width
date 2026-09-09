@@ -1805,6 +1805,189 @@ def section_ablations(results: str, latex: str | None = None) -> None:
         print(f"  wrote {latex}")
 
 
+# ------------------------------------ section 22: estimator comparison (B10)
+
+def _rankme(lam: np.ndarray, eps: float = 1e-7) -> float:
+    """Garrido et al. (ICML 2023) Eq. (1)-(2): entropy rank of the *singular values*
+    of the data matrix, i.e. of sqrt(eigenvalues) of the covariance."""
+    s = np.sqrt(np.maximum(lam, 0.0))
+    if s.sum() <= 0:
+        return float("nan")
+    p = s / s.sum() + eps
+    return float(np.exp(-(p * np.log(p)).sum()))
+
+
+def _pr_corrected(lam: np.ndarray, n: float) -> float:
+    """Gaussian closed form of the row-corrected participation ratio (Chun et al.,
+    ICLR 2026, gamma_row): unbiased tr(Sigma^2) and (tr Sigma)^2 from the sample
+    covariance S with n samples, then their ratio.  With E[tr S^2] = a/n + b(n+1)/n
+    and E[(tr S)^2] = a + 2b/n (a = (tr Sigma)^2, b = tr Sigma^2) the solution is
+    b_hat = n^2/((n+2)(n-1)) [tr S^2 - (tr S)^2/n],  a_hat = (tr S)^2 - 2 b_hat/n."""
+    t1 = lam.sum(); t2 = np.square(lam).sum()
+    if t2 <= 0 or n < 3:
+        return float("nan")
+    b = n * n / ((n + 2.0) * (n - 1.0)) * (t2 - t1 * t1 / n)
+    a = t1 * t1 - 2.0 * b / n
+    return float(a / b) if b > 0 else float("nan")
+
+
+def _estimators(lam: np.ndarray, n: float) -> dict[str, float]:
+    from layerspec.metrics import effective_rank, k_star, participation_ratio, powerlaw_alpha
+    lam = np.sort(np.maximum(np.asarray(lam, dtype=np.float64), 0.0))[::-1]
+    return {
+        "k95": float(k_star(lam, 0.95)), "k999": float(k_star(lam, 0.999)),
+        "PR": participation_ratio(lam), "PRc": _pr_corrected(lam, n),
+        "erank": effective_rank(lam), "RankMe": _rankme(lam),
+        "alpha": powerlaw_alpha(lam)[0],
+    }
+
+
+EST_ORDER = ["k95", "k999", "PR", "PRc", "erank", "RankMe", "alpha"]
+EST_LABEL = {"k95": "$k^*(0.95)$", "k999": "$k^*(0.999)$", "PR": "PR", "PRc": "PR$_{\\text{corr}}$",
+             "erank": "erank", "RankMe": "RankMe", "alpha": "$\\alpha$-ReQ"}
+
+
+def _estimator_table(results: str, layers: dict) -> pd.DataFrame:
+    """One row per gate-passing dense conv layer of every checkpoint with a saved spectrum."""
+    rows = []
+    for m, df in layers.items():
+        if m in DUPLICATES:
+            continue
+        path = os.path.join(results, f"{m}_spectra.npz")
+        if not os.path.exists(path):
+            continue
+        z = np.load(path)
+        for _, r in conv_rows(df).iterrows():
+            key = f"{r.layer}::conv"
+            if key not in z:
+                continue
+            e = _estimators(z[key], float(r.n_samples))
+            e.update(model=m, layer=r.layer, depth_index=int(r.depth_index), C=int(r.C),
+                     r_max=float(r.r_max), n_over_C=float(r.n_over_C), random=is_random(m))
+            rows.append(e)
+    return pd.DataFrame(rows)
+
+
+def section_estimators(results: str, latex: str | None = None) -> None:
+    layers = load_all(results)
+    layers = {m: d for m, d in layers.items() if not m.startswith("vgg16_cifar")}
+    t = _estimator_table(results, layers)
+    if t.empty:
+        return
+    hdr("22. Estimator comparison (B10, plan section 11): the ruler against RankMe, alpha-ReQ, "
+        "corrected PR, on identical layers and images")
+    models = sorted(t.model.unique())
+    print(f"  {len(models)} checkpoints with saved spectra, {len(t)} gate-passing dense conv layers "
+          f"(random inits: {sorted(t[t.random].model.unique())})")
+    for c in ("k95", "k999", "PR", "PRc", "erank", "RankMe"):
+        t[c + "_n"] = t[c] / t.r_max
+    # 4. bound check
+    worst = max(t[c + "_n"].max() for c in ("PR", "PRc", "erank", "RankMe", "k999"))
+    print(f"  bound check: max estimator / r_max over all rows = {worst:.3f} (must be <= 1)")
+    # 5. size of the PR correction
+    rel = (t.PRc - t.PR).abs() / t.PR
+    print(f"  PR correction |PRc-PR|/PR: median {rel.median()*100:.2f}%, max {rel.max()*100:.2f}% "
+          f"(at n/C = {t.loc[rel.idxmax(), 'n_over_C']:.0f}, {t.loc[rel.idxmax(), 'model']} {t.loc[rel.idxmax(), 'layer']}); "
+          f"rows with > 5%: {(rel > 0.05).sum()}, > 10%: {(rel > 0.10).sum()}")
+    # 1. ordering agreement with k*(0.999)/r_max and k*(0.95)/r_max, per model
+    rho = {}
+    for ref in ("k999_n", "k95_n"):
+        for c in EST_ORDER:
+            col = c if c == "alpha" else c + "_n"
+            if col == ref:
+                continue
+            vals = []
+            for m in models:
+                s = t[t.model == m].dropna(subset=[ref, col])
+                if len(s) >= 5:
+                    vals.append(spearmanr(s[ref], s[col]).correlation)
+            rho[(ref, c)] = np.array(vals)
+    trained = [m for m in models if not is_random(m)]
+    print(f"\n  1. per-model Spearman rho between each estimator/r_max and the ruler (over layers; "
+          f"{len(trained)} trained + {len(models)-len(trained)} random checkpoints, >= 5 layers each)")
+    print(f"     {'estimator':12s} {'vs k*(.999)/r_max: med [min, max]':>36s}   {'vs k*(.95)/r_max: med [min, max]':>34s}   {'n>=0.8':>6s}")
+    summary = {}
+    for c in EST_ORDER:
+        line = f"     {c:12s}"
+        for ref in ("k999_n", "k95_n"):
+            v = rho.get((ref, c))
+            if v is None:
+                line += f" {'--':>36s}  "
+                continue
+            line += f" {np.median(v):+.2f} [{v.min():+.2f}, {v.max():+.2f}]".rjust(37) + "  "
+            summary[(ref, c)] = (np.median(v), v.min(), v.max(), int((np.abs(v) >= 0.8).sum()), len(v))
+        v = rho.get(("k999_n", c))
+        if v is not None:
+            line += f" {int((np.abs(v) >= 0.8).sum()):3d}/{len(v)}"
+        print(line)
+    # 2. level
+    print("\n  2. level: median of estimator / r_max over all gate-passing dense conv layers (trained only)")
+    tt = t[~t.random]
+    lev = {c: float(tt[c + "_n"].median()) for c in ("k95", "k999", "PR", "PRc", "erank", "RankMe")}
+    lev["alpha"] = float(tt.alpha.median())
+    print(f"     (alpha defined on {tt.alpha.notna().sum()}/{len(tt)} layers; the fit window [10, C] needs C >= 18)")
+    print("     " + "  ".join(f"{c} {lev[c]:.3f}" for c in EST_ORDER))
+    # 3. cross-recipe stability on the six ResNet-50 recipes
+    print("\n  3. six ResNet-50 recipes: median pairwise layer-ordering rho, per estimator")
+    stab = {}
+    rec = [m for m in RESNET50_RECIPES if m in models]
+    for c in EST_ORDER:
+        col = c if c == "alpha" else c + "_n"
+        vals = []
+        for a_, b_ in itertools.combinations(rec, 2):
+            sa = t[t.model == a_].set_index("layer")[col].dropna(); sb = t[t.model == b_].set_index("layer")[col].dropna()
+            common = sa.index.intersection(sb.index)
+            if len(common) >= 5:
+                vals.append(spearmanr(sa[common], sb[common]).correlation)
+        stab[c] = (float(np.median(vals)), float(np.min(vals)), float(np.max(vals)), len(vals)) if vals else (np.nan,) * 4
+        print(f"     {c:12s} median {stab[c][0]:+.2f} [{stab[c][1]:+.2f}, {stab[c][2]:+.2f}]  ({stab[c][3]} pairs, {len(rec)} recipes)")
+    # 6. pooling claim under each estimator (pooled_* columns already in the layer tables)
+    print("\n  6. pooling: layers where position-sampled > globally pooled, per estimator (trained, gate-passing dense conv, both gates)")
+    for c, a_, b_ in (("k*(0.95)", "k_star_0.95", "pooled_k_star_0.95"), ("PR", "participation_ratio", "pooled_participation_ratio"),
+                      ("erank", "effective_rank", "pooled_effective_rank")):
+        win = tot = 0
+        for m in trained:
+            d = conv_rows(layers[m])
+            if b_ not in d.columns or "pooled_n_over_C_ok" not in d.columns:
+                continue
+            d = d[d.pooled_n_over_C_ok.astype(bool)]
+            win += int((d[a_] > d[b_]).sum()); tot += len(d)
+        print(f"     {c:10s} {win}/{tot}")
+    # per-model detail, trained only
+    print("\n  per-checkpoint rho vs k*(0.999)/r_max (trained):")
+    print(f"     {'model':42s} {'layers':>6s} " + " ".join(f"{c:>7s}" for c in EST_ORDER if c != "k999"))
+    for m in trained:
+        s = t[t.model == m]
+        if len(s) < 5:
+            continue
+        line = f"     {m:42s} {len(s):6d} "
+        for c in EST_ORDER:
+            if c == "k999":
+                continue
+            col = c if c == "alpha" else c + "_n"
+            ss = s.dropna(subset=[col])
+            line += f" {spearmanr(ss['k999_n'], ss[col]).correlation:+7.2f}"
+        print(line)
+    if latex:
+        def fmt(x: float) -> str:
+            return f"{x:.2f}" if x >= 0 else f"$-$" + f"{-x:.2f}"
+        out = ["% Generated by scripts/checkpoint_analysis.py --latex-estimators.  Do not edit by hand.",
+               "\\begin{tabular}{lrrrrr}", "\\toprule",
+               "Estimator & level & $\\rho_{0.999}$ (range) & $\\ge 0.8$ & $\\rho_{0.95}$ & recipes \\\\",
+               "\\midrule"]
+        for c in EST_ORDER:
+            lv = fmt(lev[c]) if c != "alpha" else f"{lev[c]:.2f}$^\\dagger$"
+            s999 = summary.get(("k999_n", c)); s95 = summary.get(("k95_n", c))
+            r999 = "--" if s999 is None else f"{fmt(s999[0])} [{fmt(s999[1])}, {fmt(s999[2])}]"
+            frac = "--" if s999 is None else f"{s999[3]}/{s999[4]}"
+            r95 = "--" if s95 is None else fmt(s95[0])
+            out.append(f"{EST_LABEL[c]} & {lv} & {r999} & {frac} & {r95} & {fmt(stab[c][0])} \\\\")
+        out += ["\\bottomrule", "\\end{tabular}"]
+        with open(latex, "w") as fh:
+            fh.write("\n".join(out) + "\n")
+        print(f"  wrote {latex}")
+
+
 # ------------------------------------------------------------------- main
 
 def main(argv=None) -> int:
@@ -1822,6 +2005,7 @@ def main(argv=None) -> int:
     p.add_argument("--latex-a18", default=None, help="write the section-16 width-from-the-ruler table here")
     p.add_argument("--latex-diagnostic", default=None, help="write the section-18 six-recipe consensus table here")
     p.add_argument("--latex-vit", default=None, help="write the section-21 ViT table here")
+    p.add_argument("--latex-estimators", default=None, help="write the section-22 estimator-comparison table here")
     a = p.parse_args(argv)
     layers = load_all(a.results)
     layers = {m: df for m, df in layers.items()
@@ -1854,6 +2038,7 @@ def main(argv=None) -> int:
     section_gate_theory(a.results)
     section_sensitivity(a.results)
     section_vit(a.results, latex=a.latex_vit)
+    section_estimators(a.results, latex=a.latex_estimators)
     return 0
 
 
