@@ -67,3 +67,18 @@ def test_rho_align_sigma_matches_proposition_4_for_least_squares():
     # isotropic random kernel: near 0 in expectation (|index| small for a wide sample)
     vals = [rho_align_sigma(rng.standard_normal((m, d)), Sig) for _ in range(200)]
     assert abs(np.mean(vals)) < 0.1
+
+
+def test_two_sided_corollary_holds_on_a_small_network():
+    """k*_ortho(tau'') <= k*_out(tau) <= k*_ortho(tau'), tau' = k^2 tau/(1-tau+k^2 tau), tau'' = tau/(k^2(1-tau)+tau)."""
+    import layerspec
+    torch.manual_seed(3)
+    net = nn.Sequential(nn.Conv2d(3, 16, 3, padding=1), nn.ReLU(), nn.Conv2d(16, 32, 1), nn.ReLU(), nn.Conv2d(32, 8, 3, padding=1))
+    x = torch.randn(256, 3, 8, 8, generator=torch.Generator().manual_seed(4))
+    loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x), batch_size=32)
+    dec = layerspec.decompose(net, loader, device="cpu", positions=16)
+    for tau in (0.9, 0.95, 0.99, 0.999):
+        assert dec.table[f"bound_ok_{tau}"].all() and dec.table[f"bound_lo_ok_{tau}"].all()
+        assert (dec.table[f"bound_lo_{tau}"] <= dec.table[f"out_{tau}"] + 1e-9).all()
+    c = dec.check()
+    assert c["corollary_lo"][0.95] == (3, 3)
