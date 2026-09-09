@@ -59,16 +59,21 @@ def main(argv=None) -> int:
                    help="a CIFAR-10 architecture from trajectory_cifar.ARCHS; with --checkpoint, "
                         "decompose a network trained by trajectory_cifar.py on the CIFAR-10 test split")
     p.add_argument("--checkpoint", default=None, help="state_dict .pt for --cifar-arch (omit = random init)")
+    p.add_argument("--widths", type=int, nargs=13, default=None, metavar="W",
+                   help="with --cifar-arch vgg16_bn: the 13 conv widths of a width-from-the-ruler arm (plan 9.5)")
     p.add_argument("--name", default=None, help="output name (default: --model or the checkpoint stem)")
     p.add_argument("--rank-tol", type=float, default=1e-6, help="numerical rank: singular values above this fraction of the largest (ablation A16)")
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
 
     if a.cifar_arch:
-        from scripts.trajectory_cifar import ARCHS
+        from scripts.trajectory_cifar import ARCHS, build_vgg16_bn_cifar_widths
         from scripts.reproduce_garg import cifar_loaders
         torch.manual_seed(a.seed)
-        model = ARCHS[a.cifar_arch]()
+        if a.widths is not None and a.cifar_arch != "vgg16_bn":
+            p.error("--widths is only defined for --cifar-arch vgg16_bn")
+        model = (build_vgg16_bn_cifar_widths(a.widths, 10) if a.widths is not None
+                 else ARCHS[a.cifar_arch]())
         if a.checkpoint:
             model.load_state_dict(torch.load(a.checkpoint, map_location="cpu"))
         tag = a.checkpoint or f"random_init(seed={a.seed})"
