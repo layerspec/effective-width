@@ -97,7 +97,9 @@ convolution's output covariance (before the nonlinearity) carrying a fraction
 (`groups * min(C_in/groups * kh * kw, C_out/groups)`). Rows with `ok == False`
 have fewer than 50 samples per channel and are not reportable. Depthwise
 convolutions are flagged and left out of `dense()`. A `k*(0.999)/r_max` above 1
-means `r_max` is wrong for that layer type; please report it.
+means `r_max` is wrong for that layer type; please report it. Grouped
+convolutions that are not depthwise (ResNeXt) appear in `profile().dense()`
+but are not decomposed by `decompose()`, which only handles `groups == 1`.
 
 ## Layout
 
