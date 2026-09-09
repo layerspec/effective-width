@@ -339,7 +339,7 @@ and Kong \emph{et al.} \cite{kong2022v1Eigenspectrum} find $\alpha$ well
 below unity for conventionally trained networks. A spectrum that slow has no
 bulk edge separating signal from noise, so a Marchenko--Pastur threshold has
 nothing to cut at, and we use variance-fraction and entropy-based statistics
-with an explicit threshold sensitivity instead. (Heavy-tailed \emph{weight}
+with an explicit threshold sensitivity instead. The rank estimators in current use---the participation ratio and its finite-sample correction \cite{chun2026estimating}, effective rank \cite{roy2007effectiveRank}, RankMe \cite{garrido2023rankme} and the exponent $\alpha$ itself \cite{agrawal2022alphaReq}---weight the head and the tail of such a spectrum differently, and Section~\ref{sec:metrics} compares them on identical layers. (Heavy-tailed \emph{weight}
 spectra \cite{martin2021implicitSelfReg} are a different object and do not
 transfer.) Pospisil and Pillow \cite{pospisil2025revisiting} identify, for
 the comparable spectrum in visual cortex, two estimator biases that apply
@@ -886,20 +886,32 @@ Section~\ref{sec:rmax}, which is presumably why the studies that hook there
 \subsection{Do the summary statistics agree?}
 \label{sec:metrics}
 
-\emph{Pre-registered; full validation set.} The question was whether $k^*(0.95)$ and the participation
+\emph{Pre-registered; full validation set.} The plan asked whether $k^*(0.95)$ and the participation
 ratio, the statistics of the two published profiles, order the layers of
-the same network the same way. On trained networks they do. Across the six
+the same network the same way, and predicted that they need not: PR is dominated by the head of the spectrum and $k^*$ counts to its tail. The pre-registered summary was recipe agreement. Across the six
 ResNet-50 recipes, the pairwise agreement between recipes is
 $\rho = 0.85$ for $k^*(0.95)/r_{\max}$, $0.86$ for $\mathrm{PR}/C$ and
-$0.89$ for effective rank over $C$; Fig.~\ref{fig:metrics} shows the three on identical layers of three networks, each divided by $r_{\max}$: offset in level, since PR and effective rank weight the head of the spectrum, but rising and falling together. The choice of statistic
-does not explain the difference between the published profiles.
+$0.89$ for effective rank over $C$, so each statistic gives a reproducible profile; Fig.~\ref{fig:metrics} shows the three on identical layers of three networks, each divided by $r_{\max}$, offset in level and moving together at the scale of stages.
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=\columnwidth]{fig2_metrics.pdf}
-  \caption{Three statistics on identical layers, each divided by the attainable rank $r_{\max}$: $k^*(0.95)$, participation ratio and effective rank, for one checkpoint each of ResNet-18, ResNet-50 and VGG-16 (BN). The three are offset, since PR and effective rank weight the head of the spectrum more heavily, but rise and fall together.}
+  \caption{Three statistics on identical layers, each divided by the attainable rank $r_{\max}$: $k^*(0.95)$, participation ratio and effective rank, for one checkpoint each of ResNet-18, ResNet-50 and VGG-16 (BN). The three are offset, since PR and effective rank weight the head of the spectrum more heavily; at the scale of stages they move together, at the scale of layers they do not (Table~\ref{tab:estimators}).}
   \label{fig:metrics}
 \end{figure}
+
+\emph{Exploratory (plan Section~11).} Reproducible is not the same as interchangeable, and the pre-registered summary does not test the layer ordering directly. Table~\ref{tab:estimators} does, on the same layers and images, for the ruler and for the rank estimators the surrounding literatures use: the participation ratio, its finite-sample correction (Chun \emph{et al.} \cite{chun2026estimating}, row-corrected form under Gaussianity), the effective rank of Roy and Vetterli \cite{roy2007effectiveRank}, RankMe (Garrido \emph{et al.} \cite{garrido2023rankme}; the same entropy applied to singular values, $\sqrt{\lambda_i}$, instead of eigenvalues) and the power-law exponent $\alpha$ of $\alpha$-ReQ \cite{agrawal2022alphaReq}, all computed from the saved spectra of the $894$ gate-passing dense convolutions of $21$ checkpoints. Within a network, the participation ratio and the ruler do not order the layers the same way: the per-network Spearman correlation between $\mathrm{PR}/r_{\max}$ and $k^*(0.999)/r_{\max}$ has median $0.41$ and reaches $0.8$ in one network of eighteen, and on the ImageNet VGG-16 it is $-0.52$, PR falling from $0.19$ to $0.02$ of $r_{\max}$ over the thirteen layers while $k^*(0.999)$ rises from $0.44$ to $0.96$. Effective rank sits between ($0.63$). RankMe, which halves the exponent of the head, orders layers as the ruler does ($0.94$ against $k^*(0.999)$, $0.99$ against $k^*(0.95)$, above $0.8$ in seventeen networks of eighteen) at a level between the two thresholds ($0.71$ of $r_{\max}$). The exponent $\alpha$ is the most stable quantity across recipes ($0.97$) and correlates negatively with the ruler ($-0.66$), as a decay rate should, but it is a slope and not a count and cannot be put on the width axis. The finite-sample correction of the participation ratio changes it by at most $0.03\%$ at the sample sizes the gate admits, which is the Lawley bound of Section~\ref{sec:samplesize} again. The pooling count of Section~\ref{sec:estimator} is the same under every statistic ($687/703$ for $k^*(0.95)$, $669/703$ for PR, $688/703$ for effective rank).
+
+The pre-registered hypothesis therefore holds in its mechanism and fails in its predicted direction: head-weighted statistics do order layers differently from tail-counting ones, but where the two published profiles differ in shape the PR profile of a plain network falls with depth rather than rising. What the table settles is narrower and more useful: any conclusion of this paper stated for $k^*(\tau)/r_{\max}$ transfers to RankMe and to the pooling count, and does not transfer to the participation ratio or to $\alpha$ without re-measurement.
+
+\begin{table}[t]
+  \caption{Estimator comparison on the same layers and images (plan Section~11; $894$ gate-passing dense convolutions, $19$ trained and $2$ random checkpoints). Level: median over layers of the estimator divided by $r_{\max}$ ($^\dagger$: $\alpha$ is a slope, reported raw). $\rho_{0.999}$, $\rho_{0.95}$: per-network Spearman correlation over layers between the estimator and $k^*(0.999)/r_{\max}$ or $k^*(0.95)/r_{\max}$, median across networks (and range); $\ge 0.8$ counts the networks with $|\rho_{0.999}| \ge 0.8$. Recipes: median pairwise $\rho$ between the six ResNet-50 recipes. PR$_{\text{corr}}$ is the row-corrected participation ratio of Chun \emph{et al.} \cite{chun2026estimating} in its Gaussian closed form.}
+  \label{tab:estimators}
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{3.5pt}
+  \input{table_estimators}
+\end{table}
 
 \subsection{Threshold sensitivity}
 \label{sec:threshold}
@@ -1503,11 +1515,11 @@ both are stated as readings, not results.
 Section~\ref{sec:intro} set out to reconcile a profile that saturates and
 collapses \cite{garg2019lowEffort} with one that rises
 \cite{elmoznino2024highDim}. The reconciliation is not the one we expected.
-Neither the estimator (Section~\ref{sec:estimator}) nor the summary
-statistic (Section~\ref{sec:metrics}) changes the ordering of layers; each
-changes the level, by more than the profile's own step in the case of
-pooling, so the two literatures' numbers are not on one scale, but their
-shapes are not explained by either. The tensor is: a profile read at block
+The estimator (Section~\ref{sec:estimator}) does not change the ordering of layers, only
+the level, by more than the profile's own step, so the two literatures' numbers are not on one scale. The summary
+statistic does change the ordering (Section~\ref{sec:metrics}): the participation ratio and the ruler
+disagree layer by layer, and on a plain network they run in opposite directions; but the direction
+is the reverse of the one that would reconcile the two published shapes, so the statistic explains part of the disagreement and not its sign. The tensor is: a profile read at block
 outputs is higher by the expansion ratio at every bottleneck expansion
 (Section~\ref{sec:blockout}), and the denominator adds a sawtooth to any
 profile read at convolution outputs (Section~\ref{sec:rmax}). And the
@@ -1766,7 +1778,8 @@ rests on, whether it was pre-registered, and where the numbers are.
   Pooling lowers the measured width & 687/703 dense, 79/80 depthwise; drop exceeds the profile's step in 18/19 networks & pre-reg. (count), expl. (step) & Sec.~\ref{sec:estimator}, Table~\ref{tab:pooling} \\
   Pooling does not reorder layers & $\rho$(depth, pooled$-$sampled) n.s.\ in 3/3 & pre-reg. & Sec.~\ref{sec:estimator} \\
   Block outputs exceed the bound on their last convolution & 161/161 blocks, factor $\approx$ expansion ratio & expl. & Sec.~\ref{sec:blockout}, Fig.~\ref{fig:blockout} \\
-  The statistic does not change the ordering & $k^*$, PR, erank: recipe agreement $0.85$--$0.89$ & pre-reg. & Sec.~\ref{sec:metrics} \\
+  Each statistic gives a reproducible profile & $k^*$, PR, erank: recipe agreement $0.85$--$0.89$ & pre-reg. & Sec.~\ref{sec:metrics} \\
+  Head-weighted statistics reorder layers; RankMe does not & PR vs ruler $\rho$ $0.41$ (VGG-16 $-0.52$); RankMe $0.94$--$0.99$; $\alpha$ $-0.66$ & expl. & Table~\ref{tab:estimators} \\
   The threshold changes the level, not the ordering & $\tau \in \{0.9, \ldots, 0.999\}$ on VGG-16; six recipes at $0.999$ & pre-reg. & Sec.~\ref{sec:threshold} \\
   Trained $\ne$ random (ResNet-50) & six recipes vs one draw, 45--50/53, $p \le 4 \times 10^{-8}$; level $0.23 \to 0.47$ vs step $0.09$ & expl. & Sec.~\ref{sec:learned} \\
   Plain/basic/dense families keep the architecture's ordering & T--R $0.61$--$0.75$ vs ceilings $0.79$--$0.98$, four families & expl. & Table~\ref{tab:families} \\
