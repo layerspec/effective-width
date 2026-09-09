@@ -139,3 +139,36 @@ def test_decompose_rejects_models_without_dense_conv():
     import layerspec
     with pytest.raises(ValueError):
         layerspec.decompose(nn.Sequential(nn.Conv2d(4, 4, 3, groups=4)), random_loader(), device="cpu")
+
+
+def test_load_model_and_image_loader_synthetic():
+    import layerspec
+    m = layerspec.load_model("resnet18_random", seed=0)
+    assert isinstance(m, nn.Module)
+    loader = layerspec.image_loader(None, batch_size=4, limit=8, image_size=32)
+    x = next(iter(loader))
+    x = x[0] if isinstance(x, (list, tuple)) else x
+    assert tuple(x.shape) == (4, 3, 32, 32)
+
+
+def test_cli_profile_writes_csv(tmp_path):
+    from layerspec.cli import main
+    out = tmp_path / "prof.csv"
+    rc = main(["profile", "--model", "resnet18_random", "--data", "synthetic", "--limit", "8",
+               "--image-size", "32", "--batch-size", "4", "--positions", "4", "--device", "cpu",
+               "--out", str(out)])
+    assert rc == 0 and out.exists()
+    import pandas as pd
+    t = pd.read_csv(out)
+    assert "k_star_rmax_0.95" in t.columns and (t.kind == "conv").sum() == 20
+
+
+def test_cli_decompose_writes_csv(tmp_path):
+    from layerspec.cli import main
+    out = tmp_path / "dec.csv"
+    rc = main(["decompose", "--model", "resnet18_random", "--data", "synthetic", "--limit", "8",
+               "--image-size", "32", "--batch-size", "4", "--positions", "4", "--device", "cpu",
+               "--out", str(out)])
+    assert rc == 0 and out.exists()
+    import pandas as pd
+    assert "ortho_0.95" in pd.read_csv(out).columns

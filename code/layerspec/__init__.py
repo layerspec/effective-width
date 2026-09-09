@@ -16,4 +16,5 @@ __version__ = "0.2.0"
 
 from .accumulate import CovarianceAccumulator, merge  # noqa: F401
 from . import metrics  # noqa: F401
-from .api import (profile, Profile, decompose, Decomposition, select_device)  # noqa: F401
+from .api import (profile, Profile, decompose, Decomposition, select_device,  # noqa: F401
+                  load_model, image_loader)
