@@ -200,6 +200,11 @@ def decompose_rows(probe: PatchProbe, taus: tuple[float, ...] = DEFAULT_TAUS,
             tau_k = kappa ** 2 * tau / (1 - tau + kappa ** 2 * tau)
             row[f"bound_{tk}"] = kstar(lam_ortho, tau_k) / r_max if tau_k < 1 else 1.0
             row[f"bound_ok_{tk}"] = bool(kstar(lam_out, tau) <= (kstar(lam_ortho, tau_k) if tau_k < 1 else r_max))
+            # the same theorem read the other way (Corollary, lower bound):
+            #   k*_out(tau) >= k*_ortho(tau''),  tau'' = tau / (kappa^2 (1 - tau) + tau)
+            tau_lo = tau / (kappa ** 2 * (1 - tau) + tau)
+            row[f"bound_lo_{tk}"] = kstar(lam_ortho, tau_lo) / r_max
+            row[f"bound_lo_ok_{tk}"] = bool(kstar(lam_out, tau) >= kstar(lam_ortho, tau_lo))
             row[f"out_{tk}"] = kstar(lam_out, tau) / r_max
             row[f"kernel_{tk}"] = kstar(lam_kernel, tau) / r_max
             row[f"data_{tk}"] = min(kstar(lam_data, tau), r_max) / r_max
@@ -219,6 +224,11 @@ def check_rows(df: pd.DataFrame, taus: tuple[float, ...] = DEFAULT_TAUS) -> dict
     n = len(df)
     return {"ostrowski": (int(df.ostrowski_ok.sum()), n),
             "corollary": {tau: (int(df[f"bound_ok_{tau_key(tau)}"].sum()), n) for tau in taus},
+            "corollary_lo": {tau: (int(df[f"bound_lo_ok_{tau_key(tau)}"].sum()), n) if f"bound_lo_ok_{tau_key(tau)}" in df else (0, 0)
+                             for tau in taus},
+            # informative: the interval [bound_lo, bound] is narrower than r_max, i.e. says something
+            "interval_informative": {tau: int(((df[f"bound_{tau_key(tau)}"] - df[f"bound_lo_{tau_key(tau)}"]) < 1 - 1e-9).sum())
+                                     if f"bound_lo_{tau_key(tau)}" in df else 0 for tau in taus},
             "kappa_median": float(df.kappa.median()) if n else float("nan"),
             "kappa_max": float(df.kappa.max()) if n else float("nan"),
             "n_null_layers": int((df.n_null > 0).sum()),
@@ -231,4 +241,6 @@ def format_check(c: dict) -> str:
     """The one-line summary decompose_check.py prints (kept byte-identical)."""
     return (f"Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on {c['ostrowski'][0]}/{c['ostrowski'][1]} layers; "
             f"k*_out(tau) <= k*_ortho(tau') on " + ", ".join(f"tau={t}: {v[0]}/{v[1]}" for t, v in c["corollary"].items())
-            + f";  kappa median {c['kappa_median']:.1f}, max {c['kappa_max']:.1f}")
+            + f";  kappa median {c['kappa_median']:.1f}, max {c['kappa_max']:.1f}"
+            + (";  lower bound k*_out(tau) >= k*_ortho(tau'') on " + ", ".join(f"tau={t}: {v[0]}/{v[1]}" for t, v in c["corollary_lo"].items())
+               if any(v[1] for v in c["corollary_lo"].values()) else ""))
