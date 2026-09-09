@@ -283,3 +283,28 @@ nohup bash -c 'until grep -q "round 3 done" results/round3.log; do sleep 300; do
   `curl -s -X POST https://rest.runpod.io/v1/pods/$RUNPOD_POD_ID/stop -H "Authorization: Bearer $(cat /root/.runpod/restkey)"`。
   先用 GET 同一網址確認回 200。key 權限 Read & Write 即可。
 - Stop 之後磁碟費約 US$0.3/天；拿到結果後到網頁 Terminate，並 Revoke 用過的 API key。
+
+## A18（用尺定寬度再重訓；plan §9.5／§9.6）—— pod 一趟，2026-09-09 準備
+
+寬度已算好並入庫：`results/a18/widths.json`（seed 0 全寬權重、6,400 張**訓練**影像、16 個位置；
+ruler 5.09M 參數 = 全寬的 34.5%，uniform 4.99M（因子 0.582），ruler95 0.63M）。在 pod 上：
+
+```
+git clone git@github.com:layerspec/effective-width.git && cd effective-width/code
+pip install -r requirements.txt
+python -c "import torchvision; torchvision.datasets.CIFAR10('../data', download=True); torchvision.datasets.CIFAR10('../data', train=False, download=True)"
+nohup bash scripts/run_a18_pod.sh > ../results/a18.log 2>&1 &          # 9 run，3090 約 9 小時
+# 跑完後（log 出現 "A18 done"）：每個 checkpoint 的分解量測（含 rho_align），約 2–3 小時
+PY=python bash scripts/decompose_a18.sh cuda > ../results/a18_decompose.log 2>&1
+```
+
+守護程序（跑完自動分解、推送、停機）—— **push 前一定 fetch＋rebase**：
+
+```
+cd /workspace/effective-width && git config user.name layerspec && git config user.email 325815311+layerspec@users.noreply.github.com
+nohup bash -c 'until grep -q "A18 done" results/a18.log; do sleep 300; done; cd code && PY=python bash scripts/decompose_a18.sh cuda > ../results/a18_decompose.log 2>&1; cd .. && git add results/a18 results/a18.log results/a18_decompose.log && git commit -q -m "A18 results from the pod" && git fetch -q origin && git rebase origin/master && git push origin master; curl -s -X POST https://rest.runpod.io/v1/pods/$RUNPOD_POD_ID/stop -H "Authorization: Bearer $(cat /root/.runpod/restkey)"' > results/a18_autostop.log 2>&1 &
+```
+
+`*.pt` 在 .gitignore：17 個 epoch × 9 run 的 checkpoint（每個 20–60 MB）留在 pod 的 /workspace，
+分解 CSV 才推。想留權重就在 Terminate 前 `rsync` 回 `results/a18_pt/`。
+分析：`checkpoint_analysis.py` §16（P9.6–P9.9）與 §17（P9.10–P9.13）待資料到齊後寫，判定規則照 plan。
