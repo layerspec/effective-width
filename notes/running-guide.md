@@ -308,3 +308,12 @@ nohup bash -c 'until grep -q "A18 done" results/a18.log; do sleep 300; done; cd 
 `*.pt` 在 .gitignore：17 個 epoch × 9 run 的 checkpoint（每個 20–60 MB）留在 pod 的 /workspace，
 分解 CSV 才推。想留權重就在 Terminate 前 `rsync` 回 `results/a18_pt/`。
 分析：`checkpoint_analysis.py` §16（P9.6–P9.9）與 §17（P9.10–P9.13）待資料到齊後寫，判定規則照 plan。
+
+同一趟 pod 順便跑 **P9.10 的 44 個分解**（22 組 ImageNet 權重 × 訓練／隨機，含 rho_align；3090 約 7 小時）：
+```
+python scripts/fetch_imagenet_val.py --out /data/imagenet_val_6400 --limit 6400   # 或從 Mac rsync data/imagenet_val_6400（647 MB）
+PY=python bash scripts/decompose_align_pod.sh /data/imagenet_val_6400 cuda > ../results/decompose_align.log 2>&1
+```
+守護程序的 `git add` 加上 `results/decompose_align`。本機另有 `results/decompose_align_local.sh`
+（等 cifar 隊列跑完後重做 24 個 round-3 最終網路的分解，含 rho_align，給 P9.12）：
+`nohup caffeinate -i results/decompose_align_local.sh >> results/decompose_align_local.log 2>&1 &`
