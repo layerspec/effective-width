@@ -1,0 +1,16 @@
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:759: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+timm:vit_base_patch16_224.augreg_in21k_ft_in1k: 1 dense conv layers pass the gate; median k*(0.95)/r_max 0.066; rho(depth) +nan; max k*(0.999)/r_max 0.216
+!! 1/62 layers under-sampled (worst: head, C=1000, n/C=6.4). Need >= 1563 images at --positions 32. These rows are flagged n_over_C_ok=False -- do not report them.
+timm:vit_base_patch16_224.augreg_in21k_ft_in1k: 48 linear layers pass the gate; median k*(0.95)/r_max 0.379; rho(depth) +0.88
+wrote ../results/vit/vit_base_patch16_224_layers.csv

@@ -1,0 +1,60 @@
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:759: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+timm:resnet50.a1_in1k: 53 dense conv layers, covariances in 153s
+  conv1                    tau=0.95: k=   5 S_lin= 1.38e+03 S_act= 2.72e+03  tau=0.99: k=  12 S_lin= 1.03e+03 S_act= 1.23e+03  tau=0.999: k=  25 S_lin=      233 S_act=     98.2
+  layer1.0.conv1           tau=0.95: k=   9 S_lin=      165 S_act=     97.7  tau=0.99: k=  17 S_lin=     9.31 S_act=     6.77  tau=0.999: k=  29 S_lin=     0.88 S_act=    0.798
+  layer1.0.conv2           tau=0.95: k=  12 S_lin=      251 S_act=      203  tau=0.99: k=  22 S_lin=     27.4 S_act=     21.2  tau=0.999: k=  34 S_lin=     1.89 S_act=     1.61
+  layer1.0.conv3           tau=0.95: k=   1 S_lin=    1e+03 S_act=  2.9e+03  tau=0.99: k=   1 S_lin=    1e+03 S_act=  2.9e+03  tau=0.999: k=  16 S_lin=     62.8 S_act=     55.4
+  layer1.0.downsample.0    tau=0.95: k=   4 S_lin= 5.08e+03 S_act= 3.73e+03  tau=0.99: k=  13 S_lin=      878 S_act=      488  tau=0.999: k=  35 S_lin=     47.9 S_act=     37.8
+  layer1.1.conv1           tau=0.95: k=  20 S_lin=     30.9 S_act=     22.1  tau=0.99: k=  35 S_lin=     4.14 S_act=     2.98  tau=0.999: k=  55 S_lin=    0.436 S_act=    0.355
+  layer1.1.conv2           tau=0.95: k=  31 S_lin=     42.6 S_act=       31  tau=0.99: k=  48 S_lin=     4.15 S_act=     3.24  tau=0.999: k=  61 S_lin=    0.359 S_act=     0.28
+  layer1.1.conv3           tau=0.95: k=  30 S_lin=     23.4 S_act=     17.2  tau=0.99: k=  46 S_lin=     3.04 S_act=     2.67  tau=0.999: k=  58 S_lin=    0.298 S_act=    0.241
+  layer1.2.conv1           tau=0.95: k=  26 S_lin=     17.8 S_act=     12.4  tau=0.99: k=  44 S_lin=     2.33 S_act=     2.04  tau=0.999: k=  59 S_lin=    0.208 S_act=    0.139
+  layer1.2.conv2           tau=0.95: k=  41 S_lin=     16.2 S_act=     10.3  tau=0.99: k=  55 S_lin=      2.7 S_act=        2  tau=0.999: k=  63 S_lin=    0.302 S_act=    0.214
+  layer1.2.conv3           tau=0.95: k=  33 S_lin=     33.8 S_act=     23.2  tau=0.99: k=  49 S_lin=     2.83 S_act=      2.4  tau=0.999: k=  60 S_lin=    0.417 S_act=    0.291
+  layer2.0.conv1           tau=0.95: k=  39 S_lin=     50.4 S_act=     32.3  tau=0.99: k=  70 S_lin=     7.05 S_act=     5.85  tau=0.999: k= 107 S_lin=    0.677 S_act=    0.588
+  layer2.0.conv2           tau=0.95: k=  72 S_lin=     43.7 S_act=     40.7  tau=0.99: k= 103 S_lin=     4.28 S_act=      3.6  tau=0.999: k= 123 S_lin=    0.404 S_act=    0.332
+  layer2.0.conv3           tau=0.95: k=  65 S_lin=     30.6 S_act=     18.7  tau=0.99: k=  94 S_lin=     2.02 S_act=     1.72  tau=0.999: k= 119 S_lin=    0.217 S_act=    0.146
+  layer2.0.downsample.0    tau=0.95: k=  63 S_lin=     23.9 S_act=     17.8  tau=0.99: k= 121 S_lin=     3.74 S_act=     2.99  tau=0.999: k= 198 S_lin=    0.426 S_act=    0.341
+  layer2.1.conv1           tau=0.95: k=  41 S_lin=     12.5 S_act=     9.93  tau=0.99: k=  79 S_lin=     1.79 S_act=     1.61  tau=0.999: k= 115 S_lin=    0.187 S_act=    0.117
+  layer2.1.conv2           tau=0.95: k=  54 S_lin=     30.9 S_act=     19.5  tau=0.99: k=  90 S_lin=     3.84 S_act=     2.93  tau=0.999: k= 120 S_lin=      0.5 S_act=    0.377
+  layer2.1.conv3           tau=0.95: k=  67 S_lin=     9.61 S_act=     9.15  tau=0.99: k=  96 S_lin=     2.24 S_act=     1.99  tau=0.999: k= 114 S_lin=    0.228 S_act=    0.161
+  layer2.2.conv1           tau=0.95: k=  45 S_lin=     11.4 S_act=     9.38  tau=0.99: k=  81 S_lin=      1.7 S_act=     1.43  tau=0.999: k= 116 S_lin=    0.246 S_act=    0.173
+  layer2.2.conv2           tau=0.95: k=  67 S_lin=     32.3 S_act=     18.1  tau=0.99: k= 103 S_lin=     4.01 S_act=     3.22  tau=0.999: k= 124 S_lin=    0.448 S_act=    0.358
+  layer2.2.conv3           tau=0.95: k=  73 S_lin=     13.3 S_act=     11.7  tau=0.99: k= 104 S_lin=      1.7 S_act=     1.45  tau=0.999: k= 123 S_lin=    0.155 S_act=    0.086
+  layer2.3.conv1           tau=0.95: k=  71 S_lin=     10.5 S_act=      7.3  tau=0.99: k= 105 S_lin=     1.35 S_act=     1.23  tau=0.999: k= 124 S_lin=    0.179 S_act=    0.106
+  layer2.3.conv2           tau=0.95: k=  76 S_lin=     12.1 S_act=     8.65  tau=0.99: k= 108 S_lin=     2.04 S_act=     1.74  tau=0.999: k= 125 S_lin=    0.215 S_act=    0.128
+  layer2.3.conv3           tau=0.95: k=  74 S_lin=     6.51 S_act=     5.42  tau=0.99: k= 103 S_lin=    0.839 S_act=    0.696  tau=0.999: k= 120 S_lin=    0.117 S_act=   0.0616
+  layer3.0.conv1           tau=0.95: k=  95 S_lin=     38.2 S_act=     31.3  tau=0.99: k= 163 S_lin=     5.09 S_act=     5.39  tau=0.999: k= 230 S_lin=     0.63 S_act=    0.488
+  layer3.0.conv2           tau=0.95: k= 133 S_lin=     27.9 S_act=     19.4  tau=0.99: k= 198 S_lin=     3.57 S_act=     3.35  tau=0.999: k= 246 S_lin=    0.396 S_act=    0.302
+  layer3.0.conv3           tau=0.95: k= 131 S_lin=     17.3 S_act=     15.9  tau=0.99: k= 196 S_lin=     2.93 S_act=     2.88  tau=0.999: k= 244 S_lin=    0.407 S_act=    0.311
+  layer3.0.downsample.0    tau=0.95: k= 151 S_lin=     11.2 S_act=     9.29  tau=0.99: k= 289 S_lin=     2.43 S_act=     1.98  tau=0.999: k= 434 S_lin=    0.341 S_act=    0.272
+  layer3.1.conv1           tau=0.95: k= 103 S_lin=     13.5 S_act=     9.62  tau=0.99: k= 175 S_lin=     2.51 S_act=     2.04  tau=0.999: k= 238 S_lin=    0.231 S_act=    0.173
+  layer3.1.conv2           tau=0.95: k= 128 S_lin=     21.3 S_act=     18.7  tau=0.99: k= 199 S_lin=     4.19 S_act=      3.3  tau=0.999: k= 247 S_lin=    0.431 S_act=    0.325
+  layer3.1.conv3           tau=0.95: k= 135 S_lin=     14.5 S_act=     12.3  tau=0.99: k= 197 S_lin=     3.03 S_act=     2.76  tau=0.999: k= 235 S_lin=    0.369 S_act=      0.3
+  layer3.2.conv1           tau=0.95: k= 105 S_lin=     15.3 S_act=     12.2  tau=0.99: k= 180 S_lin=        2 S_act=     1.79  tau=0.999: k= 238 S_lin=    0.245 S_act=    0.178
+  layer3.2.conv2           tau=0.95: k= 138 S_lin=       21 S_act=     14.7  tau=0.99: k= 209 S_lin=     3.16 S_act=     2.59  tau=0.999: k= 248 S_lin=    0.273 S_act=    0.192
+  layer3.2.conv3           tau=0.95: k= 138 S_lin=     11.2 S_act=     9.97  tau=0.99: k= 197 S_lin=      1.9 S_act=     1.71  tau=0.999: k= 233 S_lin=    0.206 S_act=    0.127
+  layer3.3.conv1           tau=0.95: k= 124 S_lin=       15 S_act=     10.9  tau=0.99: k= 197 S_lin=      1.9 S_act=      1.6  tau=0.999: k= 245 S_lin=    0.219 S_act=    0.153
+  layer3.3.conv2           tau=0.95: k= 144 S_lin=     16.5 S_act=     13.9  tau=0.99: k= 214 S_lin=     2.81 S_act=     2.45  tau=0.999: k= 250 S_lin=    0.262 S_act=    0.186
+  layer3.3.conv3           tau=0.95: k= 145 S_lin=     11.7 S_act=     10.1  tau=0.99: k= 205 S_lin=     1.92 S_act=      1.7  tau=0.999: k= 240 S_lin=     0.21 S_act=    0.129
+  layer3.4.conv1           tau=0.95: k= 146 S_lin=     12.7 S_act=     10.2  tau=0.99: k= 214 S_lin=     2.72 S_act=     2.37  tau=0.999: k= 250 S_lin=    0.278 S_act=    0.204
+  layer3.4.conv2           tau=0.95: k= 155 S_lin=     16.2 S_act=     13.2  tau=0.99: k= 220 S_lin=     2.44 S_act=     2.25  tau=0.999: k= 251 S_lin=    0.286 S_act=    0.207
+  layer3.4.conv3           tau=0.95: k= 155 S_lin=     14.4 S_act=     12.1  tau=0.99: k= 216 S_lin=     2.46 S_act=     2.26  tau=0.999: k= 248 S_lin=    0.213 S_act=    0.148
+  layer3.5.conv1           tau=0.95: k= 147 S_lin=     22.6 S_act=     16.6  tau=0.99: k= 216 S_lin=     3.35 S_act=     2.99  tau=0.999: k= 250 S_lin=    0.351 S_act=    0.274
+  layer3.5.conv2           tau=0.95: k= 149 S_lin=     22.4 S_act=     17.8  tau=0.99: k= 214 S_lin=     3.66 S_act=     3.18  tau=0.999: k= 250 S_lin=    0.351 S_act=    0.278
+  layer3.5.conv3           tau=0.95: k= 153 S_lin=     18.7 S_act=     17.6  tau=0.99: k= 215 S_lin=      3.2 S_act=     2.94  tau=0.999: k= 249 S_lin=    0.369 S_act=    0.321
+  layer4.0.conv1           tau=0.95: k= 224 S_lin=     49.5 S_act=     41.7  tau=0.99: k= 371 S_lin=     9.95 S_act=     9.07  tau=0.999: k= 480 S_lin=     1.03 S_act=    0.915
+  layer4.0.conv2           tau=0.95: k= 240 S_lin=     55.9 S_act=     49.5  tau=0.99: k= 380 S_lin=     12.6 S_act=     10.8  tau=0.999: k= 486 S_lin=        1 S_act=     0.89
+  layer4.0.conv3           tau=0.95: k= 321 S_lin=     59.8 S_act=     51.9  tau=0.99: k= 442 S_lin=     9.93 S_act=     9.08  tau=0.999: k= 501 S_lin=      1.1 S_act=     1.05
+  layer4.0.downsample.0    tau=0.95: k= 435 S_lin=     72.1 S_act=     54.2  tau=0.99: k= 713 S_lin=     13.7 S_act=     13.3  tau=0.999: k= 937 S_lin=     1.63 S_act=     1.49
+  layer4.1.conv1           tau=0.95: k= 302 S_lin=      227 S_act=      121  tau=0.99: k= 431 S_lin=     27.1 S_act=     19.9  tau=0.999: k= 498 S_lin=     1.95 S_act=     1.79
+  layer4.1.conv2           tau=0.95: k= 238 S_lin=      182 S_act=      114  tau=0.99: k= 388 S_lin=       30 S_act=     24.1  tau=0.999: k= 490 S_lin=     2.83 S_act=     2.78
+  layer4.1.conv3           tau=0.95: k= 297 S_lin=      304 S_act=      153  tau=0.99: k= 423 S_lin=     46.7 S_act=     31.7  tau=0.999: k= 489 S_lin=     2.23 S_act=     1.97
+  layer4.2.conv1           tau=0.95: k= 285 S_lin= 1.95e+03 S_act=      546  tau=0.99: k= 421 S_lin=      115 S_act=     63.6  tau=0.999: k= 493 S_lin=     7.11 S_act=     5.65
+  layer4.2.conv2           tau=0.95: k= 209 S_lin=      762 S_act=      646  tau=0.99: k= 352 S_lin=      123 S_act=      111  tau=0.999: k= 477 S_lin=       15 S_act=     14.9
+  layer4.2.conv3           tau=0.95: k= 206 S_lin= 6.51e+03 S_act= 1.92e+03  tau=0.99: k= 352 S_lin=      469 S_act=      197  tau=0.999: k= 462 S_lin=     12.8 S_act=     10.7
+tau=0.95: sum_l S_lin = 1.88e+04, sum_l S_act = 1.4e+04, rho(S_lin, S_act) over layers = +0.99; median margin^2 = 54.8
+tau=0.99: sum_l S_lin = 3.92e+03, sum_l S_act = 5.23e+03, rho(S_lin, S_act) over layers = +0.99; median margin^2 = 54.8
+tau=0.999: sum_l S_lin = 406, sum_l S_act = 245, rho(S_lin, S_act) over layers = +1.00; median margin^2 = 54.8
+wrote ../results/sensitivity/timm_resnet50.a1_in1k_sensitivity.csv
