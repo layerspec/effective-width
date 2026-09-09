@@ -37,7 +37,33 @@ def test_decompose_table_carries_rho_align_in_range():
     x = torch.randn(128, 3, 8, 8, generator=torch.Generator().manual_seed(1))
     loader = torch.utils.data.DataLoader(torch.utils.data.TensorDataset(x), batch_size=32)
     dec = layerspec.decompose(net, loader, device="cpu", positions=16)
-    assert "rho_align" in dec.table.columns and list(dec.table.columns)[-1] == "rho_align"
+    assert list(dec.table.columns)[-2:] == ["rho_align", "rho_align_sigma"]
     v = dec.table.rho_align.dropna()
     assert len(v) == 2 and ((v >= -1) & (v <= 1)).all()
     assert "rho_align_median" in dec.check()
+
+
+def test_rho_align_sigma_matches_proposition_4_for_least_squares():
+    """W* = Sigma_tx Sigma^-1: gain on q_j is c_j / lambda_j^2, so the index equals
+    Spearman(c_j / lambda_j^2, lambda_j); flat relevance gives -1."""
+    from layerspec.decomposition import rho_align_sigma
+    rng = np.random.default_rng(1)
+    d, m = 24, 6
+    Q, _ = np.linalg.qr(rng.standard_normal((d, d)))
+    lam = np.sort(rng.uniform(0.5, 20, d))[::-1]
+    Sig = Q @ np.diag(lam) @ Q.T
+    # random relevance
+    A = rng.standard_normal((m, d))                    # Sigma_tx = A Q^T  ->  c_j = ||A[:, j]||^2
+    Sig_tx = A @ Q.T
+    W = Sig_tx @ np.linalg.inv(Sig)
+    c = np.sum(A ** 2, axis=0)
+    from scipy.stats import spearmanr
+    expected = spearmanr(c / lam ** 2, lam).statistic
+    assert abs(rho_align_sigma(W, Sig) - expected) < 1e-9
+    # flat relevance: whitening, index -1
+    A_flat = np.ones((1, d))
+    W_flat = (A_flat @ Q.T) @ np.linalg.inv(Sig)
+    assert rho_align_sigma(W_flat, Sig) < -0.999
+    # isotropic random kernel: near 0 in expectation (|index| small for a wide sample)
+    vals = [rho_align_sigma(rng.standard_normal((m, d)), Sig) for _ in range(200)]
+    assert abs(np.mean(vals)) < 0.1
