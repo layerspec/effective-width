@@ -28,6 +28,7 @@ import torch
 from . import data as _data
 from . import metrics as _metrics
 from . import models as _models
+from .api import record_row
 from .hooks import run_probe
 
 
@@ -63,54 +64,13 @@ def measure_one(
     spectra = {}
 
     for rec in probe.records():
-        if rec.acc is None or rec.acc.n < 2:
+        row = record_row(rec, args.min_n_over_C, _metrics.DEFAULT_TAUS)
+        if row is None:
             continue
-        eig = rec.acc.eigenvalues()
-        key = f"{rec.name}::{rec.kind}"
-        spectra[key] = eig
-
-        row = rec.meta()
-        row.update(_metrics.compute(eig, rec.C, rec.acc.n).to_row())
+        spectra[f"{rec.name}::{rec.kind}"] = rec.acc.eigenvalues()
         row["model"] = model_name
         row["weights"] = weights_tag
         row["source"] = source
-        row["n_over_C"] = rec.acc.n / rec.C
-        # A sample covariance built from n < C samples is rank-deficient by
-        # construction, so its k* is an artefact of the sample size and not a
-        # property of the network.  Even well above C the small eigenvalues are
-        # biased; we mark anything under n/C = 50 as not reportable and let the
-        # convergence file settle the rest.
-        row["n_over_C_ok"] = bool(rec.acc.n >= args.min_n_over_C * rec.C)
-
-        # k* against the rank the layer could actually attain, not against its
-        # nominal channel count.  For most layers r_max == C and the two agree;
-        # where they do not, k*/C understates by exactly the factor the
-        # architecture imposed.  Both are written so the paper can show what
-        # the choice of denominator does.
-        if rec.r_max:
-            for tau in _metrics.DEFAULT_TAUS:
-                k = row.get(f"k_star_{tau}")
-                if k is not None:
-                    row[f"k_star_rmax_{tau}"] = k / rec.r_max
-            row["r_max_over_C"] = rec.r_max / rec.C
-
-        # The globally-pooled estimator, carried alongside so the paper can test
-        # whether the literature's disagreement is the pooling rather than the
-        # metric.  It is inherently sample-poor -- n is the image count, so a
-        # 2048-channel layer over 50k images only reaches n/C ~ 24 -- which is
-        # itself worth reporting.
-        if rec.acc_pooled is not None and rec.acc_pooled.n >= 2:
-            pm = _metrics.compute(
-                rec.acc_pooled.eigenvalues(), rec.C, rec.acc_pooled.n
-            ).to_row()
-            for k, v in pm.items():
-                if k not in ("C",):
-                    row[f"pooled_{k}"] = v
-            row["pooled_n_over_C"] = rec.acc_pooled.n / rec.C
-            row["pooled_n_over_C_ok"] = bool(
-                rec.acc_pooled.n >= args.min_n_over_C * rec.C
-            )
-
         layer_rows.append(row)
 
         for mult, ck in rec.checkpoints.items():
