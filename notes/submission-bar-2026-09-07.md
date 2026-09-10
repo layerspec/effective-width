@@ -46,6 +46,7 @@
 - C1 repo 公開前清掉 `output/`、本機路徑、中文工作筆記（或移到 `notes/zh/`）。
 - C2 一鍵重現：`make reproduce` 從 `results/` 重算全部表圖與 PDF；環境檔（requirements 鎖版本）。
 - C3 release tag，論文引用該 tag。
+- C4 **投稿當天同步上 arXiv**（2026-09-10 作者定）：與投稿版同一份 PDF；同一天 repo 公開（C1）、tag（C3）、英文版預登記（B4）一起上線，第二篇才能引用。IEEE 允許預印本。
 
 ## 時程估計
 
