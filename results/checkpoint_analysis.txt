@@ -537,27 +537,30 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
        90  92.46   0.296       -0.68        +0.88         +1.00         0.003
       100  93.78   0.296       -0.68        +0.88         +1.00         0.000
 
-  [trajectory_seed2]  13 conv layers, epochs measured 0..50  (IN PROGRESS: 'final' = latest epoch)
+  [trajectory_seed2]  13 conv layers, epochs measured 0..80  (IN PROGRESS: 'final' = latest epoch)
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
-        0  11.23   0.268       -0.59        +1.00         +0.89         0.088
-        1  59.49   0.461       -0.18        +0.76         +0.61         0.196
-        2  66.73   0.436       -0.23        +0.82         +0.68         0.192
-        3  72.21   0.398       -0.21        +0.81         +0.66         0.174
-        5  73.69   0.344       -0.21        +0.73         +0.62         0.133
-        7  80.08   0.320       -0.24        +0.76         +0.64         0.091
-       10  81.73   0.281       -0.69        +0.81         +0.88         0.037
-       15  84.27   0.266       -0.80        +0.86         +0.94         0.022
-       20  81.33   0.270       -0.80        +0.86         +0.94         0.018
-       30  84.77   0.266       -0.72        +0.90         +0.99         0.010
-       40  86.18   0.273       -0.71        +0.89         +1.00         0.004
-       50  80.73   0.281       -0.71        +0.89         +1.00         0.000
+        0  11.23   0.268       -0.59        +1.00         +0.91         0.063
+        1  59.49   0.461       -0.18        +0.76         +0.64         0.172
+        2  66.73   0.436       -0.23        +0.82         +0.70         0.168
+        3  72.21   0.398       -0.21        +0.81         +0.68         0.150
+        5  73.69   0.344       -0.21        +0.73         +0.65         0.112
+        7  80.08   0.320       -0.24        +0.76         +0.67         0.075
+       10  81.73   0.281       -0.69        +0.81         +0.88         0.046
+       15  84.27   0.266       -0.80        +0.86         +0.91         0.044
+       20  81.33   0.270       -0.80        +0.86         +0.92         0.041
+       30  84.77   0.266       -0.72        +0.90         +0.98         0.035
+       40  86.18   0.273       -0.71        +0.89         +0.98         0.029
+       50  80.73   0.281       -0.71        +0.89         +0.98         0.026
+       60  85.80   0.281       -0.70        +0.88         +0.99         0.018
+       70  84.86   0.281       -0.70        +0.88         +0.99         0.015
+       80  88.72   0.281       -0.68        +0.91         +1.00         0.000
 
   Summary (settle = first measured epoch with rho vs final >= 0.95):
     run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
     trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
     trajectory_resnet50     yes     30      85.94     95.35            +0.39       -0.85 -> -0.21
     trajectory_seed1        yes     30      82.79     93.78            +0.88       -0.46 -> -0.68
-    trajectory_seed2         no     30      84.77     80.73            +0.89       -0.59 -> -0.71
+    trajectory_seed2         no     30      84.77     88.72            +0.91       -0.59 -> -0.68
     VGG seeds: final-vs-final rho over 1 pairs: median +1.00 [+1.00, +1.00]
 
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
@@ -881,12 +884,15 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     ruler     3   5,087,969       93.62 93.37 93.66   93.55                     0.850
     uniform   3   4,995,278       93.31 92.91 93.37   93.20                     0.919
     ruler95   3     634,692       91.44 91.95 91.47   91.62                     0.979
+    ruler_act  3   9,915,277       93.80 93.87 93.85   93.84                     0.753
 
   P9.6 (ruler within 0.3 of full, no seed below full-0.5): diff -0.22, min ruler 93.37 vs full-0.5 93.27 -> SUPPORTED
      (seed spread: full 0.09, ruler 0.29)
   P9.7 (all uniform below all ruler): uniform max 93.37 vs ruler min 93.37 -> NOT supported  [pairs: ruler higher 8/9, ties 1; means 93.55 vs 93.20, diff +0.35]
   P9.8 (ruler95 loses >= 1.0 point): +2.15 -> SUPPORTED
   P9.9 (exploratory; ruler arm filled: median k*(.999)/r_max >= 0.9): 0.850 -> no
+  P9.17 (plan 9.8; ruler_act within 0.3 of full, no seed below full-0.5): diff +0.07, min 93.80 vs 93.27 -> SUPPORTED; params 0.673 of full, counts
+  P9.18 (ruler_act mean above ruler mean; C-100 also all 3 above all 3): 93.84 vs 93.55 -> yes; all-above-all yes
 
   cifar100 (plan 9.7); widths: [15, 48, 101, 116, 226, 238, 244, 466, 481, 489, 472, 484, 490]
     arm       n      params            acc per seed    mean  final k*(.999)/r_max med
@@ -894,13 +900,36 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     ruler     3  12,884,630       72.76 72.75 72.41   72.64                     0.929
     uniform   3  12,989,200       72.95 73.19 73.58   73.24                     0.929
     ruler95   3   1,862,614       67.33 67.07 67.85   67.42                     0.972
+    ruler_act  3  14,618,588       73.17 73.73 73.56   73.49                     0.923
 
   P9.14 (ruler within 0.3 of full, no seed below full-0.5): diff -0.59, min ruler 72.41 vs full-0.5 72.73 -> NOT supported
      (seed spread: full 0.20, ruler 0.35)
   P9.15 (all uniform below all ruler): uniform max 73.58 vs ruler min 72.41 -> NOT supported  [pairs: ruler higher 0/9, ties 0; means 72.64 vs 73.24, diff -0.60]
   P9.16 (ruler95 loses >= 1.0 point): +5.82 -> SUPPORTED
   expl. (exploratory; ruler arm filled: median k*(.999)/r_max >= 0.9): 0.929 -> yes
+  P9.17 (plan 9.8; ruler_act within 0.3 of full, no seed below full-0.5): diff +0.25, min 73.17 vs 72.73 -> SUPPORTED; params 0.989 of full, does NOT count (within 5% of full width)
+  P9.18 (ruler_act mean above ruler mean; C-100 also all 3 above all 3): 73.49 vs 72.64 -> yes; all-above-all yes
   wrote ../paper/table_a18.tex
+
+========================================================================
+17. Kernel-data alignment rho_align (analysis-plan 9.6)
+========================================================================
+  rho_align = Spearman(s_i^2, v_i^T Sigma_patch v_i) over the retained singular directions of W;
+  < 0: the kernel suppresses the data's high-variance directions (compressive).
+
+    checkpoint                                 L  median  neg/pos   sign p
+
+    run                      epochs rho(epoch, median) settle at settle  final >=90%
+    vgg16_bn_ruler95_s0          17              +0.66     90     +0.88  +0.88   yes
+    vgg16_bn_ruler95_s1          17              +0.65    100     +0.88  +0.88   yes
+    vgg16_bn_ruler95_s2          17              +0.80    100     +0.90  +0.90   yes
+    vgg16_bn_ruler_s0            17              +0.84     60     +0.95  +0.96   yes
+    vgg16_bn_ruler_s1            17              +0.78     60     +0.96  +0.95   yes
+    vgg16_bn_ruler_s2            17              +0.83     60     +0.95  +0.95   yes
+    vgg16_bn_uniform_s0          17              +0.82     30     +0.96  +0.96   yes
+    vgg16_bn_uniform_s1          17              +0.89     15     +0.91  +0.96   yes
+    vgg16_bn_uniform_s2          17              +0.91     30     +0.95  +0.96   yes
+  P9.11 (monotone descent rho < -0.7 and 90% of final by the settle epoch): 0/9 runs -> NOT supported
 
 ========================================================================
 18. The profile as a diagnostic: six-recipe consensus on ResNet-50 (exploratory, not pre-registered)
