@@ -517,19 +517,29 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     role 3x3: rho(init, final) +0.12   level init 0.244 -> final 0.234
     role 1x1: rho(init, final) +0.41   level init 0.180 -> final 0.143
 
-  [trajectory_seed1]  13 conv layers, epochs measured 0..5  (IN PROGRESS: 'final' = latest epoch)
+  [trajectory_seed1]  13 conv layers, epochs measured 0..80  (IN PROGRESS: 'final' = latest epoch)
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
-        0  11.97   0.369       -0.46        +1.00         +0.88         0.064
-        1  58.26   0.449       -0.23        +0.90         +0.97         0.060
-        2  68.67   0.439       -0.29        +0.91         +0.98         0.047
-        3  73.14   0.402       -0.20        +0.86         +0.97         0.041
-        5  79.75   0.352       -0.25        +0.88         +1.00         0.000
+        0  11.97   0.369       -0.46        +1.00         +0.84         0.121
+        1  58.26   0.449       -0.23        +0.90         +0.69         0.170
+        2  68.67   0.439       -0.29        +0.91         +0.73         0.162
+        3  73.14   0.402       -0.20        +0.86         +0.62         0.156
+        5  79.75   0.352       -0.25        +0.88         +0.68         0.116
+        7  81.54   0.328       -0.30        +0.86         +0.69         0.070
+       10  84.16   0.287       -0.72        +0.81         +0.89         0.048
+       15  84.61   0.266       -0.80        +0.79         +0.92         0.044
+       20  83.50   0.270       -0.78        +0.80         +0.94         0.041
+       30  82.79   0.273       -0.76        +0.80         +0.97         0.034
+       40  84.72   0.273       -0.70        +0.84         +0.99         0.029
+       50  85.22   0.281       -0.70        +0.85         +0.99         0.022
+       60  86.75   0.281       -0.70        +0.85         +0.99         0.018
+       70  87.68   0.289       -0.69        +0.84         +1.00         0.009
+       80  89.73   0.289       -0.69        +0.84         +1.00         0.000
 
   Summary (settle = first measured epoch with rho vs final >= 0.95):
     run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
     trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
     trajectory_resnet50     yes     30      85.94     95.35            +0.39       -0.85 -> -0.21
-    trajectory_seed1         no      1      58.26     79.75            +0.88       -0.46 -> -0.25
+    trajectory_seed1         no     30      82.79     89.73            +0.84       -0.46 -> -0.69
 
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
   is when the learned profile is in place; compare it with the accuracy
@@ -841,6 +851,21 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     Mask R-CNN R50-FPN backbone, COCO-trained  49       +0.91     0.062     0.205   0.309     0.406
       vs ImageNet ResNet-50 on the same COCO images: rho +0.92, levels 0.406 (cls) / 0.309 (det)
   wrote ../paper/table_ablation.tex
+
+========================================================================
+16. A18: widths set from the ruler, retrained from scratch (analysis-plan 9.5)
+========================================================================
+    arm       n      params            acc per seed    mean  final k*(.999)/r_max med
+    full      3  14,728,266       93.83 93.74 93.74   93.77                     0.738
+    ruler     3   5,087,969       93.62 93.37 93.66   93.55                     0.850
+    uniform   3   4,995,278       93.31 92.91 93.37   93.20                     0.919
+    ruler95   3     634,692       91.44 91.95 91.47   91.62                     0.979
+
+  P9.6 (ruler within 0.3 of full, no seed below full-0.5): diff -0.22, min ruler 93.37 vs full-0.5 93.27 -> SUPPORTED
+  P9.7 (all uniform below all ruler): uniform max 93.37 vs ruler min 93.37 -> NOT supported  [pairs: ruler higher 8/9, ties 1; means 93.55 vs 93.20, diff +0.35]
+  P9.8 (ruler95 loses >= 1.0 point): +2.15 -> SUPPORTED
+  P9.9 (exploratory; ruler arm filled: median k*(.999)/r_max >= 0.9): 0.850 -> no
+  wrote ../paper/table_a18.tex
 
 ========================================================================
 18. The profile as a diagnostic: six-recipe consensus on ResNet-50 (exploratory, not pre-registered)
