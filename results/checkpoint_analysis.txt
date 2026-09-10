@@ -517,29 +517,43 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     role 3x3: rho(init, final) +0.12   level init 0.244 -> final 0.234
     role 1x1: rho(init, final) +0.41   level init 0.180 -> final 0.143
 
-  [trajectory_seed1]  13 conv layers, epochs measured 0..80  (IN PROGRESS: 'final' = latest epoch)
+  [trajectory_seed1]  13 conv layers, epochs measured 0..100
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
-        0  11.97   0.369       -0.46        +1.00         +0.84         0.121
-        1  58.26   0.449       -0.23        +0.90         +0.69         0.170
-        2  68.67   0.439       -0.29        +0.91         +0.73         0.162
-        3  73.14   0.402       -0.20        +0.86         +0.62         0.156
-        5  79.75   0.352       -0.25        +0.88         +0.68         0.116
-        7  81.54   0.328       -0.30        +0.86         +0.69         0.070
-       10  84.16   0.287       -0.72        +0.81         +0.89         0.048
-       15  84.61   0.266       -0.80        +0.79         +0.92         0.044
-       20  83.50   0.270       -0.78        +0.80         +0.94         0.041
-       30  82.79   0.273       -0.76        +0.80         +0.97         0.034
-       40  84.72   0.273       -0.70        +0.84         +0.99         0.029
-       50  85.22   0.281       -0.70        +0.85         +0.99         0.022
-       60  86.75   0.281       -0.70        +0.85         +0.99         0.018
-       70  87.68   0.289       -0.69        +0.84         +1.00         0.009
-       80  89.73   0.289       -0.69        +0.84         +1.00         0.000
+        0  11.97   0.369       -0.46        +1.00         +0.88         0.105
+        1  58.26   0.449       -0.23        +0.90         +0.71         0.154
+        2  68.67   0.439       -0.29        +0.91         +0.74         0.146
+        3  73.14   0.402       -0.20        +0.86         +0.64         0.140
+        5  79.75   0.352       -0.25        +0.88         +0.69         0.104
+        7  81.54   0.328       -0.30        +0.86         +0.71         0.069
+       10  84.16   0.287       -0.72        +0.81         +0.90         0.057
+       15  84.61   0.266       -0.80        +0.79         +0.91         0.057
+       20  83.50   0.270       -0.78        +0.80         +0.93         0.056
+       30  82.79   0.273       -0.76        +0.80         +0.95         0.050
+       40  84.72   0.273       -0.70        +0.84         +0.98         0.045
+       50  85.22   0.281       -0.70        +0.85         +0.98         0.038
+       60  86.75   0.281       -0.70        +0.85         +0.98         0.035
+       70  87.68   0.289       -0.69        +0.84         +0.99         0.026
+       80  89.73   0.289       -0.69        +0.84         +0.99         0.017
+       90  92.46   0.296       -0.68        +0.88         +1.00         0.003
+      100  93.78   0.296       -0.68        +0.88         +1.00         0.000
+
+  [trajectory_seed2]  13 conv layers, epochs measured 0..10  (IN PROGRESS: 'final' = latest epoch)
+    epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
+        0  11.23   0.268       -0.59        +1.00         +0.81         0.064
+        1  59.49   0.461       -0.18        +0.76         +0.67         0.167
+        2  66.73   0.436       -0.23        +0.82         +0.72         0.163
+        3  72.21   0.398       -0.21        +0.81         +0.71         0.145
+        5  73.69   0.344       -0.21        +0.73         +0.72         0.104
+        7  80.08   0.320       -0.24        +0.76         +0.75         0.059
+       10  81.73   0.281       -0.69        +0.81         +1.00         0.000
 
   Summary (settle = first measured epoch with rho vs final >= 0.95):
     run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
     trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
     trajectory_resnet50     yes     30      85.94     95.35            +0.39       -0.85 -> -0.21
-    trajectory_seed1         no     30      82.79     89.73            +0.84       -0.46 -> -0.69
+    trajectory_seed1        yes     30      82.79     93.78            +0.88       -0.46 -> -0.68
+    trajectory_seed2         no     10      81.73     81.73            +0.81       -0.59 -> -0.69
+    VGG seeds: final-vs-final rho over 1 pairs: median +1.00 [+1.00, +1.00]
 
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
   is when the learned profile is in place; compare it with the accuracy
@@ -853,8 +867,10 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   wrote ../paper/table_ablation.tex
 
 ========================================================================
-16. A18: widths set from the ruler, retrained from scratch (analysis-plan 9.5)
+16. A18: widths set from the ruler, retrained from scratch (analysis-plan 9.5; CIFAR-100: 9.7)
 ========================================================================
+
+  cifar10 (plan 9.5); widths: [14, 47, 107, 121, 238, 247, 249, 456, 376, 261, 40, 40, 40]
     arm       n      params            acc per seed    mean  final k*(.999)/r_max med
     full      3  14,728,266       93.83 93.74 93.74   93.77                     0.738
     ruler     3   5,087,969       93.62 93.37 93.66   93.55                     0.850
@@ -862,6 +878,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     ruler95   3     634,692       91.44 91.95 91.47   91.62                     0.979
 
   P9.6 (ruler within 0.3 of full, no seed below full-0.5): diff -0.22, min ruler 93.37 vs full-0.5 93.27 -> SUPPORTED
+     (seed spread: full 0.09, ruler 0.29)
   P9.7 (all uniform below all ruler): uniform max 93.37 vs ruler min 93.37 -> NOT supported  [pairs: ruler higher 8/9, ties 1; means 93.55 vs 93.20, diff +0.35]
   P9.8 (ruler95 loses >= 1.0 point): +2.15 -> SUPPORTED
   P9.9 (exploratory; ruler arm filled: median k*(.999)/r_max >= 0.9): 0.850 -> no
