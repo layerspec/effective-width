@@ -1517,8 +1517,8 @@ def section_alignment(results: str) -> None:
     print("  rho_align = Spearman(s_i^2, v_i^T Sigma_patch v_i) over the retained singular directions of W;")
     print("  < 0: the kernel suppresses the data's high-variance directions (compressive).")
     # ---- P9.10: random ~ 0, trained < 0
-    print(f"\n    {'checkpoint':40s} {'L':>3s} {'median':>7s} {'neg/pos':>8s} {'sign p':>8s}")
-    rand_ok, tr_ok, tr_n, medians = [], [], 0, {}
+    print(f"\n    {'checkpoint':40s} {'L':>3s} {'median':>7s} {'neg/pos':>8s} {'p(neg)':>8s} {'p(pos)':>8s}")
+    rand_ok, tr_ok, tr_pos, tr_n, medians = [], [], [], 0, {}
     for name, t in T.items():
         if re.search(r"_epoch_\d+$", name):
             continue                                   # trajectory checkpoints: section below
@@ -1527,16 +1527,22 @@ def section_alignment(results: str) -> None:
             continue
         med = float(np.median(v)); neg, pos = int((v < 0).sum()), int((v > 0).sum())
         p = binomtest(neg, neg + pos, 0.5, alternative="greater").pvalue if neg + pos else 1.0
-        print(f"    {name:40s} {len(v):3d} {med:+7.2f} {neg:3d}/{pos:<4d} {p:8.2g}")
+        pp = binomtest(pos, neg + pos, 0.5, alternative="greater").pvalue if neg + pos else 1.0
+        print(f"    {name:40s} {len(v):3d} {med:+7.2f} {neg:3d}/{pos:<4d} {p:8.2g} {pp:8.2g}")
         if "random" in name:
             rand_ok.append(abs(med) < 0.1)
         else:
-            tr_n += 1; tr_ok.append(p < 0.01); medians[name] = med
+            tr_n += 1; tr_ok.append(p < 0.01); tr_pos.append(pp < 0.01); medians[name] = med
     if rand_ok:
         print(f"  P9.10a (random |median| < 0.1): {sum(rand_ok)}/{len(rand_ok)} checkpoints")
     if tr_ok:
-        print(f"  P9.10b (trained: sign test p < 0.01): {sum(tr_ok)}/{tr_n} checkpoints -> "
+        print(f"  P9.10b AS REGISTERED (trained rho_align < 0, sign test p < 0.01): {sum(tr_ok)}/{tr_n} checkpoints -> "
               f"{'SUPPORTED' if sum(tr_ok) >= 18 else ('pending (need 22 trained checkpoints)' if tr_n < 22 else 'NOT supported')}")
+        im = [k for k in medians if not re.match(r"a[25]_", k)]
+        print(f"  REVERSED SIGN (post hoc, not pre-registered): trained rho_align > 0 with sign test p < 0.01 in {sum(tr_pos)}/{tr_n} checkpoints; "
+              f"ImageNet checkpoints (n = {len(im)}): median of medians {np.median([medians[k] for k in im]):+.2f}, "
+              f"min {min(medians[k] for k in im):+.2f} ({min(im, key=lambda k: medians[k])}); "
+              f"six ResNet-50 recipes {' '.join(f'{medians[k]:+.2f}' for k in RESNET50_RECIPES if k in medians)}")
     # ---- P9.11: along the A18 trajectories
     traj = {}
     for name, t in T.items():
@@ -1545,7 +1551,7 @@ def section_alignment(results: str) -> None:
             traj.setdefault(m.group(1), {})[int(m.group(3))] = float(t.rho_align.median())
     if traj:
         print(f"\n    {'run':24s} {'epochs':>6s} {'rho(epoch, median)':>18s} {'settle':>6s} {'at settle':>9s} {'final':>6s} {'>=90%':>5s}")
-        ok = []
+        ok, rev = [], []
         for run, series in sorted(traj.items()):
             ep = sorted(series); med = [series[e] for e in ep]
             rho_e = _rho(np.array(ep, dtype=float), np.array(med))
@@ -1558,9 +1564,13 @@ def section_alignment(results: str) -> None:
             fin = med[-1]
             reached = bool(np.sign(at_s) == np.sign(fin) and abs(at_s) >= 0.9 * abs(fin)) if settle is not None else False
             ok.append(rho_e < -0.7 and reached)
-            print(f"    {run:24s} {len(ep):6d} {rho_e:+18.2f} {str(settle):>6s} {at_s:+9.2f} {fin:+6.2f} {'yes' if reached else 'no':>5s}")
-        print(f"  P9.11 (monotone descent rho < -0.7 and 90% of final by the settle epoch): {sum(ok)}/{len(ok)} runs -> "
+            rev.append(rho_e > 0.7 and reached)
+            first90 = next((e for e in ep if np.sign(series[e]) == np.sign(fin) and abs(series[e]) >= 0.9 * abs(fin)), None)
+            print(f"    {run:24s} {len(ep):6d} {rho_e:+18.2f} {str(settle):>6s} {at_s:+9.2f} {fin:+6.2f} {'yes' if reached else 'no':>5s}   "
+                  f"epoch0 {series.get(0, float('nan')):+.2f}  first>=90% at epoch {first90}")
+        print(f"  P9.11 AS REGISTERED (monotone descent rho < -0.7 and 90% of final by the settle epoch): {sum(ok)}/{len(ok)} runs -> "
               f"{'SUPPORTED' if ok and all(ok) else 'NOT supported'}")
+        print(f"  REVERSED SIGN (post hoc): monotone ascent rho > +0.7 and 90% of final by the settle epoch: {sum(rev)}/{len(rev)} runs")
     # ---- P9.12: SO arm closer to zero than none
     pairs = [(f"a5_vgg16_bn_so_s{k}", f"a5_vgg16_bn_none_s{k}") for k in "012"] + \
             [(f"a5_basic52_so_s{k}", f"a2_basic52_s{k}") for k in "012"]
