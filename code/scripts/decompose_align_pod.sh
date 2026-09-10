@@ -5,6 +5,9 @@
 # Usage on the pod:  cd code && PY=python bash scripts/decompose_align_pod.sh /data/imagenet_val_6400 cuda
 set -u
 PY=${PY:-python}
+# Uncapped, one decomposition spawned 76 threads and, beside three others, thrashed a 48-thread
+# pod (2026-09-10: accumulation 95 s -> >280 s).  Cap the BLAS/OMP threads.
+export OMP_NUM_THREADS=${OMP_NUM_THREADS:-16} MKL_NUM_THREADS=${MKL_NUM_THREADS:-16}
 DATA=${1:-../data/imagenet_val_6400}
 DEV=${2:-cuda}
 OUT=../results/decompose_align; mkdir -p $OUT
