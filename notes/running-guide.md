@@ -317,3 +317,22 @@ PY=python bash scripts/decompose_align_pod.sh /data/imagenet_val_6400 cuda > ../
 守護程序的 `git add` 加上 `results/decompose_align`。本機另有 `results/decompose_align_local.sh`
 （等 cifar 隊列跑完後重做 24 個 round-3 最終網路的分解，含 rho_align，給 P9.12）：
 `nohup caffeinate -i results/decompose_align_local.sh >> results/decompose_align_local.log 2>&1 &`
+
+### 2026-09-10 實跑筆記（4090、48 vCPU、Community Cloud）
+
+- **CPU 執行緒一定要上限。** 3 個訓練程序各開 24 條 torch 執行緒＋1 個分解程序 76 條，48 核 load 85，
+  10 分鐘沒印出一個 epoch；`OMP_NUM_THREADS=4` 後每 epoch 3–15 秒。分解程序沒上限時 ResNet-18 的
+  特徵分解跑 35 分鐘（Mac 上 3 分鐘）；`OMP_NUM_THREADS=16` 後正常。三個腳本（`run_a18_pod.sh`、
+  `decompose_a18.sh`、`decompose_align_pod.sh`）現在都內建上限。
+- **多 vCPU 的機型才值得並行**：`PAR=3` 三種子並行，9 個 VGG run 1.5 小時（上次 CPU 少的 3090 要 12 小時）。
+- **從 Mac 用 ssh 遠端 `pkill -f <字串>` 會砍掉自己的 ssh 連線**（遠端指令列含同一字串）。
+  用 `ps -eo pid,cmd | grep "[a]utostop" | awk` 取 PID 再 `kill`，且啟動指令（含腳本名的字面）
+  跟 kill 分開兩次 ssh。同一原因下守護程序曾被誤開 3 個又誤砍成 0 個；每次都用 `ps` 列全指令列確認。
+- 在 ssh 一行指令裡 `nohup setsid ... &` 之後再接 `sleep`，ssh 常掛住不回；改成把啟動流程寫成檔案
+  `scp` 上去再 `ssh 'bash file'`，穩定。
+- 三個程序同時 `torchvision.datasets.CIFAR100(download=True)` 沒有互踩（8 分鐘下載完），但 pod 對
+  toronto.edu 的下載只有 350 kB/s；ImageNet 子集改由 Mac `rsync` 上去（647 MB 約 15 分鐘；反向拉
+  2.2 GB checkpoint 只要幾分鐘）。網路磁碟不允許 `chown`，rsync 的警告可忽略。
+- RunPod 的 API key 只在建立當下顯示完整內容，列表頁是遮罩；`RUNPOD_POD_ID` 在 ssh 進來的 shell 沒有，
+  從 `/proc/1/environ` 取。守護程序裡把 pod ID 寫死。
+- 一次 pod（約 6 小時、US$3）跑完：A18 三個資料集臂共 21 個 run、153＋44 個分解。
