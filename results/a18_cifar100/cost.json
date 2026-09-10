@@ -1,0 +1,117 @@
+{
+  "full": {
+    "widths": [
+      64,
+      64,
+      128,
+      128,
+      256,
+      256,
+      256,
+      512,
+      512,
+      512,
+      512,
+      512,
+      512
+    ],
+    "params": 14774436,
+    "macs": 313247744,
+    "images_per_s": 61893.558063660785,
+    "train_hours_per_run": 0.17027777777777778,
+    "n_runs_timed": 3,
+    "device": "NVIDIA GeForce RTX 4090"
+  },
+  "ruler": {
+    "widths": [
+      15,
+      48,
+      101,
+      116,
+      226,
+      238,
+      244,
+      466,
+      481,
+      489,
+      472,
+      484,
+      490
+    ],
+    "params": 12884630,
+    "macs": 232385944,
+    "images_per_s": 67077.14210154781,
+    "train_hours_per_run": 0.19592592592592592,
+    "n_runs_timed": 3,
+    "device": "NVIDIA GeForce RTX 4090"
+  },
+  "uniform": {
+    "widths": [
+      60,
+      60,
+      120,
+      120,
+      240,
+      240,
+      240,
+      480,
+      480,
+      480,
+      480,
+      480,
+      480
+    ],
+    "params": 12989200,
+    "macs": 275422080,
+    "images_per_s": 65107.48697840345,
+    "train_hours_per_run": 0.20629629629629628,
+    "n_runs_timed": 3,
+    "device": "NVIDIA GeForce RTX 4090"
+  },
+  "ruler95": {
+    "widths": [
+      8,
+      20,
+      36,
+      44,
+      79,
+      89,
+      101,
+      159,
+      162,
+      188,
+      160,
+      194,
+      249
+    ],
+    "params": 1862614,
+    "macs": 32605404,
+    "images_per_s": 207889.40051242666,
+    "train_hours_per_run": 0.11824074074074074,
+    "n_runs_timed": 3,
+    "device": "NVIDIA GeForce RTX 4090"
+  },
+  "ruler_act": {
+    "widths": [
+      48,
+      64,
+      127,
+      128,
+      255,
+      255,
+      255,
+      510,
+      510,
+      510,
+      509,
+      510,
+      505
+    ],
+    "params": 14618588,
+    "macs": 301177612,
+    "images_per_s": 57297.70615324685,
+    "train_hours_per_run": 0.19027777777777777,
+    "n_runs_timed": 3,
+    "device": "NVIDIA GeForce RTX 4090"
+  }
+}
