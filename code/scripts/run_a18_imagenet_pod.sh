@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Analysis-plan 9.11 (bar A23): ResNet-18 on ImageNet-1k from scratch, torchvision reference
 # recipe, three arms x two seeds, run in the order the dependencies force:
-#   1. fetch ImageNet-1k (train + val) into $DATA as 256-short-side JPEGs (scripts/fetch_imagenet.py)
+#   1. fetch ImageNet-1k (train + val) into $DATA as 256-short-side JPEG blobs (scripts/fetch_imagenet.py)
 #   2. (a) full width, seeds 0 and 1               (two runs in parallel on one GPU)
 #   3. widths_act.json from (a) seed 0 on 6,400 TRAINING images, after the ReLU, stage rule
 #   4. (e) ruler_act, seeds 0 and 1
@@ -25,7 +25,8 @@ if [ ! -f "$DATA/.fetched" ]; then
   echo "=== fetch ImageNet-1k to $DATA $(date) ==="
   $PY scripts/fetch_imagenet.py --out $DATA --split both --workers $FETCH_WORKERS > $OUT/fetch.log 2>&1 \
     || { echo "fetch failed, see $OUT/fetch.log"; exit 1; }
-  ntr=$(find $DATA/train -name '*.JPEG' | wc -l); nva=$(find $DATA/val -name '*.JPEG' | wc -l)
+  ntr=$($PY -c "from scripts.imagenet_blob import count_images; print(count_images('$DATA/train'))")
+  nva=$($PY -c "from scripts.imagenet_blob import count_images; print(count_images('$DATA/val'))")
   echo "train $ntr val $nva"
   if [ "$ntr" -ne 1281167 ] || [ "$nva" -ne 50000 ]; then echo "image count wrong; not marking fetched"; exit 1; fi
   touch $DATA/.fetched

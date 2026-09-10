@@ -32,20 +32,21 @@ import torch.nn.functional as F
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.resnet_widths import RESNET18_WIDTHS, build_resnet18_widths, macs  # noqa: E402
+from scripts.imagenet_blob import imagenet_split                                # noqa: E402
 
 MEAN, STD = (0.485, 0.456, 0.406), (0.229, 0.224, 0.225)
 
 
 def loaders(root: str, batch_size: int, workers: int, seed: int):
-    from torchvision import datasets, transforms
+    from torchvision import transforms
     train_tf = transforms.Compose([transforms.RandomResizedCrop(224), transforms.RandomHorizontalFlip(),
                                    transforms.ToTensor(), transforms.Normalize(MEAN, STD)])
     val_tf = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224),
                                  transforms.ToTensor(), transforms.Normalize(MEAN, STD)])
-    tr = datasets.ImageFolder(os.path.join(root, "train"), transform=train_tf)
-    va = datasets.ImageFolder(os.path.join(root, "val"), transform=val_tf)
+    tr = imagenet_split(root, "train", train_tf)          # ImageFolder or blob (scripts/imagenet_blob.py)
+    va = imagenet_split(root, "val", val_tf)
     if tr.classes != va.classes:
-        raise SystemExit("train/ and val/ class folders differ")
+        raise SystemExit("train/ and val/ class sets differ")
     g = torch.Generator().manual_seed(seed)
     kw = dict(num_workers=workers, pin_memory=True, persistent_workers=workers > 0,
               prefetch_factor=4 if workers > 0 else None)
