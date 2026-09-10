@@ -1846,7 +1846,7 @@ def _estimators(lam: np.ndarray, n: float) -> dict[str, float]:
 
 
 EST_ORDER = ["k95", "k999", "PR", "PRc", "erank", "RankMe", "alpha"]
-EST_LABEL = {"k95": "$k^*(0.95)$", "k999": "$k^*(0.999)$", "PR": "PR", "PRc": "PR$_{\\text{corr}}$",
+EST_LABEL = {"k95": "$k^*(0.95)$", "k999": "$k^*(0.999)$", "PR": "PR", "PRc": "PR$_{\\rm corr}$",
              "erank": "erank", "RankMe": "RankMe", "alpha": "$\\alpha$-ReQ"}
 
 

@@ -264,7 +264,7 @@ This work & 19 checkpoints, 11 families; ImageNet, CIFAR-10, COCO & conv out, pr
 \end{tabular}
 \end{table*}
 
-The deep end of any such profile is partly determined analytically: neural collapse \cite{papyan2020neuralCollapse} confines the penultimate-layer features of a converged classifier to a subspace of dimension $C_{\text{class}}-1$, nine on CIFAR-10 and $999$ on ImageNet-1k, so a ten-class profile is pushed toward a terminal collapse that a thousand-class profile need not show, and Masarczyk \emph{et al.} \cite{masarczyk2023tunnel} find that on CIFAR-10 the numerical rank of the deeper layers of VGG-19 falls to about the number of classes within the first few hundred steps of training and stays there (the ``tunnel''). Profiles from the two regimes cannot be compared without saying so. Two further results bear on the manifold estimators specifically: Cohen \emph{et al.} \cite{cohen2020manifolds} show with mean-field manifold theory that pooling operations reduce the dimension of class manifolds in AlexNet and VGG-16, and Schulte and R\"ugamer \cite{schulte2026rethinking} show that a Lipschitz layer cannot raise intrinsic dimension, so that a rising TwoNN profile reflects the estimator; neither constraint applies to the linear rank of a covariance, which a linear layer can raise up to $r_{\max}$ and which we measure here.
+The deep end of any such profile is partly determined analytically: neural collapse \cite{papyan2020neuralCollapse} confines the penultimate-layer features of a converged classifier to a subspace of dimension $C_{\rm class}-1$, nine on CIFAR-10 and $999$ on ImageNet-1k, so a ten-class profile is pushed toward a terminal collapse that a thousand-class profile need not show, and Masarczyk \emph{et al.} \cite{masarczyk2023tunnel} find that on CIFAR-10 the numerical rank of the deeper layers of VGG-19 falls to about the number of classes within the first few hundred steps of training and stays there (the ``tunnel''). Profiles from the two regimes cannot be compared without saying so. Two further results bear on the manifold estimators specifically: Cohen \emph{et al.} \cite{cohen2020manifolds} show with mean-field manifold theory that pooling operations reduce the dimension of class manifolds in AlexNet and VGG-16, and Schulte and R\"ugamer \cite{schulte2026rethinking} show that a Lipschitz layer cannot raise intrinsic dimension, so that a rising TwoNN profile reflects the estimator; neither constraint applies to the linear rank of a covariance, which a linear layer can raise up to $r_{\max}$ and which we measure here.
 
 One nearby result should not be confused with these. Feng \emph{et al.}
 \cite{feng2022rankDiminishing} report a rank that decreases monotonically with
@@ -281,10 +281,10 @@ input dimension was made explicit for the softmax layer by Yang \emph{et al.}
 length by Bhojanapalli \emph{et al.} \cite{bhojanapalli2020lowRank}, and for
 convolutional expansion layers by Han \emph{et al.} \cite{han2021rexnet},
 who plot the rank of $1\!\times\!1$, $3\!\times\!3$ and inverted-bottleneck
-outputs against $C_{\text{in}}/C_{\text{out}}$ in random-weight networks and
+outputs against $C_{\rm in}/C_{\rm out}$ in random-weight networks and
 turn the observation into a design rule (an expansion ratio of at most six).
 Kim \emph{et al.} \cite{kim2018rank1} write the standard-convolution form
-$\min(C_{\text{in}} k_h k_w,\, C_{\text{out}})$ in an im2col derivation.
+$\min(C_{\rm in} k_h k_w,\, C_{\rm out})$ in an im2col derivation.
 What none of these do, and what the measurement literature above has not done
 either, is carry the bound into the denominator of a depth profile measured on
 trained networks. Section~\ref{sec:rmax} shows that doing so removes an apparent two-population structure in every bottleneck network measured, and that trained expansion layers are nearly full-rank in their input space.
@@ -408,6 +408,39 @@ unbounded growth without extensive hyperparameter tuning.
 \section{Method}
 \label{sec:method}
 
+Table~\ref{tab:notation} collects the notation used from here on; each symbol is defined where it first appears.
+
+\begin{table}[t]
+  \caption{Notation.}
+  \label{tab:notation}
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\columnwidth}>{\raggedright\arraybackslash}p{0.62\columnwidth}@{}}
+    \toprule
+    Symbol & Meaning \\
+    \midrule
+    $N$, $C$, $H \times W$ & images in the batch; channels and spatial size of a layer's output \\
+    $p$; $n$ & positions sampled per image; observations, $n = Np$ (pooled: $n = N$) \\
+    $\hat{\Sigma}^{\rm pos}$, $\hat{\Sigma}^{\rm pool}$ & position-sampled and globally pooled channel covariance, Eqs.~\eqref{eq:covpos}--\eqref{eq:covpool} \\
+    $\lambda_1 \ge \cdots \ge \lambda_C$ & eigenvalues of the estimated covariance \\
+    $k^*(\tau)$ & principal components reaching a fraction $\tau$ of the variance, Eq.~\eqref{eq:kstar}; $\tau = 0.95$ primary, $0.999$ functional \\
+    PR, erank & participation ratio and effective rank, Eqs.~\eqref{eq:pr}--\eqref{eq:erank} \\
+    $C_{\rm in}$, $C_{\rm out}$, $k_h \times k_w$, $g$ & input and output channels, kernel size and groups of a convolution \\
+    $d = C_{\rm in} k_h k_w$ & dimension of the receptive-field patch as a vector (dense convolution) \\
+    $r_{\max}$ & attainable rank of the convolution output, Eq.~\eqref{eq:rmax}; the denominator of the ruler \\
+    $n/C \ge 50$ & the sample-size gate (Section~\ref{sec:samplesize}); rows below it are not reported \\
+    $W \in \mathbb{R}^{C_{\rm out} \times d}$ & the kernel as a matrix; $W = P W_{\circ}$ its polar decomposition, $W_{\circ}$ the nearest isometry \\
+    $\Sigma_{\rm patch}$; $\Sigma_{\rm out}$ & patch covariance; convolution-output covariance, $\Sigma_{\rm out} = W \Sigma_{\rm patch} W^{\top}$ (Section~\ref{sec:decompose}) \\
+    $\kappa = \sigma_{\max} / \sigma_{\min}$ & condition number of $W$ over its numerical rank \\
+    $\Sigma_{\rm act}^{(\ell)}$ & post-activation channel covariance feeding layer $\ell + 1$ (Proposition~\ref{prop:depth}) \\
+    $\rho$; T--T, T--R, R--R & Spearman correlation between two layer profiles; trained--trained, trained--random, random--random \\
+    $\rho_{\rm depth}$; subscript stage & correlation with depth index; correlation over ranks taken within each stage \\
+    step (jitter) & median absolute difference between adjacent layers of one profile \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
 \subsection{The measured object}
 \label{sec:object}
 
@@ -484,19 +517,19 @@ rank of that map and not by $C$ alone
 \cite{kim2018rank1,han2021rexnet}. The bound holds at the point we record
 the convolution output---before any nonlinearity and before a residual
 addition; a subsequent ReLU or skip connection can raise the rank above it
-\cite{han2021rexnet}. For a convolution with $C_{\text{in}}$
+\cite{han2021rexnet}. For a convolution with $C_{\rm in}$
 input channels, kernel $k_h \times k_w$ and $g$ groups, the weight matrix is
 block-diagonal with blocks of disjoint support, so the block ranks add and
 \begin{equation}
   r_{\max} = g \cdot \min\!\Bigl(
-     \tfrac{C_{\text{in}}}{g} k_h k_w,\ \tfrac{C_{\text{out}}}{g}
+     \tfrac{C_{\rm in}}{g} k_h k_w,\ \tfrac{C_{\rm out}}{g}
   \Bigr).
   \label{eq:rmax}
 \end{equation}
 Where $r_{\max} < C$, the ratio $k^*/C$ is bounded above by $r_{\max}/C$
 whatever the network has learned, and normalising by $C$ therefore charges the
 layer for width it never had. The case is not hypothetical: a bottleneck's
-$1\!\times\!1$ expansion has $C_{\text{in}} = C_{\text{out}}/4$, so $k^*/C$
+$1\!\times\!1$ expansion has $C_{\rm in} = C_{\rm out}/4$, so $k^*/C$
 there cannot exceed $0.25$ by construction. We report $k^*/C$, which is the
 pre-registered statistic and the one comparable with prior work, and
 $k^*/r_{\max}$ alongside it. Section~\ref{sec:rmax} shows what the choice of
@@ -694,7 +727,7 @@ A second, ImageNet-scale check was added after the data were seen. Elmoznino and
 0.34, 0.40, 0.37$ for $C = 64 \ldots 512$, then $0.11$ and $0.13$ for
 $C = 1024$ and $2048$) and invites the reading that the widest layers use a tenth of the width they are given. Twenty of its 53 convolutions are the
 $1\!\times\!1$ expansions at the end of a bottleneck, with
-$C_{\text{in}} = C_{\text{out}}/4$ and hence $r_{\max}/C = 0.25$ by
+$C_{\rm in} = C_{\rm out}/4$ and hence $r_{\max}/C = 0.25$ by
 Equation~\eqref{eq:rmax}; they cannot exceed $0.25$ however well they are
 trained.
 
@@ -905,7 +938,7 @@ $0.89$ for effective rank over $C$, so each statistic gives a reproducible profi
 The pre-registered hypothesis therefore holds in its mechanism and fails in its predicted direction: head-weighted statistics do order layers differently from tail-counting ones, but where the two published profiles differ in shape the PR profile of a plain network falls with depth rather than rising. What the table settles is narrower and more useful: any conclusion of this paper stated for $k^*(\tau)/r_{\max}$ transfers to RankMe and to the pooling count, and does not transfer to the participation ratio or to $\alpha$ without re-measurement.
 
 \begin{table}[t]
-  \caption{Estimator comparison on the same layers and images (plan Section~11; $894$ gate-passing dense convolutions, $19$ trained and $2$ random checkpoints). Level: median over layers of the estimator divided by $r_{\max}$ ($^\dagger$: $\alpha$ is a slope, reported raw). $\rho_{0.999}$, $\rho_{0.95}$: per-network Spearman correlation over layers between the estimator and $k^*(0.999)/r_{\max}$ or $k^*(0.95)/r_{\max}$, median across networks (and range); $\ge 0.8$ counts the networks with $|\rho_{0.999}| \ge 0.8$. Recipes: median pairwise $\rho$ between the six ResNet-50 recipes. PR$_{\text{corr}}$ is the row-corrected participation ratio of Chun \emph{et al.} \cite{chun2026estimating} in its Gaussian closed form.}
+  \caption{Estimator comparison on the same layers and images (plan Section~11; $894$ gate-passing dense convolutions, $19$ trained and $2$ random checkpoints). Level: median over layers of the estimator divided by $r_{\max}$ ($^\dagger$: $\alpha$ is a slope, reported raw). $\rho_{0.999}$, $\rho_{0.95}$: per-network Spearman correlation over layers between the estimator and $k^*(0.999)/r_{\max}$ or $k^*(0.95)/r_{\max}$, median across networks (and range); $\ge 0.8$ counts the networks with $|\rho_{0.999}| \ge 0.8$. Recipes: median pairwise $\rho$ between the six ResNet-50 recipes. PR$_{\rm corr}$ is the row-corrected participation ratio of Chun \emph{et al.} \cite{chun2026estimating} in its Gaussian closed form.}
   \label{tab:estimators}
   \centering
   \scriptsize
@@ -1011,7 +1044,7 @@ ceilings of $0.79$--$0.98$, and training raises the median level by $0.09$ (VGG)
 each other ($0.84$) and with initialisation not at all ($-0.08$, range
 $-0.31$ to $+0.33$ over 30 pairs), against a random-vs-random ceiling of
 $0.94$; the five random draws are highly reproducible, so the disagreement
-is not draw noise. This does not contradict the observation of Daneshmand \emph{et al.} \cite{daneshmand2020bn} that gradient descent largely preserves the initial rank of the \emph{last} hidden layer: their object is one layer's rank across networks of different depth, ours is the ordering of layers within one network, and the level of ResNet-50 does rise rather than fall. The trend with depth reverses: every random draw falls with depth (writing $\rho_{\text{depth}}$ for the Spearman correlation of a profile with layer index: $-0.53$ to $-0.81$) and every trained
+is not draw noise. This does not contradict the observation of Daneshmand \emph{et al.} \cite{daneshmand2020bn} that gradient descent largely preserves the initial rank of the \emph{last} hidden layer: their object is one layer's rank across networks of different depth, ours is the ordering of layers within one network, and the level of ResNet-50 does rise rather than fall. The trend with depth reverses: every random draw falls with depth (writing $\rho_{\rm depth}$ for the Spearman correlation of a profile with layer index: $-0.53$ to $-0.81$) and every trained
 recipe rises (mean $+0.56$). Part of that disagreement is the trend itself: a sign flip in one monotone trend gives $\rho \approx 0$ over 53 layers without any reordering inside a stage. Ranking layers within each stage, where all share $C$ and no width or bound confound is possible, and pooling the ranks (column T--R$_{\rm stage}$ of Table~\ref{tab:families}) removes the trend: ResNet-50's within-stage agreement with initialisation is $0.27$ against a ceiling of $0.75$, ResNet-18's is $0.75$ against $0.92$ and ResNet-34's $0.55$ against $0.87$. The bottleneck network reorders its layers within a stage as well, but less completely than the whole-profile figure suggests.
 
 \emph{Inverted-residual checkpoints agree with one another weakly or not at all.} The four MobileNetV3-Large checkpoints do not share a profile (T--T $-0.18$) although their random draws do ($0.75$); the five EfficientNet-B0 checkpoints, all trained on ImageNet-1k alone, agree only moderately ($0.40$, against a random ceiling of $0.97$); MobileNetV2 has a single public checkpoint. What varies most is the level: the median $k^*(0.95)/r_{\max}$ of the $1\!\times\!1$ layers is $0.18$, $0.45$, $0.59$ and $0.65$ across the MobileNetV3 checkpoints and $0.10$, $0.26$, $0.70$, $0.71$ and $0.73$ across the EfficientNet-B0 ones, a $3.6$-fold and a $7$-fold range under one architecture and one dataset. The depthwise layers move against the rest of the study in two of the three families: in the median over checkpoints training roughly halves their effective width in MobileNetV3 ($0.41 \to 0.20$) and EfficientNet-B0 ($0.35 \to 0.22$), with trained values spread from $0.05$ to $0.34$, while MobileNetV2's single checkpoint leaves them where initialisation put them ($0.39 \to 0.42$).
@@ -1119,9 +1152,9 @@ therefore shows no late reordering: on CIFAR-10 the bottleneck network's
 ordering is in place as early as the others' and ends as close to
 initialisation as theirs.
 
-Along this CIFAR-10 run the profile also falls with depth from epoch 10 onwards ($\rho_{\text{depth}}$ $-0.6$ to $-0.9$; only $-0.2$ during the first epochs), and the last three layers end at $k^*(0.95)/C$ of $0.05$--$0.07$ ($0.08$ at $\tau = 0.999$): the terminal collapse of \cite{garg2019lowEffort} is present in our own CIFAR-10 network and absent in our ImageNet VGG-16, where the same layers read $0.44$--$0.53$ ($0.92$--$0.97$ at $\tau = 0.999$). Neural
+Along this CIFAR-10 run the profile also falls with depth from epoch 10 onwards ($\rho_{\rm depth}$ $-0.6$ to $-0.9$; only $-0.2$ during the first epochs), and the last three layers end at $k^*(0.95)/C$ of $0.05$--$0.07$ ($0.08$ at $\tau = 0.999$): the terminal collapse of \cite{garg2019lowEffort} is present in our own CIFAR-10 network and absent in our ImageNet VGG-16, where the same layers read $0.44$--$0.53$ ($0.92$--$0.97$ at $\tau = 0.999$). Neural
 collapse \cite{papyan2020neuralCollapse} predicts a penultimate rank of
-$C_{\text{class}} - 1$, nine on CIFAR-10, but the CIFAR head is also
+$C_{\rm class} - 1$, nine on CIFAR-10, but the CIFAR head is also
 shallower than the ImageNet one, and the planned experiment that separates
 class count from head depth was not run (Section~\ref{sec:discussion}).
 
