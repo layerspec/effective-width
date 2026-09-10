@@ -81,6 +81,10 @@
    ~~MobileNet／EfficientNet 的池化效果改用 r_max 版統計量~~（2026-09-07 已做，
    `round2` §3 補記：/C 比值 0.08–0.17 → /r_max 1.25–2.11；只有 DenseNet-121 <1）。
 5. CIFAR 2×2 為選配：`bash code/scripts/run_cifar_2x2.sh`。
+6. **A23（2026-09-11 腳本就緒，待租 pod）**：plan §9.11，ResNet-18 ImageNet-1k 三臂×2 種子＋CIFAR-10 前置
+   三臂×3 種子。腳本 `code/scripts/{resnet_widths,fetch_imagenet,train_imagenet_r18}.py`、
+   `run_a18_r18_cifar_pod.sh`、`run_a18_imagenet_pod.sh`；步驟在 `notes/running-guide.md` A23 節。
+   13 個寬度的順序與 stage 規則見 `resnet_widths.py` 開頭；資料短邊縮 256 是登記過的實作選擇。
 
 ---
 

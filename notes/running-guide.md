@@ -336,3 +336,35 @@ PY=python bash scripts/decompose_align_pod.sh /data/imagenet_val_6400 cuda > ../
 - RunPod 的 API key 只在建立當下顯示完整內容，列表頁是遮罩；`RUNPOD_POD_ID` 在 ssh 進來的 shell 沒有，
   從 `/proc/1/environ` 取。守護程序裡把 pod ID 寫死。
 - 一次 pod（約 6 小時、US$3）跑完：A18 三個資料集臂共 21 個 run、153＋44 個分解。
+
+## A23（A18 推到 ImageNet-1k，ResNet-18；plan §9.11）—— 2026-09-11 準備
+
+租機：**單張 4090、vCPU 越多越好（≥ 24）、容器磁碟 ≥ 120 GB 或 /workspace 網路磁碟 ≥ 100 GB**
+（JPEG 45 GB＋每個 worker 一個 1 GB 的 parquet 暫存＋六個 run 的 checkpoint 約 1 GB）。
+估：抓資料 1–2 h；每個 run 90 epoch，兩個並行時每 epoch 約 15–20 min → 一對約 24–30 h；三對約 3–3.5 天。
+預算 US$70–90（作者 09-10 核准）。
+
+```bash
+# 進 pod 之後（程式碼照第 3 節送上去；HF token 要先登入，資料集是 gated）
+pip install huggingface_hub pyarrow            # 其他套件同 A18
+hf auth login                                   # 貼 Mac 上 ~/.cache/huggingface/token 的內容
+cd /workspace/effective-width/code
+# 0. 前置：CIFAR-10 ResNet-18 三臂 x 3 種子（約 30–40 min，可與抓資料同時）
+PAR=3 nohup bash scripts/run_a18_r18_cifar_pod.sh > ../results/a18_r18.log 2>&1 &
+# 1. 主實驗：抓資料 + 六個 run，全自動排序
+DATA=/workspace/imagenet nohup bash scripts/run_a18_imagenet_pod.sh > ../results/a18_imagenet.log 2>&1 &
+# 進度
+tail -f ../results/a18_imagenet.log ../results/a18_imagenet/resnet18_full_s0.log
+```
+
+守護程序（跑完 commit、push、關機；REST key 先放 `/root/.runpod/restkey`）：
+```bash
+nohup bash -c 'until grep -q "A18-ImageNet done" results/a18_imagenet.log; do sleep 600; done; git add results/a18_imagenet results/a18_r18 results/a18_imagenet.log results/a18_r18.log && git commit -q -m "A23: ResNet-18 ImageNet-1k arms + CIFAR-10 preflight from the pod" && git fetch -q origin && git rebase origin/master && git push origin master; curl -s -X POST https://rest.runpod.io/v1/pods/<POD_ID>/stop -H "Authorization: Bearer $(cat /root/.runpod/restkey)"' > results/a23_autostop.log 2>&1 &
+```
+`.pt` 不進 git；六個 `final.pt`（各 45 MB）與兩個全寬 `final.pt` 跑完後用 rsync 拉回 Mac
+`results/a18_imagenet_pt/`（之後量剖面、分解用）。
+
+- 前置若 (e) 比 (a) 掉超過 1 點：先停主實驗（`pkill -f run_a18_imagenet` 前先 `ps` 確認，見 09-10 筆記），
+  查 `results/a18_r18/widths_act.json` 的 `sites`（stage max 規則）再決定。
+- 中途斷線／pod 重啟：同一條指令重跑即可，每個 run 由 `resume.pt` 續跑，抓資料由 `.done/` 標記略過。
+- 兩個 run 並行時 `WORKERS` 預設 nproc/2；若 `img/s` 明顯低於 1,200，是解碼不夠，換 vCPU 多的機型。
