@@ -1538,9 +1538,12 @@ def section_alignment(results: str) -> None:
     if tr_ok:
         print(f"  P9.10b AS REGISTERED (trained rho_align < 0, sign test p < 0.01): {sum(tr_ok)}/{tr_n} checkpoints -> "
               f"{'SUPPORTED' if sum(tr_ok) >= 18 else ('pending (need 22 trained checkpoints)' if tr_n < 22 else 'NOT supported')}")
-        im = [k for k in medians if not re.match(r"a[25]_", k)]
-        print(f"  REVERSED SIGN (post hoc, not pre-registered): trained rho_align > 0 with sign test p < 0.01 in {sum(tr_pos)}/{tr_n} checkpoints; "
-              f"ImageNet checkpoints (n = {len(im)}): median of medians {np.median([medians[k] for k in im]):+.2f}, "
+        imagenet = {os.path.basename(f)[: -len("_layers.csv")] for f in glob.glob(os.path.join(results, "*_layers.csv"))}
+        im = [k for k in medians if k in imagenet and k not in DUPLICATES]   # the paper's ImageNet checkpoints only
+        cifar = [k for k in medians if k not in im]
+        print(f"  REVERSED SIGN (post hoc, not pre-registered): trained rho_align > 0 with sign test p < 0.01 in {sum(tr_pos)}/{tr_n} checkpoints "
+              f"({len(im)} ImageNet + {len(cifar)} CIFAR-10 networks: round 3, A18 final arms, trajectories); "
+              f"ImageNet checkpoints (n = {len(im)}): median of medians {np.median([medians[k] for k in im]):+.2f}, >= +0.8 in {sum(medians[k] >= 0.8 for k in im)}, "
               f"min {min(medians[k] for k in im):+.2f} ({min(im, key=lambda k: medians[k])}); "
               f"six ResNet-50 recipes {' '.join(f'{medians[k]:+.2f}' for k in RESNET50_RECIPES if k in medians)}")
     # ---- P9.11: along the A18 trajectories
