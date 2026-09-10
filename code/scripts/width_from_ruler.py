@@ -66,11 +66,16 @@ def imagenet_train_image_loader(root: str, n_images: int, batch_size: int, worke
     """`n_images` images from an ImageFolder of ImageNet TRAINING images (the
     class sub-folders written by fetch_imagenet.py), a seeded random subset,
     the evaluation transform (resize 256, centre crop 224, no augmentation)."""
-    from torchvision import datasets, transforms
+    from torchvision import transforms
+    from scripts.imagenet_blob import BlobImageFolder, is_blob_dir
     mean, std, _ = IMAGENET_STATS
     tf = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224),
                              transforms.ToTensor(), transforms.Normalize(mean, std)])
-    ds = datasets.ImageFolder(root, transform=tf)
+    if is_blob_dir(root):
+        ds = BlobImageFolder(root, transform=tf)
+    else:
+        from torchvision import datasets
+        ds = datasets.ImageFolder(root, transform=tf)
     idx = torch.randperm(len(ds), generator=torch.Generator().manual_seed(seed))[:n_images].tolist()
     return torch.utils.data.DataLoader(torch.utils.data.Subset(ds, idx), batch_size=batch_size,
                                        shuffle=False, num_workers=workers)
@@ -174,7 +179,11 @@ def main(argv=None) -> int:
             raise SystemExit("--dataset imagenet is only defined for --arch resnet18")
         model = build_vgg16_bn_cifar(num_classes, "small")
     sd = torch.load(a.checkpoint, map_location="cpu", weights_only=False)
-    model.load_state_dict(sd["model"] if isinstance(sd, dict) and "model" in sd else sd)
+    sd = sd["model"] if isinstance(sd, dict) and "model" in sd else sd
+    if a.arch == "resnet18" and sd["fc.weight"].shape[0] != num_classes:   # e.g. a smoke-test subset
+        num_classes = int(sd["fc.weight"].shape[0])
+        model = rw.build_resnet18_widths(rw.RESNET18_WIDTHS, num_classes, "imagenet" if a.dataset == "imagenet" else "cifar")
+    model.load_state_dict(sd)
     prof = layerspec.profile(model, loader, device=a.device, positions=a.positions,
                              taus=(0.95, 0.999), include_activations=(a.tensor == "act"), include_blocks=False,
                              seed=a.seed)
