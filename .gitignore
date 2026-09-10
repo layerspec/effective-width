@@ -30,3 +30,9 @@ results/projection_queue2.log
 results/ablation_queue.log
 results/tolerance_queue.log
 results/round3_pt/
+# PyPI build output
+code/dist/
+code/*.egg-info/
+code/build/
+# secrets never belong here
+PyPI-Recovery-Codes-*.txt
