@@ -84,6 +84,9 @@ def main(argv=None) -> int:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", required=True, help="JSON file to write")
     p.add_argument("--dataset", choices=("cifar10", "cifar100"), default="cifar10")
+    p.add_argument("--tensor", choices=("conv", "act"), default="conv",
+                   help="read k* at the conv output (default; the paper's ruler) or after the ReLU, "
+                        "the tensor the next layer consumes (analysis-plan 9.8, arm ruler_act)")
     a = p.parse_args(argv)
 
     num_classes = CIFAR_STATS[a.dataset][2]
@@ -91,9 +94,12 @@ def main(argv=None) -> int:
     model.load_state_dict(torch.load(a.checkpoint, map_location="cpu"))
     loader = train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed, dataset=a.dataset)
     prof = layerspec.profile(model, loader, device=a.device, positions=a.positions,
-                             taus=(0.95, 0.999), include_activations=False, include_blocks=False,
+                             taus=(0.95, 0.999), include_activations=(a.tensor == "act"), include_blocks=False,
                              seed=a.seed)
-    conv = prof.table[prof.table.kind == "conv"].sort_values("depth_index").reset_index(drop=True)
+    conv = prof.table[prof.table.kind == a.tensor].sort_values("depth_index").reset_index(drop=True)
+    if a.tensor == "act":      # the bound is the conv's; carry it over for the printout
+        rm = prof.table[prof.table.kind == "conv"].sort_values("depth_index")["r_max"].to_numpy()
+        conv["r_max"] = rm[: len(conv)]
     if len(conv) != 13:
         raise SystemExit(f"expected 13 conv layers, measured {len(conv)}")
     if not conv["ok"].all():
@@ -117,7 +123,7 @@ def main(argv=None) -> int:
            .to_dict(orient="records"),
            "widths": {"full": list(VGG16_WIDTHS), "ruler": ruler, "uniform": uniform, "ruler95": ruler95},
            "params": {"full": full_n, "ruler": ruler_n, "uniform": uniform_n, "ruler95": ruler95_n},
-           "uniform_factor": factor, "dataset": a.dataset, "num_classes": num_classes}
+           "uniform_factor": factor, "dataset": a.dataset, "num_classes": num_classes, "tensor": a.tensor}
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "w") as fh:
         json.dump(out, fh, indent=2, default=lambda x: x.item() if hasattr(x, "item") else str(x))
