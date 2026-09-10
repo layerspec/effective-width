@@ -1802,6 +1802,20 @@ dimension. The second inequality follows from
 $\operatorname{rank}(W \Sigma W^{\top}) \le \min(\operatorname{rank} W,
 \operatorname{rank} \Sigma)$ and $\operatorname{rank} W \le C_{\ell + 1}$. \qed
 
+\subsection*{Limiting cases}
+
+Each proposition has a regime in which it says nothing, and the regime is worth naming.
+
+\emph{Proposition~\ref{prop:gate}, no spectral gap.} The expansion is termwise in $1/(\lambda_i - \lambda_j)$ and requires $\lambda_k > \lambda_{k+1}$; as the gap at $k$ closes the bound loses its content. The statistic does not: $\hat F(k)$ remains biased upward, but $k^*(\tau)$ is then determined only to within the number of eigenvalues clustered at the cut, and that is the residual seen in the convergence data, where the layers whose $k^*(0.999)$ at $n/C = 50$ has not reached its final value differ from it by one component.
+
+\emph{Proposition~\ref{prop:truncation}, $\tau \to 1$ and $\tau \to 0$.} The bound vanishes linearly in $1 - \tau$ and is trivial at $\tau = 0$, where it returns the whole energy; between, it is a first-order statement, and for a ReLU network the second-order term is not controlled, so the proposition fixes the scale of the perturbation and not the accuracy. The multi-layer bound is a triangle inequality and is attained only when the per-layer perturbations of the logits are collinear.
+
+\emph{Corollary~\ref{cor:kstar}, $\kappa \to \infty$.} As $\kappa$ grows $\tau' \to 1$ and $\tau'' \to 0$, so the two bounds become $1$ and $r$ and the interval is empty of information. The interval is informative only while $\kappa^2 (1 - \tau) \ll \tau$: at the median condition number of the trained kernels, $\kappa = 10.6$, and $\tau = 0.999$, the bounds are $k^*(0.90)$ and $k^*(0.99999)$ of the counterfactual spectrum, and at $\tau = 0.95$ they are $k^*(0.14)$ and $k^*(0.9995)$. This is why Section~\ref{sec:decompose} reports the bound's information content per layer rather than assuming it.
+
+\emph{Proposition~\ref{prop:compression}, $r < d$.} When the kernel's row space is a proper subspace of the patch space the interlacing is strict in general; the upper bound is attained if and only if the row space contains the top-$r$ eigenvectors of $\Sigma_{\rm patch}$, the lower if and only if it is spanned by the bottom $r$. For $r < d$ the counterfactual therefore depends on \emph{which} $r$ directions of the input the kernel keeps, a choice that training makes and the polar factor does not undo; the propositions bound its effect by interlacing and do not determine it. The case $r = d$, where nothing is chosen, is the $1\!\times\!1$ expansion, $C_{\rm out} \ge d$.
+
+\emph{Proposition~\ref{prop:depth}, saturation.} The bound $k_h k_w \operatorname{rank} \Sigma_{\rm act}^{(\ell)}$ exceeds $d$ as soon as the previous layer's post-activation covariance is full-rank, and it then says only $\operatorname{rank} \Sigma_{\rm patch}^{(\ell+1)} \le d$, which is Equation~\eqref{eq:rmax}; it binds only after a layer whose activation rank has collapsed, as in the CIFAR-10 tail of Section~\ref{sec:learned}.
+
 \section{Claims, evidence and status}
 \label{app:claims}
 
