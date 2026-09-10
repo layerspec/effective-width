@@ -25,3 +25,6 @@ figures:
 
 pdf:
 	cd $(P) && tectonic -X compile main.tex
+
+notation:
+	cd code && $(PY) scripts/notation_check.py --tex ../$(P)/main.tex
