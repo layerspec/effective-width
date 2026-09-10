@@ -17,7 +17,7 @@
 | A8 | 第二個驗證關卡：對 Elmoznino & Bonner 的 ResNet-50 block 輸出 PR 值 | 只對 Garg 一張表驗證 | Mac | ✔ 09-08（ρ 0.997） |
 | A9 | 軌跡：ResNet-50 CIFAR＋VGG 三種子 | §V.J 的時間面 | Mac，跑 | 跑 |
 | A10 | 投影校準：八組（六配方＋R18＋VGG）、McNemar、A1 逐層留一 | 一個模型一個子集不夠 | Mac | ✔ 09-08 |
-| A17 | **ImageNet 受控 block 實驗**：§9.1 三架構在 ImageNet-1k 同配方各 3 種子（plan §9.4） | 回答「ResNet-50 為什麼重排」：資料集 vs 配方 vs block；把第三輪的否定升級為指認原因 | RunPod A100 ≈ 160 h、US$250–350 | 已預登記 09-09，未跑 |
+| A17 | **ImageNet 受控 block 實驗**：§9.1 三架構在 ImageNet-1k 同配方各 3 種子（plan §9.4） | 回答「ResNet-50 為什麼重排」：資料集 vs 配方 vs block；把第三輪的否定升級為指認原因 | RunPod A100 ≈ 160 h、US$250–350；縮減版（basic vs bottleneck 各 2 種子）US$120–150 | 已預登記 09-09。**作者 09-10 決定：投稿前不跑，審稿人真的問了再以縮減版回應** |
 | A20 | **表示層面診斷**：A18 五臂逐層 CKA（含種子天花板）、線性探針遷移（CIFAR-100／STL-10／SVHN）、對齊到達 epoch vs CKA 定型 epoch（plan §9.9，P9.19–P9.23） | 期刊審稿人要「表示的性質」不是準確率差；把必要／充分寬度與對齊軌跡搬到表示本身 | Mac 兩天，US$0 | 已預登記 09-10；等 Mac 隊列空出 |
 | A23 | **A18-ImageNet**：ResNet-18 從頭訓練，全寬／ReLU 後尺定寬／均勻縮各 2 種子，torchvision 參考配方（plan §9.11，P9.29–P9.30）；前置 CIFAR-10 ResNet-18 三臂（US$5） | 關掉 toy-scale 最便宜的一刀 | US$70–90、約 3 天牆鐘 | **作者 09-10 核准**；A17 暫緩。腳本待寫 |
 | A21 | **分布偏移下的剖面**：ImageNet-C 5 種損壞＋ImageNet-V2，八組網路，ρ 與水準差（plan §9.10，P9.26–P9.28）；CIFAR-10-C 上 A18 五臂的 mCA（§9.9.4，P9.24–P9.25） | 量測論文版的 robustness：尺的讀數在偏移影像上穩不穩；砍掉的秩是否帶著 robustness | pod 2 h 約 US$1 ＋ Mac 半天 | 已預登記 09-10 |
