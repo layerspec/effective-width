@@ -537,31 +537,33 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
        90  92.46   0.296       -0.68        +0.88         +1.00         0.003
       100  93.78   0.296       -0.68        +0.88         +1.00         0.000
 
-  [trajectory_seed2]  13 conv layers, epochs measured 0..80  (IN PROGRESS: 'final' = latest epoch)
+  [trajectory_seed2]  13 conv layers, epochs measured 0..100
     epoch   acc%   level  rho(depth)  rho vs init  rho vs final  MAD vs final
-        0  11.23   0.268       -0.59        +1.00         +0.91         0.063
-        1  59.49   0.461       -0.18        +0.76         +0.64         0.172
-        2  66.73   0.436       -0.23        +0.82         +0.70         0.168
-        3  72.21   0.398       -0.21        +0.81         +0.68         0.150
-        5  73.69   0.344       -0.21        +0.73         +0.65         0.112
+        0  11.23   0.268       -0.59        +1.00         +0.93         0.057
+        1  59.49   0.461       -0.18        +0.76         +0.65         0.160
+        2  66.73   0.436       -0.23        +0.82         +0.71         0.153
+        3  72.21   0.398       -0.21        +0.81         +0.69         0.135
+        5  73.69   0.344       -0.21        +0.73         +0.65         0.100
         7  80.08   0.320       -0.24        +0.76         +0.67         0.075
-       10  81.73   0.281       -0.69        +0.81         +0.88         0.046
-       15  84.27   0.266       -0.80        +0.86         +0.91         0.044
-       20  81.33   0.270       -0.80        +0.86         +0.92         0.041
-       30  84.77   0.266       -0.72        +0.90         +0.98         0.035
-       40  86.18   0.273       -0.71        +0.89         +0.98         0.029
-       50  80.73   0.281       -0.71        +0.89         +0.98         0.026
-       60  85.80   0.281       -0.70        +0.88         +0.99         0.018
-       70  84.86   0.281       -0.70        +0.88         +0.99         0.015
-       80  88.72   0.281       -0.68        +0.91         +1.00         0.000
+       10  81.73   0.281       -0.69        +0.81         +0.86         0.057
+       15  84.27   0.266       -0.80        +0.86         +0.91         0.055
+       20  81.33   0.270       -0.80        +0.86         +0.91         0.055
+       30  84.77   0.266       -0.72        +0.90         +0.97         0.050
+       40  86.18   0.273       -0.71        +0.89         +0.98         0.044
+       50  80.73   0.281       -0.71        +0.89         +0.98         0.041
+       60  85.80   0.281       -0.70        +0.88         +0.98         0.033
+       70  84.86   0.281       -0.70        +0.88         +0.98         0.030
+       80  88.72   0.281       -0.68        +0.91         +0.99         0.016
+       90  92.56   0.281       -0.68        +0.91         +0.99         0.004
+      100  93.74   0.296       -0.68        +0.93         +1.00         0.000
 
   Summary (settle = first measured epoch with rho vs final >= 0.95):
     run                    done settle acc@settle acc final  rho(init,final)   rho_depth init->final
     trajectory              yes     40      84.09     94.01            +0.93       -0.59 -> -0.68
     trajectory_resnet50     yes     30      85.94     95.35            +0.39       -0.85 -> -0.21
     trajectory_seed1        yes     30      82.79     93.78            +0.88       -0.46 -> -0.68
-    trajectory_seed2         no     30      84.77     88.72            +0.91       -0.59 -> -0.68
-    VGG seeds: final-vs-final rho over 1 pairs: median +1.00 [+1.00, +1.00]
+    trajectory_seed2        yes     30      84.77     93.74            +0.93       -0.59 -> -0.68
+    VGG seeds: final-vs-final rho over 3 pairs: median +1.00 [+1.00, +1.00]
 
   Reading: the epoch at which rho-vs-init drops and rho-vs-final saturates
   is when the learned profile is in place; compare it with the accuracy
@@ -918,6 +920,16 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   < 0: the kernel suppresses the data's high-variance directions (compressive).
 
     checkpoint                                 L  median  neg/pos   sign p
+    a2_basic52_s0                             52   +0.97   0/52          1
+    a2_basic52_s1                             52   +0.96   0/52          1
+    a2_basic52_s2                             52   +0.97   0/52          1
+    a2_bottleneck_s0                          53   +0.98   0/53          1
+    a2_bottleneck_s1                          53   +0.98   0/53          1
+    a2_bottleneck_s2                          53   +0.98   0/53          1
+    a2_mobilenetv2_s0                         35   +0.96   0/35          1
+    a2_mobilenetv2_s1                         35   +0.97   0/35          1
+    a2_mobilenetv2_s2                         35   +0.97   1/34          1
+  P9.10b (trained: sign test p < 0.01): 0/9 checkpoints -> pending (need 22 trained checkpoints)
 
     run                      epochs rho(epoch, median) settle at settle  final >=90%
     vgg16_bn_ruler95_s0          17              +0.66     90     +0.88  +0.88   yes
