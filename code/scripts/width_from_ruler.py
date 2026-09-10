@@ -13,6 +13,17 @@ the test split), reads k*(0.999) and k*(0.95) per conv layer, and prints the
         --checkpoint ../results/round3_pt/a5_vgg16_bn_none_s0/vgg16_bn_cifar10_final.pt \
         --data ../data --device mps --out ../results/a18/widths.json
 
+ResNet-18 (analysis-plan 9.11; basic blocks, so a stage shares one output
+width -- rule in scripts/resnet_widths.py) on CIFAR or on an ImageNet
+training folder:
+
+    python scripts/width_from_ruler.py --arch resnet18 --tensor act \
+        --checkpoint ../results/a18_r18/resnet18_full_s0/resnet18_cifar10_final.pt \
+        --data ../data --out ../results/a18_r18/widths_act.json
+    python scripts/width_from_ruler.py --arch resnet18 --tensor act --dataset imagenet \
+        --checkpoint ../results/a18_imagenet/resnet18_full_s0/final.pt \
+        --data /data/imagenet/train --out ../results/a18_imagenet/widths_act.json
+
 The JSON carries the per-layer table (C, r_max, n/C, k* at both tau, gate
 flag), the three width lists and their parameter counts, so the arms can be
 launched with `trajectory_cifar.py --widths ...` and the numbers audited.
@@ -31,8 +42,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import layerspec                                                   # noqa: E402
 from scripts.reproduce_garg import CIFAR_STATS, build_vgg16_bn_cifar   # noqa: E402
 from scripts.trajectory_cifar import VGG16_WIDTHS, build_vgg16_bn_cifar_widths  # noqa: E402
+from scripts import resnet_widths as rw                                          # noqa: E402
 
 MIN_WIDTH = 8
+IMAGENET_STATS = ((0.485, 0.456, 0.406), (0.229, 0.224, 0.225), 1000)
 
 
 def train_image_loader(root: str, n_images: int, batch_size: int, workers: int, seed: int,
@@ -44,6 +57,20 @@ def train_image_loader(root: str, n_images: int, batch_size: int, workers: int, 
     tf = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean, std)])
     cls = datasets.CIFAR100 if dataset == "cifar100" else datasets.CIFAR10
     ds = cls(root, train=True, download=True, transform=tf)
+    idx = torch.randperm(len(ds), generator=torch.Generator().manual_seed(seed))[:n_images].tolist()
+    return torch.utils.data.DataLoader(torch.utils.data.Subset(ds, idx), batch_size=batch_size,
+                                       shuffle=False, num_workers=workers)
+
+
+def imagenet_train_image_loader(root: str, n_images: int, batch_size: int, workers: int, seed: int):
+    """`n_images` images from an ImageFolder of ImageNet TRAINING images (the
+    class sub-folders written by fetch_imagenet.py), a seeded random subset,
+    the evaluation transform (resize 256, centre crop 224, no augmentation)."""
+    from torchvision import datasets, transforms
+    mean, std, _ = IMAGENET_STATS
+    tf = transforms.Compose([transforms.Resize(256), transforms.CenterCrop(224),
+                             transforms.ToTensor(), transforms.Normalize(mean, std)])
+    ds = datasets.ImageFolder(root, transform=tf)
     idx = torch.randperm(len(ds), generator=torch.Generator().manual_seed(seed))[:n_images].tolist()
     return torch.utils.data.DataLoader(torch.utils.data.Subset(ds, idx), batch_size=batch_size,
                                        shuffle=False, num_workers=workers)
@@ -72,6 +99,45 @@ def uniform_widths_matching(target_params: int, tol: float = 0.02, num_classes: 
     return best
 
 
+def write_resnet18(a, prof, num_classes: int) -> int:
+    """ResNet-18 arms of plan 9.11: (e) ruler_act by the stage rule and (c) uniform at the same
+    parameter count.  The JSON mirrors the VGG one; `sites` keeps every reading the rule used."""
+    stem = "imagenet" if a.dataset == "imagenet" else "cifar"
+    t = prof.table
+    rule = rw.widths_from_profile(t, tau=0.999, min_width=MIN_WIDTH)
+    ruler = rule["widths"]
+    full_n, ruler_n = rw.n_params(rw.RESNET18_WIDTHS, num_classes, stem), rw.n_params(ruler, num_classes, stem)
+    uniform, uniform_n, factor = rw.uniform_widths_matching(ruler_n, num_classes=num_classes, stem=stem)
+    act = t[t.kind == "act"].sort_values("depth_index")
+    print(f"{'site':22s} {'C':>4s} {'n/C':>6s} {'k*.95':>6s} {'k*.999':>7s}")
+    for _, r in act.iterrows():
+        print(f"{r.layer + '#' + str(int(r.call_index)):22s} {int(r.C):4d} {r.n_over_C:6.0f} "
+              f"{r['k_star_0.95']:6.0f} {r['k_star_0.999']:7.0f}")
+    names = ["stem"] + [f"s{s + 1}_{k}" for s in range(4) for k in ("out", "mid0", "mid1")]
+    print(f"{'width':10s} {'full':>5s} {'ruler':>6s} {'uniform':>8s}")
+    for nm, f_, r_, u_ in zip(names, rw.RESNET18_WIDTHS, ruler, uniform):
+        print(f"{nm:10s} {f_:5d} {r_:6d} {u_:8d}")
+    print(f"params: full {full_n:,}  ruler {ruler_n:,} ({ruler_n / full_n:.3f})  "
+          f"uniform {uniform_n:,} (factor {factor:.3f}, {uniform_n / ruler_n - 1:+.1%} vs ruler)")
+    out = {"checkpoint": a.checkpoint, "n_images": a.n_images, "positions": a.positions, "seed": a.seed,
+           "split": "train", "min_width": MIN_WIDTH, "arch": "resnet18", "stem": stem,
+           "width_order": names, "rule": "plan 9.11: stem/mid after ReLU; stage out = max over blocks after add+ReLU",
+           "sites": rule["sites"],
+           "layers": act[["layer", "call_index", "C", "n_samples", "n_over_C", "ok", "k_star_0.95", "k_star_0.999"]]
+           .to_dict(orient="records"),
+           "widths": {"full": list(rw.RESNET18_WIDTHS), "ruler": ruler, "uniform": uniform},
+           "params": {"full": full_n, "ruler": ruler_n, "uniform": uniform_n},
+           "macs": {k: rw.macs(rw.build_resnet18_widths(v, num_classes, stem), hw)
+                    for hw in [(224, 224) if stem == "imagenet" else (32, 32)]
+                    for k, v in (("full", rw.RESNET18_WIDTHS), ("ruler", ruler), ("uniform", uniform))},
+           "uniform_factor": factor, "dataset": a.dataset, "num_classes": num_classes, "tensor": a.tensor}
+    os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
+    with open(a.out, "w") as fh:
+        json.dump(out, fh, indent=2, default=lambda x: x.item() if hasattr(x, "item") else str(x))
+    print("wrote", a.out)
+    return 0
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--checkpoint", required=True, help="state_dict of the trained full-width VGG-16_BN")
@@ -83,19 +149,37 @@ def main(argv=None) -> int:
     p.add_argument("--device", default=None)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", required=True, help="JSON file to write")
-    p.add_argument("--dataset", choices=("cifar10", "cifar100"), default="cifar10")
+    p.add_argument("--dataset", choices=("cifar10", "cifar100", "imagenet"), default="cifar10",
+                   help="imagenet: --data is an ImageFolder of TRAINING images (plan 9.11)")
+    p.add_argument("--arch", choices=("vgg16_bn", "resnet18"), default="vgg16_bn",
+                   help="resnet18 applies the stage rule of scripts/resnet_widths.py (plan 9.11)")
     p.add_argument("--tensor", choices=("conv", "act"), default="conv",
                    help="read k* at the conv output (default; the paper's ruler) or after the ReLU, "
                         "the tensor the next layer consumes (analysis-plan 9.8, arm ruler_act)")
     a = p.parse_args(argv)
 
-    num_classes = CIFAR_STATS[a.dataset][2]
-    model = build_vgg16_bn_cifar(num_classes, "small")
-    model.load_state_dict(torch.load(a.checkpoint, map_location="cpu"))
-    loader = train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed, dataset=a.dataset)
+    if a.dataset == "imagenet":
+        num_classes = IMAGENET_STATS[2]
+        loader = imagenet_train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed)
+    else:
+        num_classes = CIFAR_STATS[a.dataset][2]
+        loader = train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed, dataset=a.dataset)
+    if a.arch == "resnet18":
+        if a.tensor != "act":
+            raise SystemExit("--arch resnet18 reads widths after the ReLU only (plan 9.11): use --tensor act")
+        model = rw.build_resnet18_widths(rw.RESNET18_WIDTHS, num_classes,
+                                         "imagenet" if a.dataset == "imagenet" else "cifar")
+    else:
+        if a.dataset == "imagenet":
+            raise SystemExit("--dataset imagenet is only defined for --arch resnet18")
+        model = build_vgg16_bn_cifar(num_classes, "small")
+    sd = torch.load(a.checkpoint, map_location="cpu", weights_only=False)
+    model.load_state_dict(sd["model"] if isinstance(sd, dict) and "model" in sd else sd)
     prof = layerspec.profile(model, loader, device=a.device, positions=a.positions,
                              taus=(0.95, 0.999), include_activations=(a.tensor == "act"), include_blocks=False,
                              seed=a.seed)
+    if a.arch == "resnet18":
+        return write_resnet18(a, prof, num_classes)
     conv = prof.table[prof.table.kind == a.tensor].sort_values("depth_index").reset_index(drop=True)
     if a.tensor == "act":      # the bound is the conv's; carry it over for the printout
         rm = prof.table[prof.table.kind == "conv"].sort_values("depth_index")["r_max"].to_numpy()

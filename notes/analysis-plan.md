@@ -742,3 +742,28 @@ CIFAR-10 最後三層 40 vs 168–347（下游不需要，所以縮到 40 沒掉
   `width_from_ruler.py --arch resnet18 --tensor act`（stage 規則）、`run_a18_imagenet_pod.sh`、守護程序（這次要 `git add` log）。
 - **前置**：先在 CIFAR-10 上跑 ResNet-18 的三臂各 3 種子（US$5，plan §9.5 的規則搬到 basic block）驗證
   stage 寬度規則與腳本，再上 ImageNet。
+
+**實作細節（2026-09-11 寫，資料未見；腳本已在假資料上 dry-run 過）**
+
+- 寬度參數化：`scripts/resnet_widths.py`。13 個寬度的順序固定為
+  `[stem, s1_out, s1_mid0, s1_mid1, s2_out, s2_mid0, s2_mid1, …, s4_mid1]`；stage 內兩個 block 的 conv2 輸出與
+  shortcut 共用 `s_out`，每個 block 的 conv1 輸出各自 `mid`。預設值就是 torchvision resnet18（state_dict 鍵、
+  形狀、參數量 11,689,512 三者相同，測試 `tests/test_resnet_widths.py`）。
+- 讀寬度的位置（`widths_from_profile`）：stem = `relu#0`；block mid = `layerS.B.relu#0`（conv1 的 ReLU 後）；
+  stage out = 該 stage 兩個 block 的 `layerS.B.relu#1`（殘差相加後的 ReLU）取 **max**。全部 ⌈k*(0.999)⌉、下限 8。
+  「conv2 輸出與 shortcut 的 ReLU 後」在 basic block 裡就是相加後那一個 ReLU，沒有別的位置。
+- (c) 均勻縮：`uniform_widths_matching`，一個因子乘 torchvision 的 13 個寬度、四捨五入、下限 8，二分法對齊
+  (e) 的參數量 ±2%。
+- **資料前處理（登記為實作選擇，六臂相同）**：HF parquet 轉成 ImageFolder 時把**短邊縮到 256**（quality 90）
+  再存 JPEG（`scripts/fetch_imagenet.py --short-side 256`）。理由：150 GB → 約 45 GB、JPEG 解碼（pod 的瓶頸）
+  減半；評估轉換 Resize(256)+CenterCrop(224) 在短邊 256 的圖上是恆等，不受影響；訓練的 RandomResizedCrop(224)
+  改在 256 短邊上取，是 torchvision 參考配方常見的 ImageNet-256 變體。這一點不是參考配方原文，寫論文時要註明。
+- 訓練腳本 `scripts/train_imagenet_r18.py`：SGD 0.9、lr 0.1、batch 256、90 epoch、30/60 各 ×0.1、wd 1e-4
+  全參數、無 label smoothing／mixup／EMA；fp16 autocast + channels_last（速度，不改配方）。每 epoch 記
+  `epochs.csv`（loss、top-1、top-5、秒數、img/s），`resume.pt` 原子寫入、同指令重跑自動續；結束寫 `final.pt`
+  與 `result.json`（含 MACs@224）。判定用 **最後一個 epoch 的 top-1**（不是最佳 epoch）。
+- 順序（`scripts/run_a18_imagenet_pod.sh`）：抓資料 → (a) 兩種子並行 → 由 (a) seed 0 在 6,400 張訓練影像讀寬度
+  （`width_from_ruler.py --arch resnet18 --tensor act --dataset imagenet`）→ (e) 兩種子並行 → (c) 兩種子並行。
+  前置 CIFAR-10：`scripts/run_a18_r18_cifar_pod.sh`（同 §9.5 配方，`trajectory_cifar.py --arch resnet18`）。
+- 前置的預測（資料未見，只為驗證規則，不進論文主張）：CIFAR-10 ResNet-18 (e) 與 (a) 差 < 0.3 點，(e) 的
+  3 種子全高於 (c)（同 P9.6／P9.7 的形式）。若 (e) 掉超過 1 點，先查 stage 規則（max 是否太鬆／太緊）再上 ImageNet。

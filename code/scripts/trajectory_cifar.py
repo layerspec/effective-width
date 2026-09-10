@@ -105,7 +105,17 @@ def build_mobilenetv2_cifar(num_classes: int = 10):
     return m
 
 
+def build_resnet18_cifar(num_classes: int = 10, widths=None):
+    """torchvision ResNet-18 (basic block, 2 blocks per stage) with the CIFAR
+    stem, through the width-parameterised builder of scripts/resnet_widths.py;
+    `widths` (13 integers, see that module) gives the arms of analysis-plan
+    9.11's CIFAR preflight.  Default widths reproduce torchvision's resnet18."""
+    from scripts.resnet_widths import RESNET18_WIDTHS, build_resnet18_widths
+    return build_resnet18_widths(RESNET18_WIDTHS if widths is None else widths, num_classes, "cifar")
+
+
 ARCHS = {"vgg16_bn": lambda nc=10: build_vgg16_bn_cifar(nc, "small"),
+         "resnet18": lambda nc=10: build_resnet18_cifar(nc),
          "resnet50": lambda nc=10: build_resnet50_cifar(nc),
          "resnet_basic52": lambda nc=10: build_resnet_basic52_cifar(nc),
          "mobilenetv2": lambda nc=10: build_mobilenetv2_cifar(nc)}
@@ -246,12 +256,13 @@ def main(argv=None) -> int:
     p.add_argument("--gpu-data", action="store_true",
                    help="hold the training split on the device and augment there (no loader workers)")
     p.add_argument("--widths", type=int, nargs=13, default=None, metavar="W",
-                   help="vgg16_bn only: the 13 conv widths (analysis-plan 9.5 arms b/c/d)")
+                   help="vgg16_bn: the 13 conv widths (analysis-plan 9.5 arms b/c/d); "
+                        "resnet18: stem + per stage [out, mid0, mid1] (plan 9.11, scripts/resnet_widths.py)")
     p.add_argument("--save-checkpoints", action="store_true",
                    help="also write epoch_<E>.pt (state_dict) at every measured epoch (analysis-plan 9.6)")
     args = p.parse_args(argv)
-    if args.widths is not None and args.arch != "vgg16_bn":
-        p.error("--widths is only defined for --arch vgg16_bn")
+    if args.widths is not None and args.arch not in ("vgg16_bn", "resnet18"):
+        p.error("--widths is only defined for --arch vgg16_bn and resnet18")
 
     schedule = sorted(set(args.schedule or [e for e in DEFAULT_SCHEDULE if e <= args.epochs]))
     if args.epochs not in schedule:
@@ -265,8 +276,13 @@ def main(argv=None) -> int:
     if args.gpu_data:
         train_loader = GPUCifarTrain(args.data_root, args.batch_size, args.device, args.seed,
                                      dataset=args.dataset)
-    model = (build_vgg16_bn_cifar_widths(args.widths, num_classes) if args.widths is not None
-             else ARCHS[args.arch](num_classes)).to(args.device)
+    if args.widths is None:
+        model = ARCHS[args.arch](num_classes)
+    elif args.arch == "resnet18":
+        model = build_resnet18_cifar(num_classes, args.widths)
+    else:
+        model = build_vgg16_bn_cifar_widths(args.widths, num_classes)
+    model = model.to(args.device)
     opt = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9,
                           weight_decay=5e-4, nesterov=True)
     steps = len(train_loader) if args.max_train_batches is None \
