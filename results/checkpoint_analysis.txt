@@ -973,9 +973,24 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     a5_basic52_so_s1                          52   +0.96   0/52          1  2.2e-16
     a5_basic52_so_s2                          52   +0.96   0/52          1  2.2e-16
     a5_basic52_srip_s0                        52   +0.97   0/52          1  2.2e-16
+    a5_basic52_srip_s1                        52   +0.97   0/52          1  2.2e-16
+    a5_basic52_srip_s2                        52   +0.97   0/52          1  2.2e-16
+    a5_vgg16_bn_none_s0                       13   +0.96   0/13          1  0.00012
+    a5_vgg16_bn_none_s1                       13   +0.96   0/13          1  0.00012
+    a5_vgg16_bn_none_s2                       13   +0.97   0/13          1  0.00012
+    a5_vgg16_bn_so_s0                         13   +0.98   0/13          1  0.00012
+    a5_vgg16_bn_so_s1                         13   +0.97   0/13          1  0.00012
+    a5_vgg16_bn_so_s2                         13   +0.96   0/13          1  0.00012
+    a5_vgg16_bn_srip_s0                       13   +0.97   0/13          1  0.00012
+    a5_vgg16_bn_srip_s1                       13   +0.97   0/13          1  0.00012
+    a5_vgg16_bn_srip_s2                       13   +0.97   0/13          1  0.00012
+    trajectory                                13   +0.96   0/13          1  0.00012
+    trajectory_resnet50                       53   +0.98   0/53          1  1.1e-16
+    trajectory_seed1                          13   +0.96   0/13          1  0.00012
+    trajectory_seed2                          13   +0.97   0/13          1  0.00012
   P9.10a (random |median| < 0.1): 20/20 checkpoints
-  P9.10b AS REGISTERED (trained rho_align < 0, sign test p < 0.01): 0/33 checkpoints -> NOT supported
-  REVERSED SIGN (post hoc, not pre-registered): trained rho_align > 0 with sign test p < 0.01 in 28/33 checkpoints; ImageNet checkpoints (n = 20): median of medians +0.92, min +0.11 (timm_mobilenetv2_100.ra_in1k); six ResNet-50 recipes +0.95 +0.91 +0.86 +0.94 +0.95 +0.86
+  P9.10b AS REGISTERED (trained rho_align < 0, sign test p < 0.01): 0/48 checkpoints -> NOT supported
+  REVERSED SIGN (post hoc, not pre-registered): trained rho_align > 0 with sign test p < 0.01 in 43/48 checkpoints (19 ImageNet + 29 CIFAR-10 networks: round 3, A18 final arms, trajectories); ImageNet checkpoints (n = 19): median of medians +0.91, >= +0.8 in 16, min +0.11 (timm_mobilenetv2_100.ra_in1k); six ResNet-50 recipes +0.95 +0.91 +0.86 +0.94 +0.95 +0.86
 
     run                      epochs rho(epoch, median) settle at settle  final >=90%
     vgg16_bn_ruler95_s0          17              +0.66     90     +0.88  +0.88   yes   epoch0 +0.04  first>=90% at epoch 7
@@ -990,8 +1005,8 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   P9.11 AS REGISTERED (monotone descent rho < -0.7 and 90% of final by the settle epoch): 0/9 runs -> NOT supported
   REVERSED SIGN (post hoc): monotone ascent rho > +0.7 and 90% of final by the settle epoch: 7/9 runs
 
-  P9.12 (|rho_align| SO < none, paired over layers): median diff +0.002, n = 156, Wilcoxon p = 0.64 -> NOT supported
-  P9.13 (exploratory): trained ImageNet checkpoints median rho_align range +0.11..+0.98 (n = 20, spread 0.87)
+  P9.12 (|rho_align| SO < none, paired over layers): median diff +0.002, n = 195, Wilcoxon p = 0.5 -> NOT supported
+  P9.13 (exploratory): trained ImageNet checkpoints median rho_align range +0.11..+0.98 (n = 24, spread 0.87)
 
 ========================================================================
 18. The profile as a diagnostic: six-recipe consensus on ResNet-50 (exploratory, not pre-registered)
