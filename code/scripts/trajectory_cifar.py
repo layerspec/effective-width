@@ -35,7 +35,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from layerspec import metrics as _metrics                       # noqa: E402
 from layerspec.hooks import run_probe                            # noqa: E402
 from scripts.reproduce_garg import (build_vgg16_bn_cifar,        # noqa: E402
-                                    cifar_loaders, evaluate)
+                                    cifar_loaders, evaluate, CIFAR_STATS)
 
 
 VGG16_WIDTHS = (64, 64, 128, 128, 256, 256, 256, 512, 512, 512, 512, 512, 512)
@@ -105,10 +105,10 @@ def build_mobilenetv2_cifar(num_classes: int = 10):
     return m
 
 
-ARCHS = {"vgg16_bn": lambda: build_vgg16_bn_cifar(10, "small"),
-         "resnet50": lambda: build_resnet50_cifar(10),
-         "resnet_basic52": lambda: build_resnet_basic52_cifar(10),
-         "mobilenetv2": lambda: build_mobilenetv2_cifar(10)}
+ARCHS = {"vgg16_bn": lambda nc=10: build_vgg16_bn_cifar(nc, "small"),
+         "resnet50": lambda nc=10: build_resnet50_cifar(nc),
+         "resnet_basic52": lambda nc=10: build_resnet_basic52_cifar(nc),
+         "mobilenetv2": lambda nc=10: build_mobilenetv2_cifar(nc)}
 
 
 def ortho_penalty(model, kind: str) -> "torch.Tensor":
@@ -156,13 +156,13 @@ class GPUCifarTrain:
     distribution, no CPU data loading: on a pod whose CPUs are shared between
     several runs the loader, not the GPU, was the bottleneck (2026-09-08)."""
 
-    def __init__(self, root, batch_size, device, seed):
+    def __init__(self, root, batch_size, device, seed, dataset: str = "cifar10"):
         from torchvision import datasets
-        from scripts.reproduce_garg import CIFAR_STATS
-        ds = datasets.CIFAR10(root, train=True, download=True)
+        cls = datasets.CIFAR100 if dataset == "cifar100" else datasets.CIFAR10
+        ds = cls(root, train=True, download=True)
         self.x = torch.from_numpy(ds.data).permute(0, 3, 1, 2).contiguous().to(device)   # N,3,32,32 uint8
         self.y = torch.tensor(ds.targets, device=device)
-        mean, std, _ = CIFAR_STATS["cifar10"]
+        mean, std, _ = CIFAR_STATS[dataset]
         self.mean = torch.tensor(mean, device=device).view(1, 3, 1, 1)
         self.std = torch.tensor(std, device=device).view(1, 3, 1, 1)
         self.bs, self.device = batch_size, device
@@ -232,6 +232,8 @@ def main(argv=None) -> int:
     p.add_argument("--lr", type=float, default=0.1)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--arch", choices=sorted(ARCHS), default="vgg16_bn")
+    p.add_argument("--dataset", choices=("cifar10", "cifar100"), default="cifar10",
+                   help="CIFAR-10 (default) or CIFAR-100; same recipe, 100-way head (analysis-plan 9.7)")
     p.add_argument("--ortho", choices=["none", "so", "srip"], default="none",
                    help="kernel-orthogonality penalty arm (analysis-plan 9.2)")
     p.add_argument("--ortho-lambda", type=float, default=None,
@@ -257,12 +259,14 @@ def main(argv=None) -> int:
     os.makedirs(args.out, exist_ok=True)
     torch.manual_seed(args.seed)
 
+    num_classes = CIFAR_STATS[args.dataset][2]
     train_loader, test_loader = cifar_loaders(args.data_root, args.batch_size,
-                                              args.workers, "cifar10")
+                                              args.workers, args.dataset)
     if args.gpu_data:
-        train_loader = GPUCifarTrain(args.data_root, args.batch_size, args.device, args.seed)
-    model = (build_vgg16_bn_cifar_widths(args.widths, 10) if args.widths is not None
-             else ARCHS[args.arch]()).to(args.device)
+        train_loader = GPUCifarTrain(args.data_root, args.batch_size, args.device, args.seed,
+                                     dataset=args.dataset)
+    model = (build_vgg16_bn_cifar_widths(args.widths, num_classes) if args.widths is not None
+             else ARCHS[args.arch](num_classes)).to(args.device)
     opt = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9,
                           weight_decay=5e-4, nesterov=True)
     steps = len(train_loader) if args.max_train_batches is None \
@@ -342,7 +346,7 @@ def main(argv=None) -> int:
         save_state(ep)
 
     tag = args.arch + ("" if args.ortho == "none" else f"_{args.ortho}")
-    torch.save(model.state_dict(), os.path.join(args.out, f"{tag}_cifar10_final.pt"))
+    torch.save(model.state_dict(), os.path.join(args.out, f"{tag}_{args.dataset}_final.pt"))
     if os.path.exists(state_path):
         os.remove(state_path)
     print("done", flush=True)

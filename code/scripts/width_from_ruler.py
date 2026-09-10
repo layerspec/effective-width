@@ -35,23 +35,25 @@ from scripts.trajectory_cifar import VGG16_WIDTHS, build_vgg16_bn_cifar_widths  
 MIN_WIDTH = 8
 
 
-def train_image_loader(root: str, n_images: int, batch_size: int, workers: int, seed: int):
-    """`n_images` CIFAR-10 training images, a seeded random subset, test-time
+def train_image_loader(root: str, n_images: int, batch_size: int, workers: int, seed: int,
+                       dataset: str = "cifar10"):
+    """`n_images` CIFAR training images, a seeded random subset, test-time
     transform (no augmentation), deterministic order."""
     from torchvision import datasets, transforms
-    mean, std, _ = CIFAR_STATS["cifar10"]
+    mean, std, _ = CIFAR_STATS[dataset]
     tf = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean, std)])
-    ds = datasets.CIFAR10(root, train=True, download=False, transform=tf)
+    cls = datasets.CIFAR100 if dataset == "cifar100" else datasets.CIFAR10
+    ds = cls(root, train=True, download=True, transform=tf)
     idx = torch.randperm(len(ds), generator=torch.Generator().manual_seed(seed))[:n_images].tolist()
     return torch.utils.data.DataLoader(torch.utils.data.Subset(ds, idx), batch_size=batch_size,
                                        shuffle=False, num_workers=workers)
 
 
-def n_params(widths) -> int:
-    return sum(p.numel() for p in build_vgg16_bn_cifar_widths(widths, 10).parameters())
+def n_params(widths, num_classes: int = 10) -> int:
+    return sum(p.numel() for p in build_vgg16_bn_cifar_widths(widths, num_classes).parameters())
 
 
-def uniform_widths_matching(target_params: int, tol: float = 0.02) -> list[int]:
+def uniform_widths_matching(target_params: int, tol: float = 0.02, num_classes: int = 10) -> list[int]:
     """Scale VGG16_WIDTHS by one factor (bisection) until the parameter count is
     within `tol` of `target_params`; widths are rounded and floored at MIN_WIDTH."""
     lo, hi = 0.01, 1.0
@@ -59,7 +61,7 @@ def uniform_widths_matching(target_params: int, tol: float = 0.02) -> list[int]:
     for _ in range(40):
         f = (lo + hi) / 2
         w = [max(MIN_WIDTH, int(round(f * c))) for c in VGG16_WIDTHS]
-        n = n_params(w)
+        n = n_params(w, num_classes)
         best = (w, n, f)
         if abs(n - target_params) <= tol * target_params:
             break
@@ -81,11 +83,13 @@ def main(argv=None) -> int:
     p.add_argument("--device", default=None)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", required=True, help="JSON file to write")
+    p.add_argument("--dataset", choices=("cifar10", "cifar100"), default="cifar10")
     a = p.parse_args(argv)
 
-    model = build_vgg16_bn_cifar(10, "small")
+    num_classes = CIFAR_STATS[a.dataset][2]
+    model = build_vgg16_bn_cifar(num_classes, "small")
     model.load_state_dict(torch.load(a.checkpoint, map_location="cpu"))
-    loader = train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed)
+    loader = train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed, dataset=a.dataset)
     prof = layerspec.profile(model, loader, device=a.device, positions=a.positions,
                              taus=(0.95, 0.999), include_activations=False, include_blocks=False,
                              seed=a.seed)
@@ -97,8 +101,8 @@ def main(argv=None) -> int:
 
     ruler = [max(MIN_WIDTH, math.ceil(k)) for k in conv["k_star_0.999"]]
     ruler95 = [max(MIN_WIDTH, math.ceil(k)) for k in conv["k_star_0.95"]]
-    full_n, ruler_n, ruler95_n = n_params(VGG16_WIDTHS), n_params(ruler), n_params(ruler95)
-    uniform, uniform_n, factor = uniform_widths_matching(ruler_n)
+    full_n, ruler_n, ruler95_n = n_params(VGG16_WIDTHS, num_classes), n_params(ruler, num_classes), n_params(ruler95, num_classes)
+    uniform, uniform_n, factor = uniform_widths_matching(ruler_n, num_classes=num_classes)
 
     print(f"{'layer':12s} {'C':>4s} {'r_max':>5s} {'n/C':>6s} {'k*.95':>6s} {'k*.999':>7s}  ruler  ruler95  uniform")
     for i, r in conv.iterrows():
@@ -113,7 +117,7 @@ def main(argv=None) -> int:
            .to_dict(orient="records"),
            "widths": {"full": list(VGG16_WIDTHS), "ruler": ruler, "uniform": uniform, "ruler95": ruler95},
            "params": {"full": full_n, "ruler": ruler_n, "uniform": uniform_n, "ruler95": ruler95_n},
-           "uniform_factor": factor}
+           "uniform_factor": factor, "dataset": a.dataset, "num_classes": num_classes}
     os.makedirs(os.path.dirname(os.path.abspath(a.out)), exist_ok=True)
     with open(a.out, "w") as fh:
         json.dump(out, fh, indent=2, default=lambda x: x.item() if hasattr(x, "item") else str(x))
