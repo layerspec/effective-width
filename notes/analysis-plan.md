@@ -662,3 +662,35 @@ CIFAR-10 最後三層 40 vs 168–347（下游不需要，所以縮到 40 沒掉
 **實作**：`scripts/repr_diagnostics.py`（CKA、探針、到達 epoch），`checkpoint_analysis.py` §23。
 資料集下載約 2 GB。Mac 約兩天，零 GPU 費。**開始前提**：Mac 的 cifar／decompose 隊列跑完
 （`pgrep -f trajectory_cifar` 與 `decompose_check` 皆空）。
+
+**9.9.4 損壞影像下的準確率（CIFAR-10-C；2026-09-10 加，資料未見）**
+- A18 CIFAR-10 五臂 × 3 種子在 CIFAR-10-C（Hendrycks & Dietterich 2019，19 種損壞 × 5 級）的
+  平均準確率（mCA）與各損壞的準確率；同一批權重，不重訓。
+- **P9.24**：ReLU 後尺定寬臂的 mCA 與全寬差 < 1.0 點（平均），三種子沒有一個低於全寬平均 1.5 點以上。
+- **P9.25**：conv 尺定寬臂的 mCA 下降（相對全寬）≥ 其 clean 下降（0.22）的兩倍；均勻縮臂同樣檢定，
+  探索性報告哪一臂在哪類損壞（noise／blur／weather／digital）掉最多。
+- 後果：P9.24 成立 → `sec:a18` 的成本／遷移段加一句；P9.25 成立 → 「砍掉的秩帶著 robustness」進
+  主張表；皆不成立照報。Mac 半天（CIFAR-10-C 約 2.9 GB 下載）。
+
+### 9.10 分布偏移下的剖面（ImageNet-C／ImageNet-V2；2026-09-10 寫，資料未見）
+
+量測論文的 robustness 問題不是準確率，是**尺讀出來的東西在偏移的影像上穩不穩**。A15 已量到
+高斯雜訊影像抬高剖面（白噪聲 ρ 0.32）；這裡用真實的損壞與自然偏移。
+
+- **資料**：ImageNet-C 的 5 種損壞（gaussian_noise、defocus_blur、frost、contrast、jpeg）各取
+  嚴重度 3 的 6,400 張（與主子集同一批影像 id）；ImageNet-V2 matched-frequency 全部 10,000 張取
+  6,400 張。全部走位置抽樣、n/C ≥ 50 閘門、r_max 分母。
+- **網路**：六個 ResNet-50 配方 ＋ ResNet-18 ＋ VGG-16（八組，與 §V-K 投影校準同一批）。
+- **量**：每組網路在每個偏移集上的 k*(0.95)/r_max 與 k*(0.999)/r_max 剖面，對主子集剖面的逐層
+  Spearman ρ（排序穩定性）與逐層差的中位（水準變化）；池化計數（687/703）在偏移集上重算。
+- **預測（資料未見）**：
+  - **P9.26**：ImageNet-V2 上的剖面與主子集逐層 ρ ≥ 0.95、水準差中位 < 自身相鄰層抖動（0.09）：
+    自然偏移不改變尺的讀數。
+  - **P9.27**：五種損壞中，noise 類抬高剖面（A15 的方向）、blur／contrast 壓低；ρ 仍 ≥ 0.8
+    （排序穩、水準動）。
+  - **P9.28**：池化「一致壓低水準」的計數在每個偏移集上仍 ≥ 95%。
+  - 探索性：哪些層對損壞最敏感（預期是前段，資料因子直接受影響；命題 3）。
+- **後果**：P9.26 成立 → §V-K 或 Robustness 小節一段＋一張圖（八組網路 × 七個影像集的 ρ 與水準差）；
+  不成立 → 尺的讀數依影像分布而變，寫進「量測必須陳述影像集」（§VI-B）。
+- **成本**：ImageNet-C 只抓 5 種損壞 × 1 級（約 5 × 1.5 GB），V2 約 1.2 GB；pod 兩小時、約 US$1，
+  或 Mac 一夜。腳本：`scripts/fetch_shift_sets.py`、`layerspec.run --data <dir>`（現有）。
