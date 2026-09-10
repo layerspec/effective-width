@@ -1,0 +1,16 @@
+layer           C r_max    n/C  k*.95  k*.999  ruler  ruler95  uniform
+features.0     64    27   1600      8      15     15        8       60
+features.3     64    64   1600     20      48     48       20       60
+features.7    128   128    800     36     101    101       36      120
+features.10   128   128    800     44     116    116       44      120
+features.14   256   256    400     79     226    226       79      240
+features.17   256   256    400     89     238    238       89      240
+features.20   256   256    400    101     244    244      101      240
+features.24   512   512    200    159     466    466      159      480
+features.27   512   512    200    162     481    481      162      480
+features.30   512   512    200    188     489    489      188      480
+features.34   512   512     50    160     472    472      160      480
+features.37   512   512     50    194     484    484      194      480
+features.40   512   512     50    249     490    490      249      480
+params: full 14,774,436  ruler 12,884,630 (0.872)  uniform 12,989,200 (factor 0.938, +0.8% vs ruler)  ruler95 1,862,614 (0.126)
+wrote ../results/a18_cifar100/widths.json
