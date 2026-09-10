@@ -368,3 +368,18 @@ nohup bash -c 'until grep -q "A18-ImageNet done" results/a18_imagenet.log; do sl
   查 `results/a18_r18/widths_act.json` 的 `sites`（stage max 規則）再決定。
 - 中途斷線／pod 重啟：同一條指令重跑即可，每個 run 由 `resume.pt` 續跑，抓資料由 `.done/` 標記略過。
 - 兩個 run 並行時 `WORKERS` 預設 nproc/2；若 `img/s` 明顯低於 1,200，是解碼不夠，換 vCPU 多的機型。
+
+### 2026-09-11 實跑筆記（A23 pod：4090、頁面寫 12 vCPU／31 GB，實際 cgroup 13.6 核／61 GB，US$0.74/h）
+
+- **網路碟（/workspace，MooseFS）不能放小檔資料集**：12 個程序隨機開檔只有 1,430 檔/s（冷、暖都一樣），
+  一個 ResNet-18 run 就要 1,500 img/s。同一批圖串成一個大檔後隨機 seek+read 有 5,600 img/s（冷）、29,000（暖）。
+  所以 `fetch_imagenet.py` 預設 `--format blob`（每個 parquet shard 一個 .blob＋.idx.npy），
+  `scripts/imagenet_blob.py` 的 `BlobImageFolder` 讀。容器磁碟只有 30 GB，放不下 32 GB 的訓練集。
+- 抓 ImageNet-1k：HF 294 個 train shard（146 GB）＋14 個 val shard，12 個 worker 邊下載邊轉，**8 分鐘**全部完成
+  （這個機房對 HF 的頻寬很大）。轉完的訓練集 32 GB、驗證集 1.3 GB。
+- **API key 權限**：Restricted 只勾 `api.runpod.ai` 的 key **打不到** `rest.runpod.io`（那是 Serverless 端點的主機），
+  停 pod 要 GraphQL Read/Write，等於 All。建 key 後一定先用 `GET /v1/pods/<id>` 驗證（HTTP 200）再裝守護程序。
+- pod 自己的守護程序：`/workspace/autostop.sh`（兩條隊列都 done、或 ImageNet runner 提前退出時 stop）。
+  結果在 /workspace，stop 後仍在；之後從 Mac rsync `results/a18_imagenet`、`results/a18_r18` 回來再 commit。
+- 兩個 ImageNet run 並行＋CIFAR 前置同時跑時每個 run 約 960 img/s（GPU 100%）；前置跑完後再量。
+- HF token 直接 scp Mac 的 `~/.cache/huggingface/token` 到 pod 的 `/root/.cache/huggingface/token` 即可，不用 `hf auth login`。
