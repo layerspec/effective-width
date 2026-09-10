@@ -715,3 +715,30 @@ CIFAR-10 最後三層 40 vs 168–347（下游不需要，所以縮到 40 沒掉
   不成立 → 尺的讀數依影像分布而變，寫進「量測必須陳述影像集」（§VI-B）。
 - **成本**：ImageNet-C 只抓 5 種損壞 × 1 級（約 5 × 1.5 GB），V2 約 1.2 GB；pod 兩小時、約 US$1，
   或 Mac 一夜。腳本：`scripts/fetch_shift_sets.py`、`layerspec.run --data <dir>`（現有）。
+
+### 9.11 用尺定寬度再重訓，ImageNet-1k（2026-09-10 作者核准預算 US$70–90；資料未見；投稿門檻 A23）
+
+作者決定（2026-09-10）：A18 推到 ImageNet 從頭訓練，ResNet-18；A17（三架構歸因，US$250–350）暫緩。
+目的只有一個：關掉「toy-scale」——§10.6 的「讀在 ReLU 後的尺定寬不掉分」在 ImageNet 上是否成立。
+
+- **架構與寬度規則**：ResNet-18（basic block）。殘差相加要求 block 輸出寬度在一個 stage 內共用，規則預先定：
+  stage 內每個 block 的 conv2 輸出與 shortcut 的 ReLU 後 k*(0.999) 取**最大值**作為該 stage 的輸出寬度；
+  每個 block 的 conv1 輸出寬度各自取其 ReLU 後 k*(0.999)；stem 同。下限 8。均勻縮臂用同一因子縮全部寬度，
+  參數量對齊 ruler_act 臂（±2%）。
+- **配方**：torchvision 參考配方（SGD 0.9、lr 0.1、batch 256、90 epoch、step 30／60、wd 1e-4、
+  RandomResizedCrop 224 + flip），不用蒸餾、不用額外增強；全部臂同配方、同 epoch、同種子集合。
+- **臂**：(a) 全寬（自己訓，2 種子）；(e) ReLU 後尺定寬（由 (a) seed 0 在 6,400 張**訓練**影像、16 個位置量得，2 種子）；
+  (c) 均勻縮同參數（2 種子）。共 6 個 run。**不做** conv 版尺定寬與 τ=0.95 臂（§10.4–10.6 已回答）。
+- **預測（資料未見，門檻沿用 §9.5，但只有 2 種子）**：
+  - **P9.29**：(e) 的平均 top-1 與 (a) 差 < 0.3 點，且兩個種子都不低於 (a) 平均 0.5 點以上。
+  - **P9.30**：(e) 的兩個種子都高於 (c) 的兩個種子（2 對 2 全序）。
+  - 探索性：(e) 相對全寬的參數與 MACs 比例；ImageNet 上尺定寬集中砍在哪些 stage。
+- **判定與後果**：P9.29 成立 → `sec:a18` 加 ImageNet 段與表列，§VI-C 與摘要各一句「在 ImageNet 從頭訓練也成立」；
+  不成立 → 照報，主張限定 CIFAR。P9.30 只有 2 種子，成立也只寫「兩個種子一致」。
+- **成本與流程**：ImageNet-1k 訓練集要在 pod 上抓（HF parquet 約 150 GB → 需要 ≥ 250 GB 容器磁碟或網路磁碟；
+  下載約 1–2 小時）。單張 4090、12 vCPU 時 JPEG 解碼是瓶頸，估每 epoch 12–15 分鐘，一個 run 約 20 小時；
+  6 個 run 若 2 個並行約 3 天，GPU 約 US$45 ＋ 磁碟 US$10–20 ＋ 全寬先跑完才能讀寬度的串行等待。
+  總預算 **US$70–90**。腳本：`scripts/train_imagenet_r18.py`（torchvision reference 精簡版、`--widths`）、
+  `width_from_ruler.py --arch resnet18 --tensor act`（stage 規則）、`run_a18_imagenet_pod.sh`、守護程序（這次要 `git add` log）。
+- **前置**：先在 CIFAR-10 上跑 ResNet-18 的三臂各 3 種子（US$5，plan §9.5 的規則搬到 basic block）驗證
+  stage 寬度規則與腳本，再上 ImageNet。
