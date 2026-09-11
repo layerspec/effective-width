@@ -2054,6 +2054,131 @@ def section_estimators(results: str, latex: str | None = None) -> None:
 
 # ------------------------------------------------------------------- main
 
+# ------------------- section 23: representation-level diagnostics of the A18 arms (analysis-plan 9.9, bar A20)
+def section_repr(results: str) -> None:
+    rd = os.path.join(results, "repr")
+    if not os.path.isdir(rd):
+        return
+    hdr("23. Representation-level diagnostics of the A18 CIFAR-10 arms (analysis-plan 9.9; scripts/repr_diagnostics.py)")
+    print("  6,400 seeded TEST images, one globally pooled vector per layer (Kornblith 2019 setting, not position sampling).")
+    clean = {arm: np.array([v[0] for v in _a18_runs(results, arm).values()]) for arm in A18_ARMS}
+    full_mean = clean["full"].mean() if len(clean["full"]) else float("nan")
+    drops = {arm: full_mean - clean[arm].mean() for arm in A18_ARMS if len(clean[arm])}
+    print("  clean CIFAR-10 drop vs full (mean of 3 seeds): " +
+          ", ".join(f"{arm} {drops[arm]:+.2f}" for arm in A18_ARMS if arm in drops and arm != "full"))
+
+    # 9.9.1 CKA
+    f = os.path.join(rd, "cka_layers.csv")
+    if os.path.exists(f):
+        t = pd.read_csv(f)
+        print("\n  9.9.1 per-layer linear CKA vs full seed 0 (13 post-ReLU layers); median over layers, then mean +- SD over seeds")
+        med = t.groupby(["arm", "seed"]).cka_vs_full_s0.median().unstack("seed")
+        for arm in ("full", "ruler_act", "ruler", "uniform", "ruler95"):
+            if arm in med.index:
+                r = med.loc[arm].dropna()
+                tag = " (seed ceiling: full s1, s2 vs s0)" if arm == "full" else ""
+                print(f"    {arm:10s} {r.mean():.3f} +- {r.std(ddof=0):.3f}  seeds {', '.join(f'{v:.3f}' for v in r)}{tag}")
+        act, con = med.loc["ruler_act"], med.loc["ruler"]
+        per_seed = act.values >= con.values
+        diff = (t[t.arm == "ruler_act"].groupby("layer_index").cka_vs_full_s0.mean()
+                - t[t.arm == "ruler"].groupby("layer_index").cka_vs_full_s0.mean())
+        top = int(diff.abs().idxmax())
+        layer_name = t[t.layer_index == top].layer.iloc[0]
+        print(f"    ruler_act >= ruler (layer median, same seed): {int(per_seed.sum())}/3; "
+              f"largest |act - conv| gap at layer index {top} ({layer_name}, {diff[top]:+.3f}); "
+              f"gaps by layer: {' '.join(f'{v:+.2f}' for v in diff.values)}")
+        p919 = bool(per_seed.all()) and top <= 2
+        print(f"    P9.19 (ReLU-after ruler median >= conv ruler median, and largest gap in the first three layers): "
+              f"{'HOLDS' if p919 else 'does not hold'}")
+        u, c = med.loc["uniform"].mean(), med.loc["ruler"].mean()
+        print(f"    P9.20 (exploratory): uniform {u:.3f} vs conv ruler {c:.3f} -> {'uniform' if u > c else 'conv ruler'} closer to full;")
+        r95 = t[t.arm == "ruler95"].groupby("layer_index").cka_vs_full_s0.mean()
+        ceil = t[t.arm == "full"].groupby("layer_index").cka_vs_full_s0.mean()
+        below = [i for i in r95.index if r95[i] < ceil[i] - 0.05]
+        print(f"      ruler95 falls > 0.05 below the seed ceiling from layer index {below[0] if below else 'none'} "
+              f"(ceiling per layer {' '.join(f'{v:.2f}' for v in ceil.values)}; ruler95 {' '.join(f'{v:.2f}' for v in r95.values)})")
+
+    # 9.9.2 probes
+    f = os.path.join(rd, "probe.csv")
+    if os.path.exists(f):
+        t = pd.read_csv(f)
+        print("\n  9.9.2 linear probes on the last pooled post-ReLU feature (multinomial LR, L2 by 5-fold CV); test acc mean +- SD over seeds")
+        g = t.groupby(["dataset", "arm"]).test_acc.agg(["mean", "std", "count"])
+        dsets = sorted(t.dataset.unique())
+        for arm in A18_ARMS:
+            row = "  ".join(f"{d} {g.loc[(d, arm), 'mean']:6.2f}+-{g.loc[(d, arm), 'std']:.2f}" if (d, arm) in g.index else f"{d}    n/a  "
+                            for d in dsets)
+            print(f"    {arm:10s} {row}")
+        if all((d, "full") in g.index and (d, "ruler_act") in g.index for d in dsets):
+            dr_act = {d: g.loc[(d, "full"), "mean"] - g.loc[(d, "ruler_act"), "mean"] for d in dsets}
+            p921 = all(v < 1.0 for v in dr_act.values())
+            print(f"    ruler_act drop vs full: {', '.join(f'{d} {v:+.2f}' for d, v in dr_act.items())} -> "
+                  f"P9.21 (all < 1.0): {'HOLDS' if p921 else 'does not hold'}")
+        if all((d, "full") in g.index and (d, "ruler") in g.index for d in dsets) and "ruler" in drops:
+            dr_con = {d: g.loc[(d, "full"), "mean"] - g.loc[(d, "ruler"), "mean"] for d in dsets}
+            n_big = sum(v >= 2 * drops["ruler"] for v in dr_con.values())
+            print(f"    conv-ruler drop vs full: {', '.join(f'{d} {v:+.2f}' for d, v in dr_con.items())}; "
+                  f"clean drop {drops['ruler']:+.2f} -> P9.22 (>= 2x clean drop on >= 2 sets): "
+                  f"{n_big}/{len(dsets)} sets, {'HOLDS' if n_big >= 2 else 'does not hold'}")
+
+    # 9.9.3 arrival
+    f = os.path.join(rd, "arrival.csv")
+    if os.path.exists(f):
+        t = pd.read_csv(f)
+        print("\n  9.9.3 arrival epochs: rho_align (first >= 90% of final) vs representation (first layer-median CKA to final >= 0.9)")
+        sched = sorted(t.epoch.unique())
+        hits, rows = 0, []
+        for (arm, seed), g in t.sort_values("epoch").groupby(["arm", "seed"]):
+            fin = g.rho_align_median.iloc[-1]
+            e_align = next((e for e, v in zip(g.epoch, g.rho_align_median) if fin > 0 and v >= 0.9 * fin), None)
+            e_cka = next((e for e, v in zip(g.epoch, g.cka_to_final_median) if v >= 0.9), None)
+            gap = abs(sched.index(e_align) - sched.index(e_cka)) if e_align is not None and e_cka is not None else None
+            ok = gap is not None and gap <= 1
+            hits += ok
+            rows.append((arm, seed, e_align, e_cka, gap, fin))
+            print(f"    {arm:8s} s{seed}: rho_align arrives {e_align}, CKA arrives {e_cka}, schedule gap {gap} "
+                  f"{'ok' if ok else '--'}  (final rho_align {fin:.2f})")
+        print(f"    P9.23 (gap <= 1 schedule step in >= 7/9 runs): {hits}/{len(rows)} -> {'HOLDS' if hits >= 7 else 'does not hold'}")
+        by_arm = {arm: [r[3] for r in rows if r[0] == arm] for arm in ("ruler", "uniform", "ruler95")}
+        print("    exploratory: CKA arrival by arm " + "; ".join(f"{a} {v}" for a, v in by_arm.items()))
+
+    # 9.9.4 CIFAR-10-C
+    f = os.path.join(rd, "cifar10c.csv")
+    if os.path.exists(f):
+        t = pd.read_csv(f)
+        print("\n  9.9.4 CIFAR-10-C mean corruption accuracy (mCA over 19 corruptions x 5 severities); mean +- SD over seeds")
+        mca = t.groupby(["arm", "seed"]).acc.mean().unstack("seed")
+        for arm in A18_ARMS:
+            if arm in mca.index:
+                r = mca.loc[arm].dropna()
+                print(f"    {arm:10s} mCA {r.mean():6.2f} +- {r.std(ddof=0):.2f}")
+        if "full" in mca.index and "ruler_act" in mca.index:
+            fm = mca.loc["full"].mean()
+            d_act = fm - mca.loc["ruler_act"].mean()
+            worst = fm - mca.loc["ruler_act"].min()
+            p924 = d_act < 1.0 and worst < 1.5
+            print(f"    ruler_act mCA drop vs full {d_act:+.2f} (worst seed {worst:+.2f}) -> P9.24 (< 1.0, no seed > 1.5): "
+                  f"{'HOLDS' if p924 else 'does not hold'}")
+        if "full" in mca.index and "ruler" in mca.index and "ruler" in drops:
+            d_con = mca.loc["full"].mean() - mca.loc["ruler"].mean()
+            p925 = d_con >= 2 * drops["ruler"]
+            print(f"    conv-ruler mCA drop vs full {d_con:+.2f} vs 2x clean drop {2 * drops['ruler']:+.2f} -> P9.25: "
+                  f"{'HOLDS' if p925 else 'does not hold'}")
+            if "uniform" in mca.index:
+                print(f"    uniform mCA drop vs full {mca.loc['full'].mean() - mca.loc['uniform'].mean():+.2f} "
+                      f"(clean drop {drops.get('uniform', float('nan')):+.2f})")
+        cat = {"noise": ["gaussian_noise", "shot_noise", "impulse_noise", "speckle_noise"],
+               "blur": ["defocus_blur", "glass_blur", "motion_blur", "zoom_blur", "gaussian_blur"],
+               "weather": ["snow", "frost", "fog", "spatter"],
+               "digital": ["brightness", "contrast", "elastic_transform", "pixelate", "jpeg_compression", "saturate"]}
+        if "full" in mca.index:
+            print("    exploratory, drop vs full by corruption family:")
+            fam = {k: t[t.corruption.isin(v)].groupby("arm").acc.mean() for k, v in cat.items()}
+            for arm in ("ruler_act", "ruler", "uniform", "ruler95"):
+                if arm in mca.index:
+                    print(f"      {arm:10s} " + "  ".join(f"{k} {fam[k]['full'] - fam[k][arm]:+.2f}" for k in cat))
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--results", default="../results")
@@ -2103,6 +2228,7 @@ def main(argv=None) -> int:
     section_sensitivity(a.results)
     section_vit(a.results, latex=a.latex_vit)
     section_estimators(a.results, latex=a.latex_estimators)
+    section_repr(a.results)
     return 0
 
 
