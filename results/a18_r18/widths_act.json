@@ -1,0 +1,302 @@
+{
+  "checkpoint": "../results/a18_r18/resnet18_full_s0/resnet18_cifar10_final.pt",
+  "n_images": 6400,
+  "positions": 16,
+  "seed": 0,
+  "split": "train",
+  "min_width": 8,
+  "arch": "resnet18",
+  "stem": "cifar",
+  "width_order": [
+    "stem",
+    "s1_out",
+    "s1_mid0",
+    "s1_mid1",
+    "s2_out",
+    "s2_mid0",
+    "s2_mid1",
+    "s3_out",
+    "s3_mid0",
+    "s3_mid1",
+    "s4_out",
+    "s4_mid0",
+    "s4_mid1"
+  ],
+  "rule": "plan 9.11: stem/mid after ReLU; stage out = max over blocks after add+ReLU",
+  "sites": {
+    "stem": 39.0,
+    "stage1": {
+      "block_out": [
+        60.0,
+        64.0
+      ],
+      "block_mid": [
+        62.0,
+        62.0
+      ]
+    },
+    "stage2": {
+      "block_out": [
+        127.0,
+        128.0
+      ],
+      "block_mid": [
+        127.0,
+        128.0
+      ]
+    },
+    "stage3": {
+      "block_out": [
+        255.0,
+        255.0
+      ],
+      "block_mid": [
+        254.0,
+        255.0
+      ]
+    },
+    "stage4": {
+      "block_out": [
+        495.0,
+        438.0
+      ],
+      "block_mid": [
+        504.0,
+        481.0
+      ]
+    }
+  },
+  "layers": [
+    {
+      "layer": "relu",
+      "call_index": 0,
+      "C": 64,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 14,
+      "k_star_0.999": 39
+    },
+    {
+      "layer": "layer1.0.relu",
+      "call_index": 0,
+      "C": 64,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 35,
+      "k_star_0.999": 62
+    },
+    {
+      "layer": "layer1.0.relu",
+      "call_index": 1,
+      "C": 64,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 32,
+      "k_star_0.999": 60
+    },
+    {
+      "layer": "layer1.1.relu",
+      "call_index": 0,
+      "C": 64,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 40,
+      "k_star_0.999": 62
+    },
+    {
+      "layer": "layer1.1.relu",
+      "call_index": 1,
+      "C": 64,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 46,
+      "k_star_0.999": 64
+    },
+    {
+      "layer": "layer2.0.relu",
+      "call_index": 0,
+      "C": 128,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 88,
+      "k_star_0.999": 127
+    },
+    {
+      "layer": "layer2.0.relu",
+      "call_index": 1,
+      "C": 128,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 95,
+      "k_star_0.999": 127
+    },
+    {
+      "layer": "layer2.1.relu",
+      "call_index": 0,
+      "C": 128,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 104,
+      "k_star_0.999": 128
+    },
+    {
+      "layer": "layer2.1.relu",
+      "call_index": 1,
+      "C": 128,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 103,
+      "k_star_0.999": 128
+    },
+    {
+      "layer": "layer3.0.relu",
+      "call_index": 0,
+      "C": 256,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 189,
+      "k_star_0.999": 254
+    },
+    {
+      "layer": "layer3.0.relu",
+      "call_index": 1,
+      "C": 256,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 213,
+      "k_star_0.999": 255
+    },
+    {
+      "layer": "layer3.1.relu",
+      "call_index": 0,
+      "C": 256,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 217,
+      "k_star_0.999": 255
+    },
+    {
+      "layer": "layer3.1.relu",
+      "call_index": 1,
+      "C": 256,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 214,
+      "k_star_0.999": 255
+    },
+    {
+      "layer": "layer4.0.relu",
+      "call_index": 0,
+      "C": 512,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 317,
+      "k_star_0.999": 504
+    },
+    {
+      "layer": "layer4.0.relu",
+      "call_index": 1,
+      "C": 512,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 218,
+      "k_star_0.999": 495
+    },
+    {
+      "layer": "layer4.1.relu",
+      "call_index": 0,
+      "C": 512,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 180,
+      "k_star_0.999": 481
+    },
+    {
+      "layer": "layer4.1.relu",
+      "call_index": 1,
+      "C": 512,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 42,
+      "k_star_0.999": 438
+    }
+  ],
+  "widths": {
+    "full": [
+      64,
+      64,
+      64,
+      64,
+      128,
+      128,
+      128,
+      256,
+      256,
+      256,
+      512,
+      512,
+      512
+    ],
+    "ruler": [
+      39,
+      64,
+      62,
+      62,
+      128,
+      127,
+      128,
+      255,
+      254,
+      255,
+      495,
+      504,
+      481
+    ],
+    "uniform": [
+      62,
+      62,
+      62,
+      62,
+      124,
+      124,
+      124,
+      248,
+      248,
+      248,
+      496,
+      496,
+      496
+    ]
+  },
+  "params": {
+    "full": 11173962,
+    "ruler": 10562006,
+    "uniform": 10487000
+  },
+  "macs": {
+    "full": 555422720,
+    "ruler": 527461190,
+    "uniform": 521304928
+  },
+  "uniform_factor": 0.9690624999999999,
+  "dataset": "cifar10",
+  "num_classes": 10,
+  "tensor": "act"
+}

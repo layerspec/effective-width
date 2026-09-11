@@ -1,0 +1,22 @@
+=== resnet18_full_s1 start Thu Sep 10 23:47:12 UTC 2026 ===
+=== resnet18_full_s2 start Thu Sep 10 23:47:12 UTC 2026 ===
+=== resnet18_full_s0 start Thu Sep 10 23:47:12 UTC 2026 ===
+=== resnet18_full_s1 end Fri Sep 11 00:03:16 UTC 2026 ===
+=== resnet18_full_s0 end Fri Sep 11 00:03:17 UTC 2026 ===
+=== resnet18_full_s2 end Fri Sep 11 00:03:19 UTC 2026 ===
+=== widths from resnet18_full_s0 (training images, after ReLU) Fri Sep 11 00:03:19 UTC 2026 ===
+ruler_act widths: 39 64 62 62 128 127 128 255 254 255 495 504 481
+uniform widths: 62 62 62 62 124 124 124 248 248 248 496 496 496
+=== resnet18_ruler_act_s1 start Fri Sep 11 00:03:51 UTC 2026 ===
+=== resnet18_ruler_act_s2 start Fri Sep 11 00:03:51 UTC 2026 ===
+=== resnet18_ruler_act_s0 start Fri Sep 11 00:03:51 UTC 2026 ===
+=== resnet18_ruler_act_s0 end Fri Sep 11 00:31:20 UTC 2026 ===
+=== resnet18_ruler_act_s2 end Fri Sep 11 00:31:21 UTC 2026 ===
+=== resnet18_ruler_act_s1 end Fri Sep 11 00:31:21 UTC 2026 ===
+=== resnet18_uniform_s1 start Fri Sep 11 00:31:21 UTC 2026 ===
+=== resnet18_uniform_s0 start Fri Sep 11 00:31:21 UTC 2026 ===
+=== resnet18_uniform_s2 start Fri Sep 11 00:31:21 UTC 2026 ===
+=== resnet18_uniform_s1 end Fri Sep 11 01:01:18 UTC 2026 ===
+=== resnet18_uniform_s2 end Fri Sep 11 01:01:18 UTC 2026 ===
+=== resnet18_uniform_s0 end Fri Sep 11 01:01:22 UTC 2026 ===
+=== A18-R18-CIFAR done Fri Sep 11 01:01:22 UTC 2026 ===

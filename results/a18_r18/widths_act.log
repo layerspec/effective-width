@@ -1,0 +1,34 @@
+site                      C    n/C  k*.95  k*.999
+relu#0                   64   1600     14      39
+layer1.0.relu#0          64   1600     35      62
+layer1.0.relu#1          64   1600     32      60
+layer1.1.relu#0          64   1600     40      62
+layer1.1.relu#1          64   1600     46      64
+layer2.0.relu#0         128    800     88     127
+layer2.0.relu#1         128    800     95     127
+layer2.1.relu#0         128    800    104     128
+layer2.1.relu#1         128    800    103     128
+layer3.0.relu#0         256    400    189     254
+layer3.0.relu#1         256    400    213     255
+layer3.1.relu#0         256    400    217     255
+layer3.1.relu#1         256    400    214     255
+layer4.0.relu#0         512    200    317     504
+layer4.0.relu#1         512    200    218     495
+layer4.1.relu#0         512    200    180     481
+layer4.1.relu#1         512    200     42     438
+width       full  ruler  uniform
+stem          64     39       62
+s1_out        64     64       62
+s1_mid0       64     62       62
+s1_mid1       64     62       62
+s2_out       128    128      124
+s2_mid0      128    127      124
+s2_mid1      128    128      124
+s3_out       256    255      248
+s3_mid0      256    254      248
+s3_mid1      256    255      248
+s4_out       512    495      496
+s4_mid0      512    504      496
+s4_mid1      512    481      496
+params: full 11,173,962  ruler 10,562,006 (0.945)  uniform 10,487,000 (factor 0.969, -0.7% vs ruler)
+wrote ../results/a18_r18/widths_act.json
