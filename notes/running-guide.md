@@ -383,3 +383,20 @@ nohup bash -c 'until grep -q "A18-ImageNet done" results/a18_imagenet.log; do sl
   結果在 /workspace，stop 後仍在；之後從 Mac rsync `results/a18_imagenet`、`results/a18_r18` 回來再 commit。
 - 兩個 ImageNet run 並行＋CIFAR 前置同時跑時每個 run 約 960 img/s（GPU 100%）；前置跑完後再量。
 - HF token 直接 scp Mac 的 `~/.cache/huggingface/token` 到 pod 的 `/root/.cache/huggingface/token` 即可，不用 `hf auth login`。
+
+### A23 週一回收步驟（2026-09-11 寫；pod `dr7qq4pkwtnpri`，ssh `root@213.173.109.33 -p 19311 -i ~/.ssh/id_ed25519`）
+
+1. RunPod 控制台看 pod 狀態。**Stopped** = 守護程序已停機（正常）；**Running** = 還沒跑完或守護程序死了，先 ssh 看
+   `tail /workspace/results/a23_autostop.log` 與 `grep "^  epoch" /workspace/results/a18_imagenet/resnet18_*_s0.log | tail`。
+2. 若 Stopped：在控制台 **Start** 同一個 pod（容器磁碟會重置，/workspace 不會；ssh port 可能變，重抓）。
+   若是被 RunPod 收回而中途停的：Start 後重跑 `cd /workspace/code && DATA=/workspace/imagenet WORKERS=6 nohup bash scripts/run_a18_imagenet_pod.sh >> ../results/a18_imagenet.log 2>&1 &`
+   ，每個 run 從 `resume.pt` 續跑；再 `bash /workspace/start_autostop.sh`（restkey 在容器磁碟，重置後要重貼）。
+3. 拉結果（小檔）：
+   `rsync -a --exclude '*.pt' --exclude '.parquet' -e "ssh -p <port> -i ~/.ssh/id_ed25519" root@<host>:/workspace/results/a18_imagenet root@<host>:/workspace/results/a18_imagenet.log root@<host>:/workspace/results/a23_autostop.log results/`
+   拉權重（8 個 final.pt 各 45 MB，之後量剖面／分解用）：
+   `rsync -a --include '*/' --include 'final.pt' --exclude '*' -e "ssh -p <port> -i ~/.ssh/id_ed25519" root@<host>:/workspace/results/a18_imagenet/ results/a18_imagenet_pt/`
+4. 判定：`cd code && ~/.venvs/effwidth/bin/python scripts/checkpoint_analysis.py --results ../results | sed -n '/^24\./,$p'`
+   → plan §10 新增 10.10（P9.29／P9.30 照字面判），依 plan §9.11 後果改 `sec:a18`（ImageNet 段＋表列）、§VI-C、摘要，
+   然後做投稿門檻 C1（§I 的 so-what 提前）與 C2。
+5. 確認 pod 已 Stop 後，到 RunPod → Storage 看網路磁碟是否要 Terminate（留著每月約 US$5；資料集可以重抓 8 分鐘，
+   建議權重拉回 Mac 後 Terminate）。**刪掉 API key `a23-autostop`**（All 權限）。

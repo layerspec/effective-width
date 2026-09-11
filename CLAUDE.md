@@ -81,10 +81,14 @@
    ~~MobileNet／EfficientNet 的池化效果改用 r_max 版統計量~~（2026-09-07 已做，
    `round2` §3 補記：/C 比值 0.08–0.17 → /r_max 1.25–2.11；只有 DenseNet-121 <1）。
 5. CIFAR 2×2 為選配：`bash code/scripts/run_cifar_2x2.sh`。
-6. **A23（2026-09-11 腳本就緒，待租 pod）**：plan §9.11，ResNet-18 ImageNet-1k 三臂×2 種子＋CIFAR-10 前置
-   三臂×3 種子。腳本 `code/scripts/{resnet_widths,fetch_imagenet,train_imagenet_r18}.py`、
-   `run_a18_r18_cifar_pod.sh`、`run_a18_imagenet_pod.sh`；步驟在 `notes/running-guide.md` A23 節。
-   13 個寬度的順序與 stage 規則見 `resnet_widths.py` 開頭；資料短邊縮 256 是登記過的實作選擇。
+6. **A23 在 pod 上跑（2026-09-10 23:55 UTC 起，預計 09-13 12:00 UTC 完成後自動停機）**：plan §9.11，ResNet-18
+   ImageNet-1k 三臂×2 種子；CIFAR-10 前置已收回並判定（plan §10.8）。**週一回收步驟在 `notes/running-guide.md` 最末節**
+   （rsync、判定 §24、plan §10.10、`sec:a18` ImageNet 段、C1／C2）。腳本 `code/scripts/{resnet_widths,fetch_imagenet,
+   imagenet_blob,train_imagenet_r18}.py`、`run_a18_r18_cifar_pod.sh`、`run_a18_imagenet_pod.sh`。
+7. **A20（plan §9.9）**：CKA、到達 epoch、CIFAR-10-C 已判定並進論文（plan §10.9）；線性探針（P9.21／P9.22）跑完後
+   `checkpoint_analysis.py` §23 判定，補 `sec:a18` 一句與主張表兩列。
+8. **投稿門檻 C1–C3**（`notes/submission-bar-2026-09-07.md` 末節，作者 09-11 定）：§I 的 so-what 提前、A23 決定高度、
+   A20 改「必要／充分」句。論文不得把部署省算力寫成主要價值。
 
 ---
 
