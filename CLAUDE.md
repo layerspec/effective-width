@@ -106,7 +106,7 @@
   （`layerspec.analyse --latex` 產的 `table_shape.tex` 是 rho_late 表，論文已不引用）
 - 重算審查數字：`cd code && python3 scripts/review_checks.py --results ../results`
 - 承重主張（全部 checkpoint）：`cd code && python3 scripts/checkpoint_analysis.py --results ../results`
-- 測試與本機量測：`~/.venvs/effwidth/bin/python`（2026-09-07 建的持久 venv，torch 2.14＋MPS、timm、pytest）。`cd code && ~/.venvs/effwidth/bin/python -m pytest tests/test_core.py -q`。系統 python3 只有 pandas／scipy／matplotlib，夠跑分析與畫圖。
+- 測試與本機量測：`~/.venvs/effwidth/bin/python`（2026-09-07 建的持久 venv，torch 2.14＋MPS、timm、pytest）。`cd code && ~/.venvs/effwidth/bin/python -m pytest tests/test_core.py -q`。系統 python3 只有 pandas／scipy／matplotlib；**`checkpoint_analysis.py` 自 2026-09-10 起 import layerspec（要 torch），分析也要用 venv 的 python**，系統 python3 只剩畫圖能用。
 - **若 2026-09-07 的 measure2 沒跑完**（`results/measure_queue2.log` 沒有 `measure queue 2 done`），先跑
   `nohup caffeinate -i results/measure_queue2_resume.sh >> results/measure_queue2.log 2>&1 &`（會略過已量的），再啟動下面的軌跡隊列。
 - **每天開機後執行一次**（CIFAR 軌跡分多天跑，會自動續跑、跑完自動略過）：
