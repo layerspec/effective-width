@@ -2192,7 +2192,7 @@ def _r18_cifar_acc(results: str, arm: str) -> dict:
     return out
 
 
-def section_a23(results: str) -> None:
+def section_a23(results: str, latex: str | None = None) -> None:
     r18, inet = os.path.join(results, "a18_r18"), os.path.join(results, "a18_imagenet")
     if not os.path.isdir(r18) and not os.path.isdir(inet):
         return
@@ -2254,6 +2254,25 @@ def section_a23(results: str) -> None:
             fr = [r / f for r, f in zip(j["widths"]["ruler"], j["widths"]["full"])]
             print(f"    exploratory: ruler/full width ratio by site: {' '.join(f'{v:.2f}' for v in fr)}  "
                   f"(params {j['params']['ruler'] / j['params']['full']:.3f}, MACs {j['macs']['ruler'] / j['macs']['full']:.3f})")
+            fs = min(f for f in fr[1:]); print(f"    exploratory: every site but the stem reads {fs:.2f}-{max(fr[1:]):.2f} of its channels; "
+                  f"the arms differ by less than the full-width seed spread ({max(a) - min(a):.2f} points), so P9.29/P9.30 do not test the allocation")
+        # plan 9.11 consequence: the ImageNet block of the A18 table (section 16 writes the CIFAR blocks first)
+        if latex and os.path.exists(latex):
+            labels = {"full": "full width", "ruler_act": "ruler after ReLU, $\\tau = 0.999$", "uniform": "uniform cut"}
+            block = ["\\midrule", "\\multicolumn{6}{@{}l}{\\emph{ImageNet-1k, ResNet-18, two seeds (plan 9.11)}} \\\\"]
+            for arm in ("full", "ruler_act", "uniform"):
+                rs = [runs[(arm, s)] for s in "01" if (arm, s) in runs]
+                if not rs:
+                    continue
+                t1 = np.array([r["final_top1"] for r in rs])
+                sd = f"{t1.std(ddof=1):.2f}" if len(t1) > 1 else "--"
+                block.append(f"{labels[arm]} & {rs[0]['params'] / 1e6:.2f}M & {rs[0]['macs_224'] / 1e9:.2f}G & -- & "
+                             f"{t1.mean():.2f} $\\pm$ {sd} & -- \\\\")
+            txt = open(latex).read()
+            if "ImageNet-1k, ResNet-18" not in txt:
+                txt = txt.replace("\\bottomrule", "\n".join(block) + "\n\\bottomrule")
+                open(latex, "w").write(txt)
+                print(f"  appended the ImageNet-1k block to {latex}")
 
 
 def main(argv=None) -> int:
@@ -2306,7 +2325,7 @@ def main(argv=None) -> int:
     section_vit(a.results, latex=a.latex_vit)
     section_estimators(a.results, latex=a.latex_estimators)
     section_repr(a.results)
-    section_a23(a.results)
+    section_a23(a.results, latex=a.latex_a18)
     return 0
 
 

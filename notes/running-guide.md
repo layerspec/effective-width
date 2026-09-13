@@ -400,3 +400,12 @@ nohup bash -c 'until grep -q "A18-ImageNet done" results/a18_imagenet.log; do sl
    然後做投稿門檻 C1（§I 的 so-what 提前）與 C2。
 5. 確認 pod 已 Stop 後，到 RunPod → Storage 看網路磁碟是否要 Terminate（留著每月約 US$5；資料集可以重抓 8 分鐘，
    建議權重拉回 Mac 後 Terminate）。**刪掉 API key `a23-autostop`**（All 權限）。
+
+### 2026-09-14 回收實錄
+
+- Stopped 的 pod 按 Start 時 GPU 已被租走，對話框選 **Start Pod using CPUs**（$0.37/h，0 vCPU 顯示但 ssh 可用）即可 rsync；
+  ssh port 從 19311 變 10361（每次 Start 都會變，到 Connect 分頁抓）。三條 rsync 共 266 MB，幾分鐘。
+- 收完立刻 Stop。**注意**：控制台的側欄在載入時會位移，用座標點按鈕曾誤開 Terminate 對話框（已 Cancel）；
+  之後一律用元素文字定位按鈕。
+- 六個 run 各 14.6–15.1 h（2,130–2,280 img/s，比 09-11 筆記的 1,150 快一倍，因前置跑完後 GPU 獨占）；總 GPU 約 46 h ≈ US$36。
+- 待作者做：Storage → Terminate 網路磁碟（`patient_emerald_emu_volume`，50 GB）；Settings → 刪 API key `a23-autostop`。

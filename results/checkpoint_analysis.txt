@@ -678,7 +678,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     vgg16_bn                                 0.95  3200      690       84   -18.94 2.91e-119
     vgg16_bn                                 0.99  3200      107       57    -1.56  1.16e-04
     vgg16_bn                                0.999  3200       16       13    -0.09  7.11e-01
-  wrote ../paper/table_projection.tex
 
 ========================================================================
 10b. The projection read as a rank-k factorisation: conv FLOPs kept, per tau
@@ -750,7 +749,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   kernel spectrum alone; 'ortho' is the analytic prediction for orthogonalising
   the kernel with the data held fixed, to be tested against trained-with-
   orthogonality-penalty networks (submission bar A5).
-  wrote ../paper/table_decompose.tex
 
 ========================================================================
 12. Round 3, controlled block type on CIFAR-10 (analysis-plan 9.1)
@@ -823,7 +821,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
 
   H9.1 (bottleneck T-R below basic T-R): max bottleneck +0.52 vs min basic +0.47; Mann-Whitney one-sided p = 0.2  -> NOT supported
   H9.2 (MobileNetV2 seeds share a profile, T-T >= 0.7): pairwise ['+0.99', '+1.00', '+1.00'] -> SUPPORTED
-  wrote ../paper/table_round3.tex
 
 ========================================================================
 13. Round 3, orthogonality penalties vs the analytic prediction (analysis-plan 9.2)
@@ -848,7 +845,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   SRIP: median |out - prediction| over arms = 0.198  -> not within 0.1
   P9.5 (gain vs accuracy change, 12 runs): Spearman rho = +0.15; accuracy change -0.10..+0.31 points  -> no monotone relation (|rho| < 0.5)
   Fraction of the predicted gain realised, median over runs: 0.46 (range 0.24..0.50)
-  wrote ../paper/table_ortho.tex
 
 ========================================================================
 15. Ablations of the protocol on ResNet-50 V1 (A11-A15): k*(0.95)/r_max profile vs the reference run
@@ -874,7 +870,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       vs ImageNet ResNet-50 on the same COCO images: rho +0.92, levels 0.406 (cls) / 0.289 (det)
     Mask R-CNN R50-FPN backbone, COCO-trained  49       +0.91     0.062     0.205   0.309     0.406
       vs ImageNet ResNet-50 on the same COCO images: rho +0.92, levels 0.406 (cls) / 0.309 (det)
-  wrote ../paper/table_ablation.tex
 
 ========================================================================
 16. A18: widths set from the ruler, retrained from scratch (analysis-plan 9.5; CIFAR-100: 9.7)
@@ -1090,7 +1085,6 @@ layer4 conv1       0.97   0.51
        conv2       0.96   0.48
        conv3       0.97   0.61
        shortcut    0.94   0.47
-  wrote ../paper/table_diagnostic.tex
 
 ========================================================================
 19. The n/C >= 50 gate as a derived number (Proposition 6): Lawley bias at n = 50 C vs the convergence file
@@ -1122,7 +1116,6 @@ layer4 conv1       0.97   0.51
     MLP fc1            12  3072   768    0.38 (0.14-0.72)                         0.91       +0.99
     MLP fc2            12   768   768    0.50 (0.17-0.74)                         0.96       +0.76
     r_max check: max k*(0.999)/r_max over all rows 0.987 (must be <= 1)
-  wrote ../paper/table_vit.tex
 
 ========================================================================
 22. Estimator comparison (B10, plan section 11): the ruler against RankMe, alpha-ReQ, corrected PR, on identical layers and images
@@ -1178,4 +1171,88 @@ layer4 conv1       0.97   0.51
      timm_vgg16.tv_in1k                             13    +0.94   -0.52   -0.52   -0.25   +0.96   -0.94
      timm_wide_resnet50_2.tv_in1k                   53    +0.97   +0.33   +0.33   +0.78   +0.98   -0.67
      vgg16_bn                                       13    +0.98   -0.46   -0.46   +0.28   +0.97   -0.94
-  wrote ../paper/table_estimators.tex
+
+========================================================================
+23. Representation-level diagnostics of the A18 CIFAR-10 arms (analysis-plan 9.9; scripts/repr_diagnostics.py)
+========================================================================
+  6,400 seeded TEST images, one globally pooled vector per layer (Kornblith 2019 setting, not position sampling).
+  clean CIFAR-10 drop vs full (mean of 3 seeds): ruler +0.22, uniform +0.57, ruler95 +2.15, ruler_act -0.07
+
+  9.9.1 per-layer linear CKA vs full seed 0 (13 post-ReLU layers); median over layers, then mean +- SD over seeds
+    full       0.906 +- 0.004  seeds 0.909, 0.902 (seed ceiling: full s1, s2 vs s0)
+    ruler_act  0.910 +- 0.002  seeds 0.912, 0.911, 0.908
+    ruler      0.904 +- 0.002  seeds 0.902, 0.903, 0.906
+    uniform    0.903 +- 0.003  seeds 0.901, 0.900, 0.907
+    ruler95    0.859 +- 0.009  seeds 0.852, 0.853, 0.873
+    ruler_act >= ruler (layer median, same seed): 3/3; largest |act - conv| gap at layer index 11 (features.39, +0.086); gaps by layer: +0.04 +0.01 +0.01 +0.01 +0.01 +0.01 +0.00 +0.01 +0.00 +0.01 +0.07 +0.09 +0.01
+    P9.19 (ReLU-after ruler median >= conv ruler median, and largest gap in the first three layers): does not hold
+    P9.20 (exploratory): uniform 0.903 vs conv ruler 0.904 -> conv ruler closer to full;
+      ruler95 falls > 0.05 below the seed ceiling from layer index 0 (ceiling per layer 0.98 0.97 0.97 0.94 0.94 0.91 0.86 0.90 0.90 0.85 0.83 0.86 0.94; ruler95 0.85 0.87 0.94 0.91 0.91 0.87 0.83 0.85 0.86 0.73 0.58 0.65 0.87)
+
+  9.9.2 linear probes on the last pooled post-ReLU feature (multinomial LR, L2 by 5-fold CV); test acc mean +- SD over seeds
+    full       cifar100  22.80+-0.32  stl10  77.18+-0.26  svhn  41.32+-0.74
+    ruler      cifar100  17.99+-0.22  stl10  76.58+-0.29  svhn  31.80+-0.15
+    uniform    cifar100  22.48+-0.28  stl10  76.11+-0.21  svhn  41.99+-1.52
+    ruler95    cifar100  17.54+-0.10  stl10  74.36+-0.24  svhn  30.80+-0.87
+    ruler_act  cifar100  21.35+-0.53  stl10  77.20+-0.06  svhn  38.99+-0.61
+    ruler_act drop vs full: cifar100 +1.44, stl10 -0.02, svhn +2.33 -> P9.21 (all < 1.0): does not hold
+    conv-ruler drop vs full: cifar100 +4.81, stl10 +0.60, svhn +9.52; clean drop +0.22 -> P9.22 (>= 2x clean drop on >= 2 sets): 3/3 sets, HOLDS
+
+  9.9.3 arrival epochs: rho_align (first >= 90% of final) vs representation (first layer-median CKA to final >= 0.9)
+    ruler    s0: rho_align arrives 10, CKA arrives 90, schedule gap 9 --  (final rho_align 0.96)
+    ruler    s1: rho_align arrives 10, CKA arrives 90, schedule gap 9 --  (final rho_align 0.95)
+    ruler    s2: rho_align arrives 10, CKA arrives 90, schedule gap 9 --  (final rho_align 0.95)
+    ruler95  s0: rho_align arrives 7, CKA arrives 90, schedule gap 10 --  (final rho_align 0.88)
+    ruler95  s1: rho_align arrives 7, CKA arrives 80, schedule gap 9 --  (final rho_align 0.88)
+    ruler95  s2: rho_align arrives 10, CKA arrives 90, schedule gap 9 --  (final rho_align 0.90)
+    uniform  s0: rho_align arrives 15, CKA arrives 90, schedule gap 8 --  (final rho_align 0.96)
+    uniform  s1: rho_align arrives 15, CKA arrives 90, schedule gap 8 --  (final rho_align 0.96)
+    uniform  s2: rho_align arrives 15, CKA arrives 90, schedule gap 8 --  (final rho_align 0.96)
+    P9.23 (gap <= 1 schedule step in >= 7/9 runs): 0/9 -> does not hold
+    exploratory: CKA arrival by arm ruler [90, 90, 90]; uniform [90, 90, 90]; ruler95 [90, 80, 90]
+
+  9.9.4 CIFAR-10-C mean corruption accuracy (mCA over 19 corruptions x 5 severities); mean +- SD over seeds
+    full       mCA  74.06 +- 0.19
+    ruler      mCA  74.21 +- 0.27
+    uniform    mCA  72.40 +- 0.34
+    ruler95    mCA  71.67 +- 0.19
+    ruler_act  mCA  74.55 +- 0.27
+    ruler_act mCA drop vs full -0.49 (worst seed -0.26) -> P9.24 (< 1.0, no seed > 1.5): HOLDS
+    conv-ruler mCA drop vs full -0.15 vs 2x clean drop +0.44 -> P9.25: does not hold
+    uniform mCA drop vs full +1.66 (clean drop +0.57)
+    exploratory, drop vs full by corruption family:
+      ruler_act  noise -2.15  blur -0.14  weather -0.16  digital +0.10
+      ruler      noise -3.00  blur +1.22  weather +0.08  digital +0.46
+      uniform    noise +0.95  blur +2.28  weather +1.85  digital +1.49
+      ruler95    noise -3.09  blur +4.10  weather +4.12  digital +3.44
+
+========================================================================
+24. A23: ResNet-18 arms, widths after the ReLU by the stage rule (analysis-plan 9.11)
+========================================================================
+  CIFAR-10 preflight: widths (order stem, s1_out, s1_mid0, s1_mid1, s2_out, s2_mid0, s2_mid1, s3_out, s3_mid0, s3_mid1, s4_out, s4_mid0, s4_mid1)
+    full       64   64   64   64  128  128  128  256  256  256  512  512  512  params 11,173,962 (1.000)  MACs 0.555 G
+    ruler      39   64   62   62  128  127  128  255  254  255  495  504  481  params 10,562,006 (0.945)  MACs 0.527 G
+    uniform    62   62   62   62  124  124  124  248  248  248  496  496  496  params 10,487,000 (0.939)  MACs 0.521 G
+  ImageNet-1k: widths (order stem, s1_out, s1_mid0, s1_mid1, s2_out, s2_mid0, s2_mid1, s3_out, s3_mid0, s3_mid1, s4_out, s4_mid0, s4_mid1)
+    full       64   64   64   64  128  128  128  256  256  256  512  512  512  params 11,689,512 (1.000)  MACs 1.814 G
+    ruler      44   64   63   64  128  128  127  255  255  255  510  509  511  params 11,594,456 (0.992)  MACs 1.739 G
+    uniform    64   64   64   64  127  127  127  254  254  254  508  508  508  params 11,514,717 (0.985)  MACs 1.795 G
+
+  CIFAR-10 preflight (100 epochs, OneCycle; final test acc per seed):
+    full        95.04 +- 0.10  seeds 94.91, 95.14, 95.07
+    ruler_act   95.01 +- 0.20  seeds 94.77, 95.01, 95.26
+    uniform     95.02 +- 0.16  seeds 94.97, 95.24, 94.85
+    (e) vs (a): -0.03, min seed -0.27 -> within 0.3 / no seed below 0.5; (e) > (c) all pairs: no (this validates the rule only; the ruler read 94.5% of the parameters, so the arms are close by construction)
+
+  ImageNet-1k (torchvision reference recipe, 90 epochs, images pre-resized to short side 256; final-epoch top-1 / top-5):
+    full       s0: top-1 69.14  top-5 88.83  params 11,689,512  MACs@224 1.814 G  15.0 h  2284 img/s
+    full       s1: top-1 68.54  top-5 88.64  params 11,689,512  MACs@224 1.814 G  15.0 h  2238 img/s
+    ruler_act  s0: top-1 69.18  top-5 88.85  params 11,594,456  MACs@224 1.739 G  15.1 h  2130 img/s
+    ruler_act  s1: top-1 68.82  top-5 88.73  params 11,594,456  MACs@224 1.739 G  14.6 h  2256 img/s
+    uniform    s0: top-1 69.09  top-5 88.84  params 11,514,717  MACs@224 1.795 G  14.8 h  2232 img/s
+    uniform    s1: top-1 68.58  top-5 88.70  params 11,514,717  MACs@224 1.795 G  14.8 h  2229 img/s
+    (e) mean 69.00 vs (a) mean 68.84: +0.16; seeds vs (a) mean +0.33, -0.02 -> P9.29 (|diff| < 0.3, no seed below 0.5): HOLDS
+    (e) 69.18, 68.82 vs (c) 69.09, 68.58 -> P9.30 (2-vs-2 total order): does not hold
+    exploratory: ruler/full width ratio by site: 0.69 1.00 0.98 1.00 1.00 1.00 0.99 1.00 1.00 1.00 1.00 0.99 1.00  (params 0.992, MACs 0.959)
+    exploratory: every site but the stem reads 0.98-1.00 of its channels; the arms differ by less than the full-width seed spread (0.60 points), so P9.29/P9.30 do not test the allocation
+  appended the ImageNet-1k block to ../paper/table_a18.tex
