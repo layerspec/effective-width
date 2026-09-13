@@ -2179,6 +2179,83 @@ def section_repr(results: str) -> None:
                     print(f"      {arm:10s} " + "  ".join(f"{k} {fam[k]['full'] - fam[k][arm]:+.2f}" for k in cat))
 
 
+# ------------------- section 24: A23, ResNet-18 arms on CIFAR-10 (preflight) and ImageNet-1k (analysis-plan 9.11)
+def _r18_cifar_acc(results: str, arm: str) -> dict:
+    out = {}
+    for seed in "012":
+        path = os.path.join(results, "a18_r18", f"resnet18_{arm}_s{seed}", "trajectory_layers.csv")
+        if os.path.exists(path):
+            d = pd.read_csv(path)
+            d = d[d.epoch == d.epoch.max()]
+            if d.epoch.iloc[0] >= 100:
+                out[seed] = float(d.test_acc.iloc[0])
+    return out
+
+
+def section_a23(results: str) -> None:
+    r18, inet = os.path.join(results, "a18_r18"), os.path.join(results, "a18_imagenet")
+    if not os.path.isdir(r18) and not os.path.isdir(inet):
+        return
+    hdr("24. A23: ResNet-18 arms, widths after the ReLU by the stage rule (analysis-plan 9.11)")
+    for name, base in (("CIFAR-10 preflight", r18), ("ImageNet-1k", inet)):
+        w = os.path.join(base, "widths_act.json")
+        if os.path.exists(w):
+            j = json.load(open(w))
+            print(f"  {name}: widths (order {', '.join(j['width_order'])})")
+            for k in ("full", "ruler", "uniform"):
+                print(f"    {k:8s} {' '.join(f'{v:4d}' for v in j['widths'][k])}  params {j['params'][k]:,} "
+                      f"({j['params'][k] / j['params']['full']:.3f})" +
+                      (f"  MACs {j['macs'][k] / 1e9:.3f} G" if "macs" in j else ""))
+    # CIFAR-10 preflight: same predictions as P9.6 / P9.7 in form, validation only (plan 9.11)
+    acc = {arm: _r18_cifar_acc(results, arm) for arm in ("full", "ruler_act", "uniform")}
+    if acc["full"]:
+        print("\n  CIFAR-10 preflight (100 epochs, OneCycle; final test acc per seed):")
+        for arm, a in acc.items():
+            if a:
+                v = np.array(list(a.values()))
+                print(f"    {arm:10s} {v.mean():6.2f} +- {v.std(ddof=0):.2f}  seeds {', '.join(f'{x:.2f}' for x in v)}")
+        if acc["ruler_act"] and acc["uniform"]:
+            fm, e, c = np.mean(list(acc["full"].values())), np.array(list(acc["ruler_act"].values())), np.array(list(acc["uniform"].values()))
+            ok_e = abs(fm - e.mean()) < 0.3 and (e >= fm - 0.5).all()
+            ok_c = e.min() > c.max()
+            print(f"    (e) vs (a): {e.mean() - fm:+.2f}, min seed {e.min() - fm:+.2f} -> {'within 0.3 / no seed below 0.5' if ok_e else 'outside the P9.6-form bound'}; "
+                  f"(e) > (c) all pairs: {'yes' if ok_c else 'no'} (this validates the rule only; the ruler read "
+                  f"{json.load(open(os.path.join(r18, 'widths_act.json')))['params']['ruler'] / json.load(open(os.path.join(r18, 'widths_act.json')))['params']['full']:.1%} of the parameters, so the arms are close by construction)"
+                  if os.path.exists(os.path.join(r18, "widths_act.json")) else "")
+    # ImageNet: P9.29 / P9.30
+    runs = {}
+    for arm in ("full", "ruler_act", "uniform"):
+        for seed in "01":
+            f = os.path.join(inet, f"resnet18_{arm}_s{seed}", "result.json")
+            if os.path.exists(f):
+                runs[(arm, seed)] = json.load(open(f))
+    if runs:
+        print("\n  ImageNet-1k (torchvision reference recipe, 90 epochs, images pre-resized to short side 256; final-epoch top-1 / top-5):")
+        for (arm, seed), r in sorted(runs.items()):
+            print(f"    {arm:10s} s{seed}: top-1 {r['final_top1']:.2f}  top-5 {r['final_top5']:.2f}  "
+                  f"params {r['params']:,}  MACs@224 {r.get('macs_224', 0) / 1e9:.3f} G  {r['train_hours']:.1f} h  "
+                  f"{r.get('img_per_s_median') or 0:.0f} img/s")
+        a = [runs[("full", s)]["final_top1"] for s in "01" if ("full", s) in runs]
+        e = [runs[("ruler_act", s)]["final_top1"] for s in "01" if ("ruler_act", s) in runs]
+        c = [runs[("uniform", s)]["final_top1"] for s in "01" if ("uniform", s) in runs]
+        if len(a) == 2 and len(e) == 2:
+            p929 = abs(np.mean(e) - np.mean(a)) < 0.3 and all(v >= np.mean(a) - 0.5 for v in e)
+            print(f"    (e) mean {np.mean(e):.2f} vs (a) mean {np.mean(a):.2f}: {np.mean(e) - np.mean(a):+.2f}; "
+                  f"seeds vs (a) mean {', '.join(f'{v - np.mean(a):+.2f}' for v in e)} -> P9.29 (|diff| < 0.3, no seed below 0.5): "
+                  f"{'HOLDS' if p929 else 'does not hold'}")
+        if len(e) == 2 and len(c) == 2:
+            p930 = min(e) > max(c)
+            print(f"    (e) {', '.join(f'{v:.2f}' for v in e)} vs (c) {', '.join(f'{v:.2f}' for v in c)} -> P9.30 (2-vs-2 total order): "
+                  f"{'HOLDS' if p930 else 'does not hold'}")
+        # exploratory: where the ruler cut, per stage
+        w = os.path.join(inet, "widths_act.json")
+        if os.path.exists(w):
+            j = json.load(open(w))
+            fr = [r / f for r, f in zip(j["widths"]["ruler"], j["widths"]["full"])]
+            print(f"    exploratory: ruler/full width ratio by site: {' '.join(f'{v:.2f}' for v in fr)}  "
+                  f"(params {j['params']['ruler'] / j['params']['full']:.3f}, MACs {j['macs']['ruler'] / j['macs']['full']:.3f})")
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--results", default="../results")
@@ -2229,6 +2306,7 @@ def main(argv=None) -> int:
     section_vit(a.results, latex=a.latex_vit)
     section_estimators(a.results, latex=a.latex_estimators)
     section_repr(a.results)
+    section_a23(a.results)
     return 0
 
 
