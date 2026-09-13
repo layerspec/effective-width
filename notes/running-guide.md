@@ -408,4 +408,6 @@ nohup bash -c 'until grep -q "A18-ImageNet done" results/a18_imagenet.log; do sl
 - 收完立刻 Stop。**注意**：控制台的側欄在載入時會位移，用座標點按鈕曾誤開 Terminate 對話框（已 Cancel）；
   之後一律用元素文字定位按鈕。
 - 六個 run 各 14.6–15.1 h（2,130–2,280 img/s，比 09-11 筆記的 1,150 快一倍，因前置跑完後 GPU 獨占）；總 GPU 約 46 h ≈ US$36。
+- 第二次 CPU 啟動（port 10494）拉回 CIFAR-10 ResNet-18 前置的 9 個 `resnet18_cifar10_final.pt`（369 MB，md5 核對相符）到
+  `results/a18_r18_pt/`，再 Stop。**pod 上已無需要的東西**（資料集 blob 可重抓 8 分鐘）。
 - 待作者做：Storage → Terminate 網路磁碟（`patient_emerald_emu_volume`，50 GB）；Settings → 刪 API key `a23-autostop`。
