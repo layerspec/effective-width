@@ -1,0 +1,42 @@
+{
+  "widths": [
+    64,
+    64,
+    64,
+    64,
+    127,
+    127,
+    127,
+    254,
+    254,
+    254,
+    508,
+    508,
+    508
+  ],
+  "params": 11514717,
+  "macs_224": 1795374864,
+  "seed": 0,
+  "epochs": 90,
+  "recipe": {
+    "optimizer": "SGD",
+    "momentum": 0.9,
+    "lr": 0.1,
+    "wd": 0.0001,
+    "batch_size": 256,
+    "milestones": [
+      30,
+      60
+    ],
+    "gamma": 0.1,
+    "aug": "RandomResizedCrop224+flip",
+    "eval": "Resize256+CenterCrop224",
+    "amp": true
+  },
+  "final_top1": 69.088,
+  "final_top5": 88.844,
+  "best_top1": 69.114,
+  "best_epoch": 86,
+  "train_hours": 14.761624387833807,
+  "img_per_s_median": 2232.1689725650476
+}

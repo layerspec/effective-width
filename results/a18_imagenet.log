@@ -1,0 +1,18 @@
+=== fetch ImageNet-1k to /workspace/imagenet Thu Sep 10 23:47:12 UTC 2026 ===
+train 1281167 val 50000
+=== resnet18_full_s1 start Thu Sep 10 23:55:01 UTC 2026 ===
+=== resnet18_full_s0 start Thu Sep 10 23:55:01 UTC 2026 ===
+=== resnet18_full_s0 end Fri Sep 11 15:25:07 UTC 2026 ===
+=== resnet18_full_s1 end Fri Sep 11 15:25:12 UTC 2026 ===
+=== widths from resnet18_full_s0 (6,400 training images, after ReLU, stage rule) Fri Sep 11 15:25:12 UTC 2026 ===
+ruler_act widths: 44 64 63 64 128 128 127 255 255 255 510 509 511
+uniform widths: 64 64 64 64 127 127 127 254 254 254 508 508 508
+=== resnet18_ruler_act_s0 start Fri Sep 11 15:25:25 UTC 2026 ===
+=== resnet18_ruler_act_s1 start Fri Sep 11 15:25:25 UTC 2026 ===
+=== resnet18_ruler_act_s1 end Sat Sep 12 06:28:32 UTC 2026 ===
+=== resnet18_ruler_act_s0 end Sat Sep 12 06:59:05 UTC 2026 ===
+=== resnet18_uniform_s0 start Sat Sep 12 06:59:05 UTC 2026 ===
+=== resnet18_uniform_s1 start Sat Sep 12 06:59:05 UTC 2026 ===
+=== resnet18_uniform_s1 end Sat Sep 12 22:15:31 UTC 2026 ===
+=== resnet18_uniform_s0 end Sat Sep 12 22:15:31 UTC 2026 ===
+=== A18-ImageNet done Sat Sep 12 22:15:31 UTC 2026 ===
