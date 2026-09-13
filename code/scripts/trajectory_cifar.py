@@ -166,12 +166,17 @@ class GPUCifarTrain:
     distribution, no CPU data loading: on a pod whose CPUs are shared between
     several runs the loader, not the GPU, was the bottleneck (2026-09-08)."""
 
-    def __init__(self, root, batch_size, device, seed, dataset: str = "cifar10"):
+    def __init__(self, root, batch_size, device, seed, dataset: str = "cifar10",
+                 indices=None, lmap: dict | None = None):
         from torchvision import datasets
         cls = datasets.CIFAR100 if dataset == "cifar100" else datasets.CIFAR10
         ds = cls(root, train=True, download=True)
-        self.x = torch.from_numpy(ds.data).permute(0, 3, 1, 2).contiguous().to(device)   # N,3,32,32 uint8
-        self.y = torch.tensor(ds.targets, device=device)
+        data, targets = ds.data, list(ds.targets)
+        if indices is not None:                       # plan 9.12: a class subset, labels renumbered
+            data = data[np.asarray(indices)]
+            targets = [lmap[int(targets[i])] if lmap else int(targets[i]) for i in indices]
+        self.x = torch.from_numpy(data).permute(0, 3, 1, 2).contiguous().to(device)   # N,3,32,32 uint8
+        self.y = torch.tensor(targets, device=device)
         mean, std, _ = CIFAR_STATS[dataset]
         self.mean = torch.tensor(mean, device=device).view(1, 3, 1, 1)
         self.std = torch.tensor(std, device=device).view(1, 3, 1, 1)
@@ -255,6 +260,10 @@ def main(argv=None) -> int:
                    help="smoke-test aid: measure on this many test batches only")
     p.add_argument("--gpu-data", action="store_true",
                    help="hold the training split on the device and augment there (no loader workers)")
+    p.add_argument("--classes", type=int, default=None,
+                   help="plan 9.12: train on the first K classes of the fixed permutation (scripts/class_subset.py), K-way head")
+    p.add_argument("--per-class", type=int, default=None,
+                   help="plan 9.12: at most this many training images per class (seeded choice)")
     p.add_argument("--widths", type=int, nargs=13, default=None, metavar="W",
                    help="vgg16_bn: the 13 conv widths (analysis-plan 9.5 arms b/c/d); "
                         "resnet18: stem + per stage [out, mid0, mid1] (plan 9.11, scripts/resnet_widths.py)")
@@ -273,9 +282,28 @@ def main(argv=None) -> int:
     num_classes = CIFAR_STATS[args.dataset][2]
     train_loader, test_loader = cifar_loaders(args.data_root, args.batch_size,
                                               args.workers, args.dataset)
+    sub_idx, sub_map = None, None
+    if args.classes is not None or args.per_class is not None:     # plan 9.12
+        import json
+        from scripts.class_subset import classes_for, label_map, subset_indices, RemapSubset, describe
+        classes = classes_for(num_classes, args.classes)
+        sub_map = label_map(classes)
+        tr_ds, te_ds = train_loader.dataset, test_loader.dataset
+        sub_idx = subset_indices(tr_ds.targets, classes, args.per_class, seed=0)
+        te_idx = subset_indices(te_ds.targets, classes, None)
+        train_loader = torch.utils.data.DataLoader(RemapSubset(tr_ds, sub_idx, sub_map), batch_size=args.batch_size,
+                                                   shuffle=True, num_workers=args.workers, drop_last=True)
+        test_loader = torch.utils.data.DataLoader(RemapSubset(te_ds, te_idx, sub_map), batch_size=args.batch_size,
+                                                  shuffle=False, num_workers=args.workers)
+        num_classes = len(classes)
+        info = describe(args.dataset, CIFAR_STATS[args.dataset][2], args.classes, args.per_class, 0)
+        info.update({"n_train": int(len(sub_idx)), "n_test": int(len(te_idx))})
+        with open(os.path.join(args.out, "subset.json"), "w") as fh:
+            json.dump(info, fh, indent=2)
+        print(f"class subset: {num_classes} classes, {len(sub_idx)} train / {len(te_idx)} test images", flush=True)
     if args.gpu_data:
         train_loader = GPUCifarTrain(args.data_root, args.batch_size, args.device, args.seed,
-                                     dataset=args.dataset)
+                                     dataset=args.dataset, indices=sub_idx, lmap=sub_map)
     if args.widths is None:
         model = ARCHS[args.arch](num_classes)
     elif args.arch == "resnet18":

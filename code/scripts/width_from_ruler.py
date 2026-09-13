@@ -49,15 +49,23 @@ IMAGENET_STATS = ((0.485, 0.456, 0.406), (0.229, 0.224, 0.225), 1000)
 
 
 def train_image_loader(root: str, n_images: int, batch_size: int, workers: int, seed: int,
-                       dataset: str = "cifar10"):
+                       dataset: str = "cifar10", classes: int | None = None, per_class: int | None = None):
     """`n_images` CIFAR training images, a seeded random subset, test-time
-    transform (no augmentation), deterministic order."""
+    transform (no augmentation), deterministic order.  With `classes` / `per_class`
+    the pool is the plan-9.12 class subset (same classes and per-class choice as
+    trajectory_cifar.py --classes/--per-class), and n_images is capped at its size."""
     from torchvision import datasets, transforms
     mean, std, _ = CIFAR_STATS[dataset]
     tf = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean, std)])
     cls = datasets.CIFAR100 if dataset == "cifar100" else datasets.CIFAR10
     ds = cls(root, train=True, download=True, transform=tf)
-    idx = torch.randperm(len(ds), generator=torch.Generator().manual_seed(seed))[:n_images].tolist()
+    if classes is not None or per_class is not None:
+        from scripts.class_subset import classes_for, subset_indices
+        pool = subset_indices(ds.targets, classes_for(CIFAR_STATS[dataset][2], classes), per_class, seed=0)
+        order = torch.randperm(len(pool), generator=torch.Generator().manual_seed(seed))[:n_images]
+        idx = [int(pool[i]) for i in order.tolist()]
+    else:
+        idx = torch.randperm(len(ds), generator=torch.Generator().manual_seed(seed))[:n_images].tolist()
     return torch.utils.data.DataLoader(torch.utils.data.Subset(ds, idx), batch_size=batch_size,
                                        shuffle=False, num_workers=workers)
 
@@ -158,6 +166,8 @@ def main(argv=None) -> int:
                    help="imagenet: --data is an ImageFolder of TRAINING images (plan 9.11)")
     p.add_argument("--arch", choices=("vgg16_bn", "resnet18"), default="vgg16_bn",
                    help="resnet18 applies the stage rule of scripts/resnet_widths.py (plan 9.11)")
+    p.add_argument("--classes", type=int, default=None, help="plan 9.12: the K-class subset the checkpoint was trained on")
+    p.add_argument("--per-class", type=int, default=None, help="plan 9.12: per-class cap used in training")
     p.add_argument("--tensor", choices=("conv", "act"), default="conv",
                    help="read k* at the conv output (default; the paper's ruler) or after the ReLU, "
                         "the tensor the next layer consumes (analysis-plan 9.8, arm ruler_act)")
@@ -168,7 +178,10 @@ def main(argv=None) -> int:
         loader = imagenet_train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed)
     else:
         num_classes = CIFAR_STATS[a.dataset][2]
-        loader = train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed, dataset=a.dataset)
+        if a.classes is not None:
+            num_classes = a.classes
+        loader = train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed, dataset=a.dataset,
+                                    classes=a.classes, per_class=a.per_class)
     if a.arch == "resnet18":
         if a.tensor != "act":
             raise SystemExit("--arch resnet18 reads widths after the ReLU only (plan 9.11): use --tensor act")
