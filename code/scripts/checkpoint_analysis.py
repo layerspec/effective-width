@@ -2276,13 +2276,14 @@ def section_a23(results: str, latex: str | None = None) -> None:
 
 
 # ------------------- section 25: A24, class-count control for the ten-class reading (analysis-plan 9.12)
-A24_ARMS = (("c10_full", "CIFAR-10, 50k", 10), ("c10_pc640", "CIFAR-10, 6.4k", 10),
+A24_ARMS = (("c10_full", "CIFAR-10, 50k", 10), ("c10_pc640", "CIFAR-10, 6.4k", 10), ("c10_pc640_e780", "CIFAR-10, 6.4k, 39k steps", 10),
             ("c100_k13", "CIFAR-100, 13 classes", 13), ("c100_k20", "CIFAR-100, 20 classes", 20),
             ("c100_k50", "CIFAR-100, 50 classes", 50), ("c100_k100", "CIFAR-100, 100 classes", 100))
 
 
 def _a24_read(results: str, arm: str, seed: int):
-    f = os.path.join(results, "a24_classes", f"{arm}_s{seed}", "widths_act.json")
+    sub = "a25_steps" if arm == "c10_pc640_e780" else "a24_classes"
+    f = os.path.join(results, sub, f"{arm}_s{seed}", "widths_act.json")
     if not os.path.exists(f):
         return None
     j = json.load(open(f))
@@ -2290,7 +2291,7 @@ def _a24_read(results: str, arm: str, seed: int):
     k999 = np.array([l["k_star_0.999"] for l in L], dtype=float)
     C = np.array([l["C"] for l in L], dtype=float)
     acc = None
-    t = os.path.join(results, "a24_classes", f"{arm}_s{seed}", "trajectory_layers.csv")
+    t = os.path.join(results, sub, f"{arm}_s{seed}", "trajectory_layers.csv")
     if os.path.exists(t):
         d = pd.read_csv(t); d = d[d.epoch == d.epoch.max()]
         if len(d) and d.epoch.iloc[0] >= 100:
@@ -2349,6 +2350,12 @@ def section_a24(results: str) -> None:
         print(f"  P9.34 (CIFAR-10 at 6,400 images: d <= CIFAR-10 at 50,000 ({ref:.2f}) + 0.15, every seed): "
               f"{' '.join(f'{r['d']:.2f}' for r in R['c10_pc640'].values())} -> {'HOLDS' if ok else 'does not hold'}")
         print(f"    p: 50k {' '.join(f'{r['p']:.3f}' for r in R['c10_full'].values())}  vs 6.4k {' '.join(f'{r['p']:.3f}' for r in R['c10_pc640'].values())}")
+    if R["c10_pc640_e780"]:      # plan 9.13, P9.35
+        ds = [r["d"] for r in R["c10_pc640_e780"].values()]
+        print(f"  P9.35 (plan 9.13; 6,400 images at 39,000 steps: d <= 0.62, every seed): {' '.join(f'{x:.2f}' for x in ds)} -> "
+              f"{'HOLDS (steps)' if all(x <= 0.62 for x in ds) else ('does not hold (images)' if all(x >= 0.70 for x in ds) else 'in between; report both')}"
+              f"; p {' '.join(f'{r['p']:.3f}' for r in R['c10_pc640_e780'].values())}, first-layer width "
+              f"{' '.join(str(r['widths'][0]) for r in R['c10_pc640_e780'].values())}")
     if R["c10_full"] and R["c100_k13"]:
         print(f"  exploratory: ten CIFAR-10 classes (50k) d {np.mean([r['d'] for r in R['c10_full'].values()]):.2f} vs thirteen CIFAR-100 classes d "
               f"{np.mean([r['d'] for r in R['c100_k13'].values()]):.2f}")
