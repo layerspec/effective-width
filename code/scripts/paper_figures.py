@@ -246,6 +246,38 @@ def fig_blockout(results: str, out: str) -> str | None:
     return path
 
 
+def fig_a24(results: str, out: str) -> str | None:
+    """Class count at fixed architecture and recipe (analysis-plan 9.12): the
+    fraction of parameters the post-activation ruler keeps, and the last three
+    layers' k*(0.999)/C, against the number of classes; CIFAR-100 nested subsets
+    (three seeds) plus the ten-class CIFAR-10 task on 50k and on 6.4k images."""
+    f = os.path.join(results, "a24_classes", "summary.csv")
+    if not os.path.exists(f):
+        return None
+    d = pd.read_csv(f)
+    series = ["c100_k13", "c100_k20", "c100_k50", "c100_k100"]
+    _style()
+    fig, axes = plt.subplots(1, 2, figsize=(ONE_COL, 2.0), constrained_layout=True)
+    for ax, col, ylabel in ((axes[0], "p", "fraction of parameters kept"),
+                            (axes[1], "d", r"last three layers, $k^*/C$")):
+        sub = d[d.arm.isin(series)]
+        mean = sub.groupby("K")[col].mean()
+        ax.plot(mean.index, mean.values, color=SERIES[0], lw=1.0, zorder=2)
+        ax.scatter(sub.K, sub[col], s=7, color=SERIES[0], alpha=0.7, zorder=3, label="CIFAR-100 subsets")
+        for arm, filled, lab in (("c10_full", True, "CIFAR-10, 50k images"), ("c10_pc640", False, "CIFAR-10, 6.4k images")):
+            r = d[d.arm == arm]
+            ax.scatter(r.K, r[col], s=14, marker="s", facecolors=SERIES[1] if filled else "white",
+                       edgecolors=SERIES[1], linewidths=0.8, zorder=4, label=lab)
+        ax.set_xscale("log"); ax.set_xticks([10, 20, 50, 100]); ax.set_xticklabels(["10", "20", "50", "100"]); ax.set_xlim(8.5, 115)
+        ax.minorticks_off()
+        ax.set_ylim(0.45, 1.02); ax.set_xlabel("classes"); ax.set_ylabel(ylabel)
+        _tidy(ax)
+    axes[0].legend(frameon=False, fontsize=5, loc="lower right")
+    path = os.path.join(out, "fig9_classes.pdf")
+    fig.savefig(path); fig.savefig(path.replace(".pdf", ".png")); plt.close(fig)
+    return path
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--results", default="../results")
@@ -253,7 +285,7 @@ def main(argv=None) -> int:
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     for f in [fig_profile_r50(a.results, a.out), fig_metrics_subset(a.results, a.out),
-              fig_threshold_vgg(a.results, a.out)] + fig_trajectory(a.results, a.out) + [fig_trajectory_grid(a.results, a.out)] + fig_decompose(a.results, a.out) + [fig_blockout(a.results, a.out)]:
+              fig_threshold_vgg(a.results, a.out)] + fig_trajectory(a.results, a.out) + [fig_trajectory_grid(a.results, a.out)] + fig_decompose(a.results, a.out) + [fig_blockout(a.results, a.out), fig_a24(a.results, a.out)]:
         if f:
             print("wrote", f)
     return 0

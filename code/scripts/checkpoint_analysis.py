@@ -2275,6 +2275,89 @@ def section_a23(results: str, latex: str | None = None) -> None:
                 print(f"  appended the ImageNet-1k block to {latex}")
 
 
+# ------------------- section 25: A24, class-count control for the ten-class reading (analysis-plan 9.12)
+A24_ARMS = (("c10_full", "CIFAR-10, 50k", 10), ("c10_pc640", "CIFAR-10, 6.4k", 10),
+            ("c100_k13", "CIFAR-100, 13 classes", 13), ("c100_k20", "CIFAR-100, 20 classes", 20),
+            ("c100_k50", "CIFAR-100, 50 classes", 50), ("c100_k100", "CIFAR-100, 100 classes", 100))
+
+
+def _a24_read(results: str, arm: str, seed: int):
+    f = os.path.join(results, "a24_classes", f"{arm}_s{seed}", "widths_act.json")
+    if not os.path.exists(f):
+        return None
+    j = json.load(open(f))
+    L = j["layers"]
+    k999 = np.array([l["k_star_0.999"] for l in L], dtype=float)
+    C = np.array([l["C"] for l in L], dtype=float)
+    acc = None
+    t = os.path.join(results, "a24_classes", f"{arm}_s{seed}", "trajectory_layers.csv")
+    if os.path.exists(t):
+        d = pd.read_csv(t); d = d[d.epoch == d.epoch.max()]
+        if len(d) and d.epoch.iloc[0] >= 100:
+            acc = float(d.test_acc.iloc[0])
+    return {"p": j["params"]["ruler"] / j["params"]["full"], "widths": j["widths"]["ruler"],
+            "frac": k999 / C, "d": float(np.mean(k999[-3:] / C[-3:])), "last": float(k999[-1]),
+            "ok": all(l["ok"] for l in L), "acc": acc}
+
+
+def section_a24(results: str) -> None:
+    base = os.path.join(results, "a24_classes")
+    if not os.path.isdir(base):
+        return
+    R = {arm: {s: _a24_read(results, arm, s) for s in range(3)} for arm, _, _ in A24_ARMS}
+    R = {a: {s: r for s, r in v.items() if r} for a, v in R.items()}
+    if not any(R.values()):
+        return
+    hdr("25. A24: class count at fixed architecture and recipe, widths after the ReLU (analysis-plan 9.12)")
+    print(f"  {'arm':24s} {'K':>3s} {'n':>2s}  {'p(K) params':>26s}  {'d(K) last-3':>26s}  {'last k*':>12s}  {'acc':>6s}  gate")
+    for arm, label, K in A24_ARMS:
+        v = R[arm]
+        if not v:
+            print(f"  {label:24s} {K:3d}  0  (no readings)"); continue
+        ps = [v[s]["p"] for s in sorted(v)]; ds = [v[s]["d"] for s in sorted(v)]
+        accs = [v[s]["acc"] for s in sorted(v) if v[s]["acc"] is not None]
+        print(f"  {label:24s} {K:3d} {len(v):2d}  {' '.join(f'{x:.3f}' for x in ps):>17s} ({np.mean(ps):.3f})  "
+              f"{' '.join(f'{x:.2f}' for x in ds):>17s} ({np.mean(ds):.2f})  "
+              f"{' '.join(f'{v[s]['last']:.0f}' for s in sorted(v)):>12s}  "
+              f"{np.mean(accs) if accs else float('nan'):6.2f}  {'ok' if all(v[s]['ok'] for s in v) else 'FAIL'}")
+    series = ["c100_k13", "c100_k20", "c100_k50", "c100_k100"]
+    seeds = [s for s in range(3) if all(s in R[a] for a in series)]
+    if seeds:
+        p31 = all(all(R[series[i]][s]["p"] < R[series[i + 1]][s]["p"] for i in range(3)) for s in seeds)
+        print(f"\n  P9.31 (p(K) strictly increasing over 13 < 20 < 50 < 100, every seed): {len(seeds)} seeds -> {'HOLDS' if p31 else 'does not hold'}")
+        for s in seeds:
+            print(f"    seed {s}: " + " < ".join(f"{R[a][s]['p']:.3f}" for a in series))
+        def ok32(s):
+            d = [R[a][s]["d"] for a in series]
+            return d[0] < 0.6 and d[-1] > 0.9 and all(d[i] <= d[i + 1] for i in range(3))
+        p32 = all(ok32(s) for s in seeds)
+        print(f"  P9.32 (d(13) < 0.6, d(100) > 0.9, monotone; every seed): -> {'HOLDS' if p32 else 'does not hold'}")
+        for s in seeds:
+            print(f"    seed {s}: " + " -> ".join(f"{R[a][s]['d']:.2f}" for a in series) + ("" if ok32(s) else "  (fails)"))
+        W = np.array([[np.mean([R[a][s]["widths"][l] for s in seeds]) for l in range(7)] for a in series])   # K x 7
+        ratio = W.max(0) / W.min(0)
+        p33 = bool((ratio < 1.10).all())
+        print(f"  P9.33 (first seven layers: max/min over K < 1.10, seed-mean widths): {' '.join(f'{r:.2f}' for r in ratio)} -> {'HOLDS' if p33 else 'does not hold'}")
+        # exploratory: last-layer k* against K - 1
+        last = np.array([np.mean([R[a][s]["last"] for s in seeds]) for a in series]); Ks = np.array([13, 20, 50, 100])
+        from scipy.stats import spearmanr, pearsonr
+        print(f"  exploratory: last-layer k*(0.999) {' '.join(f'{x:.0f}' for x in last)} vs K-1 {list(Ks - 1)}: "
+              f"Pearson r {pearsonr(Ks - 1, last)[0]:.2f}, ratio k*/(K-1) {' '.join(f'{x:.1f}' for x in last / (Ks - 1))}")
+    if R["c10_full"] and R["c10_pc640"]:
+        ref = np.mean([r["d"] for r in R["c10_full"].values()])
+        ok = all(r["d"] <= ref + 0.15 for r in R["c10_pc640"].values())
+        print(f"  P9.34 (CIFAR-10 at 6,400 images: d <= CIFAR-10 at 50,000 ({ref:.2f}) + 0.15, every seed): "
+              f"{' '.join(f'{r['d']:.2f}' for r in R['c10_pc640'].values())} -> {'HOLDS' if ok else 'does not hold'}")
+        print(f"    p: 50k {' '.join(f'{r['p']:.3f}' for r in R['c10_full'].values())}  vs 6.4k {' '.join(f'{r['p']:.3f}' for r in R['c10_pc640'].values())}")
+    if R["c10_full"] and R["c100_k13"]:
+        print(f"  exploratory: ten CIFAR-10 classes (50k) d {np.mean([r['d'] for r in R['c10_full'].values()]):.2f} vs thirteen CIFAR-100 classes d "
+              f"{np.mean([r['d'] for r in R['c100_k13'].values()]):.2f}")
+    rows = [{"arm": arm, "label": label, "K": K, "seed": s, "p": r["p"], "d": r["d"], "last": r["last"], "acc": r["acc"],
+             **{f"w{l}": r["widths"][l] for l in range(13)}} for arm, label, K in A24_ARMS for s, r in R[arm].items()]
+    pd.DataFrame(rows).to_csv(os.path.join(base, "summary.csv"), index=False)
+    print(f"  wrote {os.path.join(base, 'summary.csv')}")
+
+
 def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--results", default="../results")
@@ -2326,6 +2409,7 @@ def main(argv=None) -> int:
     section_estimators(a.results, latex=a.latex_estimators)
     section_repr(a.results)
     section_a23(a.results, latex=a.latex_a18)
+    section_a24(a.results)
     return 0
 
 

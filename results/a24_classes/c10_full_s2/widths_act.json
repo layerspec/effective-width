@@ -1,0 +1,212 @@
+{
+  "checkpoint": "../results/round3_pt/a5_vgg16_bn_none_s2/vgg16_bn_cifar10_final.pt",
+  "n_images": 6400,
+  "positions": 16,
+  "seed": 0,
+  "split": "train",
+  "min_width": 8,
+  "layers": [
+    {
+      "layer": "features.2",
+      "C": 64,
+      "r_max": 27.0,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 20,
+      "k_star_0.999": 49
+    },
+    {
+      "layer": "features.5",
+      "C": 64,
+      "r_max": 64.0,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 46,
+      "k_star_0.999": 64
+    },
+    {
+      "layer": "features.9",
+      "C": 128,
+      "r_max": 128.0,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 95,
+      "k_star_0.999": 127
+    },
+    {
+      "layer": "features.12",
+      "C": 128,
+      "r_max": 128.0,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 107,
+      "k_star_0.999": 128
+    },
+    {
+      "layer": "features.16",
+      "C": 256,
+      "r_max": 256.0,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 211,
+      "k_star_0.999": 255
+    },
+    {
+      "layer": "features.19",
+      "C": 256,
+      "r_max": 256.0,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 214,
+      "k_star_0.999": 255
+    },
+    {
+      "layer": "features.22",
+      "C": 256,
+      "r_max": 256.0,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 212,
+      "k_star_0.999": 255
+    },
+    {
+      "layer": "features.26",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 344,
+      "k_star_0.999": 504
+    },
+    {
+      "layer": "features.29",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 209,
+      "k_star_0.999": 483
+    },
+    {
+      "layer": "features.32",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 139,
+      "k_star_0.999": 470
+    },
+    {
+      "layer": "features.36",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 25600,
+      "n_over_C": 50.0,
+      "ok": true,
+      "k_star_0.95": 37,
+      "k_star_0.999": 348
+    },
+    {
+      "layer": "features.39",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 25600,
+      "n_over_C": 50.0,
+      "ok": true,
+      "k_star_0.95": 36,
+      "k_star_0.999": 287
+    },
+    {
+      "layer": "features.42",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 25600,
+      "n_over_C": 50.0,
+      "ok": true,
+      "k_star_0.95": 36,
+      "k_star_0.999": 168
+    }
+  ],
+  "widths": {
+    "full": [
+      64,
+      64,
+      128,
+      128,
+      256,
+      256,
+      256,
+      512,
+      512,
+      512,
+      512,
+      512,
+      512
+    ],
+    "ruler": [
+      49,
+      64,
+      127,
+      128,
+      255,
+      255,
+      255,
+      504,
+      483,
+      470,
+      348,
+      287,
+      168
+    ],
+    "uniform": [
+      52,
+      52,
+      104,
+      104,
+      208,
+      208,
+      208,
+      417,
+      417,
+      417,
+      417,
+      417,
+      417
+    ],
+    "ruler95": [
+      20,
+      46,
+      95,
+      107,
+      211,
+      214,
+      212,
+      344,
+      209,
+      139,
+      37,
+      36,
+      36
+    ]
+  },
+  "params": {
+    "full": 14728266,
+    "ruler": 9920608,
+    "uniform": 9765319,
+    "ruler95": 2797828
+  },
+  "uniform_factor": 0.814375,
+  "dataset": "cifar10",
+  "num_classes": 10,
+  "tensor": "act"
+}
