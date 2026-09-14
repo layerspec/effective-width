@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # A25 (analysis-plan 9.13): CIFAR-10 at 640 images per class, 780 epochs = 39,000 steps (the full set's step count),
 # three seeds, then the post-ReLU widths on the same 6,400 training images.  Resume-safe, skips finished runs.
-# Usage: cd /Users/ccli/Downloads/effective-width-claude && nohup caffeinate -i code/scripts/run_a25_steps_local.sh >> results/a25_steps.log 2>&1 &
+# Usage: cd <repo> && nohup caffeinate -i code/scripts/run_a25_steps_local.sh >> results/a25_steps.log 2>&1 &
 set -u
 cd "$(dirname "$0")/.."
 PY=${PY:-$HOME/.venvs/effwidth/bin/python}

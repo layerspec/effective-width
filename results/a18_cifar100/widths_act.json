@@ -1,5 +1,5 @@
 {
-  "checkpoint": "/Users/ccli/Downloads/effective-width-claude/results/a18_pt/cifar100/vgg16_bn_full_s0/vgg16_bn_cifar100_final.pt",
+  "checkpoint": "results/a18_pt/cifar100/vgg16_bn_full_s0/vgg16_bn_cifar100_final.pt",
   "n_images": 6400,
   "positions": 16,
   "seed": 0,

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Queued 2026-09-07 after decompose_queue.sh: the projection anchor on two more
 # architectures (submission bar A10), same protocol as the ResNet-50 run.
-cd /Users/ccli/Downloads/effective-width-claude/code
+cd "$(dirname "$0")/../code"
 PY=$HOME/.venvs/effwidth/bin/python
 while pgrep -f 'decompose_queue.sh' > /dev/null; do sleep 120; done
 for m in vgg16_bn resnet18 timm:resnet50.a1_in1k; do

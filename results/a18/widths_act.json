@@ -1,5 +1,5 @@
 {
-  "checkpoint": "/Users/ccli/Downloads/effective-width-claude/results/round3_pt/a5_vgg16_bn_none_s0/vgg16_bn_cifar10_final.pt",
+  "checkpoint": "results/round3_pt/a5_vgg16_bn_none_s0/vgg16_bn_cifar10_final.pt",
   "n_images": 6400,
   "positions": 16,
   "seed": 0,

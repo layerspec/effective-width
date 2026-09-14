@@ -2,7 +2,7 @@
 # Rerun of measure_queue2.sh that skips checkpoints already measured (written
 # 2026-09-07 15:55 in case the first run is interrupted at the end of the day).
 #   nohup caffeinate -i results/measure_queue2_resume.sh >> results/measure_queue2.log 2>&1 &
-cd /Users/ccli/Downloads/effective-width-claude/code
+cd "$(dirname "$0")/../code"
 PY=$HOME/.venvs/effwidth/bin/python
 COMMON="--data ../data/imagenet_val_6400 --device mps --batch-size 32 --workers 2 --positions 16"
 T=../results/local6400/archs/trained

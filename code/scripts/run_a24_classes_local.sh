@@ -5,7 +5,7 @@
 # K = 100 is the CIFAR-100 full-width arm of plan 9.7 (results/a18_pt/cifar100/vgg16_bn_full_s*), not retrained.
 # Then the post-ReLU widths of every final network on its own training subset (all seeds).
 # Resume-safe (trajectory_cifar.py resume.pt) and skips finished runs.
-# Usage: cd /Users/ccli/Downloads/effective-width-claude && nohup caffeinate -i code/scripts/run_a24_classes_local.sh >> results/a24_classes.log 2>&1 &
+# Usage: cd <repo> && nohup caffeinate -i code/scripts/run_a24_classes_local.sh >> results/a24_classes.log 2>&1 &
 set -u
 cd "$(dirname "$0")/.."            # code/
 PY=${PY:-$HOME/.venvs/effwidth/bin/python}

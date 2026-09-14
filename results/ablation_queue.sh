@@ -6,7 +6,7 @@
 #  noise   : 1/f (pink) and white Gaussian inputs, trained and random ResNet-50
 #  coco    : COCO-trained detection backbones on COCO val2017 images (3,200), and the
 #            ImageNet ResNet-50 on the same COCO images (same weights, different data)
-cd /Users/ccli/Downloads/effective-width-claude/code
+cd "$(dirname "$0")/../code"
 PY=$HOME/.venvs/effwidth/bin/python
 while pgrep -f 'projection_queue2.sh|decompose_queue.sh' > /dev/null; do sleep 120; done
 D=../data/imagenet_val_6400; O=../results/ablation

@@ -4,10 +4,10 @@
 # from its resume.pt, finished runs are skipped, and it stops when all three
 # are done.  It waits for any other results/*_queue.sh to finish first.
 #
-#   cd /Users/ccli/Downloads/effective-width-claude && nohup caffeinate -i results/cifar_local.sh >> results/cifar_local.log 2>&1 &
+#   cd <repo> && nohup caffeinate -i results/cifar_local.sh >> results/cifar_local.log 2>&1 &
 #
 # Closing the lid stops it; nothing is lost beyond the current epoch.
-cd /Users/ccli/Downloads/effective-width-claude/code
+cd "$(dirname "$0")/../code"
 PY=$HOME/.venvs/effwidth/bin/python
 while pgrep -f 'results/[a-z_0-9]*_queue[0-9]*.sh' > /dev/null; do sleep 120; done
 run() {

@@ -1,37 +1,37 @@
 === trajectory start 10:42
 schedule: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   [measure] epoch   0  test acc 10.00%  k*(.95)/C median 0.281  rho(depth) -0.59  (34s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch   1/100  loss 1.035  (82s)
   [measure] epoch   1  test acc 60.25%  k*(.95)/C median 0.469  rho(depth) -0.12  (33s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch   2/100  loss 0.956  (80s)
   [measure] epoch   2  test acc 67.85%  k*(.95)/C median 0.443  rho(depth) -0.16  (34s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch   3/100  loss 0.726  (81s)
   [measure] epoch   3  test acc 73.95%  k*(.95)/C median 0.406  rho(depth) -0.12  (33s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch   4/100  loss 0.740  (81s)
   epoch   5/100  loss 0.590  (81s)
   [measure] epoch   5  test acc 77.23%  k*(.95)/C median 0.344  rho(depth) -0.15  (33s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch   6/100  loss 0.447  (81s)
   epoch   7/100  loss 0.452  (87s)
   [measure] epoch   7  test acc 79.83%  k*(.95)/C median 0.320  rho(depth) -0.21  (33s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch   8/100  loss 0.488  (81s)
   epoch   9/100  loss 0.503  (86s)
   epoch  10/100  loss 0.606  (91s)
   [measure] epoch  10  test acc 82.58%  k*(.95)/C median 0.266  rho(depth) -0.51  (33s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch  11/100  loss 0.396  (80s)
   epoch  12/100  loss 0.438  (86s)
@@ -39,7 +39,7 @@ schedule: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   epoch  14/100  loss 0.394  (97s)
   epoch  15/100  loss 0.405  (94s)
   [measure] epoch  15  test acc 84.52%  k*(.95)/C median 0.184  rho(depth) -0.68  (34s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch  16/100  loss 0.450  (91s)
   epoch  17/100  loss 0.334  (99s)
@@ -47,7 +47,7 @@ schedule: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   epoch  19/100  loss 0.444  (97s)
   epoch  20/100  loss 0.384  (93s)
   [measure] epoch  20  test acc 82.56%  k*(.95)/C median 0.170  rho(depth) -0.66  (39s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch  21/100  loss 0.331  (82s)
   epoch  22/100  loss 0.447  (103s)
@@ -60,7 +60,7 @@ schedule: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   epoch  29/100  loss 0.299  (91s)
   epoch  30/100  loss 0.410  (91s)
   [measure] epoch  30  test acc 83.49%  k*(.95)/C median 0.172  rho(depth) -0.67  (35s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch  31/100  loss 0.274  (82s)
   epoch  32/100  loss 0.304  (83s)
@@ -73,7 +73,7 @@ schedule: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   epoch  39/100  loss 0.239  (98s)
   epoch  40/100  loss 0.433  (92s)
   [measure] epoch  40  test acc 84.09%  k*(.95)/C median 0.186  rho(depth) -0.65  (34s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch  41/100  loss 0.400  (93s)
   epoch  42/100  loss 0.316  (94s)
@@ -86,7 +86,7 @@ schedule: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   epoch  49/100  loss 0.380  (89s)
   epoch  50/100  loss 0.188  (89s)
   [measure] epoch  50  test acc 86.18%  k*(.95)/C median 0.195  rho(depth) -0.65  (34s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch  51/100  loss 0.288  (81s)
   epoch  52/100  loss 0.437  (82s)
@@ -99,7 +99,7 @@ schedule: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   epoch  59/100  loss 0.234  (92s)
   epoch  60/100  loss 0.354  (99s)
   [measure] epoch  60  test acc 87.60%  k*(.95)/C median 0.197  rho(depth) -0.64  (34s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch  61/100  loss 0.226  (82s)
   epoch  62/100  loss 0.130  (89s)
@@ -112,7 +112,7 @@ schedule: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   epoch  69/100  loss 0.187  (90s)
   epoch  70/100  loss 0.286  (90s)
   [measure] epoch  70  test acc 86.76%  k*(.95)/C median 0.221  rho(depth) -0.64  (33s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch  71/100  loss 0.191  (81s)
   epoch  72/100  loss 0.289  (83s)
@@ -125,7 +125,7 @@ schedule: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   epoch  79/100  loss 0.145  (91s)
   epoch  80/100  loss 0.073  (93s)
   [measure] epoch  80  test acc 90.32%  k*(.95)/C median 0.242  rho(depth) -0.60  (34s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch  81/100  loss 0.050  (82s)
   epoch  82/100  loss 0.076  (85s)
@@ -138,7 +138,7 @@ schedule: [0, 1, 2, 3, 5, 7, 10, 15, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   epoch  89/100  loss 0.045  (88s)
   epoch  90/100  loss 0.021  (87s)
   [measure] epoch  90  test acc 92.89%  k*(.95)/C median 0.264  rho(depth) -0.60  (34s)
-/private/tmp/claude-501/-Users-ccli-Downloads-effective-width-claude/08f31ea9-3161-4bb3-b7ba-88be503c881b/scratchpad/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<scratch>/venv/lib/python3.11/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
   epoch  91/100  loss 0.014  (81s)
   epoch  92/100  loss 0.010  (84s)

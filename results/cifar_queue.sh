@@ -3,7 +3,7 @@
 # epoch 7 with "Shared memory manager connection has timed out" while four
 # queues shared the CPU.  This one waits until no other queue is running and
 # uses two loader workers.  Log: results/cifar_queue.log
-cd /Users/ccli/Downloads/effective-width-claude/code
+cd "$(dirname "$0")/../code"
 PY=$HOME/.venvs/effwidth/bin/python
 while pgrep -f 'measure_queue.sh|measure_queue2.sh|decompose_queue.sh|projection_queue.sh' > /dev/null; do sleep 120; done
 echo "=== resnet50 seed 0 start $(date) ==="

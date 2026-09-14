@@ -1,4 +1,4 @@
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:759: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:759: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 timm:resnet50.a1_in1k: 53 dense conv layers, covariances in 153s
   conv1                    tau=0.95: k=   5 S_lin= 1.38e+03 S_act= 2.72e+03  tau=0.99: k=  12 S_lin= 1.03e+03 S_act= 1.23e+03  tau=0.999: k=  25 S_lin=      233 S_act=     98.2

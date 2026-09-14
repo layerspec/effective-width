@@ -1,6 +1,6 @@
 #!/bin/bash
 # Queued 2026-09-07 on the Mac (MPS). Log: results/trajectory_queue.log
-cd /Users/ccli/Downloads/effective-width-claude/code
+cd "$(dirname "$0")/../code"
 PY=$HOME/.venvs/effwidth/bin/python
 echo "=== resnet50 seed 0 start $(date) ==="
 $PY scripts/trajectory_cifar.py --arch resnet50 --device mps --epochs 100 --workers 4 --seed 0 --out ../results/trajectory_resnet50

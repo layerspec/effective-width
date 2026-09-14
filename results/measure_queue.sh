@@ -1,7 +1,7 @@
 #!/bin/bash
 # Queued 2026-09-07 after trajectory_queue.sh: four more same-dataset checkpoints
 # for the inverted-residual families on the 6,400-image subset.
-cd /Users/ccli/Downloads/effective-width-claude/code
+cd "$(dirname "$0")/../code"
 PY=$HOME/.venvs/effwidth/bin/python
 while pgrep -f trajectory_queue.sh > /dev/null; do sleep 120; done
 echo "=== inverted-residual extra checkpoints start $(date) ==="

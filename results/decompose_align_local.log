@@ -1,6 +1,6 @@
 === decompose_align_local start Thu Sep 10 11:51:07 CST 2026 ===
 === a2_basic52_s0 (resnet_basic52) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a2_basic52_s0 (../results/round3_pt/a2_basic52_s0//resnet_basic52_cifar10_final.pt): 52 dense conv layers, 281s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -59,7 +59,7 @@ layer4.0.downsample.0  256    512  625.000000  0.082031     0.183594   0.824219 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 52/52 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52;  kappa median 15.8, max 1103.5;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52
 wrote ../results/round3_decompose/a2_basic52_s0_decompose.csv
 === a2_basic52_s1 (resnet_basic52) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a2_basic52_s1 (../results/round3_pt/a2_basic52_s1//resnet_basic52_cifar10_final.pt): 52 dense conv layers, 266s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -118,7 +118,7 @@ layer4.0.downsample.0  256    512  625.000000  0.082031     0.195312   0.824219 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 52/52 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52;  kappa median 15.6, max 1225.8;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52
 wrote ../results/round3_decompose/a2_basic52_s1_decompose.csv
 === a2_basic52_s2 (resnet_basic52) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a2_basic52_s2 (../results/round3_pt/a2_basic52_s2//resnet_basic52_cifar10_final.pt): 52 dense conv layers, 283s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -177,7 +177,7 @@ layer4.0.downsample.0  256    512  625.000000  0.085938     0.195312   0.828125 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 52/52 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52;  kappa median 17.8, max 1165.4;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52
 wrote ../results/round3_decompose/a2_basic52_s2_decompose.csv
 === a2_bottleneck_s0 (resnet50) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a2_bottleneck_s0 (../results/round3_pt/a2_bottleneck_s0//resnet50_cifar10_final.pt): 53 dense conv layers, 169s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -237,7 +237,7 @@ layer4.0.downsample.0 1024   2048  156.250000  0.033203     0.131836   0.665039 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 53/53 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 53/53, tau=0.95: 53/53, tau=0.99: 53/53, tau=0.999: 53/53;  kappa median 31.3, max 8455.8;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 53/53, tau=0.95: 53/53, tau=0.99: 53/53, tau=0.999: 53/53
 wrote ../results/round3_decompose/a2_bottleneck_s0_decompose.csv
 === a2_bottleneck_s1 (resnet50) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a2_bottleneck_s1 (../results/round3_pt/a2_bottleneck_s1//resnet50_cifar10_final.pt): 53 dense conv layers, 166s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -297,7 +297,7 @@ layer4.0.downsample.0 1024   2048  156.250000  0.031250     0.123047   0.666992 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 52/53 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 53/53, tau=0.95: 53/53, tau=0.99: 53/53, tau=0.999: 53/53;  kappa median 33.1, max 23396.0;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 53/53, tau=0.95: 53/53, tau=0.99: 53/53, tau=0.999: 53/53
 wrote ../results/round3_decompose/a2_bottleneck_s1_decompose.csv
 === a2_bottleneck_s2 (resnet50) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a2_bottleneck_s2 (../results/round3_pt/a2_bottleneck_s2//resnet50_cifar10_final.pt): 53 dense conv layers, 163s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -357,7 +357,7 @@ layer4.0.downsample.0 1024   2048  156.250000  0.034180     0.130859   0.669922 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 51/53 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 53/53, tau=0.95: 53/53, tau=0.99: 53/53, tau=0.999: 53/53;  kappa median 39.9, max 57865.4;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 53/53, tau=0.95: 53/53, tau=0.99: 53/53, tau=0.999: 53/53
 wrote ../results/round3_decompose/a2_bottleneck_s2_decompose.csv
 === a2_mobilenetv2_s0 (mobilenetv2) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a2_mobilenetv2_s0 (../results/round3_pt/a2_mobilenetv2_s0//mobilenetv2_cifar10_final.pt): 35 dense conv layers, 33s
                layer   d  C_out     n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -399,7 +399,7 @@ features.17.conv.0.0 160    960  1000.000000  0.162500     0.225000   0.237500  
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 33/35 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 35/35, tau=0.95: 35/35, tau=0.99: 35/35, tau=0.999: 35/35;  kappa median 56.8, max 42784.1;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 35/35, tau=0.95: 35/35, tau=0.99: 35/35, tau=0.999: 35/35
 wrote ../results/round3_decompose/a2_mobilenetv2_s0_decompose.csv
 === a2_mobilenetv2_s1 (mobilenetv2) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a2_mobilenetv2_s1 (../results/round3_pt/a2_mobilenetv2_s1//mobilenetv2_cifar10_final.pt): 35 dense conv layers, 44s
                layer   d  C_out     n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -441,7 +441,7 @@ features.17.conv.0.0 160    960  1000.000000  0.162500     0.231250   0.243750  
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 34/35 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 35/35, tau=0.95: 35/35, tau=0.99: 35/35, tau=0.999: 35/35;  kappa median 63.0, max 54391.9;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 35/35, tau=0.95: 35/35, tau=0.99: 35/35, tau=0.999: 35/35
 wrote ../results/round3_decompose/a2_mobilenetv2_s1_decompose.csv
 === a2_mobilenetv2_s2 (mobilenetv2) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a2_mobilenetv2_s2 (../results/round3_pt/a2_mobilenetv2_s2//mobilenetv2_cifar10_final.pt): 35 dense conv layers, 40s
                layer   d  C_out     n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -483,7 +483,7 @@ features.17.conv.0.0 160    960  1000.000000  0.162500     0.231250   0.243750  
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 34/35 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 35/35, tau=0.95: 35/35, tau=0.99: 35/35, tau=0.999: 35/35;  kappa median 62.3, max 26204.7;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 35/35, tau=0.95: 35/35, tau=0.99: 35/35, tau=0.999: 35/35
 wrote ../results/round3_decompose/a2_mobilenetv2_s2_decompose.csv
 === a5_basic52_so_s0 (resnet_basic52) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_basic52_so_s0 (../results/round3_pt/a5_basic52_so_s0//resnet_basic52_so_cifar10_final.pt): 52 dense conv layers, 283s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -542,7 +542,7 @@ layer4.0.downsample.0  256    512  625.000000  0.382812     0.640625   0.832031 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 52/52 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52;  kappa median 3.9, max 18.4;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52
 wrote ../results/round3_decompose/a5_basic52_so_s0_decompose.csv
 === a5_basic52_so_s1 (resnet_basic52) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_basic52_so_s1 (../results/round3_pt/a5_basic52_so_s1//resnet_basic52_so_cifar10_final.pt): 52 dense conv layers, 301s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -601,7 +601,7 @@ layer4.0.downsample.0  256    512  625.000000  0.378906     0.636719   0.835938 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 52/52 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52;  kappa median 3.8, max 18.7;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52
 wrote ../results/round3_decompose/a5_basic52_so_s1_decompose.csv
 === a5_basic52_so_s2 (resnet_basic52) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_basic52_so_s2 (../results/round3_pt/a5_basic52_so_s2//resnet_basic52_so_cifar10_final.pt): 52 dense conv layers, 315s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -660,7 +660,7 @@ layer4.0.downsample.0  256    512  625.000000  0.382812     0.636719   0.835938 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 52/52 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52;  kappa median 4.4, max 16.7;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52
 wrote ../results/round3_decompose/a5_basic52_so_s2_decompose.csv
 === a5_basic52_srip_s0 (resnet_basic52) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_basic52_srip_s0 (../results/round3_pt/a5_basic52_srip_s0//resnet_basic52_srip_cifar10_final.pt): 52 dense conv layers, 328s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -719,7 +719,7 @@ layer4.0.downsample.0  256    512  625.000000  0.089844     0.222656   0.828125 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 52/52 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52;  kappa median 5.0, max 796.3;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52
 wrote ../results/round3_decompose/a5_basic52_srip_s0_decompose.csv
 === a5_basic52_srip_s1 (resnet_basic52) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_basic52_srip_s1 (../results/round3_pt/a5_basic52_srip_s1//resnet_basic52_srip_cifar10_final.pt): 52 dense conv layers, 317s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -778,7 +778,7 @@ layer4.0.downsample.0  256    512  625.000000  0.089844     0.226562   0.832031 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 52/52 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52;  kappa median 4.7, max 783.7;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52
 wrote ../results/round3_decompose/a5_basic52_srip_s1_decompose.csv
 === a5_basic52_srip_s2 (resnet_basic52) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_basic52_srip_s2 (../results/round3_pt/a5_basic52_srip_s2//resnet_basic52_srip_cifar10_final.pt): 52 dense conv layers, 316s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -837,7 +837,7 @@ layer4.0.downsample.0  256    512  625.000000  0.093750     0.238281   0.824219 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 52/52 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52;  kappa median 4.9, max 770.9;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 52/52, tau=0.95: 52/52, tau=0.99: 52/52, tau=0.999: 52/52
 wrote ../results/round3_decompose/a5_basic52_srip_s2_decompose.csv
 === a5_vgg16_bn_none_s0 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_vgg16_bn_none_s0 (../results/round3_pt/a5_vgg16_bn_none_s0//vgg16_bn_cifar10_final.pt): 13 dense conv layers, 90s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -857,7 +857,7 @@ features.40 4608    512    8.680556  0.068359     0.078125   0.074219    0.07226
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 20.8, max 652.0;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/a5_vgg16_bn_none_s0_decompose.csv
 === a5_vgg16_bn_none_s1 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_vgg16_bn_none_s1 (../results/round3_pt/a5_vgg16_bn_none_s1//vgg16_bn_cifar10_final.pt): 13 dense conv layers, 105s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -877,7 +877,7 @@ features.40 4608    512    8.680556  0.068359     0.078125   0.074219    0.07226
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 16.4, max 397.5;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/a5_vgg16_bn_none_s1_decompose.csv
 === a5_vgg16_bn_none_s2 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_vgg16_bn_none_s2 (../results/round3_pt/a5_vgg16_bn_none_s2//vgg16_bn_cifar10_final.pt): 13 dense conv layers, 99s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -897,7 +897,7 @@ features.40 4608    512    8.680556  0.070312     0.078125   0.074219    0.07226
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 15.0, max 382.3;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/a5_vgg16_bn_none_s2_decompose.csv
 === a5_vgg16_bn_so_s0 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_vgg16_bn_so_s0 (../results/round3_pt/a5_vgg16_bn_so_s0//vgg16_bn_so_cifar10_final.pt): 13 dense conv layers, 108s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -917,7 +917,7 @@ features.40 4608    512    8.680556  0.072266     0.710938   0.107422    0.07617
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 4.0, max 23.2;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/a5_vgg16_bn_so_s0_decompose.csv
 === a5_vgg16_bn_so_s1 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_vgg16_bn_so_s1 (../results/round3_pt/a5_vgg16_bn_so_s1//vgg16_bn_so_cifar10_final.pt): 13 dense conv layers, 88s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -937,7 +937,7 @@ features.40 4608    512    8.680556  0.072266     0.708984   0.109375    0.07617
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 3.9, max 23.6;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/a5_vgg16_bn_so_s1_decompose.csv
 === a5_vgg16_bn_so_s2 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_vgg16_bn_so_s2 (../results/round3_pt/a5_vgg16_bn_so_s2//vgg16_bn_so_cifar10_final.pt): 13 dense conv layers, 95s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -957,7 +957,7 @@ features.40 4608    512    8.680556  0.072266     0.708984   0.107422    0.07617
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 4.1, max 24.5;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/a5_vgg16_bn_so_s2_decompose.csv
 === a5_vgg16_bn_srip_s0 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_vgg16_bn_srip_s0 (../results/round3_pt/a5_vgg16_bn_srip_s0//vgg16_bn_srip_cifar10_final.pt): 13 dense conv layers, 103s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -977,7 +977,7 @@ features.40 4608    512    8.680556  0.070312     0.109375   0.076172    0.07421
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 4.1, max 561.6;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/a5_vgg16_bn_srip_s0_decompose.csv
 === a5_vgg16_bn_srip_s1 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_vgg16_bn_srip_s1 (../results/round3_pt/a5_vgg16_bn_srip_s1//vgg16_bn_srip_cifar10_final.pt): 13 dense conv layers, 103s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -997,7 +997,7 @@ features.40 4608    512    8.680556  0.070312     0.105469   0.078125    0.07421
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 4.1, max 552.4;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/a5_vgg16_bn_srip_s1_decompose.csv
 === a5_vgg16_bn_srip_s2 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 a5_vgg16_bn_srip_s2 (../results/round3_pt/a5_vgg16_bn_srip_s2//vgg16_bn_srip_cifar10_final.pt): 13 dense conv layers, 86s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -1017,7 +1017,7 @@ features.40 4608    512    8.680556  0.070312     0.105469   0.078125    0.07421
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 4.2, max 547.0;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/a5_vgg16_bn_srip_s2_decompose.csv
 === trajectory (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 trajectory (../results/trajectory//vgg16_bn_cifar10_final.pt): 13 dense conv layers, 95s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -1037,7 +1037,7 @@ features.40 4608    512    8.680556  0.068359     0.078125   0.074219    0.07226
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 13.9, max 542.1;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/trajectory_decompose.csv
 === trajectory_resnet50 (resnet50) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 trajectory_resnet50 (../results/trajectory_resnet50//resnet50_cifar10_final.pt): 53 dense conv layers, 166s
                 layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -1097,7 +1097,7 @@ layer4.0.downsample.0 1024   2048  156.250000  0.035156     0.139648   0.667969 
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 53/53 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 53/53, tau=0.95: 53/53, tau=0.99: 53/53, tau=0.999: 53/53;  kappa median 32.0, max 6508.5;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 53/53, tau=0.95: 53/53, tau=0.99: 53/53, tau=0.999: 53/53
 wrote ../results/round3_decompose/trajectory_resnet50_decompose.csv
 === trajectory_seed1 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 trajectory_seed1 (../results/trajectory_seed1//vgg16_bn_cifar10_final.pt): 13 dense conv layers, 101s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
@@ -1117,7 +1117,7 @@ features.40 4608    512    8.680556  0.068359     0.078125   0.074219    0.07226
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 16.1, max 526.3;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/trajectory_seed1_decompose.csv
 === trajectory_seed2 (vgg16_bn) ===
-/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+<site-packages>/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
   super().__init__(loader)
 trajectory_seed2 (../results/trajectory_seed2//vgg16_bn_cifar10_final.pt): 13 dense conv layers, 105s
       layer    d  C_out    n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax

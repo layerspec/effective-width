@@ -1,6 +1,6 @@
 #!/bin/bash
 # A20 datasets (plan 9.9): STL-10, SVHN via torchvision; CIFAR-10-C from Zenodo.
-cd /Users/ccli/Downloads/effective-width-claude
+cd "$(dirname "$0")/.."
 ~/.venvs/effwidth/bin/python -c "
 import torchvision
 torchvision.datasets.STL10('data', split='train', download=True); torchvision.datasets.STL10('data', split='test', download=True)

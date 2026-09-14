@@ -36,3 +36,11 @@ code/*.egg-info/
 code/build/
 # secrets never belong here
 PyPI-Recovery-Codes-*.txt
+# private working files (kept locally, never published)
+CLAUDE.md
+.superpowers/
+output/
+docs/superpowers/
+notes/lane-idea-*.md
+notes/orthogonality-novelty-*.md
+paper/main.out

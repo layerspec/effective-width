@@ -56,7 +56,7 @@ activation，不是 conv）；AlexNet `features.{1,4,7,9,11}`（ReLU）；Squeez
 | `eigspectra_imagenet_pooling-avg_torchvision.csv` | 從 34 MB 的 `eigspectra\|…pooling:avg…` 抽 `source=PyTorch` 的列 | 完整特徵譜，欄位 `n, variance, layer, …`；ResNet-50 每層長度 = C（256/512/1024/2048），可自己重算任何 k* |
 | `eigspectra_imagenet_pooling-avg_additional.csv` | 同上 additional 版 | AlexNet/VGG/SqueezeNet 完整譜 |
 | `manuscript_fig_data.csv` | `figures/manuscript/data/data.csv` | 主圖資料：ED＋SNR＋MRR＋encoding score，ED 值與 pooling-avg 檔完全相同 |
-| `eb_generators.py`, `eb_eigenspectrum.py`, `eb_utils.py` | `activation_models/generators.py` 等 | 上表出處，留底 |
+| （`activation_models/generators.py` 等） | 上表出處 | 他們的程式碼不再收在 repo（授權未明）；要時再 clone |
 
 沒抓：grayscale 變體、`dataset:majajhong2015` 變體、encoding／RSA／n-shot／
 manifold 結果、ZCA 反例。都在 repo，要時再 clone。

@@ -3,7 +3,7 @@
 # (ResNet-101, Wide-ResNet-50-2, ResNeXt-50) and MobileNetV2, trained recipes
 # plus three random seeds each, on the 6,400-image subset.  Referee item:
 # separate depth and width from block type before claiming "bottleneck".
-cd /Users/ccli/Downloads/effective-width-claude/code
+cd "$(dirname "$0")/../code"
 PY=$HOME/.venvs/effwidth/bin/python
 while pgrep -f 'trajectory_queue.sh|measure_queue.sh' > /dev/null; do sleep 120; done
 COMMON="--data ../data/imagenet_val_6400 --device mps --batch-size 32 --workers 2 --positions 16"

@@ -9,7 +9,7 @@ For every convolutional layer of a trained network, we ask how many directions
 in channel space carry its activation variance, as a fraction of the directions
 the layer can attain. The paper is a measurement protocol, three choices that
 silently move published depth profiles, and a comparison of trained networks
-with their own initialisation across seven architecture families.
+with their own initialisation across eleven architecture families.
 
 ## Findings in one paragraph
 
@@ -25,7 +25,11 @@ are different objects. With the protocol fixed, trained networks largely keep th
 architecture gave them and gain a level, and the profile is in place before
 accuracy is; a pre-registered controlled experiment on CIFAR-10 shows the block
 type does not change this, so the one family whose public checkpoints reorder
-their layers, ImageNet ResNet-50, owes it to its training regime.
+their layers, ImageNet ResNet-50, owes it to its data or its recipes. Networks
+built from scratch at the post-activation `k*(0.999)` widths match full width
+on CIFAR-10 at two thirds of the parameters; on CIFAR-100 and ImageNet-1k the
+same widths are the full ones, and a registered class-count control finds the
+margin closing monotonically with the number of classes.
 
 ## Reproducing the numbers
 
@@ -125,6 +129,6 @@ and the paper says so. The git history of that file is the evidence.
 
 ## Status
 
-Draft complete and compiling (2026-09-07); target venue IEEE TPAMI. The
+Draft complete, read through and compiling (2026-09-15); target venue IEEE TPAMI. The
 repository is private until submission. Working notes in Chinese are in
 `notes/status-zh.md`.
