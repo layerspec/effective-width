@@ -1,0 +1,16 @@
+layer           C r_max    n/C  k*.95  k*.999  ruler  ruler95  uniform
+features.2     64    27   1600     14      42     42       14       50
+features.5     64    64   1600     41      63     63       41       50
+features.9    128   128    800     80     127    127       80      100
+features.12   128   128    800    100     128    128      100      100
+features.16   256   256    400    199     254    254      199      201
+features.19   256   256    400    208     255    255      208      201
+features.22   256   256    400    207     255    255      207      201
+features.26   512   512    200    353     503    503      353      401
+features.29   512   512    200    217     493    493      217      401
+features.32   512   512    200    136     471    471      136      401
+features.36   512   512     50     32     281    281       32      401
+features.39   512   512     50     35     228    228       35      401
+features.42   512   512     50     35      73     73       35      401
+params: full 14,728,266  ruler 9,107,873 (0.618)  uniform 9,042,369 (factor 0.783, -0.7% vs ruler)  ruler95 2,724,456 (0.185)
+wrote ../results/a25_steps/c10_pc640_e780_s1/widths_act.json

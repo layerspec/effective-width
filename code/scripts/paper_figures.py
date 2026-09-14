@@ -264,13 +264,15 @@ def fig_a24(results: str, out: str) -> str | None:
         mean = sub.groupby("K")[col].mean()
         ax.plot(mean.index, mean.values, color=SERIES[0], lw=1.0, zorder=2)
         ax.scatter(sub.K, sub[col], s=7, color=SERIES[0], alpha=0.7, zorder=3, label="CIFAR-100 subsets")
-        for arm, filled, lab in (("c10_full", True, "CIFAR-10, 50k images"), ("c10_pc640", False, "CIFAR-10, 6.4k images")):
+        for arm, mk, filled, lab in (("c10_full", "s", True, "CIFAR-10, 50k images"),
+                                     ("c10_pc640", "s", False, "CIFAR-10, 6.4k images, 100 ep."),
+                                     ("c10_pc640_e780", "^", True, "CIFAR-10, 6.4k images, 780 ep.")):
             r = d[d.arm == arm]
-            ax.scatter(r.K, r[col], s=14, marker="s", facecolors=SERIES[1] if filled else "white",
+            ax.scatter(r.K, r[col], s=14, marker=mk, facecolors=SERIES[1] if filled else "white",
                        edgecolors=SERIES[1], linewidths=0.8, zorder=4, label=lab)
         ax.set_xscale("log"); ax.set_xticks([10, 20, 50, 100]); ax.set_xticklabels(["10", "20", "50", "100"]); ax.set_xlim(8.5, 115)
         ax.minorticks_off()
-        ax.set_ylim(0.45, 1.02); ax.set_xlabel("classes"); ax.set_ylabel(ylabel)
+        ax.set_ylim(0.3, 1.02); ax.set_xlabel("classes"); ax.set_ylabel(ylabel)
         _tidy(ax)
     axes[0].legend(frameon=False, fontsize=5, loc="lower right")
     path = os.path.join(out, "fig9_classes.pdf")
