@@ -18,6 +18,12 @@ paper/main.log
 paper/main.blg
 paper/main.aux
 paper/main.bbl
+paper/supp.pdf
+paper/supp.log
+paper/supp.aux
+paper/supp.bbl
+paper/supp.blg
+paper/supp.out
 results/trajectory_queue.log
 results/measure_queue.log
 results/measure_queue2.log

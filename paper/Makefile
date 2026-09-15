@@ -12,7 +12,7 @@
 
 MAIN = main
 
-.PHONY: all watch clean wc todo tectonic
+.PHONY: all watch clean wc todo tectonic supp
 
 all: $(MAIN).pdf
 
@@ -36,4 +36,8 @@ todo:
 
 # Alternative build without a TeX Live install: brew install tectonic
 tectonic:
-	tectonic -X compile $(MAIN).tex --keep-logs
+	tectonic -X compile $(MAIN).tex --keep-logs --keep-intermediates
+
+# Supplementary material; needs main.aux from `make tectonic` for the cross-references (xr)
+supp: tectonic
+	tectonic -X compile supp.tex --keep-logs --keep-intermediates
