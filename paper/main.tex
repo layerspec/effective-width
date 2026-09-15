@@ -434,7 +434,7 @@ step of the curve it is measured on, each subsection is labelled
 \emph{pre-registered} or \emph{exploratory}, and every number is produced
 by a script from the released spectra.
 
-Section~\ref{sec:repro-garg} validates the protocol against both published profiles. Sections~\ref{sec:rmax}--\ref{sec:blockout} quantify the three choices; Sections~\ref{sec:metrics}--\ref{sec:dwsplit} settle the remaining registered comparisons. Section~\ref{sec:learned} compares trained networks with their initialisations, Section~\ref{sec:decompose} decomposes the statistic into its kernel and data factors, and Sections~\ref{sec:projection}, \ref{sec:diagnostic} and \ref{sec:a18} put the measurement to use.
+Section~\ref{sec:repro-garg} validates the protocol against both published profiles. Sections~\ref{sec:rmax}--\ref{sec:blockout} quantify the three choices; Sections~\ref{sec:metrics} and \ref{sec:threshold} settle the remaining registered comparisons and Section~\ref{sec:dwsplit} separates depthwise layers. Section~\ref{sec:learned} compares trained networks with their initialisations, Section~\ref{sec:decompose} decomposes the statistic into its kernel and data factors, and Sections~\ref{sec:projection}, \ref{sec:diagnostic} and \ref{sec:a18} put the measurement to use.
 
 \subsection{Validation Against Published Profiles}
 \label{sec:repro-garg}
@@ -641,9 +641,8 @@ count, and not to PR or $\alpha$.
 \subsection{Threshold Sensitivity}
 \label{sec:threshold}
 
-\emph{Pre-registered; full validation set.} Over
-$\tau \in \{0.9, 0.95, 0.99, 0.999\}$ on VGG-16 the level moves a great
-deal (the last layer reads $0.29$, $0.44$, $0.74$, $0.95$) and the layers
+\emph{Pre-registered; full validation set.} At $\tau = 0.9$, $0.95$,
+$0.99$ and $0.999$ on VGG-16 the level moves a great deal (the last layer reads $0.29$, $0.44$, $0.74$, $0.95$) and the layers
 rise, dip and recover at the same places (supplement, Fig.~S4). Across the
 six ResNet-50 recipes the between-recipe spread narrows with $\tau$ in the
 expected direction: at $0.999$ the per-layer SD is $0.019$ against a step
@@ -734,7 +733,7 @@ architecture and dataset, and training halves the depthwise layers. These
 checkpoints differ in pre-training data, length and framework, so this is
 a statement about the checkpoints one can download.
 
-\emph{Is the block the cause?} The plan (Section~9.1) registered, before
+\emph{Is the block the cause?} The plan (its Section~9.1) registered, before
 its data, the experiment that separates the block from everything else
 that varies between public checkpoints: a basic-block ResNet $[6,6,6,6]$
 and a bottleneck ResNet-50 $[3,4,6,3]$ with the same stage widths, stem
@@ -1032,14 +1031,14 @@ network does not fill the ruler's widths ($0.85$ of $r_{\max}$ against
 $0.74$ at full width): the count is re-made by training rather than
 inherited.
 
-\emph{CIFAR-100 (Section~9.7).} With widths re-read from a CIFAR-100
+\emph{CIFAR-100 (plan Section~9.7).} With widths re-read from a CIFAR-100
 network the last five layers are nearly full ($466$--$490$ of $512$,
 against $40$ on CIFAR-10), the ruler removes $13\%$ of the parameters, and
 the answer reverses: P9.14 fails (the ruler arm loses $0.59$ points),
 P9.15 fails in the direction opposite to P9.7 (the uniform cut is above
 the ruler in nine pairs of nine), and P9.16 holds with $5.8$ points.
 
-\emph{The tensor the next layer consumes (Section~9.8).} The measurement
+\emph{The tensor the next layer consumes (plan Section~9.8).} The measurement
 exposes the cause: the ruler reads the convolution output, where the bound
 holds, but the next layer consumes the post-activation tensor, and the
 ReLU raises the rank where the input is a low-rank RGB patch (the first
@@ -1060,7 +1059,7 @@ measurement is taken at the convolution output because that is where
 $r_{\max}$ bounds it and the factors separate; a design decision reads the
 same profile one tensor later.
 
-\emph{The same arms in the representation (Section~9.9).} By linear CKA
+\emph{The same arms in the representation (plan Section~9.9).} By linear CKA
 \cite{kornblith2019cka} to full-width seed 0 (ceiling $0.906 \pm 0.004$)
 the post-activation widths lie at $0.910$, the convolution-output widths
 at $0.904$ and $\tau = 0.95$ at $0.859$, the gap between the first two
@@ -1075,7 +1074,7 @@ supported) and by $4.8$, $0.6$ and $9.5$ at the convolution-output widths
 (P9.22 holds). The width the ruler removes from the last layers is width
 the task does not use and a probe on another task does.
 
-\emph{ImageNet-1k (Section~9.11).} ResNet-18 from scratch under the
+\emph{ImageNet-1k (plan Section~9.11).} ResNet-18 from scratch under the
 \texttt{torchvision} reference recipe, two seeds per arm, widths read
 after the ReLU. The ruler names the full width: every site but the stem
 reads $0.98$--$1.00$ of its channels at $\tau = 0.999$ (the stem $44$ of
@@ -1087,7 +1086,7 @@ ruler found nothing to allocate. What it establishes is the reading: after
 the ReLU at $\tau = 0.999$ the ruler removes a third of VGG-16's parameters
 on CIFAR-10 and one per cent on CIFAR-100 and on ImageNet-1k.
 
-\emph{Class count, controlled (Sections~9.12 and 9.13).} The plan varied
+\emph{Class count, controlled (plan Sections~9.12 and 9.13).} The plan varied
 the class count alone: nested CIFAR-100 subsets of $13$, $20$, $50$ and
 $100$ classes under one recipe, three seeds each, with the ten-class task
 on $640$ images per class as the image-count control
