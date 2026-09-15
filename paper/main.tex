@@ -278,51 +278,14 @@ the code and the spectra are released (Section~\ref{sec:repro}).
 \section{Method}
 \label{sec:method}
 
-Table~\ref{tab:notation} collects the notation used from here on; each symbol is defined where it first appears.
-
-\begin{table}[t]
-  \caption{Notation.}
-  \label{tab:notation}
-  \centering
-  \scriptsize
-  \setlength{\tabcolsep}{3pt}
-  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\columnwidth}>{\raggedright\arraybackslash}p{0.62\columnwidth}@{}}
-    \toprule
-    Symbol & Meaning \\
-    \midrule
-    $N$, $C$, $H \times W$ & images in the batch; channels and spatial size of a layer's output \\
-    $p$; $n$ & positions sampled per image; observations, $n = Np$ (pooled: $n = N$) \\
-    $\hat{\Sigma}^{\rm pos}$, $\hat{\Sigma}^{\rm pool}$ & position-sampled and globally pooled channel covariance, Eqs.~\eqref{eq:covpos}--\eqref{eq:covpool} \\
-    $\lambda_1 \ge \cdots \ge \lambda_C$ & eigenvalues of the estimated covariance \\
-    $k^*(\tau)$ & principal components reaching a fraction $\tau$ of the variance, Eq.~\eqref{eq:kstar}; $\tau = 0.95$ primary, $0.999$ functional \\
-    PR, erank & participation ratio and effective rank, Eqs.~\eqref{eq:pr}--\eqref{eq:erank} \\
-    $C_{\rm in}$, $C_{\rm out}$, $k_h \times k_w$, $g$ & input and output channels, kernel size and groups of a convolution \\
-    $d = C_{\rm in} k_h k_w$ & dimension of the receptive-field patch as a vector (dense convolution) \\
-    $r_{\max}$ & attainable rank of the convolution output, Eq.~\eqref{eq:rmax}; the denominator of the ruler \\
-    $n/C \ge 50$ & the sample-size gate (Section~\ref{sec:samplesize}); rows below it are not reported \\
-    $W \in \mathbb{R}^{C_{\rm out} \times d}$ & the kernel as a matrix; $W = P W_{\circ}$ its polar decomposition, $W_{\circ}$ the nearest isometry \\
-    $\Sigma_{\rm patch}$; $\Sigma_{\rm out}$ & patch covariance; convolution-output covariance, $\Sigma_{\rm out} = W \Sigma_{\rm patch} W^{\top}$ (Section~\ref{sec:decompose}) \\
-    $\kappa = \sigma_{\max} / \sigma_{\min}$ & condition number of $W$ over its numerical rank \\
-    $\Sigma_{\rm act}^{(\ell)}$ & post-activation channel covariance feeding layer $\ell + 1$ (Proposition~\ref{prop:depth}) \\
-    $\rho$; T--T, T--R, R--R & Spearman correlation between two layer profiles; trained--trained, trained--random, random--random \\
-    $\rho_{\rm depth}$; subscript stage & correlation with depth index; correlation over ranks taken within each stage \\
-    step (jitter) & median absolute difference between adjacent layers of one profile \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-
 \subsection{The Measured Object}
 \label{sec:object}
 
-Let a convolutional layer produce an output tensor
-$Y \in \mathbb{R}^{N \times C \times H \times W}$ over a batch of $N$ images.
-Writing $y_{n,:,h,w} \in \mathbb{R}^{C}$ for the vector of channel responses at
-one spatial position of one image, the object of interest is the $C \times C$
-covariance of that vector.
-
-Two estimators of it appear in the literature, and they are not the same
-object. The \emph{position-sampled} estimator draws $p$ spatial positions
-uniformly at random from each image and treats each as one observation, giving
+For a layer with output $Y \in \mathbb{R}^{N \times C \times H \times W}$
+over $N$ images, the object is the $C \times C$ covariance of the channel
+vector $y_{n,:,h,w}$ at one spatial position. The literature estimates it in
+two ways that are not the same object. The \emph{position-sampled}
+estimator draws $p$ positions per image and treats each as an observation,
 $n = Np$:
 \begin{equation}
   \hat{\Sigma}^{\text{pos}}
@@ -330,8 +293,8 @@ $n = Np$:
     \bigl(y_{n,:,h,w}-\bar{y}\bigr)\bigl(y_{n,:,h,w}-\bar{y}\bigr)^{\!\top}.
   \label{eq:covpos}
 \end{equation}
-The \emph{globally-pooled} estimator first averages each feature map over its
-spatial extent and treats each image as one observation, giving $n = N$:
+The \emph{globally pooled} estimator averages each map over space and treats
+each image as an observation, $n = N$:
 \begin{equation}
   \hat{\Sigma}^{\text{pool}}
   = \frac{1}{N-1}\sum_{n}
@@ -341,29 +304,19 @@ spatial extent and treats each image as one observation, giving $n = N$:
   \tilde{y}_n = \frac{1}{HW}\sum_{h,w} y_{n,:,h,w}.
   \label{eq:covpool}
 \end{equation}
-Pooling removes the within-image spatial variance rather than summarising it,
-so the two estimators can order layers differently. Garg \emph{et al.}
-\cite{garg2019lowEffort} used a spatial estimator and Elmoznino and Bonner
-\cite{elmoznino2024highDim} a pooled one. The latter report, in their
-supplementary S6 Text, that their conclusions about encoding performance
-survive when dimensionality is instead computed on the entire flattened
-feature map; but that object is $CHW$-dimensional with images as
-observations---neither Equation~\eqref{eq:covpos} nor
-Equation~\eqref{eq:covpool}---and the dimensionality values under the two
-treatments are not reported. To our knowledge the pooled and
-position-sampled channel covariances have not been compared on the same
-layers. We compute both.
-
-Equation~\eqref{eq:covpool} also has a consequence that matters for
-Section~\ref{sec:samplesize}: under pooling, $n$ is the number of
-\emph{images}, so a layer with $C=2048$ observed over $10^4$ images is
-estimated at $n/C \approx 5$.
+Pooling removes the within-image spatial variance rather than summarising
+it. Garg \emph{et al.} \cite{garg2019lowEffort} used the first and
+Elmoznino and Bonner \cite{elmoznino2024highDim} the second, and the two
+had not been compared on the same layers; we compute both. Under pooling
+$n$ is the image count, so a $2048$-channel layer over $10^4$ images is
+estimated at $n/C \approx 5$, which Section~\ref{sec:samplesize} shows is
+not enough.
 
 \subsection{Summary Statistics}
 \label{sec:stats}
 
-Let $\lambda_1 \ge \cdots \ge \lambda_C \ge 0$ be the eigenvalues of the
-estimated covariance. We report:
+With $\lambda_1 \ge \cdots \ge \lambda_C \ge 0$ the eigenvalues of the
+estimate, we report
 \begin{align}
   k^*(\tau) &= \min\Bigl\{k : \textstyle\sum_{i\le k}\lambda_i
                \big/ \sum_i \lambda_i \ \ge\ \tau \Bigr\},
@@ -375,59 +328,89 @@ estimated covariance. We report:
                     \quad p_i = \lambda_i \big/ \textstyle\sum_j \lambda_j ,
                \label{eq:erank}
 \end{align}
-(The pipeline also records the stable rank and a fitted power-law exponent; neither is used in this paper.) Equation~\eqref{eq:kstar} is the statistic of
-\cite{garg2019lowEffort} and Equation~\eqref{eq:pr} that of
-\cite{elmoznino2024highDim}; Equation~\eqref{eq:erank} is the effective rank of
-Roy and Vetterli \cite{roy2007effectiveRank}, which like PR requires no
-threshold but, unlike PR, responds to the tail of the spectrum. Each is divided by a width, since the question is what fraction of the available width is used; which width is the subject of the next paragraph.
-
-A layer's output at one spatial position is a linear map of its
-receptive-field patch, so the rank of $\hat{\Sigma}$ is bounded above by the
-rank of that map and not by $C$ alone
-\cite{kim2018rank1,han2021rexnet}. The bound holds at the point we record
-the convolution output---before any nonlinearity and before a residual
-addition; a subsequent ReLU or skip connection can raise the rank above it
-\cite{han2021rexnet}. For a convolution with $C_{\rm in}$
-input channels, kernel $k_h \times k_w$ and $g$ groups, the weight matrix is
-block-diagonal with blocks of disjoint support, so the block ranks add and
+the statistics of \cite{garg2019lowEffort}, of \cite{elmoznino2024highDim}
+and of Roy and Vetterli \cite{roy2007effectiveRank}, the last responding to
+the tail of the spectrum where PR does not. Each is divided by a width, and
+which width is the point. A layer's output at one position is a linear map
+of its receptive-field patch, so the rank of $\hat{\Sigma}$ is bounded by the
+rank of that map and not by $C$ \cite{kim2018rank1,han2021rexnet}. For
+$C_{\rm in}$ input channels, a $k_h \times k_w$ kernel and $g$ groups the
+weight matrix is block-diagonal with disjoint supports, so
 \begin{equation}
   r_{\max} = g \cdot \min\!\Bigl(
      \tfrac{C_{\rm in}}{g} k_h k_w,\ \tfrac{C_{\rm out}}{g}
   \Bigr).
   \label{eq:rmax}
 \end{equation}
-Where $r_{\max} < C$, the ratio $k^*/C$ is bounded above by $r_{\max}/C$
-whatever the network has learned, and normalising by $C$ therefore charges the
-layer for width it never had. The case is not hypothetical: a bottleneck's
-$1\!\times\!1$ expansion has $C_{\rm in} = C_{\rm out}/4$, so $k^*/C$
-there cannot exceed $0.25$ by construction. We report $k^*/C$, which is the
-pre-registered statistic and the one comparable with prior work, and
-$k^*/r_{\max}$ alongside it. Section~\ref{sec:rmax} shows what the choice of
-denominator does.
-
-Following the pre-specified analysis plan, $k^*(0.95)/C$ is the primary
-outcome and all other statistics are secondary. We note that
-\cite{garg2019lowEffort} used $\tau = 0.999$, a looser criterion that is more
-exposed to the tail of the spectrum and hence to sampling bias; we use that
-value only when comparing directly against their published table.
+The bound holds at the convolution output, before the nonlinearity and
+before a residual addition, either of which can raise the rank above it
+\cite{han2021rexnet}. Where $r_{\max} < C$ the ratio $k^*/C$ cannot exceed
+$r_{\max}/C$ whatever the layer has learned; a bottleneck's $1\!\times\!1$
+expansion has $r_{\max}/C = 0.25$ by construction. We report $k^*/C$, the
+registered statistic and the one comparable with prior work, and
+$k^*/r_{\max}$ beside it. $k^*(0.95)/C$ is the registered primary outcome;
+$\tau = 0.999$, the criterion of \cite{garg2019lowEffort}, is used where we
+compare with their table and where function is at stake
+(Section~\ref{sec:projection}).
 
 \subsection{Estimation}
 
-Covariances are accumulated in a single pass using the pairwise update of Chan
-\emph{et al.} \cite{chan1983variance}, with the running mean and scatter held
-in double precision. This is not a formality. Accumulating uncentred outer
-products in single precision loses several significant digits, and the first
-casualties are the small eigenvalues---which are exactly what $k^*(\tau)$
-depends on for $\tau$ near one. The same update lets partial results computed
-on separate machines be combined exactly.
+Covariances are accumulated in one pass with the pairwise update of Chan
+\emph{et al.} \cite{chan1983variance} in double precision; single-precision
+accumulation of uncentred products loses exactly the small eigenvalues that
+$k^*(\tau)$ near $\tau = 1$ depends on. Positions are subsampled ($p = 16$)
+rather than exhausted, since adjacent positions are correlated and $NHW$
+would overstate the sample count on which the gate below rests; $n = Np$ is
+the conservative count.
 
-The choice of $p$ in Equation~\eqref{eq:covpos} requires comment. Setting
-$p = HW$, that is, using every spatial position, maximises the nominal sample
-count but not the information: activations at adjacent positions are strongly
-correlated, so $NHW$ overstates the number of independent observations. Since
-the sample-size analysis of Section~\ref{sec:samplesize} turns on that count,
-using all positions would flatter it. We therefore subsample positions and
-report $n = Np$ as the sample size, which is conservative.
+\subsection{Sample-Size Gate}
+\label{sec:samplesize}
+
+A covariance from $n < C$ observations is rank-deficient by construction,
+and well above that point the small eigenvalues remain biased downward
+\cite{pospisil2025revisiting,chun2026estimating}. The plan fixed, before the
+data, that no row with $n/C < 50$ is reported and that every reported
+statistic must have flattened in $n/C$. The number was a convention; it has
+a derivation from Lawley's expansion \cite{lawley1956latentRoots}.
+
+\begin{proposition}[finite-sample bias of the captured fraction]
+\label{prop:gate}
+Let $l_1 \ge \cdots \ge l_C$ be the eigenvalues of the sample covariance of $n$ observations with population eigenvalues $\lambda_1 \ge \cdots \ge \lambda_C$, and $\hat F(k) = \sum_{i \le k} l_i / \sum_i l_i$. Then, to first order in $1/n$,
+\[
+  \mathbb{E}\,\hat F(k) - F(k) \;=\; \frac{1}{n\,\operatorname{tr}\Sigma} \sum_{i \le k} \sum_{j > k} \frac{\lambda_i \lambda_j}{\lambda_i - \lambda_j} \;\ge\; 0,
+\]
+and if $\lambda_{k+1} \le \lambda_k / 2$ then $\mathbb{E}\,\hat F(k) - F(k) \le (2k/n)\,(1 - F(k)) \le (2C/n)\,(1 - F(k))$.
+\end{proposition}
+
+The captured fraction is biased upward and $k^*(\tau)$ downward, at
+$n/C = 50$ by at most $4\%$ of the residual $1 - \tau$ under a factor-two
+gap at $k$. The gap is an assumption; the double sum is not, and on the
+measured spectra of ResNet-50 the bias at $n = 50\,C$ and $\tau = 0.999$ is
+$1.8\%$ of the residual in the median and $3.3\%$ at most, while
+$k^*(0.999)$ at $n/C = 50$ equals its final value on 40 of the 53 layers
+and differs by one component on the rest. The gate is therefore the sample
+size at which the first-order bias falls below a few per cent of what the
+statistic measures. The proof is in the supplement.
+
+With $p = 16$ positions over $50{,}000$ images every convolutional layer
+receives $n = 8 \times 10^5$ observations and $n/C$ from $391$ to
+$50{,}000$, clearing the gate by a factor of at least seven. Convergence in
+$n/C \in \{1, \ldots, 250\}$ is recomputed within the same pass at no extra
+cost (supplement, Fig.~S1); the flattening criterion flags 14 of the 703
+dense layers, 13 of them single-channel moves at $C \le 32$, and removing
+them changes no count below. The pooled estimator is in a different
+position: $n$ is the image count, $n/C$ runs from $781$ down to $24.4$, and
+eleven of ResNet-50's 53 layers, the $1024$- and $2048$-channel ones, fail
+the gate even at $50{,}000$ images. We do not compare estimators there, and
+the same limit binds the published pooled measurements: no dataset under
+$10^5$ images estimates a $2048$-channel layer at $n/C \ge 50$.
+
+In images rather than in $n/C$, six ResNet-50 checkpoints measured on a
+fixed $6{,}400$-image subset ($n/C = 50$ at $C = 2048$) and on the full
+$50{,}000$ agree over all 53 layers at Spearman $\rho \ge 0.999$ with a
+maximum difference in $k^*(0.95)/r_{\max}$ of $0.016$. The several-seed
+comparisons of Section~\ref{sec:learned} are therefore run on the subset;
+the pooled statistic does not share this property and is not.
 
 \subsection{Models and Controls}
 \label{sec:models}
@@ -447,107 +430,43 @@ report $n = Np$ as the sample size, which is conservative.
   \input{table_models}
 \end{table*}
 
-Two measurements were made. The first covers 19 publicly released ImageNet-1k checkpoints of twelve architectures from \texttt{torchvision} and \texttt{timm}, every convolutional layer of each, on the full ImageNet validation split of $50{,}000$ images \cite{deng2009imagenet} (Table~\ref{tab:models}); with two untrained controls, and one ResNet-50 checkpoint loaded through both libraries as a check on the backend (it agrees layer for layer and is counted once), that is 22 measurement runs. They were
-chosen for three purposes. Six are ResNet-50 \cite{he2016resnet} trained
-under different recipes (the two \texttt{torchvision} recipes, Wightman's A1
-and A3, GluonCV, and semi-supervised pre-training on YFCC100M followed by
-fine-tuning), so that the same architecture is observed under six independent
+Two measurements were made. The first covers 19 public ImageNet-1k
+checkpoints of twelve architectures from \texttt{torchvision} and
+\texttt{timm}, every convolutional layer, on the full validation split
+\cite{deng2009imagenet} (Table~\ref{tab:models}); with two untrained
+controls and one checkpoint loaded through both libraries as a backend check
+(it agrees layer for layer and is counted once), 22 runs. Six are ResNet-50
+\cite{he2016resnet} under different recipes (the two \texttt{torchvision}
+recipes, Wightman's A1 and A3, GluonCV, and semi-supervised YFCC100M
+pre-training), so that one architecture is observed under six independent
 optimisations and a between-checkpoint spread can be put beside every
-within-checkpoint difference. Five more exercise the rank bound at expansion ratios other than four: Wide-ResNet-50-2 and ResNeXt-50 (ratio two), and MobileNetV2, MobileNetV3-Large and EfficientNet-B0 (ratio six); ResNet-101 adds 33 further bottleneck blocks at ratio four.
-The remainder are VGG-16 with and without batch normalisation, the
-architecture of \cite{garg2019lowEffort}; ResNet-18 and ResNet-34, whose
-basic blocks contain almost no bounded layer; DenseNet-121
-\cite{huang2017densenet}; and ConvNeXt-T \cite{liu2022convnext} under two
-pre-trainings. ResNet-50 and ConvNeXt-T were also measured at
-initialisation, without training.
+within-checkpoint difference. Five exercise the bound at other expansion
+ratios: Wide-ResNet-50-2 and ResNeXt-50 (ratio two), MobileNetV2,
+MobileNetV3-Large and EfficientNet-B0 (ratio six); ResNet-101 adds 33
+bottleneck blocks. The rest are VGG-16 with and without BN, ResNet-18 and
+ResNet-34, DenseNet-121 \cite{huang2017densenet} and ConvNeXt-T
+\cite{liu2022convnext} under two pre-trainings.
 
-The second measurement asks what training changes, and needs several
-trained checkpoints and several random initialisations of each architecture
-on the \emph{same} images. It was run on a fixed subset of $6{,}400$ validation images, which Section~\ref{sec:samplesize} shows is sufficient for the position-sampled statistic, on eleven families: ResNet-50 (the six recipes above, five random seeds), ResNet-18 (six recipes), ResNet-34 (five), ResNet-101 (five), Wide-ResNet-50-2 (three), ResNeXt-50 (five), VGG-16 (with and without BN), DenseNet-121 (two), MobileNetV2 (one), MobileNetV3-Large (four) and EfficientNet-B0 (five), each with three random seeds unless stated. The inverted-residual counts include the TensorFlow-ported \texttt{timm} checkpoints trained on ImageNet-1k alone, so that those families have same-dataset recipes to compare. Random initialisation uses each library's default initialiser with
-a fixed seed. The families span five block types: plain (VGG), basic residual (ResNet-18/34), bottleneck residual at two depths, two widths and two cardinalities (ResNet-50/101, Wide-ResNet-50-2, ResNeXt-50), densely connected (DenseNet) and inverted residual (MobileNetV2/V3, EfficientNet). ConvNeXt-T is excluded from this comparison because it has
-only four dense convolutions.
+The second measurement asks what training changes and needs several
+trained checkpoints and several random initialisations per architecture on
+the same images. It was run on the $6{,}400$-image subset over eleven
+families and 44 trained checkpoints: ResNet-50 (six recipes), ResNet-18
+(six), ResNet-34 (five), ResNet-101 (five), Wide-ResNet-50-2 (three),
+ResNeXt-50 (five), VGG-16 (two), DenseNet-121 (two), MobileNetV2 (one),
+MobileNetV3-Large (four) and EfficientNet-B0 (five), with three random
+seeds each (five for ResNet-50) from each library's default initialiser.
+The families span five block types: plain, basic residual, bottleneck at
+two depths, two widths and two cardinalities, densely connected, and
+inverted residual. ConvNeXt-T, with four dense convolutions, is excluded.
 
-Convolutional and post-activation outputs are recorded separately, since a rectified representation is non-negative and has a different covariance structure; the post-activation spectra are released but not analysed here. For residual networks the block output, after the shortcut addition and the following nonlinearity, is recorded as a third tensor, and batch-normalisation outputs can be recorded on request (Section~\ref{sec:robust}). Depthwise
-convolutions are flagged and never placed on the same depth axis as dense
-ones: a depthwise layer does not mix channels, so its channel covariance is
-a different object. This matters for ConvNeXt-T, which is predominantly
-depthwise, and for the inverted-residual families.
-
-The untrained control separates structure the network acquired from
-structure implied by the architecture together with the second-order
-statistics of natural images \cite{field1987relations}. We note in passing
-that any argument about the first convolutional layer is bounded by the
-dimension of the input patch itself, and is further complicated by the
-observation of Bell and Sejnowski \cite{bell1997ica} that the filters such
-a layer learns resemble independent components rather than principal ones.
-
-% =========================================================================
-\section{Sample-Size Control}
-\label{sec:samplesize}
-
-Every number in Section~\ref{sec:results} is a function of an estimated
-covariance, so the first question is not what the profile looks like but at
-what sample size it stops moving. We answer that before showing any profile.
-
-Two facts bound the exercise. A sample covariance formed from $n < C$
-observations is rank-deficient by construction, so its $k^*$ is a statement
-about $n$ and not about the network. Well above that point the small eigenvalues remain downward-biased, and $k^*(\tau)$ for $\tau$ near one depends on exactly those; the participation ratio is biased in the same regime, and Chun \emph{et al.} \cite{chun2026estimating} give a corrected estimator for it. The analysis plan therefore fixed, before the data existed, a
-reporting rule: no row with $n/C < 50$ is reported, and every reported
-statistic must additionally be shown to have flattened in $n/C$.
-
-The number $50$ was a convention when the plan was written; it has a derivation. Lawley's expansion \cite{lawley1956latentRoots} gives the expected sample eigenvalues to first order in $1/n$, and summing it over the top $k$ gives the bias of the variance fraction that $k^*$ reads.
-
-\begin{proposition}[finite-sample bias of the captured fraction]
-\label{prop:gate}
-Let $l_1 \ge \cdots \ge l_C$ be the eigenvalues of the sample covariance of $n$ observations with population eigenvalues $\lambda_1 \ge \cdots \ge \lambda_C$, and $\hat F(k) = \sum_{i \le k} l_i / \sum_i l_i$. Then, to first order in $1/n$,
-\[
-  \mathbb{E}\,\hat F(k) - F(k) \;=\; \frac{1}{n\,\operatorname{tr}\Sigma} \sum_{i \le k} \sum_{j > k} \frac{\lambda_i \lambda_j}{\lambda_i - \lambda_j} \;\ge\; 0,
-\]
-and if $\lambda_{k+1} \le \lambda_k / 2$ then $\mathbb{E}\,\hat F(k) - F(k) \le (2k/n)\,(1 - F(k)) \le (2C/n)\,(1 - F(k))$.
-\end{proposition}
-
-The captured fraction is biased upward, so $k^*(\tau)$ is biased downward, by an amount that at $n/C = 50$ is at most $4\%$ of the residual $1 - \tau$ under a factor-two spectral gap at $k$. The gap is an assumption; the double sum is not, and it can be evaluated on the measured spectra. On the 53 convolutions of ResNet-50 the predicted bias at $n = 50\,C$ and $\tau = 0.999$ is $1.8\%$ of the residual in the median and $3.3\%$ at most, and in the convergence data $k^*(0.999)$ at the $n/C = 50$ checkpoint equals its final value on 40 of the 53 layers and differs by one component on the rest. The gate is therefore the sample size at which the first-order bias of the statistic falls below a few percent of what the statistic measures; it is derived in Appendix~\ref{app:proofs} and checked by \texttt{checkpoint\_analysis.py} (its Section~19).
-
-Under the position-sampled estimator of Equation~\eqref{eq:covpos} with
-$p = 16$ positions per image over $50{,}000$ images, each convolutional layer
-receives $n = 8 \times 10^5$ observations. This gives $n/C$ between $391$ ($2048$-channel layers) and $50{,}000$ ($16$-channel layers), so every convolutional row in the study clears the gate by a factor of at least seven. Fig.~\ref{fig:conv} shows the convergence itself: metrics are
-recomputed at $n/C \in \{1,2,5,10,25,50,100,250\}$ within the same single pass,
-so the control costs no extra compute. The flattening criterion, applied literally as a change of more than $0.02$ in $k^*(0.95)/C$ between $n/C = 100$ and $250$, flags 14 of the 703 dense layers in the trained checkpoints. Thirteen of them are single-channel moves at $C \le 32$, where one channel is $0.03$ of the range and the criterion cannot separate drift from resolution; the one genuine case is the last convolution of VGG-16 with BN, which moves by 18 channels ($0.035$). All 14 are kept in the counts of Section~\ref{sec:results} and identified in the released output; removing them changes the principal count of Section~\ref{sec:estimator} from $687/703$ to $679/689$, and no layer-level claim rests on any of them.
-
-The pooled estimator of Equation~\eqref{eq:covpool} is in a different position,
-and this is not a detail. Under pooling $n$ is the number of \emph{images}, so
-$n = 5 \times 10^4$ and $n/C$ runs from $781$ down to $24.4$. For VGG-16,
-ResNet-18 and ConvNeXt-T every pooled row clears the gate; for ResNet-50,
-eleven of fifty-three do not, and they are precisely the $1024$- and
-$2048$-channel layers. Any comparison of the two estimators on those layers is
-therefore confounded with sample size, and we do not make one. This limit
-applies to the published pooled measurements as well as to ours: a
-$2048$-channel layer cannot be estimated at $n/C \ge 50$ from any dataset with
-fewer than $10^5$ images.
-
-The convergence curves say when the statistic stops moving in $n/C$; the
-second measurement of Section~\ref{sec:models} says it in images. Six
-ResNet-50 checkpoints were measured on both the $6{,}400$-image subset
-($n/C = 50$ at $C = 2048$) and the full $50{,}000$ images. Over all 53
-layers of all six, the two profiles agree with Spearman $\rho \ge 0.999$ and
-a maximum absolute difference in $k^*(0.95)/r_{\max}$ of $0.016$. For the
-position-sampled statistic the reporting gate is therefore not merely
-necessary but close to sufficient, and the several-seed, several-recipe
-comparisons of Section~\ref{sec:learned} could be run on the subset without
-loss. The pooled statistic does not share this property and was not taken
-from the subset.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{fig3_convergence_resnet50.pdf}
-  \caption{Sample-size control, ResNet-50: $k^*(0.95)/C$ against samples per
-  channel, one line per convolutional layer, shaded light to dark with depth.
-  The dashed rule is the pre-registered reporting threshold $n/C = 50$. Curves
-  are flat well before it; the measurement is not sample-limited. Under the
-  pooled estimator the same layers would reach only $n/C = 24$ at the right-hand
-  edge of this axis.}
-  \label{fig:conv}
-\end{figure}
+Three tensors are recorded per layer: the convolution output, the
+post-activation output and, for residual networks, the block output after
+the shortcut and the nonlinearity. Depthwise convolutions do not mix
+channels, so their covariance is a different object; they are flagged and
+never placed on the same depth axis as dense ones. The untrained control
+separates structure the network acquired from structure implied by the
+architecture and the second-order statistics of natural images
+\cite{field1987relations}.
 
 % =========================================================================
 \section{Results}

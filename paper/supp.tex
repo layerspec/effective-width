@@ -48,3 +48,48 @@ This work & 19 checkpoints, 12 architectures; ImageNet, CIFAR-10, COCO & conv ou
 \bottomrule
 \end{tabular}
 \end{table*}
+
+% ---- Table S2: notation (was tab:notation in Section III) ----
+\begin{table}[t]
+  \caption{Notation.}
+  \label{tab:notation}
+  \centering
+  \scriptsize
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}>{\raggedright\arraybackslash}p{0.34\columnwidth}>{\raggedright\arraybackslash}p{0.62\columnwidth}@{}}
+    \toprule
+    Symbol & Meaning \\
+    \midrule
+    $N$, $C$, $H \times W$ & images in the batch; channels and spatial size of a layer's output \\
+    $p$; $n$ & positions sampled per image; observations, $n = Np$ (pooled: $n = N$) \\
+    $\hat{\Sigma}^{\rm pos}$, $\hat{\Sigma}^{\rm pool}$ & position-sampled and globally pooled channel covariance, Eqs.~\eqref{eq:covpos}--\eqref{eq:covpool} \\
+    $\lambda_1 \ge \cdots \ge \lambda_C$ & eigenvalues of the estimated covariance \\
+    $k^*(\tau)$ & principal components reaching a fraction $\tau$ of the variance, Eq.~\eqref{eq:kstar}; $\tau = 0.95$ primary, $0.999$ functional \\
+    PR, erank & participation ratio and effective rank, Eqs.~\eqref{eq:pr}--\eqref{eq:erank} \\
+    $C_{\rm in}$, $C_{\rm out}$, $k_h \times k_w$, $g$ & input and output channels, kernel size and groups of a convolution \\
+    $d = C_{\rm in} k_h k_w$ & dimension of the receptive-field patch as a vector (dense convolution) \\
+    $r_{\max}$ & attainable rank of the convolution output, Eq.~\eqref{eq:rmax}; the denominator of the ruler \\
+    $n/C \ge 50$ & the sample-size gate (Section~\ref{sec:samplesize}); rows below it are not reported \\
+    $W \in \mathbb{R}^{C_{\rm out} \times d}$ & the kernel as a matrix; $W = P W_{\circ}$ its polar decomposition, $W_{\circ}$ the nearest isometry \\
+    $\Sigma_{\rm patch}$; $\Sigma_{\rm out}$ & patch covariance; convolution-output covariance, $\Sigma_{\rm out} = W \Sigma_{\rm patch} W^{\top}$ (Section~\ref{sec:decompose}) \\
+    $\kappa = \sigma_{\max} / \sigma_{\min}$ & condition number of $W$ over its numerical rank \\
+    $\Sigma_{\rm act}^{(\ell)}$ & post-activation channel covariance feeding layer $\ell + 1$ (Proposition~\ref{prop:depth}) \\
+    $\rho$; T--T, T--R, R--R & Spearman correlation between two layer profiles; trained--trained, trained--random, random--random \\
+    $\rho_{\rm depth}$; subscript stage & correlation with depth index; correlation over ranks taken within each stage \\
+    step (jitter) & median absolute difference between adjacent layers of one profile \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+% ---- Fig. S1: sample-size convergence, ResNet-50 (was fig:conv in Section III) ----
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{fig3_convergence_resnet50.pdf}
+  \caption{Sample-size control, ResNet-50: $k^*(0.95)/C$ against samples per
+  channel, one line per convolutional layer, shaded light to dark with depth.
+  The dashed rule is the pre-registered reporting threshold $n/C = 50$. Curves
+  are flat well before it; the measurement is not sample-limited. Under the
+  pooled estimator the same layers would reach only $n/C = 24$ at the right-hand
+  edge of this axis.}
+  \label{fig:sconv}
+\end{figure}
