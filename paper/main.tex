@@ -129,64 +129,9 @@ with a proposition, a bound and a measurement. We validate the protocol
 against both published estimators at both tensors, measure 19 public
 ImageNet checkpoints and then 44 trained checkpoints of eleven families
 against their own initialisations under a pre-registered plan, and put the
-ruler to use. Our contributions are as follows.
+ruler to use.
 
-\begin{enumerate}
-  \item \textbf{A validated protocol.} We measure the channel covariance of
-  the convolution output from sampled positions, at $n/C \ge 50$,
-  normalised by attainable rank, with depthwise convolutions kept apart. The
-  protocol recovers the 13-layer CIFAR-10 profile of \cite{garg2019lowEffort}
-  at $r = 0.98$ and the block-output participation ratios of
-  \cite{elmoznino2024highDim} at $\rho = 0.997$ (Section~\ref{sec:repro-garg}).
-
-  \item \textbf{Three pitfalls, quantified.} On 19 checkpoints, normalising
-  by attainable rank removes the bounded-versus-unbounded split in all 14
-  models with expansion layers; the pooled estimator is lower on 687 of 703
-  dense layers, by more than the profile's own adjacent-layer step in 18 of
-  19 networks; and the block output exceeds the bound on its last
-  convolution in 161 of 161 bottleneck blocks
-  (Sections~\ref{sec:rmax}--\ref{sec:blockout}).
-
-  \item \textbf{Trained versus initialised profiles.} Plain, basic-residual
-  and dense families keep the architecture's layer ordering
-  ($\rho = 0.6$--$0.75$ against initialisation) and gain a level; the six
-  ImageNet ResNet-50 recipes agree with each other ($0.84$) and with
-  initialisation not at all ($-0.08$). A controlled experiment registered
-  before its data finds no block effect, so the reordering belongs to the
-  data or the recipes. Nine trajectories put the ordering in place by epoch
-  40--60 while accuracy is still at $84$--$88\%$ (Section~\ref{sec:learned}).
-
-  \item \textbf{An exact decomposition.} Training moves the bottleneck from
-  the data to the kernel: at initialisation $\Sigma_{\rm patch}$ is
-  low-rank and the kernel isotropic; after training $\Sigma_{\rm patch}$ is
-  full-rank, the layer ordering follows the kernels' Gram spectra, and the
-  kernel is a matched filter for its input's principal directions
-  ($\rho_{\rm align} \approx +0.9$, zero at initialisation). The
-  decomposition predicts that orthogonalising a trained kernel adds about
-  $0.3\,r_{\max}$; the SO and SRIP penalties, tested as registered, realise
-  half of it (Section~\ref{sec:decompose}).
-
-  \item \textbf{The measured widths can be trained to.} Truncating every
-  layer to its $k^*(0.999)$ subspace at inference leaves accuracy unchanged
-  in six of eight checkpoints, and $k^*(0.95)$ does not
-  (Section~\ref{sec:projection}). A VGG-16 built from scratch at the
-  post-activation $k^*(0.999)$ widths matches full width on CIFAR-10 at two
-  thirds of the parameters; on CIFAR-100 and ImageNet-1k the same widths are
-  the full ones, and a registered class-count control shows the unused
-  width is the few-class task's, closing monotonically with the number of
-  classes and appearing only once the task has been optimised long enough
-  (Section~\ref{sec:a18}).
-\end{enumerate}
-
-The analysis was specified before the ImageNet data were collected. The
-registered hypotheses concerned the \emph{shape} of the profile and none
-survived a paired test over all layers; the results labelled
-pre-registered below were each registered before their own data, and those
-labelled exploratory were found in the data. The plan, its deviation log,
-the code and the spectra are released (Section~\ref{sec:repro}).
-
-% =========================================================================
-\section{Related Work}
+\subsection{Related Work}
 \label{sec:related}
 
 \textbf{What is measured.}\label{sec:four} Everything here is a functional of
@@ -270,6 +215,65 @@ not report it as a profile or against an untrained control. Redundancy in
 trained convolutions is established
 \cite{suau2020filterDistillation,waleffe2023pcn,nanda2023diffusedRedundancy};
 none of that work reports a normalised depth profile. In contrast, we report the quantity as a profile across depth, on one scale for every architecture, against an untrained control.
+
+\subsection{Contributions}
+
+Our contributions are as follows.
+
+\begin{enumerate}
+  \item \textbf{A validated protocol.} We measure the channel covariance of
+  the convolution output from sampled positions, at $n/C \ge 50$,
+  normalised by attainable rank, with depthwise convolutions kept apart. The
+  protocol recovers the 13-layer CIFAR-10 profile of \cite{garg2019lowEffort}
+  at $r = 0.98$ and the block-output participation ratios of
+  \cite{elmoznino2024highDim} at $\rho = 0.997$ (Section~\ref{sec:repro-garg}).
+
+  \item \textbf{Three pitfalls, quantified.} On 19 checkpoints, normalising
+  by attainable rank removes the bounded-versus-unbounded split in all 14
+  models with expansion layers; the pooled estimator is lower on 687 of 703
+  dense layers, by more than the profile's own adjacent-layer step in 18 of
+  19 networks; and the block output exceeds the bound on its last
+  convolution in 161 of 161 bottleneck blocks
+  (Sections~\ref{sec:rmax}--\ref{sec:blockout}).
+
+  \item \textbf{Trained versus initialised profiles.} Plain, basic-residual
+  and dense families keep the architecture's layer ordering
+  ($\rho = 0.6$--$0.75$ against initialisation) and gain a level; the six
+  ImageNet ResNet-50 recipes agree with each other ($0.84$) and with
+  initialisation not at all ($-0.08$). A controlled experiment registered
+  before its data finds no block effect, so the reordering belongs to the
+  data or the recipes. Nine trajectories put the ordering in place by epoch
+  40--60 while accuracy is still at $84$--$88\%$ (Section~\ref{sec:learned}).
+
+  \item \textbf{An exact decomposition.} Training moves the bottleneck from
+  the data to the kernel: at initialisation $\Sigma_{\rm patch}$ is
+  low-rank and the kernel isotropic; after training $\Sigma_{\rm patch}$ is
+  full-rank, the layer ordering follows the kernels' Gram spectra, and the
+  kernel is a matched filter for its input's principal directions
+  ($\rho_{\rm align} \approx +0.9$, zero at initialisation). The
+  decomposition predicts that orthogonalising a trained kernel adds about
+  $0.3\,r_{\max}$; the SO and SRIP penalties, tested as registered, realise
+  half of it (Section~\ref{sec:decompose}).
+
+  \item \textbf{The measured widths can be trained to.} Truncating every
+  layer to its $k^*(0.999)$ subspace at inference leaves accuracy unchanged
+  in six of eight checkpoints, and $k^*(0.95)$ does not
+  (Section~\ref{sec:projection}). A VGG-16 built from scratch at the
+  post-activation $k^*(0.999)$ widths matches full width on CIFAR-10 at two
+  thirds of the parameters; on CIFAR-100 and ImageNet-1k the same widths are
+  the full ones, and a registered class-count control shows the unused
+  width is the few-class task's, closing monotonically with the number of
+  classes and appearing only once the task has been optimised long enough
+  (Section~\ref{sec:a18}).
+\end{enumerate}
+
+The analysis was specified before the ImageNet data were collected. The
+registered hypotheses concerned the \emph{shape} of the profile and none
+survived a paired test over all layers; the results labelled
+pre-registered below were each registered before their own data, and those
+labelled exploratory were found in the data. The plan, its deviation log,
+the code and the spectra are released (Section~\ref{sec:repro}).
+
 % =========================================================================
 \section{Method}
 \label{sec:method}
@@ -561,6 +565,8 @@ and we do not use it. Every claim below is instead a paired comparison over
 \emph{all} gated layers of a network, and every effect size is given beside
 the adjacent-layer step of the curve it is measured on. Each subsection is labelled \emph{pre-registered} or \emph{exploratory}, and names which of the two measurements of Section~\ref{sec:models} it draws on. Every number is produced by a script from the released spectra,
 not transcribed.
+
+Section~\ref{sec:repro-garg} validates the protocol against both published profiles. Sections~\ref{sec:rmax}--\ref{sec:blockout} quantify the three choices; Sections~\ref{sec:metrics}--\ref{sec:dwsplit} settle the remaining registered comparisons. Section~\ref{sec:learned} compares trained networks with their initialisations, Section~\ref{sec:decompose} decomposes the statistic into its kernel and data factors, and Sections~\ref{sec:projection}, \ref{sec:diagnostic} and \ref{sec:a18} put the measurement to use.
 
 \subsection{Validation Against Published Profiles}
 \label{sec:repro-garg}
