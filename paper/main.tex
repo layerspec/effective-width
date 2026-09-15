@@ -24,6 +24,9 @@
 \usepackage{url}
 \usepackage[caption=false,font=footnotesize]{subfig}
 \usepackage[hidelinks]{hyperref}
+% IEEEtran compsoc sets Palatino (ppl); under XeTeX/tectonic load its metric clone so page counts match the CS template
+\usepackage{iftex}
+\ifXeTeX\usepackage{fontspec}\setmainfont{texgyrepagella}[Extension=.otf,UprightFont=*-regular,BoldFont=*-bold,ItalicFont=*-italic,BoldItalicFont=*-bolditalic]\fi
 
 \graphicspath{{../results/figures/}}
 
@@ -50,29 +53,28 @@ E-mail: u324057@taipower.com.tw}%
 \begin{abstract}
 How much of a convolutional layer's channel width does a trained network
 use? Two published depth profiles of this quantity disagree. We show that
-the disagreement is largely about three choices the profile literature
-makes without comment, the denominator, the covariance estimator and the
-tensor read, each of which moves a profile by more than the effects
-reported. Dividing by the attainable rank instead of the nominal width, a
-bound that is known but has never been carried into a profile, removes an
-apparent two-population structure in all 14 ImageNet models with
-$1\!\times\!1$ expansion layers; estimating the covariance after global
-pooling lowers the value on 687 of 703 dense layers; and the output of a
-residual block exceeds the rank bound of its last convolution in 161 of 161
-bottleneck blocks. The resulting protocol recovers the published CIFAR-10
-profile of Garg \emph{et al.} ($r = 0.98$) and the ImageNet values of
-Elmoznino and Bonner ($\rho = 0.997$). Because the pre-activation output
-covariance is exactly $W\Sigma_{\rm patch}W^{\top}$, the effective width
-separates into an architectural, a data and a kernel factor. Measured on 44
-trained checkpoints of eleven families against their own initialisations,
-training moves the bottleneck from the data to the kernel, which becomes a
-matched filter for its input. The widths the protocol reads after the
-nonlinearity can be trained to: a VGG-16 built at them matches full width on
-CIFAR-10 at two thirds of the parameters, and a pre-registered control shows
-that the unused width belongs to the few-class task and closes monotonically
-with the number of classes. Orthogonality penalties realise half of the
-width gain the decomposition predicts. Code, spectra and the pre-registered
-analysis plan are released.
+the disagreement is largely about three choices made without comment, the
+denominator, the covariance estimator and the tensor read, each of which
+moves a profile by more than the effects reported: dividing by the
+attainable rank instead of the nominal width removes an apparent
+two-population structure in all 14 ImageNet models with $1\!\times\!1$
+expansion layers, global pooling lowers the value on 687 of 703 dense
+layers, and the block output exceeds the rank bound of its last
+convolution in 161 of 161 bottleneck blocks. The resulting protocol
+recovers the published CIFAR-10 profile of Garg \emph{et al.}
+($r = 0.98$) and the ImageNet values of Elmoznino and Bonner
+($\rho = 0.997$). Because the pre-activation output covariance is exactly
+$W\Sigma_{\rm patch}W^{\top}$, the effective width separates into an
+architectural, a data and a kernel factor; on 44 trained checkpoints of
+eleven families measured against their own initialisations, training
+moves the bottleneck from the data to the kernel, which becomes a matched
+filter for its input. The widths the protocol reads after the
+nonlinearity can be trained to: a VGG-16 built at them matches full width
+on CIFAR-10 at two thirds of the parameters, and a pre-registered control
+shows the unused width belongs to the few-class task and closes
+monotonically with the number of classes. Orthogonality penalties realise
+half of the width gain the decomposition predicts. Code, spectra and the
+pre-registered analysis plan are released.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -91,98 +93,93 @@ network width, representation analysis.
 \IEEEraisesectionheading{\section{Introduction}\label{sec:intro}}
 
 \IEEEPARstart{T}{he} number of channels in a convolutional layer is fixed
-before training, by inheritance from a published architecture or by
-search, and how many of them the trained layer uses is known, if at all,
-only afterwards \cite{garg2019lowEffort,elmoznino2024highDim}.
+before training, and how many of them the trained layer uses is known,
+if at all, only afterwards \cite{garg2019lowEffort,elmoznino2024highDim}.
 Theory bounds the number without locating it: the infinite-width limit
 describes the regime in which no feature is learned
 \cite{jacot2018ntk,lee2020wide}, minimum-width theorems say what a family
 \emph{can} represent \cite{park2021minimum}, and rank bounds bracket a
 layer from above \cite{han2021rexnet,kim2018rank1} and below
-\cite{daneshmand2020bn}. Every usable number is post hoc.
+\cite{daneshmand2020bn}. Every usable number is post hoc, and the post-hoc
+numbers disagree: Garg \emph{et al.} \cite{garg2019lowEffort}, counting the
+principal components of the channel covariance that reach $99.9\%$ of the
+variance on CIFAR VGGs, report a profile that saturates mid-network and
+collapses in its last layers; Elmoznino and Bonner
+\cite{elmoznino2024highDim}, with the participation ratio over
+\num{500}\,+ ImageNet layers, report it rising with depth.
 
-The post-hoc numbers disagree. Garg \emph{et al.} \cite{garg2019lowEffort},
-counting the principal components of the channel covariance that reach
-$99.9\%$ of the variance on CIFAR VGGs, report a profile that saturates in
-the middle of the network and collapses in its last layers; Elmoznino and
-Bonner \cite{elmoznino2024highDim}, with the participation ratio over
-\num{500}\,+ ImageNet layers, report it rising with depth. Setting out to
-reconcile the two, we found that the measurements differ in three choices
-made without comment, and that each choice moves a profile by more than the
-effects either paper reports: what the count is divided by, whether spatial
-positions or pooled images are the observations, and whether the
-convolution output or the block output is read. A $1\!\times\!1$ expansion
-from $C_{\rm in}$ to $C_{\rm out} > C_{\rm in}$ channels cannot have output
-rank above $C_{\rm in}$, a bound stated before
+Setting out to reconcile the two, we found that the measurements differ
+in three choices made without comment, each of which moves a profile by
+more than the effects either paper reports: what the count is divided by,
+whether spatial positions or pooled images are the observations, and
+whether the convolution output or the block output is read. A
+$1\!\times\!1$ expansion from $C_{\rm in}$ to $C_{\rm out} > C_{\rm in}$
+channels cannot have output rank above $C_{\rm in}$, a bound stated before
 \cite{han2021rexnet,kim2018rank1} but never carried into a profile; 20 of
 ResNet-50's 53 convolutions are such layers, and a profile divided by
 nominal width reads them as a tenth used whatever they have learned.
 
-In this paper we fix a measurement protocol in which each of the three
-choices is explicit and its consequence quantified, and we build it on one
-identity: before its nonlinearity, a convolution's output covariance is
-exactly $W\Sigma_{\rm patch}W^{\top}$. The identity splits the effective
-width of a layer into what the architecture permits, the attainable rank
-$r_{\max}$; what the data supplies, $\Sigma_{\rm patch}$; and what learning
-does, the alignment of $W$ with $\Sigma_{\rm patch}$; and each factor comes
-with a proposition, a bound and a measurement. We validate the protocol
-against both published estimators at both tensors, measure 19 public
-ImageNet checkpoints and then 44 trained checkpoints of eleven families
-against their own initialisations under a pre-registered plan, and put the
-ruler to use.
+In this paper we fix a protocol in which each choice is explicit and its
+consequence quantified, built on one identity: before its nonlinearity, a
+convolution's output covariance is exactly $W\Sigma_{\rm patch}W^{\top}$.
+The identity splits the effective width of a layer into what the
+architecture permits, the attainable rank $r_{\max}$; what the data
+supplies, $\Sigma_{\rm patch}$; and what learning does, the alignment of
+$W$ with $\Sigma_{\rm patch}$; each factor comes with a proposition, a
+bound and a measurement. We validate the protocol against both published
+estimators at both tensors, measure 19 public ImageNet checkpoints and
+then 44 trained checkpoints of eleven families against their own
+initialisations under a pre-registered plan, and put the ruler to use.
 
 \subsection{Related Work}
 \label{sec:related}
 
 \textbf{What is measured.}\label{sec:four} Everything here is a functional of
-the channel-covariance spectrum at one tensor: $k^*(\tau)$, participation
-ratio, effective rank. None is a manifold intrinsic dimension, and the gap
-is not small: for one VGG-16 layer Ansuini \emph{et al.}
-\cite{ansuini2019intrinsic} report a TwoNN dimension of about \num{18}
-against about \num{200} principal components at $90\%$ variance. The linear
-count is nonetheless the object that width is about, because the consumer
-of a layer's output is the next convolution, linear in its input patch;
-Section~\ref{sec:projection} makes that operational.
+the channel-covariance spectrum at one tensor, not a manifold intrinsic
+dimension; the two differ by an order of magnitude on the same VGG-16
+layer (TwoNN \num{18} against \num{200} principal components at $90\%$
+variance \cite{ansuini2019intrinsic}). The linear count is the object
+width is about, because the consumer of a layer's output is the next
+convolution, linear in its input patch; Section~\ref{sec:projection} makes
+that operational.
 
-\textbf{Depth profiles of dimensionality.}\label{sec:profiles} The reported shape follows the
-measure: manifold dimension rises then falls
-\cite{ansuini2019intrinsic};
-the pooled participation ratio rises \cite{elmoznino2024highDim}; the
-position-sampled $k^*$ saturates and collapses on CIFAR
-\cite{garg2019lowEffort}; the numerical rank of deep layers falls to about
-the class count on CIFAR within the first few hundred steps, the
-``tunnel'' \cite{masarczyk2023tunnel}, as neural
-collapse predicts for the penultimate layer \cite{papyan2020neuralCollapse}.
-The bound $r_{\max}$ that Section~\ref{sec:stats} divides by is not new:
-it is written for convolutional expansion layers by Kim \emph{et al.}
-\cite{kim2018rank1} and by Han \emph{et al.} \cite{han2021rexnet}, who turn
-it into a design rule from random-weight networks. No depth profile
-measured on trained networks divides by it. The supplement tabulates what
-each of these studies reads, samples, computes and normalises.
+\textbf{Depth profiles of dimensionality.}\label{sec:profiles} The
+reported shape follows the measure: manifold dimension rises then falls
+\cite{ansuini2019intrinsic}, the pooled participation ratio rises
+\cite{elmoznino2024highDim}, the position-sampled $k^*$ saturates and
+collapses on CIFAR \cite{garg2019lowEffort}, and the numerical rank of
+deep layers falls to about the class count on CIFAR within a few hundred
+steps \cite{masarczyk2023tunnel}, as neural collapse predicts for the
+penultimate layer \cite{papyan2020neuralCollapse}. The bound $r_{\max}$
+of Section~\ref{sec:stats} is written for expansion layers by Kim
+\emph{et al.} \cite{kim2018rank1} and by Han \emph{et al.}
+\cite{han2021rexnet}, who make it a design rule from random-weight
+networks; no profile measured on trained networks divides by it. The
+supplement tabulates what each study reads, samples, computes and
+normalises.
 
-\textbf{Tensor, initialisation and the kernel.}\label{sec:where} Garg \emph{et al.}
-and NORTH\textsuperscript{*} \cite{maile2022north} read the convolution
-output; Ansuini \emph{et al.} and Elmoznino and Bonner read the block
-output, after the shortcut and the nonlinearity, which Han \emph{et al.}
-show can raise the rank above the expansion bound again. Whether a profile
-is learned is left open: Elmoznino and Bonner note that architecture can
-set effective dimensionality independently of learning and do not pursue
-it; Ansuini \emph{et al.} report that the PC-ID profile of an untrained
-VGG-16 is qualitatively the trained one (their Fig.~5C); Saxe \emph{et al.}
-\cite{saxe2014exact} show for deep linear networks that the singular
-structure of the representation is set by the input--output covariance and
-the initialisation together, which makes the comparison with one's own
-initialisation the natural control. Orthogonality regularisers
-\cite{bansal2018orthogonality,huang2018own} penalise a
-kernel's distance from an isometry; an over-complete layer
-($C_{\rm out} > C_{\rm in}k_hk_w$) cannot be orthogonal, and Massart
-\cite{massart2022orthogonal} characterises what each penalty minimises
-instead. Huang \emph{et al.} \cite{huang2018own,huang2020oni} prove that an
-orthogonal kernel decorrelates its output only if its input is white. At
-the tensor we read, the output covariance is $W\Sigma_{\rm patch}W^{\top}$:
-the effective width is joint in the kernel this literature regularises and
-the patch covariance it assumes white, and Section~\ref{sec:decompose}
-measures the two.
+\textbf{Tensor, initialisation and the kernel.}\label{sec:where} Garg
+\emph{et al.} and NORTH\textsuperscript{*} \cite{maile2022north} read the
+convolution output; Ansuini \emph{et al.} and Elmoznino and Bonner read
+the block output, after the shortcut and the nonlinearity, which Han
+\emph{et al.} show can raise the rank above the expansion bound. Whether a
+profile is learned is left open: Elmoznino and Bonner note that
+architecture can set effective dimensionality independently of learning;
+Ansuini \emph{et al.} find the PC-ID profile of an untrained VGG-16
+qualitatively the trained one; Saxe \emph{et al.} \cite{saxe2014exact}
+show for deep linear networks that the representation's singular
+structure is set by the input--output covariance and the initialisation
+together, which makes one's own initialisation the natural control.
+Orthogonality regularisers \cite{bansal2018orthogonality,huang2018own}
+penalise a kernel's distance from an isometry; an over-complete layer
+cannot be orthogonal, Massart \cite{massart2022orthogonal} characterises
+what each penalty minimises instead, and Huang \emph{et al.}
+\cite{huang2018own,huang2020oni} prove that an orthogonal kernel
+decorrelates its output only if its input is white. At the tensor we read
+the output covariance is $W\Sigma_{\rm patch}W^{\top}$: the effective
+width is joint in the kernel this literature regularises and the patch
+covariance it assumes white, and Section~\ref{sec:decompose} measures
+both.
 
 \textbf{Statistics and sampling.} Convolutional spectra are power-law with
 exponent below one \cite{ghosh2022powerLaws}, so a
@@ -215,50 +212,40 @@ untrained control.
 Our contributions are as follows.
 
 \begin{enumerate}
-  \item \textbf{A validated protocol.} We measure the channel covariance of
-  the convolution output from sampled positions, at $n/C \ge 50$,
-  normalised by attainable rank, with depthwise convolutions kept apart. The
-  protocol recovers the 13-layer CIFAR-10 profile of \cite{garg2019lowEffort}
-  at $r = 0.98$ and the block-output participation ratios of
+  \item \textbf{A validated protocol.} Channel covariance of the
+  convolution output from sampled positions at $n/C \ge 50$, normalised by
+  attainable rank, depthwise apart; it recovers the CIFAR-10 profile of
+  \cite{garg2019lowEffort} at $r = 0.98$ and the block-output values of
   \cite{elmoznino2024highDim} at $\rho = 0.997$ (Section~\ref{sec:repro-garg}).
-
-  \item \textbf{Three pitfalls, quantified.} On 19 checkpoints, normalising
-  by attainable rank removes the bounded-versus-unbounded split in all 14
-  models with expansion layers; the pooled estimator is lower on 687 of 703
-  dense layers, by more than the profile's own adjacent-layer step in 18 of
-  19 networks; and the block output exceeds the bound on its last
-  convolution in 161 of 161 bottleneck blocks
-  (Sections~\ref{sec:rmax}--\ref{sec:blockout}).
-
-  \item \textbf{Trained versus initialised profiles.} Plain, basic-residual
-  and dense families keep the architecture's layer ordering
-  ($\rho = 0.6$--$0.75$ against initialisation) and gain a level; the six
-  ImageNet ResNet-50 recipes agree with each other ($0.84$) and with
-  initialisation not at all ($-0.08$). A controlled experiment registered
-  before its data finds no block effect, so the reordering belongs to the
-  data or the recipes. Nine trajectories put the ordering in place by epoch
-  40--60 while accuracy is still at $84$--$88\%$ (Section~\ref{sec:learned}).
-
-  \item \textbf{An exact decomposition.} Training moves the bottleneck from
-  the data to the kernel: at initialisation $\Sigma_{\rm patch}$ is
-  low-rank and the kernel isotropic; after training $\Sigma_{\rm patch}$ is
-  full-rank, the layer ordering follows the kernels' Gram spectra, and the
-  kernel is a matched filter for its input's principal directions
-  ($\rho_{\rm align} \approx +0.9$, zero at initialisation). The
-  decomposition predicts that orthogonalising a trained kernel adds about
-  $0.3\,r_{\max}$; the SO and SRIP penalties, tested as registered, realise
-  half of it (Section~\ref{sec:decompose}).
-
+  \item \textbf{Three pitfalls, quantified} on 19 checkpoints: under
+  $r_{\max}$ the bounded-versus-unbounded split disappears in all 14 models
+  with expansion layers; the pooled estimator is lower on 687 of 703 dense
+  layers, by more than the profile's own step in 18 of 19 networks; the
+  block output exceeds the bound on its last convolution in 161 of 161
+  bottleneck blocks (Sections~\ref{sec:rmax}--\ref{sec:blockout}).
+  \item \textbf{Trained versus initialised profiles.} Plain,
+  basic-residual and dense families keep the architecture's ordering
+  ($\rho = 0.6$--$0.75$) and gain a level; the six ImageNet ResNet-50
+  recipes agree with each other ($0.84$) and with initialisation not at all
+  ($-0.08$), and a controlled experiment registered before its data finds
+  no block effect, so the reordering belongs to the data or the recipes;
+  the ordering is in place by epoch 40--60 while accuracy is still at
+  $84$--$88\%$ (Section~\ref{sec:learned}).
+  \item \textbf{An exact decomposition.} Training moves the bottleneck
+  from the data to the kernel: $\Sigma_{\rm patch}$ becomes full-rank, the
+  ordering follows the kernels' Gram spectra, and the kernel is a matched
+  filter for its input ($\rho_{\rm align} \approx +0.9$, zero at
+  initialisation). The decomposition predicts that orthogonalising a
+  trained kernel adds about $0.3\,r_{\max}$; SO and SRIP penalties, tested
+  as registered, realise half (Section~\ref{sec:decompose}).
   \item \textbf{The measured widths can be trained to.} Truncating every
-  layer to its $k^*(0.999)$ subspace at inference leaves accuracy unchanged
-  in six of eight checkpoints, and $k^*(0.95)$ does not
-  (Section~\ref{sec:projection}). A VGG-16 built from scratch at the
-  post-activation $k^*(0.999)$ widths matches full width on CIFAR-10 at two
-  thirds of the parameters; on CIFAR-100 and ImageNet-1k the same widths are
-  the full ones, and a registered class-count control shows the unused
-  width is the few-class task's, closing monotonically with the number of
-  classes and appearing only once the task has been optimised long enough
-  (Section~\ref{sec:a18}).
+  layer to $k^*(0.999)$ at inference leaves accuracy unchanged in six of
+  eight checkpoints; a VGG-16 built from scratch at the post-activation
+  $k^*(0.999)$ widths matches full width on CIFAR-10 at two thirds of the
+  parameters; on CIFAR-100 and ImageNet-1k the same widths are the full
+  ones, and a registered class-count control shows the unused width is the
+  few-class task's, closing monotonically with the class count
+  (Sections~\ref{sec:projection} and \ref{sec:a18}).
 \end{enumerate}
 
 The analysis was specified before the ImageNet data were collected. The
@@ -378,13 +365,12 @@ and if $\lambda_{k+1} \le \lambda_k / 2$ then $\mathbb{E}\,\hat F(k) - F(k) \le 
 
 The captured fraction is biased upward and $k^*(\tau)$ downward, at
 $n/C = 50$ by at most $4\%$ of the residual $1 - \tau$ under a factor-two
-gap at $k$. The gap is an assumption; the double sum is not, and on the
-measured spectra of ResNet-50 the bias at $n = 50\,C$ and $\tau = 0.999$ is
-$1.8\%$ of the residual in the median and $3.3\%$ at most, while
-$k^*(0.999)$ at $n/C = 50$ equals its final value on 40 of the 53 layers
-and differs by one component on the rest. The gate is therefore the sample
-size at which the first-order bias falls below a few per cent of what the
-statistic measures. The proof is in the supplement.
+gap at $k$; without the gap assumption, on ResNet-50's measured spectra
+the bias at $n = 50\,C$ and $\tau = 0.999$ is $1.8\%$ of the residual in
+the median and $3.3\%$ at most, and $k^*(0.999)$ at $n/C = 50$ equals its
+final value on 40 of 53 layers and differs by one component on the rest.
+The gate is the sample size at which the first-order bias falls below a
+few per cent of what the statistic measures (proof in the supplement).
 
 With $p = 16$ positions over $50{,}000$ images every convolutional layer
 receives $n = 8 \times 10^5$ observations and $n/C \ge 391$, clearing the
@@ -405,34 +391,24 @@ Section~\ref{sec:learned} are run on the subset.
 \label{sec:models}
 
 
-Two measurements were made. The first covers 19 public ImageNet-1k
-checkpoints of twelve architectures from \texttt{torchvision} and
-\texttt{timm}, every convolutional layer, on the full validation split
-\cite{deng2009imagenet} (Table~S7); with two untrained
-controls and one checkpoint loaded through both libraries as a backend check
-(it agrees layer for layer and is counted once), 22 runs. Six are ResNet-50
-\cite{he2016resnet} under different recipes (the two \texttt{torchvision}
-recipes, Wightman's A1 and A3, GluonCV, and semi-supervised YFCC100M
-pre-training), so that one architecture is observed under six independent
-optimisations and a between-checkpoint spread can be put beside every
-within-checkpoint difference. Five exercise the bound at other expansion
-ratios: Wide-ResNet-50-2 and ResNeXt-50 (ratio two), MobileNetV2,
-MobileNetV3-Large and EfficientNet-B0 (ratio six); ResNet-101 adds 33
-bottleneck blocks. The rest are VGG-16 with and without BN, ResNet-18 and
-ResNet-34, DenseNet-121 \cite{huang2017densenet} and ConvNeXt-T
-\cite{liu2022convnext} under two pre-trainings.
-
-The second measurement asks what training changes and needs several
-trained checkpoints and several random initialisations per architecture on
-the same images. It was run on the $6{,}400$-image subset over eleven
-families and 44 trained checkpoints: ResNet-50 (six recipes), ResNet-18
-(six), ResNet-34 (five), ResNet-101 (five), Wide-ResNet-50-2 (three),
-ResNeXt-50 (five), VGG-16 (two), DenseNet-121 (two), MobileNetV2 (one),
-MobileNetV3-Large (four) and EfficientNet-B0 (five), with three random
-seeds each (five for ResNet-50) from each library's default initialiser.
-The families span five block types: plain, basic residual, bottleneck at
-two depths, two widths and two cardinalities, densely connected, and
-inverted residual. ConvNeXt-T, with four dense convolutions, is excluded.
+Two measurements were made (supplement, Table~S7). The first covers 19
+public ImageNet-1k checkpoints of twelve architectures from
+\texttt{torchvision} and \texttt{timm}, every convolutional layer, on the
+full validation split \cite{deng2009imagenet}, with two untrained controls
+and one backend-duplicate run, 22 runs. Six are ResNet-50
+\cite{he2016resnet} under different recipes (two \texttt{torchvision},
+Wightman's A1 and A3, GluonCV, semi-supervised YFCC100M), so that one
+architecture is observed under six independent optimisations and a
+between-checkpoint spread stands beside every within-checkpoint
+difference; Wide-ResNet-50-2, ResNeXt-50, MobileNetV2, MobileNetV3-Large
+and EfficientNet-B0 exercise the bound at expansion ratios two and six;
+VGG-16 with and without BN, ResNet-18/34/101, DenseNet-121 and ConvNeXt-T
+complete the set. The second measurement asks what training changes and
+needs several trained checkpoints and several random initialisations per
+architecture on the same images: the $6{,}400$-image subset, eleven
+families spanning five block types, 44 trained checkpoints (one to six
+per family, Table~\ref{tab:families}) and three random seeds each (five
+for ResNet-50) from each library's default initialiser.
 
 Three tensors are recorded per layer: the convolution output, the
 post-activation output and, for residual networks, the block output after
@@ -494,45 +470,38 @@ both published estimators at both tensors.
 \emph{Exploratory; full validation set.} Under the nominal denominator
 ResNet-50 has the lowest median $k^*(0.95)/C$ of the first-round networks
 ($0.25$ against $0.42$ for VGG-16 and $0.51$ for ResNet-18) and a sawtooth
-profile: by width, medians $0.23$, $0.34$, $0.40$, $0.37$ for
-$C = 64 \ldots 512$, then $0.11$ and $0.13$ at $1024$ and $2048$. Two
-readings are possible: the widest layers use a tenth of their width, or the
-bound of Equation~\eqref{eq:rmax} explains the reading, since 20 of the 53
-convolutions are $1\!\times\!1$ expansions with $r_{\max}/C = 0.25$. The
-22 runs test the second reading three ways.
-
-\emph{The bound is never exceeded.} $k^*(0.999)/r_{\max}$ over all layers
-of all 22 runs has maximum $0.960$--$1.000$. (Equation~\eqref{eq:rmax} was
-got wrong twice during this work; this check caught both.)
-
-\emph{Bounded layers fill the bound.} Pooling the 261
-bounded layers of the trained checkpoints by $r_{\max}/C$ (supplement,
-Table~S8), the nominal ratio follows the bound (median $k^*(0.999)/C$ of
-$0.165$, $0.234$, $0.410$ at bounds $1/6$, $1/4$, $1/2$; Spearman $+0.77$)
+profile whose $1024$- and $2048$-channel layers read $0.11$ and $0.13$.
+Either the widest layers use a tenth of their width, or the bound of
+Equation~\eqref{eq:rmax} explains the reading, since 20 of the 53
+convolutions are $1\!\times\!1$ expansions with $r_{\max}/C = 0.25$.
+Three tests decide. \emph{The bound is never exceeded}:
+$k^*(0.999)/r_{\max}$ over all layers of all 22 runs has maximum
+$0.960$--$1.000$ (Equation~\eqref{eq:rmax} was got wrong twice during this
+work; this check caught both). \emph{Bounded layers fill the bound}:
+pooling the 261 bounded layers of the trained checkpoints by $r_{\max}/C$
+(supplement, Table~S8), the nominal ratio follows the bound (median
+$k^*(0.999)/C$ of $0.165$, $0.234$, $0.410$ at bounds $1/6$, $1/4$, $1/2$)
 while the attainable ratio sits at $0.990$, $0.938$, $0.820$, within the
-range of the unbounded layers.
-
-\emph{Within a model the two populations merge.} Bounded against unbounded
-layers differ under $C$ in all 14 models with expansion layers
-(Mann--Whitney $p < 10^{-2}$, below $10^{-8}$ in eleven) and in none under
-$r_{\max}$ ($p > 0.01$ in all 14; smallest $0.025$, ResNet-34's three
-downsampling shortcuts). ResNet-50's medians move from $0.236$ against
-$0.938$ to $0.927$ against $0.938$, and its median $k^*(0.95)/r_{\max}$ of
-$0.42$ is in line with VGG-16 ($0.42$) and ResNet-18 ($0.53$).
+range of the unbounded layers. \emph{Within a model the two populations
+merge}: bounded against unbounded layers differ under $C$ in all 14 models
+with expansion layers (Mann--Whitney $p < 10^{-2}$) and in none under
+$r_{\max}$ ($p > 0.01$ in all 14); ResNet-50's medians move from $0.236$
+against $0.938$ to $0.927$ against $0.938$, and its median
+$k^*(0.95)/r_{\max}$ of $0.42$ is in line with VGG-16 ($0.42$) and
+ResNet-18 ($0.53$).
 
 We conclude that a trained $1\!\times\!1$ expansion is essentially
 full-rank in its input space ($94\%$ of the bound at ratio four, $99\%$ at
 six), that the effect Han \emph{et al.} \cite{han2021rexnet} saw in random
 networks is, for trained ones, the bound and nothing else, and that
-$k^*/C$ at such a layer measures the architecture rather than the
-representation. The bound is necessary and not sufficient: the stems of
-VGG-16 ($r_{\max} = 27$) and the MobileNets ($27$ of $32$) reach only
+$k^*/C$ at such a layer measures the architecture. The bound is necessary
+and not sufficient: the stems of VGG-16 and the MobileNets reach only
 $0.3$--$0.4$ of it at $\tau = 0.999$, because natural-image patches are
 themselves low-rank. The denominator also decides what a comparison with
 initialisation measures: against a random ResNet-50, $k^*(0.95)/r_{\max}$
-finds no agreement in ordering ($\rho = -0.07$) while $\mathrm{PR}/C$,
-$\mathrm{erank}/C$ and $k^*(0.95)/C$ find $0.55$--$0.58$, and what the
-three share with the random network is the expansion sawtooth.
+finds no agreement in ordering ($\rho = -0.07$) while the statistics
+normalised by $C$ find $0.55$--$0.58$, which is the expansion sawtooth
+they share with the architecture.
 
 \subsection{Profiles and Their Variation Across Checkpoints}
 \label{sec:profile}
@@ -649,29 +618,25 @@ $\mathrm{erank}/C$: each statistic gives a reproducible profile.
 
 \emph{Exploratory (plan Section~11).} Reproducible is not interchangeable.
 On the $894$ gate-passing dense convolutions of 21 checkpoints we computed
-PR, its finite-sample correction \cite{chun2026estimating}, effective rank,
-RankMe \cite{garrido2023rankme} and the $\alpha$-ReQ exponent
+PR, its finite-sample correction \cite{chun2026estimating}, effective
+rank, RankMe \cite{garrido2023rankme} and the $\alpha$-ReQ exponent
 \cite{agrawal2022alphaReq} from the same spectra (supplement, Table~S3).
-Within a network PR and the ruler do not order layers alike: the
-per-network $\rho$ between $\mathrm{PR}/r_{\max}$ and
-$k^*(0.999)/r_{\max}$ has median $0.41$, reaches $0.8$ in one network of
-eighteen, and is $-0.52$ on the ImageNet VGG-16, where PR falls from
+Within a network PR and the ruler do not order layers alike (per-network
+$\rho$ median $0.41$; $-0.52$ on the ImageNet VGG-16, where PR falls from
 $0.19$ to $0.02$ of $r_{\max}$ while $k^*(0.999)$ rises from $0.44$ to
-$0.96$. Effective rank sits between ($0.63$). RankMe orders layers as the
-ruler does ($0.94$ against $k^*(0.999)$, $0.99$ against $k^*(0.95)$, above
-$0.8$ in seventeen of eighteen). The exponent $\alpha$ is the most stable
-quantity across recipes ($0.97$) and correlates with the ruler at $-0.66$,
-as a decay rate should, but is a slope and cannot be put on the width
-axis. The finite-sample correction changes PR by at most $0.03\%$ at the
-gate, which is Proposition~\ref{prop:gate} again, and the pooling count of
-Section~\ref{sec:estimator} is the same under every statistic
-($687$, $669$ and $688$ of $703$). We conclude that the registered
+$0.96$); effective rank sits between ($0.63$); RankMe orders layers as
+the ruler does ($0.94$, above $0.8$ in seventeen networks of eighteen);
+$\alpha$ is the most stable quantity across recipes ($0.97$) and
+correlates with the ruler at $-0.66$ but is a slope, not a count. The
+finite-sample correction changes PR by at most $0.03\%$ at the gate, and
+the pooling count of Section~\ref{sec:estimator} is the same under every
+statistic ($687$, $669$, $688$ of $703$). We conclude that the registered
 hypothesis holds in its mechanism and fails in its predicted direction:
 head-weighted statistics do reorder layers, but on a plain network the PR
 profile falls with depth rather than rising, so the statistic explains
 part of the published disagreement and not its sign. Every conclusion
-stated below for $k^*(\tau)/r_{\max}$ transfers to RankMe and to the
-pooling count, and not to PR or $\alpha$ without re-measurement.
+below for $k^*(\tau)/r_{\max}$ transfers to RankMe and to the pooling
+count, and not to PR or $\alpha$.
 
 \subsection{Threshold Sensitivity}
 \label{sec:threshold}
@@ -745,82 +710,60 @@ has learned it. Three behaviours appear.
 ordering.} VGG-16, ResNet-18, ResNet-34 and DenseNet-121 have T--R of
 $0.61$--$0.75$ against ceilings of $0.79$--$0.98$, and training raises the
 median level by $0.09$ to $0.19$, more than the profile's own step in all
-but DenseNet-121, whose step is its structural $1\!\times\!1$/$3\!\times\!3$
-alternation. This is the observation Ansuini \emph{et al.}
+but DenseNet-121. This is the observation Ansuini \emph{et al.}
 \cite{ansuini2019intrinsic} made on VGG-16's PC-ID profile, now with seeds.
 
-(ii)~\emph{The ImageNet ResNet-50 checkpoints learn their ordering.} T--T is
-$0.84$, T--R $-0.08$ (range $-0.31$ to $+0.33$ over 30 pairs), R--R $0.94$.
-The depth trend reverses: every random draw falls with depth
-($\rho_{\rm depth}$ $-0.53$ to $-0.81$) and every trained recipe rises
-(mean $+0.56$). Ranking within stages, where every layer shares $C$ and no
-bound confound is possible, removes the trend and leaves $0.27$ against a
-ceiling of $0.75$ (column T--R$_{\rm stage}$), so the reordering is real
-within stages as well, if less complete. Under $C$ the contrast shrinks
-(T--R $0.57$ against $0.67$ and $0.81$ for ResNet-34 and ResNet-18)
-because what trained and random bottleneck profiles share under $C$ is
-the expansion sawtooth. Depth is not the cause: ResNet-101, twice as deep,
-agrees with its initialisation \emph{more} ($0.20$), and Wide-ResNet-50-2
-and ResNeXt-50 more still ($0.33$, $0.46$); the four bottleneck families
-lie below every plain, basic and dense family and order as a gradient,
-least architectural in the deepest-and-narrowest bottleneck. Nor is the
-kernel role: in ResNet-50 both $3\!\times\!3$ ($+0.09$) and $1\!\times\!1$
-($-0.28$) layers reorder, while in DenseNet-121 the $3\!\times\!3$ layers
-move ($-0.26$) and the $1\!\times\!1$ layers stay ($+0.39$).
+(ii)~\emph{The ImageNet ResNet-50 checkpoints learn their ordering.} T--T
+is $0.84$, T--R $-0.08$ (range $-0.31$ to $+0.33$ over 30 pairs), R--R
+$0.94$; every random draw falls with depth ($\rho_{\rm depth}$ $-0.53$ to
+$-0.81$) and every trained recipe rises ($+0.56$). Ranking within stages,
+where no bound confound is possible, leaves $0.27$ against a ceiling of
+$0.75$, so the reordering is real within stages as well. Depth is not the
+cause, since ResNet-101 agrees with its initialisation \emph{more}
+($0.20$) and Wide-ResNet-50-2 and ResNeXt-50 more still ($0.33$, $0.46$),
+the four bottleneck families ordering as a gradient below every other
+family; nor is the kernel role, since in ResNet-50 both $3\!\times\!3$ and
+$1\!\times\!1$ layers reorder while in DenseNet-121 only the
+$3\!\times\!3$ layers do.
 
-(iii)~\emph{Inverted-residual checkpoints agree weakly or not at all.} The
-four MobileNetV3-Large checkpoints share no profile (T--T $-0.18$, R--R
-$0.75$); the five same-dataset EfficientNet-B0 checkpoints agree moderately
-($0.40$, R--R $0.97$). What varies most is the level: the $1\!\times\!1$
-layers' median $k^*(0.95)/r_{\max}$ spans $0.18$--$0.65$ and
-$0.10$--$0.73$ across checkpoints of one architecture and one dataset, and
-training roughly halves the depthwise layers in MobileNetV3
-($0.41 \to 0.20$) and EfficientNet-B0 ($0.35 \to 0.22$). These checkpoints
-differ in pre-training data, training length (up to $3{,}600$ epochs) and
-framework, so this is a statement about the checkpoints one can download.
+(iii)~\emph{Inverted-residual checkpoints agree weakly or not at all.}
+MobileNetV3-Large's four checkpoints share no profile (T--T $-0.18$, R--R
+$0.75$) and EfficientNet-B0's five agree moderately ($0.40$, R--R $0.97$);
+the $1\!\times\!1$ levels span $0.18$--$0.65$ and $0.10$--$0.73$ under one
+architecture and dataset, and training halves the depthwise layers. These
+checkpoints differ in pre-training data, length and framework, so this is
+a statement about the checkpoints one can download.
 
-\emph{Is the block the cause?} The released plan (Section~9.1) registered,
-before its data, the experiment that separates the block from everything
-else that varies between public checkpoints: a basic-block ResNet
-$[6,6,6,6]$ and a bottleneck ResNet-50 $[3,4,6,3]$ with the same stage
-widths, stem and number of convolutions ($52$ and $53$), and a CIFAR
-MobileNetV2, three seeds each under the recipe of
-Section~\ref{sec:repro-garg}, measured at initialisation, at 17 points
-along training and at the end (Table~S9). H9.1 predicted
-that the bottleneck network's T--R lies below the basic network's, with
-the registered consequence that failure attributes the ImageNet contrast
-to depth or recipe. H9.1 fails: the basic network agrees with its
-initialisation at $0.55$ ($0.46$--$0.57$ over nine pairs), the bottleneck
-at $0.50$ ($0.38$--$0.54$), $p = 0.2$, and the MobileNetV2 at $0.44$; the
-other two ImageNet signatures are absent too, the CIFAR bottleneck's level
-\emph{falling} on training ($0.20 \to 0.16$) and its depth trend
-flattening ($-0.78 \to -0.21$) rather than reversing. H9.2 holds: the
-three MobileNetV2 seeds share their profile at $\rho = 0.99$--$1.00$
-against a ceiling of $0.68$, so an inverted-residual network under one
-recipe does have a profile and the disagreement among public checkpoints
-is the recipes'. We conclude that what makes the six ImageNet ResNet-50
-recipes reorder their layers is not the bottleneck block but something
-they share and this experiment lacks, the dataset or the ImageNet recipes,
-which it does not separate (Section~\ref{sec:limits}); the four-family
-gradient above already excludes depth. One exploratory reading survives:
-within stages the bottleneck network reorders more than the basic one
-($0.25$ against $0.50$), as on ImageNet ($0.27$ against $0.75$).
+\emph{Is the block the cause?} The plan (Section~9.1) registered, before
+its data, the experiment that separates the block from everything else
+that varies between public checkpoints: a basic-block ResNet $[6,6,6,6]$
+and a bottleneck ResNet-50 $[3,4,6,3]$ with the same stage widths, stem
+and convolution count ($52$ and $53$), and a CIFAR MobileNetV2, three
+seeds each under the recipe of Section~\ref{sec:repro-garg} (supplement,
+Table~S9). H9.1, that the bottleneck network's T--R lies below the basic
+network's, fails: $0.55$ ($0.46$--$0.57$) against $0.50$ ($0.38$--$0.54$),
+$p = 0.2$, MobileNetV2 $0.44$; the CIFAR bottleneck's level \emph{falls}
+on training ($0.20 \to 0.16$) and its depth trend flattens rather than
+reversing. H9.2 holds: the three MobileNetV2 seeds share their profile at
+$\rho = 0.99$--$1.00$ against a ceiling of $0.68$, so an inverted-residual
+network under one recipe has a profile and the public disagreement is the
+recipes'. We conclude that what makes the ImageNet ResNet-50 recipes
+reorder their layers is not the bottleneck block but something they share
+and this experiment lacks, the dataset or the ImageNet recipes, which it
+does not separate (Section~\ref{sec:limits}).
 
-
-\emph{When.} A VGG-16 (BN) trained on CIFAR-10 and measured at 17 points
-has its final ordering by epoch 40 ($\rho$ to the final profile $0.98$
-from then on) while test accuracy still rises from $84\%$ to $94\%$, and
-the final profile agrees with the initial one at $0.93$. The nine
-controlled runs give the same picture with seeds (supplement, Fig.~S5):
-after one epoch every profile is \emph{anti}-correlated with its initial
-one ($-0.50$ for both ResNets), the depth trend has reversed to rising and
-the level has doubled; by epoch 15--20 the trend falls again and the
-agreement with initialisation climbs to $0.6$--$0.9$, drifting to its
-final $0.50$--$0.54$; the profile settles at epoch 40--60 while accuracy is
-$84$--$88\%$ on its way to $93$--$95\%$. The rising trend of the trained
-ImageNet ResNet-50 is thus present transiently in every CIFAR-10 network
-and undone. Along the same runs the last three layers end at
-$k^*(0.95)/C$ of $0.05$--$0.07$: the terminal collapse of
+\emph{When.} A VGG-16 (BN) on CIFAR-10 has its final ordering by epoch 40
+($\rho$ to the final profile $0.98$ from then on) while accuracy still
+rises from $84\%$ to $94\%$, and its final profile agrees with the initial
+one at $0.93$. The nine controlled runs agree with seeds (supplement,
+Fig.~S5): after one epoch every profile is \emph{anti}-correlated with
+its initial one ($-0.50$), with a rising depth trend and a doubled level;
+by epoch 15--20 the trend falls again and the agreement with
+initialisation climbs to $0.6$--$0.9$, drifting to its final
+$0.50$--$0.54$; the profile settles at epoch 40--60 while accuracy is
+$84$--$88\%$. The rising trend of the trained ImageNet ResNet-50 is thus
+present transiently in every CIFAR-10 network and undone. The last three
+layers end at $k^*(0.95)/C$ of $0.05$--$0.07$: the terminal collapse of
 \cite{garg2019lowEffort} is present in our CIFAR-10 VGG-16 and absent in
 our ImageNet VGG-16 ($0.44$--$0.53$); Section~\ref{sec:a18} ties it to
 few classes and long optimisation. Two cautions: at $\tau = 0.999$
@@ -831,17 +774,14 @@ reference is itself unstable.
 \subsection{Functional Calibration by Truncation}
 \label{sec:projection}
 
-\emph{Exploratory; the $6{,}400$-image subset.} The statistic counts
-directions of variance. Whether the discarded directions carry function
-can be checked at inference by replacing each convolution output $y$ with
+\emph{Exploratory; the $6{,}400$-image subset.} Whether the directions the
+statistic discards carry function can be checked at inference by
+replacing each convolution output $y$ with
 $\bar y + U_k U_k^{\top}(y - \bar y)$, $U_k$ its top-$k$ principal channel
-directions: the response-PCA truncation of Zhang \emph{et al.}
-\cite{zhang2016accelerating}, which they fold into the
-kernel and apply with a rank chosen under a speed budget and fine-tuning.
-We use it for one question only: with $k = k^*(\tau)$ from the measurement,
-at every dense convolution at once, without fine-tuning, does accuracy
-survive? The scale of the answer is fixed to first order by the discarded
-variance.
+directions, the response-PCA truncation of Zhang \emph{et al.}
+\cite{zhang2016accelerating}, here with $k = k^*(\tau)$ from the
+measurement, at every dense convolution at once, without fine-tuning. The
+scale of the answer is fixed to first order by the discarded variance.
 
 \begin{proposition}[first-order effect of truncation]
 \label{prop:truncation}
@@ -859,15 +799,8 @@ agrees with the actual logit change in rank order across layers at
 $\rho = 0.99$--$1.00$ at every $\tau$. Covariances were accumulated on one
 half of the subset and the truncated network evaluated on the other, with
 a control that truncates to $k^*(\tau)$ random directions
-(Table~\ref{tab:projection}, exact McNemar test per cell).
+(supplement, Table~S11; exact McNemar test per cell).
 
-\begin{table}[t]
-  \centering
-  \caption{Top-1 on $3{,}200$ held-out images with every convolution output truncated to its top $k^*(\tau)$ principal channel directions, all layers at once, no fine-tuning. Truncating to $k^*(\tau)$ random orthonormal directions instead gives at most $2\%$ in every case. $^*$: McNemar $p < 0.01$ against the untruncated network at $\tau = 0.999$. Generated by \texttt{checkpoint\_analysis.py} from \texttt{projection\_check.py}.}
-  \label{tab:projection}
-  \scriptsize\setlength{\tabcolsep}{3.5pt}
-  \input{table_projection}
-\end{table}
 
 At $\tau = 0.999$ the truncation keeps $84$--$93\%$ of each layer's
 attainable rank and accuracy is unchanged in six of eight checkpoints
@@ -891,25 +824,21 @@ is the question of Section~\ref{sec:a18}.
 \subsection{Robustness of the Protocol}
 \label{sec:robust}
 
-\emph{Exploratory; the subset and $3{,}200$ COCO images.} Each choice the
-protocol makes was varied on ResNet-50 (V1) and the $k^*(0.95)/r_{\max}$
-profile compared with the reference run (supplement, Table~S4). Sampling 4
+\emph{Exploratory; the subset and $3{,}200$ COCO images.} Varying the
+protocol's choices on ResNet-50 (V1) (supplement, Table~S4), sampling 4
 or 64 positions instead of 16, resizing instead of cropping, and reading
-the batch-normalisation output instead of the convolution output all give
-$\rho \ge 0.99$ and a median per-layer difference below $0.01$, the largest
-being one channel of a 64-channel layer; the per-channel affine map of BN
-does not reshape the spectrum. Two variations do matter and say what the
-profile is a property of. Replacing the images by white noise gives
-$\rho = 0.32$ and a level of $0.24$ against $0.42$; $1/f$ noise, which
-shares the second-order statistics of natural images, recovers part of it
-($0.70$, level $0.29$); the untrained network moves much less under the
-same substitution ($0.78$--$0.88$). A trained profile is a property of the
-network on natural images, the data factor of Section~\ref{sec:decompose}
-seen from the other side. Changing the natural images changes nothing: the
-same network on $3{,}200$ COCO images gives an identical profile to within
-one channel at every layer, and the ResNet-50 bodies of COCO-trained Faster
-R-CNN and Mask R-CNN order their layers like the classifier ($\rho = 0.91$)
-at a lower level ($0.29$ and $0.31$ against $0.41$). The protocol reads no
+the batch-normalisation output instead of the convolution output all
+leave the $k^*(0.95)/r_{\max}$ profile within one channel at every layer
+($\rho \ge 0.99$). Two variations matter. On white noise the trained
+profile keeps $\rho = 0.32$ of its ordering at a level of $0.24$ against
+$0.42$, and $1/f$ noise recovers part of it ($0.70$), while the untrained
+network moves much less ($0.78$--$0.88$): a trained profile is a property
+of the network on natural images, the data factor of
+Section~\ref{sec:decompose} seen from the other side. Changing the natural
+images changes nothing ($3{,}200$ COCO images give the same profile to
+within one channel), and the ResNet-50 bodies of COCO-trained Faster R-CNN
+and Mask R-CNN order their layers like the classifier ($\rho = 0.91$) at a
+lower level ($0.29$ and $0.31$ against $0.41$). The protocol reads no
 labels and applies to any convolutional backbone unchanged.
 
 \subsection{Decomposition of the Effective Width}
@@ -962,76 +891,42 @@ the width only through the spread of its singular values, and
 Corollary~\ref{cor:kstar} is the exact form of the claim that an isometric
 kernel passes the effective width of its input through unchanged, the aim
 of orthogonality regularisation (Section~\ref{sec:where}), which reaches
-the ceiling only if the input is also white. On the 465 dense convolutions of the ten
-checkpoints in Table~\ref{tab:decompose} (numerical rank of $W$ at
-$10^{-6}$ of $\sigma_{\max}$) the eigenvalue ratios lie within
+the ceiling only if the input is also white. On the 465 dense convolutions of the ten checkpoints in
+Table~S12 the eigenvalue ratios of
+Proposition~\ref{prop:ostrowski} lie within
 $[\sigma_{\min}^2, \sigma_{\max}^2]$ on 464 and the corollary holds on 465
-at both thresholds; it is informative, that is, bounds below $r_{\max}$, on
-246 layers at $\tau = 0.95$, the rest having $\kappa$ large enough that
-$\tau'$ is near one (median $\kappa = 10.6$). Twenty-four trained layers
-have numerically null kernel directions, in ResNet-50 all in the stem and
-first stage, and no random layer does: training empties some kernel
+at both thresholds, informatively on 246 at $\tau = 0.95$ (median
+$\kappa = 10.6$); twenty-four trained layers have numerically null kernel
+directions and no random layer does, so training empties some kernel
 directions outright.
 
 For every dense convolution we accumulated $\Sigma_{\rm patch}$
-($n/d \ge 67$) and compared four quantities: the measured
-$k^*/r_{\max}$, recomputed from Equation~\eqref{eq:decomp}; the same for
-$WW^{\top}$, the width under white patches; for $\Sigma_{\rm patch}$ capped
-at $r_{\max}$; and for $W_{\circ}\Sigma_{\rm patch}W_{\circ}^{\top}$, the
-width the layer would have if its kernel were orthogonalised and its input
-left as it is (Table~\ref{tab:decompose}, Fig.~\ref{fig:decompose}).
+($n/d \ge 67$) and compared four quantities: the measured $k^*/r_{\max}$,
+recomputed from Equation~\eqref{eq:decomp}; the same for $WW^{\top}$, the
+width under white patches; for $\Sigma_{\rm patch}$ capped at $r_{\max}$;
+and for $W_{\circ}\Sigma_{\rm patch}W_{\circ}^{\top}$, the width the layer
+would have with its kernel orthogonalised and its input left as it is
+(Table~S12; supplement, Fig.~S6).
 
-\begin{table*}[t]
-  \centering
-  \caption{Decomposition of $k^*/r_{\max}$ by Equation~\eqref{eq:decomp}, medians
-  over a checkpoint's $L$ dense convolutions on the $6{,}400$-image subset.
-  \emph{out}: measured; \emph{kernel}: $WW^{\top}$ (white patches);
-  \emph{data}: $\Sigma_{\rm patch}$ capped at $r_{\max}$; \emph{ortho}:
-  orthogonalised kernel with the measured patches. $\rho$ columns are Spearman
-  correlations across layers with \emph{out}. The random initialisation is one
-  seed. Generated by \texttt{checkpoint\_analysis.py}.}
-  \label{tab:decompose}
-  \footnotesize
-  \input{table_decompose}
-\end{table*}
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{fig6_decompose_trained.pdf}
-  \includegraphics[width=\columnwidth]{fig6_decompose_random.pdf}
-  \caption{The four quantities of Table~\ref{tab:decompose} for every dense
-  convolution of ResNet-50, trained (top) and at initialisation (bottom). At
-  initialisation the measured width follows the patch covariance and the
-  kernel is nearly isotropic; after training the patch covariance is full-rank at this criterion (the cap at $r_{\max}$ is trivial for $3\!\times\!3$ layers, where $d > r_{\max}$, and binding for $1\!\times\!1$ layers, the dips) and the measured width follows the kernel.
-  Generated by \texttt{scripts/paper\_figures.py}.}
-  \label{fig:decompose}
-\end{figure}
-
-Three things follow. First, the identity is a check on the pipeline:
+Three things follow. The identity checks the pipeline:
 $k^*(0.95)/r_{\max}$ recomputed from $W$ and an independently accumulated
 $\Sigma_{\rm patch}$ reproduces the measured value within $0.008$ on every
-layer where both exist. Second, training moves the bottleneck from the
-data to the kernel. At initialisation the patch covariance is far from
-full-rank (median $0.28$ of $r_{\max}$ for ResNet-50), the random kernel
-nearly isotropic ($0.86$), and the measured width follows the data
-($\rho = 0.94$) rather than the kernel ($0.44$); orthogonalising the random
-kernel changes nothing. The untrained patch covariance also loses rank with
-depth, which is why every random profile in Section~\ref{sec:learned} falls
-with depth: at initialisation the profile is a property of how the input
-statistics degrade through random layers. In every trained checkpoint the
-patch covariance has become full-rank at the $95\%$ criterion (median
-$1.00$; $0.88$--$0.89$ for the inverted-residual networks) and the
-measured width follows the kernel spectrum ($\rho = 0.81$--$0.97$ for
-ResNet-18, three ResNet-50 recipes, VGG-16 and DenseNet-121) and only
-weakly the data. The ordering of a trained profile is, to first
-approximation, the ordering of the kernels' Gram spectra. Third, the level
-is set jointly: a trained kernel under white patches would give
-$0.69$--$0.86$, the measured value is $0.42$--$0.70$, and orthogonalising
-the kernel with the measured patches gives $0.75$--$0.87$, above the
-measured value in $401$ of $412$ dense convolutions of the nine trained
-checkpoints. The trained kernel is therefore not merely anisotropic; its
-high-gain directions are aligned with the high-variance directions of its
-input, so the two factors compound.
+layer. Training moves the bottleneck from the data to the kernel: at
+initialisation the patch covariance is far from full-rank (median $0.28$
+of $r_{\max}$ for ResNet-50), the random kernel nearly isotropic ($0.86$),
+and the measured width follows the data ($\rho = 0.94$) rather than the
+kernel ($0.44$), the untrained patch covariance losing rank with depth,
+which is why every random profile in Section~\ref{sec:learned} falls with
+depth; in every trained checkpoint the patch covariance is full-rank at
+the $95\%$ criterion (median $1.00$) and the measured width follows the
+kernel spectrum ($\rho = 0.81$--$0.97$ in six of nine checkpoints), so the
+ordering of a trained profile is, to first approximation, the ordering of
+the kernels' Gram spectra. And the level is set jointly: a trained kernel
+under white patches would give $0.69$--$0.86$, the measured value is
+$0.42$--$0.70$, and orthogonalising the kernel with the measured patches
+gives $0.75$--$0.87$, above the measured value in $401$ of $412$ dense
+convolutions; the trained kernel's high-gain directions are aligned with
+the high-variance directions of its input, so the two factors compound.
 
 \emph{Alignment, measured (plan Section~9.6; the registered sign was
 wrong).} With $W = \sum_i s_i u_i v_i^{\top}$, let $\rho_{\rm align}$ be
@@ -1057,7 +952,7 @@ input spectrum rather than flattening it.
 
 \emph{The prediction, tested (plan Section~9.2).} An orthogonal kernel
 decorrelates its output when the input is white \cite{huang2018own};
-Table~\ref{tab:decompose} shows the trained input is full-rank but not
+Table~S12 shows the trained input is full-rank but not
 white, so orthogonalisation should add about $0.3\,r_{\max}$, not reach
 the ceiling. VGG-16 (BN) and the basic ResNet of Table~S9 were trained on
 CIFAR-10 without penalty, with soft orthogonality SO
@@ -1065,7 +960,7 @@ CIFAR-10 without penalty, with soft orthogonality SO
 ($\lambda = 10^{-2}$) \cite{bansal2018orthogonality}, three seeds each,
 and the penalised $k^*(0.95)/r_{\max}$ compared with the \emph{ortho}
 counterfactual of the unpenalised network of the same seed
-(Table~\ref{tab:ortho}). P9.3, that SO lands within $0.1$ of the
+(supplement, Table~S10). P9.3, that SO lands within $0.1$ of the
 counterfactual, fails: both penalties raise the level from $0.35$--$0.36$
 to $0.53$--$0.56$ (SO) and $0.42$--$0.54$ (SRIP), half of the predicted
 gain, because at these strengths the kernels' effective rank rises only
@@ -1080,50 +975,28 @@ gained. The counterfactual is an upper bound that a soft penalty
 approaches by half, in the layers it names; an exact isometry constraint
 \cite{huang2020oni} was not run.
 
-\begin{table*}[t]
-  \centering
-  \caption{Orthogonality penalties against the counterfactual
-  (pre-registered, plan Section~9.2): CIFAR-10, three seeds, medians over
-  seeds of per-network medians over the $L$ dense convolutions passing
-  $n/d \ge 50$. \emph{none}, \emph{penalised}: measured $k^*(0.95)/r_{\max}$;
-  \emph{predicted}: the \emph{ortho} counterfactual of the unpenalised
-  network; \emph{realised}: the fraction of the predicted gain obtained;
-  $\rho$(gain, pred.): Spearman across layers between the gain obtained and
-  the gain predicted; kernel erank: effective rank of $W$ over $r_{\max}$,
-  unpenalised $\to$ penalised. Generated by
-  \texttt{checkpoint\_analysis.py}.}
-  \label{tab:ortho}
-  \footnotesize
-  \input{table_ortho}
-\end{table*}
 
 \subsection{The Profile as a Diagnostic}
 \label{sec:diagnostic}
 
-\emph{Exploratory.} Pooling the six ResNet-50 recipes, the median
-$k^*(0.999)/r_{\max}$ over recipes and over the layers of one role in one
-stage (supplement, Table~S5) reads above $0.9$ on 29 of the 53 layers in
-every recipe and $0.95$--$0.97$ at every $3\!\times\!3$ convolution. The
-width not used sits at the entry of the network and in its projection
-shortcuts: the stem at $0.49$ of its attainable rank, the first block of
-stage~1 at $0.40$--$0.61$, and the four stride-2 shortcuts at $0.61$,
-$0.72$, $0.85$ and $0.94$ from stage 1 to 4; these are the only layers
-below $0.7$ in all six recipes. At $\tau = 0.95$ every role reads about one
-half, the same in every stage, and by Section~\ref{sec:projection} that is
-not width one can remove. The reading is not ``ResNet-50 is half idle'' but
-``its entry and its shortcuts are wider than what passes through them, by
-about two, in every recipe''. Beside a pruning method the ruler agrees
-where the profile is decided: on the CIFAR-10 VGG-16 the $k^*(0.999)$
-widths are $14, 47 \mid 107, 121 \mid 238, 247, 249 \mid 456, 376, 261
-\mid 40, 40, 40$, and network slimming \cite{liu2017slimming} on the same
-dataset also cuts the first convolution to a fifth or a third of 64, keeps
-the second and third resolutions nearly whole, and collapses the last
-resolution to $32$--$40$ of $512$; the two disagree at the fourth
-resolution, where slimming removes $94\%$ and the ruler keeps
-$50$--$90\%$, since the ruler reports the rank the activations span and
-slimming what can be removed when the network is retrained around the
-removal. Whether the ruler's widths retrain to full accuracy is the next
-section.
+\emph{Exploratory.} Pooling the six ResNet-50 recipes by role and stage
+(supplement, Table~S5), $k^*(0.999)/r_{\max}$ reads above $0.9$ on 29 of
+the 53 layers in every recipe and $0.95$--$0.97$ at every $3\!\times\!3$
+convolution. The width not used sits at the entry of the network and in
+its projection shortcuts: the stem at $0.49$, the first block of stage~1
+at $0.40$--$0.61$, and the four stride-2 shortcuts at $0.61$ to $0.94$
+from stage 1 to 4, the only layers below $0.7$ in all six recipes. At
+$\tau = 0.95$ every role reads about one half in every stage, and by
+Section~\ref{sec:projection} that is not width one can remove. The reading
+is not ``ResNet-50 is half idle'' but ``its entry and its shortcuts are
+wider than what passes through them, by about two, in every recipe''.
+Beside network slimming \cite{liu2017slimming} on the same CIFAR-10
+VGG-16, the ruler agrees where the profile is decided (both cut the first
+convolution to a fifth or a third of 64 and collapse the last resolution
+to $32$--$40$ of $512$) and disagrees at the fourth resolution, since the
+ruler reports the rank the activations span and slimming what can be
+removed when the network is retrained around the removal. Whether the
+ruler's widths retrain to full accuracy is the next section.
 
 \subsection{Retraining at the Measured Widths}
 \label{sec:a18}
@@ -1140,7 +1013,7 @@ the same parameter count; and the ruler at $\tau = 0.95$ ($0.63$M
 parameters). Table~\ref{tab:a18} gives the outcome.
 
 \begin{table}[t]
-  \caption{Widths from the ruler, retrained from scratch (pre-registered, plan Sections~9.5, 9.7 and 9.8): VGG-16 (BN), three seeds per arm, test accuracy at epoch 100 as mean $\pm$ SD over seeds, and the median over layers of the retrained network's own $k^*(0.999)/r_{\max}$. MACs are multiply-adds per $32 \times 32$ image; img/s is inference throughput measured on one RTX 4090 at batch 256. The CIFAR-10 full-width arm is the untreated arm of Table~\ref{tab:ortho}. The lower block (plan Section~9.11) is ResNet-18 on ImageNet-1k under the \texttt{torchvision} reference recipe, two seeds per arm, final-epoch top-1; its MACs are per $224 \times 224$ image, and its throughput and retrained level were not measured.}
+  \caption{Widths from the ruler, retrained from scratch (pre-registered, plan Sections~9.5, 9.7 and 9.8): VGG-16 (BN), three seeds per arm, test accuracy at epoch 100 as mean $\pm$ SD over seeds, and the median over layers of the retrained network's own $k^*(0.999)/r_{\max}$. MACs are multiply-adds per $32 \times 32$ image; img/s is inference throughput measured on one RTX 4090 at batch 256. The CIFAR-10 full-width arm is the untreated arm of the penalty test (supplement, Table~S10). The lower block (plan Section~9.11) is ResNet-18 on ImageNet-1k under the \texttt{torchvision} reference recipe, two seeds per arm, final-epoch top-1; its MACs are per $224 \times 224$ image, and its throughput and retrained level were not measured.}
   \label{tab:a18}
   \centering
   \scriptsize
@@ -1148,41 +1021,36 @@ parameters). Table~\ref{tab:a18} gives the outcome.
   \input{table_a18}
 \end{table}
 
-\emph{CIFAR-10.} P9.6, that the ruler's widths lose under $0.3$ points on
-average with no seed more than $0.5$ below, holds ($93.55$ against
-$93.77$). P9.8, that the $\tau = 0.95$ widths lose at least one point,
-holds with $2.15$: the training-side counterpart of
-Section~\ref{sec:projection}. P9.7, that every uniform-cut seed falls below
-every ruler seed, was registered as a strict three-against-three ordering
-and fails by one image: eight pairs favour the ruler and the ninth is an
-exact tie ($9{,}337$ correct test images in both). By the registered rule
-we do not claim the allocation is needed at this budget; the exploratory
-mean difference is $0.35$ points. The network retrained at the ruler's
-widths does not fill them ($0.85$ of $r_{\max}$ against $0.74$ at full
-width), so the count is re-made by training rather than inherited.
+\emph{CIFAR-10.} P9.6, that the ruler's widths lose under $0.3$ points
+with no seed more than $0.5$ below, holds ($93.55$ against $93.77$); P9.8,
+that the $\tau = 0.95$ widths lose at least one point, holds with $2.15$,
+the training-side counterpart of Section~\ref{sec:projection}; P9.7, that
+every uniform-cut seed falls below every ruler seed, fails by one image
+(eight pairs of nine, the ninth an exact tie), so by the registered rule
+we do not claim the allocation is needed at this budget. The retrained
+network does not fill the ruler's widths ($0.85$ of $r_{\max}$ against
+$0.74$ at full width): the count is re-made by training rather than
+inherited.
 
-\emph{CIFAR-100 (Section~9.7).} The same arms with widths re-read from
-a CIFAR-100 network answer differently. The ruler's widths are nearly full
-in the last five layers ($466$--$490$ of $512$, against $40$ on
-CIFAR-10), so it removes $13\%$ of the parameters, almost all from the
-first seven layers; P9.14 fails (the ruler arm loses $0.59$ points), P9.15
-fails in the direction opposite to P9.7 (the uniform cut is above the
-ruler in nine pairs of nine), and P9.16 holds with $5.8$ points at
-$\tau = 0.95$.
+\emph{CIFAR-100 (Section~9.7).} With widths re-read from a CIFAR-100
+network the last five layers are nearly full ($466$--$490$ of $512$,
+against $40$ on CIFAR-10), the ruler removes $13\%$ of the parameters, and
+the answer reverses: P9.14 fails (the ruler arm loses $0.59$ points),
+P9.15 fails in the direction opposite to P9.7 (the uniform cut is above
+the ruler in nine pairs of nine), and P9.16 holds with $5.8$ points.
 
 \emph{The tensor the next layer consumes (Section~9.8).} The measurement
-exposes the cause. The ruler reads the convolution output, where the bound
-holds, but the next layer consumes the post-activation tensor, and the ReLU
-raises the rank where the input is a low-rank RGB patch: on both full
-networks the first convolution spans $14$--$15$ directions at
-$\tau = 0.999$ and its ReLU output $47$--$48$. A layer narrowed to the rank
-of its own output caps what the next layer receives. The registered fifth
-arm reads the widths after the ReLU ($67\%$ of the parameters on
-CIFAR-10); P9.17, within $0.3$ of full width, and P9.18, above the
-convolution-output widths seed for seed, both hold ($93.84$ against
-$93.77$). On CIFAR-100 the post-activation widths are $99\%$ of the full
-ones, so by the registered rule that arm is not evidence. We conclude that
-a width read at $\tau = 0.999$ is the rank the activations span: at the
+exposes the cause: the ruler reads the convolution output, where the bound
+holds, but the next layer consumes the post-activation tensor, and the
+ReLU raises the rank where the input is a low-rank RGB patch (the first
+convolution spans $14$--$15$ directions at $\tau = 0.999$, its ReLU output
+$47$--$48$). A layer narrowed to the rank of its own output caps what the
+next layer receives. The registered fifth arm reads the widths after the
+ReLU ($67\%$ of the parameters); P9.17, within $0.3$ of full width, and
+P9.18, above the convolution-output widths seed for seed, both hold
+($93.84$ against $93.77$), and on CIFAR-100 the post-activation widths are
+$99\%$ of the full ones, so that arm is not evidence. We conclude that a
+width read at $\tau = 0.999$ is the rank the activations span: at the
 convolution output it is the width the layer \emph{produces}, and a
 network built at it loses where the nonlinearity had raised the rank;
 after the nonlinearity it is the width the next layer \emph{consumes}, and
@@ -1193,21 +1061,19 @@ $r_{\max}$ bounds it and the factors separate; a design decision reads the
 same profile one tensor later.
 
 \emph{The same arms in the representation (Section~9.9).} By linear CKA
-\cite{kornblith2019cka} to full-width seed 0 (ceiling from the other full
-seeds $0.906 \pm 0.004$) the post-activation widths lie at
-$0.910 \pm 0.002$, the convolution-output widths at $0.904 \pm 0.002$ and
-$\tau = 0.95$ at $0.859 \pm 0.009$; P9.19's first part holds, its second
-fails, the gap sitting at the eleventh and twelfth layers, which the
-convolution-output ruler had set to $40$ channels. A width sufficient for
-the accuracy is not thereby sufficient for the representation. Under
-CIFAR-10-C \cite{hendrycks2019robustness} the post-activation widths keep
-mean corruption accuracy ($74.55$ against $74.06$; P9.24 holds) while the
-uniform cut loses $1.66$ points, three times its clean loss; linear probes
-to CIFAR-100, STL-10 and SVHN drop by $1.4$, $0.0$ and $2.3$ points at the
-post-activation widths (P9.21 not supported) and by $4.8$, $0.6$ and $9.5$
-at the convolution-output widths (P9.22 holds). The width the ruler
-removes from the last layers is width the task does not use and a probe
-on another task does.
+\cite{kornblith2019cka} to full-width seed 0 (ceiling $0.906 \pm 0.004$)
+the post-activation widths lie at $0.910$, the convolution-output widths
+at $0.904$ and $\tau = 0.95$ at $0.859$, the gap between the first two
+sitting at the layers the convolution-output ruler had cut to $40$
+channels: a width sufficient for the accuracy is not thereby sufficient
+for the representation. Under CIFAR-10-C \cite{hendrycks2019robustness}
+the post-activation widths keep mean corruption accuracy ($74.55$ against
+$74.06$; P9.24 holds) while the uniform cut loses $1.66$ points, three
+times its clean loss; linear probes to CIFAR-100, STL-10 and SVHN drop by
+$1.4$, $0.0$ and $2.3$ points at the post-activation widths (P9.21 not
+supported) and by $4.8$, $0.6$ and $9.5$ at the convolution-output widths
+(P9.22 holds). The width the ruler removes from the last layers is width
+the task does not use and a probe on another task does.
 
 \emph{ImageNet-1k (Section~9.11).} ResNet-18 from scratch under the
 \texttt{torchvision} reference recipe, two seeds per arm, widths read
@@ -1231,21 +1097,20 @@ $0.98$, $0.99$ (P9.31 holds), and the last three layers, which the
 ten-class network collapses to $0.52$ of their width, go
 $0.83 \to 0.89 \to 0.98 \to 0.99$. Three registered predictions fail: the
 thirteen-class network keeps $0.83$ rather than collapsing below $0.6$
-(P9.32); the first convolution follows the optimisation length rather than
-staying fixed (P9.33, six of seven layers hold); and on an eighth of the
-images the ten-class collapse is shallower, not deeper ($0.74$ against
-$0.52$; P9.34), because the control had cut the step count with the
-images. The follow-up registered after it restores the steps: the same
-$6{,}400$ images for $39{,}000$ steps collapse to $0.38$ and keep $0.62$ of
-the parameters, below the full set's $0.52$ and $0.67$ (P9.35 holds). We
-conclude that the unused width of a ten-class network is a terminal
-collapse reached by a few-class network optimised long enough, closing
-monotonically as classes are added and gone by a hundred; since more
-images at fixed epochs deepen it while more classes lift it, the rise with
-class count is not an artefact of the image count. The last layer's rank
-at $\tau = 0.999$ stays far above the $C_{\rm class} - 1$ of neural
-collapse ($349$ directions at thirteen classes), so what closes is a
-heavy tail thinning, not the subspace theorem itself.
+(P9.32); the first convolution follows the optimisation length rather
+than staying fixed (P9.33); and on an eighth of the images the ten-class
+collapse is shallower, not deeper ($0.74$ against $0.52$; P9.34), because
+the control had cut the step count with the images. The follow-up
+registered after it restores the steps: the same $6{,}400$ images for
+$39{,}000$ steps collapse to $0.38$ (P9.35 holds). We conclude that the
+unused width of a ten-class network is a terminal collapse reached by a
+few-class network optimised long enough, closing monotonically as classes
+are added and gone by a hundred; since more images at fixed epochs deepen
+it while more classes lift it, the rise with class count is not an
+artefact of the image count. The last layer's rank stays far above the
+$C_{\rm class} - 1$ of neural collapse ($349$ directions at thirteen
+classes), so what closes is a heavy tail thinning, not the subspace
+theorem itself.
 
 \begin{figure}[t]
   \centering
@@ -1254,63 +1119,39 @@ heavy tail thinning, not the subspace theorem itself.
   \label{fig:classes}
 \end{figure}
 
-\subsection{Extension to a Transformer}
-\label{sec:vit}
-
-\emph{Exploratory; one checkpoint, no initialisation control.} A linear
-layer is a $1\!\times\!1$ convolution over its input vector with
-$r_{\max} = \min(d_{\rm in}, d_{\rm out})$, and tokens play the role of
-positions. On a ViT-B/16 \cite{dosovitskiy2021vit} (in21k$\to$in1k) at 32
-tokens per image (supplement, Table~S6) the patch embedding uses $0.07$ of
-its attainable rank at $\tau = 0.95$ and $0.22$ at $0.999$, low-rank input
-as at the ResNet stem, and every one of the four linear roles rises with
-depth from about a tenth of the attainable rank to one half or more
-($\rho$ with block index $0.76$--$0.99$), the monotone rise the pooled
-ImageNet profiles report, here read at the layer, position-sampled and
-against the attainable rank. Whether that rise is architectural or learned
-is the comparison this paper makes for convolutional families and not here.
-
 % =========================================================================
 \section{Discussion}
 \label{sec:discussion}
 
-\subsection{Sources of the Published Disagreement}
+\subsection{Sources of Disagreement and Reporting Requirements}
 \label{sec:why}
 
-Section~\ref{sec:intro} set out to reconcile a profile that saturates and
-collapses \cite{garg2019lowEffort} with one that rises
-\cite{elmoznino2024highDim}. The reconciliation is not the one we
+The reconciliation of the two published profiles is not the one we
 expected. The estimator changes the level, not the ordering, by more than
 the profile's own step, so the two literatures' numbers are not on one
-scale. The summary statistic does change the ordering, but in the direction
-opposite to the one that would reconcile the shapes, so it explains part of
-the disagreement and not its sign. The tensor and the denominator each add
-a factor: a block-output profile is higher by the expansion ratio at every
-bottleneck expansion, and a nominal denominator adds a sawtooth to any
-convolution-output profile. And the terminal collapse is the task's:
-measured with one protocol, our CIFAR-10 VGG-16 collapses in its last
-layers and our ImageNet VGG-16 does not, and the class-count control ties
-the collapse to few classes and long optimisation. The two published
-profiles differ in what tensor they read and what task they were trained
-on, and would differ in level even if they agreed on both.
+scale; the summary statistic changes the ordering, but in the direction
+opposite to the one that would reconcile the shapes; the tensor and the
+denominator each add a factor, the block output being higher by the
+expansion ratio and the nominal denominator adding a sawtooth; and the
+terminal collapse is the task's, present in our CIFAR-10 VGG-16 and
+absent in our ImageNet one under one protocol, and tied by the
+class-count control to few classes and long optimisation. The two
+published profiles differ in what tensor they read and what task they
+were trained on, and would differ in level even if they agreed on both.
 
-\subsection{Reporting Requirements}
-\label{sec:protocol}
-
-None of the three pitfalls is an error in any published work; each is a
-choice a measurement must make, made differently by different studies
-without the consequence being known. A reported effective-width profile
-should state which tensor is read, because the rank bound binds the
-convolution output and not the block output and the two differ by the
-expansion ratio; whether positions or images are the observations, because
-the pooled value is lower at essentially every layer by more than the
-profile's step; what the denominator is, because the nominal width is
-unattainable at every expansion layer; that depthwise and dense layers are
-on separate axes; the image set, since on noise the profile changes; and
-the sample-to-channel ratio at the widest layer, because under pooling it
-is the image count and fails at $2048$ channels for any dataset under
-$10^5$ images. None of this is expensive: the first measurement took about
-five hours on one consumer GPU and the second ran on a laptop.
+None of this is an error in any published work; each is a choice a
+measurement must make, made differently without the consequence being
+known.\label{sec:protocol} A reported effective-width profile should
+state the tensor read (the rank bound binds the convolution output and
+not the block output); whether positions or images are the observations
+(the pooled value is lower at every layer by more than the step); the
+denominator (the nominal width is unattainable at every expansion layer);
+that depthwise and dense layers are on separate axes; the image set (on
+noise the profile changes); and the sample-to-channel ratio at the widest
+layer (under pooling it is the image count and fails at $2048$ channels
+for any dataset under $10^5$ images). None of this is expensive: the first
+measurement took about five hours on one consumer GPU and the second ran
+on a laptop.
 
 \subsection{Implications for Choosing Width}
 \label{sec:implications}
@@ -1353,87 +1194,78 @@ quantity it should optimise and the checks it must pass.
 \label{sec:limits}
 
 \emph{Scope of the claims.} Everything here is a linear functional of the
-channel covariance at one tensor: not a manifold dimension, not the rank
-of the network's Jacobian, not the spatial rank of a feature map, and a
-layer whose covariance has high rank may still carry a low-dimensional
-manifold (Section~\ref{sec:four}). No measurement here says by itself that
-a narrower network trains to the same accuracy; where the paper says so it
+channel covariance at one tensor, not a manifold dimension, and a layer
+whose covariance has high rank may still carry a low-dimensional manifold
+(Section~\ref{sec:four}). No measurement here says by itself that a
+narrower network trains to the same accuracy; where the paper says so it
 is by retraining one architecture, and the statement holds for the
 post-activation widths at $\tau = 0.999$ on a few-class task and nowhere
-else. The published profiles were not wrong; each is a correct measurement
-of the choices it made. And the paper makes no claim about the shape of
-the profile beyond two statements, the reversal of the depth trend in
-ResNet-50 (six recipes, five seeds, exploratory) and the terminal collapse
-of few-class networks (three seeds per class count, against its registered
-rule).
+else. The published profiles were not wrong; each is a correct
+measurement of the choices it made. The paper makes two shape statements
+only, the reversal of the depth trend in ResNet-50 (six recipes, five
+seeds, exploratory) and the terminal collapse of few-class networks
+(three seeds per class count, against its registered rule).
 
-\emph{Where the ruler is silent.} The pooled estimator cannot be read at a
-wide layer, and eleven of ResNet-50's pooled rows fail our own gate. The
-bound $r_{\max}$ is necessary and not sufficient: at a first layer the RGB
-patch, not the bound, sets the rank, and on ImageNet-1k the ruler cuts the
-ResNet-18 stem and nothing else. Corollary~\ref{cor:kstar} is empty when
-the kernel is ill-conditioned, which at the trained median $\kappa = 10.6$
-it is on about half the layers.
-
-\emph{Where the effect is inside the noise.} The pooling shift does not
-exceed DenseNet-121's structural adjacent-layer step; ConvNeXt-T's
-trained-versus-untrained comparison is $p = 0.013$ and $0.21$ once its
-depthwise and dense layers are kept apart, the pooled first-round
-$p = 6 \times 10^{-4}$ being withdrawn; MobileNetV3-Large's random draws
-agree only at $0.75$, so its initialisation reference is itself unstable.
+\emph{Where the ruler is silent or inside the noise.} The pooled
+estimator cannot be read at a wide layer, and eleven of ResNet-50's
+pooled rows fail our own gate. The bound $r_{\max}$ is necessary and not
+sufficient: at a first layer the RGB patch sets the rank, and on
+ImageNet-1k the ruler cuts the ResNet-18 stem and nothing else.
+Corollary~\ref{cor:kstar} is empty when the kernel is ill-conditioned,
+which at the trained median $\kappa = 10.6$ it is on about half the
+layers. The pooling shift does not exceed DenseNet-121's structural step;
+ConvNeXt-T's trained-versus-untrained comparison is $p = 0.013$ and
+$0.21$ once its depthwise and dense layers are kept apart; and
+MobileNetV3-Large's random draws agree only at $0.75$, so its reference
+is itself unstable.
 
 \emph{Registered predictions that failed.} H9.1 (block type as cause),
 P9.3 (penalties reach the counterfactual), P9.10 (sign of the alignment),
 P9.23 (alignment and representation settle together), P9.7 and P9.15
 (convolution-output allocation beats a uniform cut), P9.14 (retrains
 without loss on CIFAR-100), the layer part of P9.19, P9.21, P9.25, P9.30
-(ImageNet, where the ruler found nothing to allocate) and P9.32--P9.34 of
-the class-count control. Each is reported at the place cited with its
-registered rule; none is softened by an unregistered re-analysis. And
-$k^*(0.999)$ bounds the width in use for conventional recipes and not for
-the RSB recipes, so the threshold that names the width in use is
-recipe-dependent.
+(ImageNet, where the ruler found nothing to allocate) and P9.32--P9.34.
+Each is reported at the place cited with its registered rule; none is
+softened by an unregistered re-analysis. And $k^*(0.999)$ bounds the
+width in use for conventional recipes and not for the RSB recipes, so the
+threshold that names the width in use is recipe-dependent.
 
 \emph{Error bars and scope.} Error bars exist for ResNet-50 (six recipes,
 five seeds) and for family-level statements; the other families have one
-to six checkpoints and three seeds, enough for the ordering statistics and
-not for any statement about one of their layers, and VGG-16's two
-checkpoints are with and without BN. The controlled experiment varies the
-block at CIFAR-10 scale and so cannot say whether the ImageNet effect is
-the dataset's or the recipes'; the experiment that would, the same
-architectures under one ImageNet recipe with seeds, is the one this study
-could not afford. Head depth at fixed class count was not varied, so the
-CIFAR-10 collapse is explained only in part. The inverted-residual finding
-is about the checkpoints one can download, which differ in pre-training
-data, training length and framework; which ingredient matters is not
-determined. The transformer profile is one checkpoint without an
-initialisation control.
+to six checkpoints and three seeds, enough for the ordering statistics
+and not for a statement about one of their layers. The controlled
+experiment varies the block at CIFAR-10 scale and so cannot say whether
+the ImageNet effect is the dataset's or the recipes'; the experiment that
+would, the same architectures under one ImageNet recipe with seeds, is
+the one this study could not afford. Head depth at fixed class count was
+not varied. The inverted-residual finding is about the checkpoints one
+can download. A ViT-B/16 profile (supplement, Table~S6) shows the
+protocol applies unchanged to linear layers; it is one checkpoint without
+an initialisation control.
 
 % =========================================================================
 \section{Conclusion}
 
 Two published depth profiles of how much of its width a convolutional
 layer uses disagree, and the disagreement is largely about three choices
-made in silence. Normalising by nominal rather than attainable width
-misreads bottleneck networks as underused in all 14 networks that have
-expansion layers; global pooling lowers the value at 687 of 703 layers by
-more than the profile's own step; and the block output exceeds the
-convolution output by the expansion ratio in 161 of 161 blocks. With those
-choices fixed, the protocol reproduces the published CIFAR-10 table it can
-be compared with, and the identity
+made in silence: the denominator, which misreads bottleneck networks as
+underused in all 14 networks with expansion layers; the estimator, which
+lowers the value at 687 of 703 layers by more than the profile's own step;
+and the tensor, which differs by the expansion ratio in 161 of 161
+blocks. With the choices fixed the protocol reproduces the published
+CIFAR-10 table, and the identity
 $\Sigma_{\rm out} = W\Sigma_{\rm patch}W^{\top}$ turns the count into a
 measurement of what the architecture permits, what the data supply and
 what training does: trained networks largely keep the ordering the
-architecture gave them and gain a level, the level is set by a kernel that
-has become a matched filter for its input, the ImageNet ResNet-50
-checkpoints that do reorder owe it to their data or recipes rather than
-their block, and the width the ruler names after the nonlinearity can be
-trained to, with the margin it finds belonging to the few-class task. The
-same identity gives orthogonality regularisation a quantified prediction,
-which the penalties in use meet by half. Measurement code, the eigenvalue
-spectra of every layer, and the analysis plan with its deviation log are
-released so that the next profile can be compared with these on stated
-terms.
+architecture gave them and gain a level set by a kernel that has become a
+matched filter for its input; the ImageNet ResNet-50 checkpoints that
+reorder owe it to their data or recipes, not their block; and the width
+the ruler names after the nonlinearity can be trained to, the margin it
+finds belonging to the few-class task. The same identity gives
+orthogonality regularisation a quantified prediction, which the penalties
+in use meet by half. Code, spectra and the pre-registered plan with its
+deviation log are released so that the next profile can be compared with
+these on stated terms.
 
 % =========================================================================
 \section*{Reproducibility}
