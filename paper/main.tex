@@ -1,16 +1,14 @@
 % =========================================================================
 % How Much of a Convolutional Layer's Width Is Actually Used?
 %
-% Sections I-III are drafted.  Sections IV-VI wait on data.
-%
-% \num{...} marks a figure taken from a secondary source that must be checked
-% against the original before submission.  \todo{...} marks unwritten text.
+% First complete draft (tag v0.1-first-full-draft, 2026-09-15).
+% \todo{...} marks text that cannot be written before submission.
 %
 % The analysis plan lives at ../notes/analysis-plan.md.  If this document and
 % that one disagree, the plan wins and this file is out of date.
 % Verification notes for three contested references: ../refs/verification-notes.md
 %
-% Build:  make          Outstanding items:  make todo
+% Build:  make tectonic ; make supp      Outstanding items:  make todo
 % =========================================================================
 
 \documentclass[10pt,journal,compsoc]{IEEEtran}
@@ -33,7 +31,6 @@
 % --- drafting aids; delete before submission ------------------------------
 \usepackage{xcolor}
 \newcommand{\todo}[1]{\textcolor{red}{[\textbf{TODO} #1]}}
-\newcommand{\num}[1]{\textcolor{blue}{#1}}   % secondary-source figure: verify
 % -------------------------------------------------------------------------
 
 \begin{document}
@@ -106,7 +103,7 @@ principal components of the channel covariance that reach $99.9\%$ of the
 variance on CIFAR VGGs, report a profile that saturates mid-network and
 collapses in its last layers; Elmoznino and Bonner
 \cite{elmoznino2024highDim}, with the participation ratio over
-\num{500}\,+ ImageNet layers, report it rising with depth.
+568 ImageNet layers, report it rising with depth.
 
 Setting out to reconcile the two, we found that the measurements differ
 in three choices made without comment, each of which moves a profile by
@@ -137,7 +134,7 @@ initialisations under a pre-registered plan, and put the ruler to use.
 \textbf{What is measured.}\label{sec:four} Everything here is a functional of
 the channel-covariance spectrum at one tensor, not a manifold intrinsic
 dimension; the two differ by an order of magnitude on the same VGG-16
-layer (TwoNN \num{18} against \num{200} principal components at $90\%$
+layer (TwoNN 18 against 200 principal components at $90\%$
 variance \cite{ansuini2019intrinsic}). The linear count is the object
 width is about, because the consumer of a layer's output is the next
 convolution, linear in its input patch; Section~\ref{sec:projection} makes

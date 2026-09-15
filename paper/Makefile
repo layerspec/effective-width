@@ -39,5 +39,8 @@ tectonic:
 	tectonic -X compile $(MAIN).tex --keep-logs --keep-intermediates
 
 # Supplementary material; needs main.aux from `make tectonic` for the cross-references (xr)
+# main-xr.aux is main.aux without its bibliography labels, so xr does not
+# redefine the citation keys that supp.bbl defines again.
 supp: tectonic
+	grep -v -e '^\\bibcite' -e '^\\newlabel{cite\.' -e '^\\bibstyle' -e '^\\bibdata' -e '^\\citation' $(MAIN).aux > $(MAIN)-xr.aux
 	tectonic -X compile supp.tex --keep-logs --keep-intermediates

@@ -50,3 +50,4 @@ docs/superpowers/
 notes/lane-idea-*.md
 notes/orthogonality-novelty-*.md
 paper/main.out
+paper/*.aux
