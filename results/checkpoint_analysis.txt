@@ -906,7 +906,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   expl. (exploratory; ruler arm filled: median k*(.999)/r_max >= 0.9): 0.929 -> yes
   P9.17 (plan 9.8; ruler_act within 0.3 of full, no seed below full-0.5): diff +0.25, min 73.17 vs 72.73 -> SUPPORTED; params 0.989 of full, does NOT count (within 5% of full width)
   P9.18 (ruler_act mean above ruler mean; C-100 also all 3 above all 3): 73.49 vs 72.64 -> yes; all-above-all yes
-  wrote ../paper/table_a18.tex
 
 ========================================================================
 17. Kernel-data alignment rho_align (analysis-plan 9.6)
@@ -1105,7 +1104,7 @@ layer4 conv1       0.97   0.51
     logit margin^2: median 54.8, 10th percentile 3.91
 
 ========================================================================
-21. The ruler on a transformer: ViT-B/16 (exploratory, one checkpoint, 6,400 images x 32 tokens)
+21. The ruler on a transformer: ViT-B/16, trained and at initialisation (exploratory, 6,400 images x 32 tokens)
 ========================================================================
 
   vit_base_patch16_224: 49 linear/conv layers pass the gate
@@ -1116,6 +1115,22 @@ layer4 conv1       0.97   0.51
     MLP fc1            12  3072   768    0.38 (0.14-0.72)                         0.91       +0.99
     MLP fc2            12   768   768    0.50 (0.17-0.74)                         0.96       +0.76
     r_max check: max k*(0.999)/r_max over all rows 0.987 (must be <= 1)
+
+  vit_base_patch16_224_random: 49 linear/conv layers pass the gate
+    role                n     C r_max   k*(.95)/r_max med (min-max)  k*(.999)/r_max med  rho(block)
+    patch embedding     1   768   768    0.03 (0.03-0.03)                         0.33        +nan
+    qkv                12  2304   768    0.16 (0.06-0.17)                         0.85       +1.00
+    attention proj.    12   768   768    0.01 (0.01-0.02)                         0.30       +0.94
+    MLP fc1            12  3072   768    0.16 (0.06-0.17)                         0.86       +0.99
+    MLP fc2            12   768   768    0.25 (0.17-0.26)                         0.93       +0.65
+    r_max check: max k*(0.999)/r_max over all rows 0.930 (must be <= 1)
+
+  trained vs initialisation (T-R) over the 48 block layers: Spearman +0.65; median level 0.38 trained vs 0.16 random
+    qkv                T-R rho +0.99; level 0.27 -> 0.16 (random)
+    attention proj.    T-R rho +0.94; level 0.31 -> 0.01 (random)
+    MLP fc1            T-R rho +0.98; level 0.38 -> 0.16 (random)
+    MLP fc2            T-R rho +0.46; level 0.50 -> 0.25 (random)
+  wrote ../paper/table_vit.tex
 
 ========================================================================
 22. Estimator comparison (B10, plan section 11): the ruler against RankMe, alpha-ReQ, corrected PR, on identical layers and images
@@ -1255,4 +1270,31 @@ layer4 conv1       0.97   0.51
     (e) 69.18, 68.82 vs (c) 69.09, 68.58 -> P9.30 (2-vs-2 total order): does not hold
     exploratory: ruler/full width ratio by site: 0.69 1.00 0.98 1.00 1.00 1.00 0.99 1.00 1.00 1.00 1.00 0.99 1.00  (params 0.992, MACs 0.959)
     exploratory: every site but the stem reads 0.98-1.00 of its channels; the arms differ by less than the full-width seed spread (0.60 points), so P9.29/P9.30 do not test the allocation
-  appended the ImageNet-1k block to ../paper/table_a18.tex
+
+========================================================================
+25. A24: class count at fixed architecture and recipe, widths after the ReLU (analysis-plan 9.12)
+========================================================================
+  arm                        K  n                 p(K) params                 d(K) last-3       last k*     acc  gate
+  CIFAR-10, 50k             10  3  0.673 0.674 0.674 (0.674)     0.52 0.52 0.52 (0.52)   168 164 168     nan  ok
+  CIFAR-10, 6.4k            10  3  0.833 0.836 0.832 (0.833)     0.74 0.75 0.74 (0.74)   267 268 267   82.05  ok
+  CIFAR-10, 6.4k, 39k steps  10  3  0.616 0.618 0.627 (0.620)     0.37 0.38 0.39 (0.38)      70 73 75   83.86  ok
+  CIFAR-100, 13 classes     13  3  0.879 0.878 0.880 (0.879)     0.83 0.83 0.83 (0.83)   348 349 350   81.51  ok
+  CIFAR-100, 20 classes     20  3  0.917 0.919 0.918 (0.918)     0.89 0.89 0.89 (0.89)   405 408 405   82.20  ok
+  CIFAR-100, 50 classes     50  3  0.976 0.978 0.979 (0.978)     0.97 0.98 0.98 (0.98)   486 488 488   79.03  ok
+  CIFAR-100, 100 classes   100  3  0.989 0.989 0.990 (0.989)     0.99 0.99 0.99 (0.99)   505 504 505     nan  ok
+
+  P9.31 (p(K) strictly increasing over 13 < 20 < 50 < 100, every seed): 3 seeds -> HOLDS
+    seed 0: 0.879 < 0.917 < 0.976 < 0.989
+    seed 1: 0.878 < 0.919 < 0.978 < 0.989
+    seed 2: 0.880 < 0.918 < 0.979 < 0.990
+  P9.32 (d(13) < 0.6, d(100) > 0.9, monotone; every seed): -> does not hold
+    seed 0: 0.83 -> 0.89 -> 0.97 -> 0.99  (fails)
+    seed 1: 0.83 -> 0.89 -> 0.98 -> 0.99  (fails)
+    seed 2: 0.83 -> 0.89 -> 0.98 -> 0.99  (fails)
+  P9.33 (first seven layers: max/min over K < 1.10, seed-mean widths): 1.15 1.02 1.00 1.01 1.00 1.00 1.00 -> does not hold
+  exploratory: last-layer k*(0.999) 349 406 487 505 vs K-1 [np.int64(12), np.int64(19), np.int64(49), np.int64(99)]: Pearson r 0.88, ratio k*/(K-1) 29.1 21.4 9.9 5.1
+  P9.34 (CIFAR-10 at 6,400 images: d <= CIFAR-10 at 50,000 (0.52) + 0.15, every seed): 0.74 0.75 0.74 -> does not hold
+    p: 50k 0.673 0.674 0.674  vs 6.4k 0.833 0.836 0.832
+  P9.35 (plan 9.13; 6,400 images at 39,000 steps: d <= 0.62, every seed): 0.37 0.38 0.39 -> HOLDS (steps); p 0.616 0.618 0.627, first-layer width 45 42 42
+  exploratory: ten CIFAR-10 classes (50k) d 0.52 vs thirteen CIFAR-100 classes d 0.83
+  wrote ../results/a24_classes/summary.csv
