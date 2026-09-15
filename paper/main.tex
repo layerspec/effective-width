@@ -472,67 +472,68 @@ architecture and the second-order statistics of natural images
 \section{Results}
 \label{sec:results}
 
-The analysis plan fixed, before any ImageNet data were collected, the
-primary statistic ($k^*(0.95)/C$), the sample-size gate, and four hypotheses
-about the \emph{shape} of the depth profile: that the shape would depend on
-the summary statistic, on the estimator, on the class count, and on the
-threshold $\tau$. Each shape hypothesis was to be decided by a rank
-correlation over the last third of the layers. That rule turned out to have
-almost no power (for VGG-16 it is a correlation over four points, with an
-exact one-sided $p$ of $0.167$ for the strongest ``collapse'' in the data)
-and we do not use it. Every claim below is instead a paired comparison over
-\emph{all} gated layers of a network, and every effect size is given beside
-the adjacent-layer step of the curve it is measured on. Each subsection is labelled \emph{pre-registered} or \emph{exploratory}, and names which of the two measurements of Section~\ref{sec:models} it draws on. Every number is produced by a script from the released spectra,
-not transcribed.
+The plan fixed, before any ImageNet data were collected, the primary
+statistic ($k^*(0.95)/C$), the gate, and four hypotheses about the
+\emph{shape} of the profile, each to be decided by a rank correlation over
+the last third of the layers. That rule has almost no power (for VGG-16 it
+is four points, exact one-sided $p = 0.167$ for the strongest collapse in
+the data) and is not used. Every claim below is a paired comparison over
+\emph{all} gated layers, every effect size stands beside the adjacent-layer
+step of the curve it is measured on, each subsection is labelled
+\emph{pre-registered} or \emph{exploratory}, and every number is produced
+by a script from the released spectra.
 
 Section~\ref{sec:repro-garg} validates the protocol against both published profiles. Sections~\ref{sec:rmax}--\ref{sec:blockout} quantify the three choices; Sections~\ref{sec:metrics}--\ref{sec:dwsplit} settle the remaining registered comparisons. Section~\ref{sec:learned} compares trained networks with their initialisations, Section~\ref{sec:decompose} decomposes the statistic into its kernel and data factors, and Sections~\ref{sec:projection}, \ref{sec:diagnostic} and \ref{sec:a18} put the measurement to use.
 
 \subsection{Validation Against Published Profiles}
 \label{sec:repro-garg}
 
-Before any new profile is read, the protocol was checked against the one
-published table it can be compared with directly. Garg \emph{et al.}
-\cite{garg2019lowEffort} report $k^*(0.999)/C$ for the thirteen
-convolutional layers of a VGG-16 with batch normalisation trained on
-CIFAR-10 \cite{krizhevsky2009cifar}. We trained the same architecture on the
-same dataset for 100 epochs (one-cycle schedule; test accuracy $94.1\%$) and
-measured it with the protocol of Section~\ref{sec:method} at their
-threshold. Over all thirteen layers the two profiles agree with Pearson
-$r = 0.981$, Spearman $\rho = 0.988$ and a mean absolute difference of
-$0.052$. The two largest disagreements are at \texttt{features.27} ($0.73$
-ours against $0.53$ theirs) and \texttt{features.30} ($0.52$ against
-$0.31$); their training recipe is not fully specified, so agreement to the
-digit was not expected, and the criterion we set for passing, $r > 0.9$ with
-a mean absolute difference below $0.10$, is a criterion on shape.
+Garg \emph{et al.} \cite{garg2019lowEffort} publish $k^*(0.999)/C$ for the
+thirteen convolutions of a VGG-16 (BN) trained on CIFAR-10
+\cite{krizhevsky2009cifar}. We trained the same architecture on the same
+data (100 epochs, one-cycle; $94.1\%$ test accuracy) and measured it at
+their threshold. The profiles agree at Pearson $r = 0.981$, Spearman
+$0.988$ and a mean absolute difference of $0.052$ against a registered
+criterion of $r > 0.9$ and MAD $< 0.10$; the two largest differences,
+\texttt{features.27} ($0.73$ against $0.53$) and \texttt{features.30}
+($0.52$ against $0.31$), are consistent with a recipe their paper does not
+fully specify. Our first attempt, their CIFAR-10 table against our
+ImageNet-trained VGG-16, gave $r = 0.125$: the last three layers of an
+ImageNet VGG sit above $0.9$ where theirs sit at $0.07$--$0.08$. A CIFAR-10
+profile and an ImageNet profile of one architecture are different objects,
+which is why every cross-architecture comparison below is made within one
+dataset.
 
-The gate is deliberately same-dataset. Our first attempt compared their
-CIFAR-10 table with our ImageNet-trained VGG-16 and obtained $r = 0.125$
-over the same thirteen layers: the last three layers of an ImageNet VGG sit above $0.9$ where theirs sit at $0.07$--$0.08$. That number is not a failure of either measurement. It says that a CIFAR-10 profile and an ImageNet profile of the same architecture are different objects, and it is why every cross-architecture comparison in this paper is made within one dataset.
-
-A second, ImageNet-scale check was added after the data were seen. Elmoznino and Bonner \cite{elmoznino2024highDim} release the participation ratio of the globally pooled output of every residual block of the \texttt{torchvision} ResNet-50, computed on $10{,}000$ validation images resized to $224\times224$ without cropping. Our pooled block-output participation ratio for the same weights on $50{,}000$ centre-cropped images matches theirs over all 16 blocks with Spearman $\rho = 0.997$ and a median absolute difference in $\log$ of $0.063$ (maximum $0.112$), ours higher in 15 of 16 by a median factor of $1.065$; for the same architecture at initialisation the agreement is $\rho = 0.985$. The images and the resizing differ, so this is agreement between two implementations of one estimator, not a reproduction, and only the seven blocks with $C \le 512$ pass our pooled sample-size gate on their side (maximum difference $0.098$ there). Together with the CIFAR-10 gate it fixes the pipeline against both published estimators at both tensors.
+Elmoznino and Bonner \cite{elmoznino2024highDim} release the participation
+ratio of the pooled block output of the \texttt{torchvision} ResNet-50 on
+$10{,}000$ resized validation images. Ours on $50{,}000$ centre-cropped
+images matches over all 16 blocks at $\rho = 0.997$ with a median
+$|\Delta \log|$ of $0.063$, and $0.985$ at initialisation. The images
+differ, so this is agreement between two implementations of one estimator
+rather than a reproduction. We conclude that the pipeline is fixed against
+both published estimators at both tensors.
 
 \subsection{Normalising by Attainable Rank}
 \label{sec:rmax}
 
-\emph{Exploratory; full validation set.} Under the nominal denominator ResNet-50 has the lowest median $k^*(0.95)/C$ of the first-round networks ($0.25$ against $0.42$ for VGG-16 and $0.51$ for ResNet-18) and a profile that alternates between adjacent layers in a sawtooth. Grouping its layers by width makes the alternation legible (median $0.23,
-0.34, 0.40, 0.37$ for $C = 64 \ldots 512$, then $0.11$ and $0.13$ for
-$C = 1024$ and $2048$) and invites the reading that the widest layers use a tenth of the width they are given. Twenty of its 53 convolutions are the
-$1\!\times\!1$ expansions at the end of a bottleneck, with
-$C_{\rm in} = C_{\rm out}/4$ and hence $r_{\max}/C = 0.25$ by
-Equation~\eqref{eq:rmax}; they cannot exceed $0.25$ however well they are
-trained.
+\emph{Exploratory; full validation set.} Under the nominal denominator
+ResNet-50 has the lowest median $k^*(0.95)/C$ of the first-round networks
+($0.25$ against $0.42$ for VGG-16 and $0.51$ for ResNet-18) and a sawtooth
+profile: by width, medians $0.23$, $0.34$, $0.40$, $0.37$ for
+$C = 64 \ldots 512$, then $0.11$ and $0.13$ at $1024$ and $2048$. Two
+readings are possible: the widest layers use a tenth of their width, or the
+bound of Equation~\eqref{eq:rmax} explains the reading, since 20 of the 53
+convolutions are $1\!\times\!1$ expansions with $r_{\max}/C = 0.25$. The
+22 runs test the second reading three ways.
 
-That the bound explains the reading, rather than merely capping it, is a
-testable statement, and the 22 checkpoints test it three ways.
+\emph{The bound is never exceeded.} $k^*(0.999)/r_{\max}$ over all layers
+of all 22 runs has maximum $0.960$--$1.000$. (Equation~\eqref{eq:rmax} was
+got wrong twice during this work; this check caught both.)
 
-\emph{The bound is never exceeded.} $k^*(0.999)/r_{\max}$ must not pass
-unity if $r_{\max}$ is computed correctly. Its maximum over all layers of
-all 22 checkpoints lies between $0.960$ and $1.000$. (Equation~\eqref{eq:rmax}
-was got wrong twice during this work, once by omitting the kernel extent
-and once in the grouped case; this check caught both.)
-
-\emph{Bounded layers track the bound one-for-one.} Pooling the bounded
-layers of all trained checkpoints and grouping them by $r_{\max}/C$ gives Table~\ref{tab:bounds}.
+\emph{Bounded layers fill the bound.} Table~\ref{tab:bounds} pools the 261
+bounded layers of the trained checkpoints by $r_{\max}/C$: the nominal
+ratio follows the bound (Spearman $+0.77$) while the attainable ratio sits
+at $82$--$99\%$ of the ceiling, within the range of the unbounded layers.
 \begin{table}[t]
   \centering
   \caption{Bounded layers of all trained checkpoints, grouped by the bound:
@@ -551,39 +552,27 @@ $1/2$ & 70  & $0.410$ & $0.820$ & WRN, ResNeXt, other \\
 \end{tabular}
 \end{table}
 
-The nominal ratio follows the bound (Spearman $+0.77$ over the 261 bounded layers, medians shown); the attainable ratio does not, and sits at $82$--$99\%$ of
-the ceiling. A tighter ceiling is filled more completely, and every value is within the range of the unbounded layers.
+\emph{Within a model the two populations merge.} Bounded against unbounded
+layers differ under $C$ in all 14 models with expansion layers
+(Mann--Whitney $p < 10^{-2}$, below $10^{-8}$ in eleven) and in none under
+$r_{\max}$ ($p > 0.01$ in all 14; smallest $0.025$, ResNet-34's three
+downsampling shortcuts). ResNet-50's medians move from $0.236$ against
+$0.938$ to $0.927$ against $0.938$, and its median $k^*(0.95)/r_{\max}$ of
+$0.42$ is in line with VGG-16 ($0.42$) and ResNet-18 ($0.53$).
 
-\emph{Within a model, the two populations merge.} The formal test is
-within each network: are its bounded layers different from its unbounded
-ones? Under $C$ they are, in all 14 models that contain expansion layers
-(Mann--Whitney $p < 10^{-2}$ in every case, and below $10^{-8}$ in eleven).
-Under $r_{\max}$ the difference is gone in all 14 ($p > 0.01$ in every
-case; the smallest is $0.025$, for ResNet-34, whose three bounded layers
-are downsampling shortcuts). For ResNet-50 the medians move from $0.236$
-against $0.938$ to $0.927$ against $0.938$. Under $r_{\max}$ ResNet-50's median $k^*(0.95)$ of $0.42$ is in line with VGG-16 ($0.42$) and ResNet-18 ($0.53$) on the same
-images.
-
-The bound is known (Section~\ref{sec:profiles}), and Han \emph{et al.}
-\cite{han2021rexnet} observed in random-weight networks that ``drastic
-channel expansion harms the rank''. What is added here is a positive finding: in trained networks the expansion layers sit at $94\%$ of the bound at ratio four and $99\%$ at ratio six, so a trained $1\!\times\!1$ expansion is essentially full-rank in its input space, the effect Han \emph{et al.} describe is for these networks the bound and nothing else, and $k^*/C$ at such a layer measures the architecture rather than the representation. The bound is a
-necessary condition on the rank, not a sufficient one, and the stem layers
-say so: the first convolution of VGG-16 has $r_{\max} = 27$ from a
-$3\!\times\!3$ RGB patch, and the MobileNet stems $27$ of $32$, yet these
-layers reach only $0.3$--$0.4$ of $r_{\max}$ at $\tau = 0.999$. Natural-image
-patches are themselves low-rank; the stem is data-limited, not
-architecture-limited, and is the one place where neither denominator is
-informative.
-
-The denominator also decides what a comparison with initialisation measures. Against a random initialisation of ResNet-50 (Section~\ref{sec:learned}),
-$k^*(0.95)/r_{\max}$ finds no agreement between the trained and the
-untrained ordering ($\rho = -0.07$), while $\mathrm{PR}/C$ and effective
-rank over $C$ find moderate agreement ($0.58$ and $0.56$), as does
-$k^*(0.95)/C$ ($0.55$). The three that agree are the three normalised by
-$C$: what they share with the random network is the expansion sawtooth,
-which is the architecture. A statistic normalised by $r_{\max}$ removes it.
-The lesson is not that one statistic is right, but that the denominator
-decides what a trained-versus-random comparison measures.
+We conclude that a trained $1\!\times\!1$ expansion is essentially
+full-rank in its input space ($94\%$ of the bound at ratio four, $99\%$ at
+six), that the effect Han \emph{et al.} \cite{han2021rexnet} saw in random
+networks is, for trained ones, the bound and nothing else, and that
+$k^*/C$ at such a layer measures the architecture rather than the
+representation. The bound is necessary and not sufficient: the stems of
+VGG-16 ($r_{\max} = 27$) and the MobileNets ($27$ of $32$) reach only
+$0.3$--$0.4$ of it at $\tau = 0.999$, because natural-image patches are
+themselves low-rank. The denominator also decides what a comparison with
+initialisation measures: against a random ResNet-50, $k^*(0.95)/r_{\max}$
+finds no agreement in ordering ($\rho = -0.07$) while $\mathrm{PR}/C$,
+$\mathrm{erank}/C$ and $k^*(0.95)/C$ find $0.55$--$0.58$, and what the
+three share with the random network is the expansion sawtooth.
 
 \subsection{Profiles and Their Variation Across Checkpoints}
 \label{sec:profile}
@@ -598,49 +587,46 @@ decides what a trained-versus-random comparison measures.
   \label{fig:profile}
 \end{figure}
 
-\emph{Exploratory; full validation set and the $6{,}400$-image subset.} Fig.~\ref{fig:profile} shows the profile, in units of attainable rank (Section~\ref{sec:rmax}), for the case with an error bar: six
-ResNet-50 recipes on the same images. Two numbers describe it. Across the
-six recipes the per-layer standard deviation of $k^*(0.95)/r_{\max}$ has
-median $0.053$ (maximum $0.123$); the adjacent-layer step within any one
-recipe has median $0.087$ (range $0.062$--$0.096$). The spread between
-independently trained networks is thus about $0.6$ of the step between
-neighbouring layers of one network, which settles what may and may not be
-read from a single checkpoint. The fine structure of one profile, the value
-at one layer against the next, is not reproducible across recipes and is not
-reported anywhere below. The ordering across the whole profile is reproducible: pairwise Spearman $\rho$ between recipes is $0.79$--$0.92$. The overall level also moves with the recipe, from $0.38$
-(\texttt{torchvision} V1) to $0.48$ (A1), a shift larger than the per-layer
-spread; it is a recipe effect and we do no more than note it.
-
-Under the nominal denominator the same six profiles agree more closely
-($\rho$ $0.91$--$0.98$), but part of that agreement is the architecture's rank bound, which every checkpoint shares by construction: Section~\ref{sec:rmax} shows that against a random initialisation the agreement is $0.55$ under $C$ and $-0.07$ under $r_{\max}$. Columns $T$ and $R$ of Table~\ref{tab:families} give the median level of each family (its correlation columns are explained in Section~\ref{sec:learned}); across the eleven families the median $k^*(0.95)/r_{\max}$ of a trained network's dense convolutions lies between $0.33$ (Wide-ResNet-50-2) and $0.72$ (MobileNetV2), and the depthwise convolutions of the inverted-residual families lie below their dense ones, at $0.20$--$0.42$. No trained
-network in the study uses more than $0.72$ of its attainable
-channel rank at the $95\%$ criterion, in the median over layers.
+\emph{Exploratory; full set and subset.} Fig.~\ref{fig:profile} shows the
+profile in units of attainable rank for the one case with an error bar,
+six ResNet-50 recipes on the same images. Across recipes the per-layer
+standard deviation of $k^*(0.95)/r_{\max}$ has median $0.053$ (maximum
+$0.123$); the adjacent-layer step within one recipe has median $0.087$.
+The spread between independently trained networks is thus $0.6$ of the
+step between neighbouring layers, which settles what a single checkpoint
+can support: the value at one layer against the next is not reproducible
+and is not reported below; the ordering over the profile is (pairwise
+$\rho = 0.79$--$0.92$), and so is the level, which moves with the recipe
+from $0.38$ (\texttt{torchvision} V1) to $0.48$ (A1). Under $C$ the six
+agree more closely ($0.91$--$0.98$), part of it the shared bound. Across
+the eleven families (columns $T$ and $R$ of Table~\ref{tab:families}) the
+median $k^*(0.95)/r_{\max}$ of a trained network's dense convolutions lies
+between $0.33$ (Wide-ResNet-50-2) and $0.72$ (MobileNetV2), and the
+depthwise convolutions of the inverted-residual families below their dense
+ones, at $0.20$--$0.42$.
 
 \subsection{Pooled Versus Position-Sampled Covariance}
 \label{sec:estimator}
 
-\emph{Pre-registered; full validation set.} The comparison computes both estimators of
-Section~\ref{sec:object} on the same forward pass, the same layers, with the
-same spectral machinery, and asks whether they differ in shape. They differ in level.
+\emph{Pre-registered; full validation set.} The registered hypothesis was
+that the estimator changes the \emph{shape} of the profile and so accounts
+for the published disagreement. Both estimators were computed on the same
+forward pass and layers.
 
-Over the 19 trained checkpoints, the pooled estimator gives a strictly
-lower $k^*(0.95)/C$ than the position-sampled one on $687$ of $703$ dense
-convolutions and $79$ of $80$ depthwise convolutions that pass the pooled
-sample-size gate. Of the 16 dense exceptions, 14 are ties: ten in DenseNet-121 at $C = 32$, where one channel is $0.031$ of the range and a tie is a matter of resolution, and four at the first bottleneck of four ResNet-50 recipes ($C = 256$). Two are reversals: one channel in DenseNet-121's last dense block, and 23 channels ($0.045$) at one $512$-channel layer of the \texttt{torchvision}-V2 ResNet-50, the only reversal among that checkpoint's 42 gated layers. The same holds for the two untrained controls.
-
-Table~\ref{tab:pooling} gives the size of the effect beside each curve's
-own jitter, under both denominators. Under the nominal denominator the three
-inverted-residual networks appear to show almost no effect: a median drop
-of $0.06$--$0.09$ against an adjacent-layer step of $0.5$--$0.7$. That step
-is the $1/6$ expansion sawtooth of Section~\ref{sec:rmax}, an architectural
-alternation that the nominal ratio charges to the profile. Under the
-attainable denominator the same three networks show a drop of
-$1.25$--$2.1$ times their own step, in line with the other families (median
-$2.2$). One trained network stays below one under either denominator:
-DenseNet-121, whose dense layers alternate a $1\!\times\!1$ convolution of
-$128$ channels with a $3\!\times\!3$ of $32$, so that its adjacent-layer
-step is structural rather than noise. We report it as it is.
-
+\emph{Level.} Over the 19 trained checkpoints the pooled $k^*(0.95)/C$ is
+strictly lower on $687$ of $703$ dense and $79$ of $80$ depthwise
+convolutions passing the pooled gate. Of the 16 dense exceptions 14 are
+ties (ten in DenseNet-121 at $C = 32$, where one channel is $0.031$ of the
+range, four at the first bottleneck of ResNet-50 recipes) and two are
+reversals of one and 23 channels. Table~\ref{tab:pooling} puts the drop
+beside each profile's own step under both denominators. Under $C$ the
+inverted-residual networks appear to show almost nothing (drop
+$0.06$--$0.09$ against a step of $0.5$--$0.7$), but that step is the $1/6$
+expansion sawtooth of Section~\ref{sec:rmax}; under $r_{\max}$ the same
+networks drop by $1.25$--$2.1$ times their step, in line with the others
+(median $2.2$). DenseNet-121 alone stays below one, its step being the
+structural alternation of $128$-channel $1\!\times\!1$ and $32$-channel
+$3\!\times\!3$ layers.
 \begin{table*}[t]
   \centering
   \caption{Pooling lowers the level. Per trained checkpoint: dense
@@ -653,137 +639,109 @@ step is structural rather than noise. We report it as it is.
   \input{table_pooling}
 \end{table*}
 
-Harun \emph{et al.} \cite{harun2024tunnelVariables} report a related architectural effect from the other direction: removing the max-pooling from the first stages of a ResNet removes the rank collapse of its deeper layers. What pooling in the \emph{estimator} does \emph{not} do is reorder the layers. The pre-registered
-shape test, a rank correlation between depth and the pooled-minus-sampled
-difference over all gated layers, is not significant for any of the three first-round architectures with enough dense layers to test (VGG-16 $\rho = -0.35$, $p = 0.24$; ResNet-18 $+0.26$, $p = 0.26$; ResNet-50 $+0.02$, $p = 0.87$), and for VGG-16 the sign is opposite to the one a
-``pooling removes the terminal collapse'' account would need. The
-hypothesis that the estimator explains the difference in \emph{shape}
-between the two published profiles is therefore not supported. What is
-supported is narrower and, we think, more useful: pooling averages away the
-within-image spatial variance, and a
-profile computed after pooling reads lower at every layer by an amount
-larger than the profile's own step. Since \cite{garg2019lowEffort} used a
-spatial estimator and \cite{elmoznino2024highDim} a pooled one, the two
-literatures' numbers are not on the same scale, whatever their shapes.
-
-Two limits apply. Under pooling $n$ is the image count, so the
-$1024$- and $2048$-channel layers of the bottleneck networks fail the gate
-even at $50{,}000$ images (eleven of ResNet-50's 53) and are excluded from
-the counts above; they are the layers where the difference would be
-largest. And the sign test treats layers as independent when adjacent
-layers are not, so the per-checkpoint Wilcoxon $p$-values (at most $1.2 \times 10^{-4}$) are optimistic; the count of exceptions is what carries the
-claim.
+\emph{Shape.} The registered test, a rank correlation between depth and
+the pooled-minus-sampled difference over all gated layers, is not
+significant in any of the three first-round architectures with enough
+dense layers (VGG-16 $\rho = -0.35$, $p = 0.24$; ResNet-18 $+0.26$,
+$p = 0.26$; ResNet-50 $+0.02$, $p = 0.87$), and for VGG-16 the sign is
+opposite to the one a ``pooling removes the terminal collapse'' account
+needs. The registered hypothesis is not supported. What holds is narrower
+and more useful: pooling averages away the within-image spatial variance
+and lowers the profile at every layer by more than the profile's own step,
+so the two published literatures' numbers are not on one scale whatever
+their shapes. Two limits: the pooled gate excludes the $1024$- and
+$2048$-channel layers (eleven of ResNet-50's 53), where the difference
+would be largest; and adjacent layers are correlated, so the per-checkpoint
+Wilcoxon $p$-values (at most $1.2 \times 10^{-4}$) are optimistic and the
+counts carry the claim.
 
 \subsection{Convolution Output Versus Block Output}
 \label{sec:blockout}
 
-\emph{Exploratory; full validation set.} The bound of Section~\ref{sec:rmax} binds the output of
-the expansion convolution. It does not bind the output of the block, which
-adds the shortcut to that convolution's output and rectifies the sum. Since
-the profile literature reads sometimes one tensor and sometimes the other
-(Section~\ref{sec:where}), the two were recorded for every bottleneck block
-of the nine bottleneck networks.
-
-In every one of the $161$ blocks, the block output exceeds the rank bound of
-its own last convolution. At $\tau = 0.999$ the expansion output has median
-$k^*/C$ of $0.23$ (ceiling $0.25$) in the ResNet-50 and ResNet-101
-checkpoints, and the block output $0.96$--$0.99$: a factor of $4.1$, which
-is the expansion ratio. In Wide-ResNet-50-2 and ResNeXt-50 (ceiling $0.5$)
-the factor is $2.3$--$2.4$. The pre-registered statistic behaves the same
-way: $k^*(0.95)/C$ rises from $0.09$--$0.19$ at the expansion output to
-$0.58$--$0.72$ at the block output, higher in $161$ of $161$.
-
-A profile hooked at block outputs never encounters the artefact of
-Section~\ref{sec:rmax}, which is presumably why the studies that hook there
-\cite{ansuini2019intrinsic,elmoznino2024highDim} do not report it; a profile hooked at convolution outputs encounters it at every expansion layer, 20 of ResNet-50's 53. Neither is the wrong tensor. But the two profiles differ by a factor of four at those layers, and a depth profile that does not say which tensor it reads is not comparable with one that reads the other. Fig.~\ref{fig:blockout} shows both along the depth of ResNet-50 for the six recipes. The expansion outputs sit at their ceiling of $0.25$ from the second block on; the block outputs rise from $0.72$--$0.92$ in the first block to $0.99$ by the last, so at this tensor and this threshold the block-level profile of a bottleneck network is a shallow rise toward full rank, which is the shape \cite{elmoznino2024highDim} report for ImageNet networks read at this tensor.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{fig7_blockout.pdf}
-  \caption{$k^*(0.999)/C$ along the 16 bottleneck blocks of ResNet-50, six
-  recipes, at the output of the last convolution of each block (bounded by
-  $r_{\max}/C = 0.25$) and at the block output after the shortcut and the
-  nonlinearity. Generated by \texttt{scripts/paper\_figures.py}.}
-  \label{fig:blockout}
-\end{figure}
+\emph{Exploratory; full validation set.} The bound binds the expansion
+convolution's output and not the block output, which adds the shortcut and
+rectifies. Both were recorded for all $161$ bottleneck blocks of the nine
+bottleneck networks. In every block the block output exceeds the rank bound
+of its own last convolution: at $\tau = 0.999$ the expansion output has
+median $k^*/C$ of $0.23$ (ceiling $0.25$) in the ResNet-50 and ResNet-101
+checkpoints and the block output $0.96$--$0.99$, a factor of $4.1$, the
+expansion ratio; in Wide-ResNet-50-2 and ResNeXt-50 (ceiling $0.5$) the
+factor is $2.3$--$2.4$; under $k^*(0.95)/C$ the values rise from
+$0.09$--$0.19$ to $0.58$--$0.72$, higher in $161$ of $161$. Along the depth
+of ResNet-50 the expansion outputs sit at their ceiling from the second
+block on while the block outputs rise from $0.72$--$0.92$ to $0.99$
+(supplement, Fig.~S2), so the block-level profile of a bottleneck network
+is a shallow rise toward full rank, the shape \cite{elmoznino2024highDim}
+report at this tensor. Neither tensor is wrong, but the two profiles differ
+by the expansion ratio at 20 of ResNet-50's 53 layers, and a profile that
+does not state its tensor is not comparable with one read at the other.
 
 \subsection{Agreement Between Summary Statistics}
 \label{sec:metrics}
 
-\emph{Pre-registered; full validation set.} The plan asked whether $k^*(0.95)$ and the participation
-ratio, the statistics of the two published profiles, order the layers of
-the same network the same way, and predicted that they need not: PR is dominated by the head of the spectrum and $k^*$ counts to its tail. The pre-registered summary was recipe agreement. Across the six
-ResNet-50 recipes, the pairwise agreement between recipes is
-$\rho = 0.85$ for $k^*(0.95)/r_{\max}$, $0.86$ for $\mathrm{PR}/C$ and
-$0.89$ for effective rank over $C$, so each statistic gives a reproducible profile; Fig.~\ref{fig:metrics} shows the three on identical layers of three networks, each divided by $r_{\max}$, offset in level and moving together at the scale of stages.
+\emph{Pre-registered; full validation set.} The plan asked whether
+$k^*(0.95)$ and the participation ratio order the layers of a network the
+same way and predicted they need not, PR being set by the head of the
+spectrum and $k^*$ counting to its tail. The registered summary, recipe
+agreement across the six ResNet-50 checkpoints, is $\rho = 0.85$ for
+$k^*(0.95)/r_{\max}$, $0.86$ for $\mathrm{PR}/C$ and $0.89$ for
+$\mathrm{erank}/C$: each statistic gives a reproducible profile.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{fig2_metrics.pdf}
-  \caption{Three statistics on identical layers, each divided by the attainable rank $r_{\max}$: $k^*(0.95)$, participation ratio and effective rank, for one checkpoint each of ResNet-18, ResNet-50 and VGG-16 (BN). The three are offset, since PR and effective rank weight the head of the spectrum more heavily; at the scale of stages they move together, at the scale of layers they do not (Table~\ref{tab:estimators}).}
-  \label{fig:metrics}
-\end{figure}
-
-\emph{Exploratory (plan Section~11).} Reproducible is not the same as interchangeable, and the pre-registered summary does not test the layer ordering directly. Table~\ref{tab:estimators} does, on the same layers and images, for the ruler and for the rank estimators the surrounding literatures use: the participation ratio, its finite-sample correction (Chun \emph{et al.} \cite{chun2026estimating}, row-corrected form under Gaussianity), the effective rank of Roy and Vetterli \cite{roy2007effectiveRank}, RankMe (Garrido \emph{et al.} \cite{garrido2023rankme}; the same entropy applied to singular values, $\sqrt{\lambda_i}$, instead of eigenvalues) and the power-law exponent $\alpha$ of $\alpha$-ReQ \cite{agrawal2022alphaReq}, all computed from the saved spectra of the $894$ gate-passing dense convolutions of $21$ checkpoints. Within a network, the participation ratio and the ruler do not order the layers the same way: the per-network Spearman correlation between $\mathrm{PR}/r_{\max}$ and $k^*(0.999)/r_{\max}$ has median $0.41$ and reaches $0.8$ in one network of eighteen, and on the ImageNet VGG-16 it is $-0.52$, PR falling from $0.19$ to $0.02$ of $r_{\max}$ over the thirteen layers while $k^*(0.999)$ rises from $0.44$ to $0.96$. Effective rank sits between ($0.63$). RankMe, which halves the exponent of the head, orders layers as the ruler does ($0.94$ against $k^*(0.999)$, $0.99$ against $k^*(0.95)$, above $0.8$ in seventeen networks of eighteen) at a level between the two thresholds ($0.71$ of $r_{\max}$). The exponent $\alpha$ is the most stable quantity across recipes ($0.97$) and correlates negatively with the ruler ($-0.66$), as a decay rate should, but it is a slope and not a count and cannot be put on the width axis. The finite-sample correction of the participation ratio changes it by at most $0.03\%$ at the sample sizes the gate admits, which is the Lawley bound of Section~\ref{sec:samplesize} again. The pooling count of Section~\ref{sec:estimator} is the same under every statistic ($687/703$ for $k^*(0.95)$, $669/703$ for PR, $688/703$ for effective rank).
-
-The pre-registered hypothesis therefore holds in its mechanism and fails in its predicted direction: head-weighted statistics do order layers differently from tail-counting ones, but where the two published profiles differ in shape the PR profile of a plain network falls with depth rather than rising. What the table settles is narrower and more useful: any conclusion of this paper stated for $k^*(\tau)/r_{\max}$ transfers to RankMe and to the pooling count, and does not transfer to the participation ratio or to $\alpha$ without re-measurement.
-
-\begin{table}[t]
-  \caption{Estimator comparison on the same layers and images (plan Section~11; $894$ gate-passing dense convolutions, $19$ trained and $2$ random checkpoints). Level: median over layers of the estimator divided by $r_{\max}$ ($^\dagger$: $\alpha$ is a slope, reported raw). $\rho_{0.999}$, $\rho_{0.95}$: per-network Spearman correlation over layers between the estimator and $k^*(0.999)/r_{\max}$ or $k^*(0.95)/r_{\max}$, median across networks (and range); $\ge 0.8$ counts the networks with $|\rho_{0.999}| \ge 0.8$. Recipes: median pairwise $\rho$ between the six ResNet-50 recipes. PR$_{\rm corr}$ is the row-corrected participation ratio of Chun \emph{et al.} \cite{chun2026estimating} in its Gaussian closed form.}
-  \label{tab:estimators}
-  \centering
-  \scriptsize
-  \setlength{\tabcolsep}{3.5pt}
-  \input{table_estimators}
-\end{table}
+\emph{Exploratory (plan Section~11).} Reproducible is not interchangeable.
+On the $894$ gate-passing dense convolutions of 21 checkpoints we computed
+PR, its finite-sample correction \cite{chun2026estimating}, effective rank,
+RankMe \cite{garrido2023rankme} and the $\alpha$-ReQ exponent
+\cite{agrawal2022alphaReq} from the same spectra (supplement, Table~S3).
+Within a network PR and the ruler do not order layers alike: the
+per-network $\rho$ between $\mathrm{PR}/r_{\max}$ and
+$k^*(0.999)/r_{\max}$ has median $0.41$, reaches $0.8$ in one network of
+eighteen, and is $-0.52$ on the ImageNet VGG-16, where PR falls from
+$0.19$ to $0.02$ of $r_{\max}$ while $k^*(0.999)$ rises from $0.44$ to
+$0.96$. Effective rank sits between ($0.63$). RankMe orders layers as the
+ruler does ($0.94$ against $k^*(0.999)$, $0.99$ against $k^*(0.95)$, above
+$0.8$ in seventeen of eighteen). The exponent $\alpha$ is the most stable
+quantity across recipes ($0.97$) and correlates with the ruler at $-0.66$,
+as a decay rate should, but is a slope and cannot be put on the width
+axis. The finite-sample correction changes PR by at most $0.03\%$ at the
+gate, which is Proposition~\ref{prop:gate} again, and the pooling count of
+Section~\ref{sec:estimator} is the same under every statistic
+($687$, $669$ and $688$ of $703$). We conclude that the registered
+hypothesis holds in its mechanism and fails in its predicted direction:
+head-weighted statistics do reorder layers, but on a plain network the PR
+profile falls with depth rather than rising, so the statistic explains
+part of the published disagreement and not its sign. Every conclusion
+stated below for $k^*(\tau)/r_{\max}$ transfers to RankMe and to the
+pooling count, and not to PR or $\alpha$ without re-measurement.
 
 \subsection{Threshold Sensitivity}
 \label{sec:threshold}
 
-\emph{Pre-registered; full validation set.} $k^*(\tau)$ needs a threshold, and \cite{garg2019lowEffort} used
-$\tau = 0.999$, four orders of magnitude looser in retained variance than the
-$0.95$ used here and correspondingly more exposed to the biased tail of the
-spectrum. Fig.~\ref{fig:tau} varies $\tau$ over $\{0.9, 0.95, 0.99, 0.999\}$
-on VGG-16. The level moves a great deal (the last layer reads $0.29$, $0.44$,
-$0.74$ and $0.95$) and the layers rise, dip and recover at the same places.
-Across the six ResNet-50 recipes the between-recipe spread is also
-threshold-dependent in the expected direction: at $\tau = 0.999$ the
-per-layer SD is $0.019$ against an adjacent-layer step of $0.033$, and the
-profile mean is $0.86$--$0.92$ of attainable rank, so nearly every layer
-is close to full rank and there is little left to order. The threshold
-sets how much of the tail is counted.
-
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=\columnwidth]{fig4_threshold_vgg16_bn.pdf}
-  \caption{$\tau$ sensitivity on VGG-16. The level is strongly threshold-
-  dependent; the ordering of layers is not.}
-  \label{fig:tau}
-\end{figure}
+\emph{Pre-registered; full validation set.} Over
+$\tau \in \{0.9, 0.95, 0.99, 0.999\}$ on VGG-16 the level moves a great
+deal (the last layer reads $0.29$, $0.44$, $0.74$, $0.95$) and the layers
+rise, dip and recover at the same places (supplement, Fig.~S4). Across the
+six ResNet-50 recipes the between-recipe spread narrows with $\tau$ in the
+expected direction: at $0.999$ the per-layer SD is $0.019$ against a step
+of $0.033$ and the profile mean is $0.86$--$0.92$ of attainable rank, so
+nearly every layer is close to full rank and little is left to order. The
+threshold sets how much of the tail is counted; it does not reorder.
 
 \subsection{Depthwise and Dense Convolutions}
 \label{sec:dwsplit}
 
-\emph{Exploratory; full validation set and subset.} Section~\ref{sec:models} records depthwise layers
-separately on the ground that a layer which does not mix channels has a
-channel covariance of a different kind. Three architectures make the
-distinction consequential. Eighteen of ConvNeXt-T's 22 convolutions are
-depthwise and four are dense, and the two groups do not overlap: median
-$k^*(0.95)/C$ of $0.71$ against $0.31$. In MobileNetV3-Large and
-EfficientNet-B0 the sign is reversed: the depthwise layers have median
-$k^*(0.95)/r_{\max}$ of $0.19$ and $0.16$ against $0.51$ and $0.56$ for the $1\!\times\!1$ layers (columns $T$ of Table~\ref{tab:families}). Interleaved along a single
-depth axis, either pair produces a sawtooth that is not a property of the
-representation. A profile of such architectures that does not separate the
-two is measuring two things at once, and every depthwise number in this
-paper is reported on its own.
-
-Kept apart, the two kinds of layer also give ConvNeXt-T a weaker trained-versus-untrained comparison than a pooled test suggests.
-Its four dense convolutions are all higher than at initialisation in both
-checkpoints, which with four layers is $p = 0.06$; its 18 depthwise
-convolutions are higher in $13$ ($p = 0.013$) and $12$ ($p = 0.21$) of 18. We
-report the direction and do not claim more. (A first-round test that
-pooled the two kinds gave $p = 6 \times 10^{-4}$; it violated the
-separation of Section~\ref{sec:dwsplit} and is withdrawn.)
+\emph{Exploratory; full set and subset.} A depthwise layer does not mix
+channels, and three architectures show why the two kinds cannot share an
+axis. Eighteen of ConvNeXt-T's 22 convolutions are depthwise, four dense,
+and the groups do not overlap (median $k^*(0.95)/C$ $0.71$ against
+$0.31$); in MobileNetV3-Large and EfficientNet-B0 the sign reverses, the
+depthwise layers at $0.19$ and $0.16$ of $r_{\max}$ against $0.51$ and
+$0.56$ for the $1\!\times\!1$ layers. Interleaved, either pair produces a
+sawtooth that is not a property of the representation. Kept apart, the
+split also weakens ConvNeXt-T's trained-versus-untrained comparison: its
+four dense convolutions are all higher than at initialisation in both
+checkpoints ($p = 0.06$ with four layers), its depthwise ones higher in
+$13$ ($p = 0.013$) and $12$ ($p = 0.21$) of 18. A first-round test that
+pooled the two kinds gave $p = 6 \times 10^{-4}$; it is withdrawn.
 
 \subsection{Trained Versus Initialised Profiles}
 \label{sec:learned}
@@ -1681,9 +1639,9 @@ rests on, whether it was pre-registered, and where the numbers are.
   Trained expansion layers are nearly full-rank in their input & $k^*(0.999)/r_{\max}$ $0.94$ (ratio 4), $0.99$ (ratio 6) & expl. & Table~\ref{tab:bounds} \\
   Pooling lowers the measured width & 687/703 dense, 79/80 depthwise; drop exceeds the profile's step in 18/19 networks & pre-reg. (count), expl. (step) & Sec.~\ref{sec:estimator}, Table~\ref{tab:pooling} \\
   Pooling does not reorder layers & $\rho$(depth, pooled$-$sampled) n.s.\ in 3/3 & pre-reg. & Sec.~\ref{sec:estimator} \\
-  Block outputs exceed the bound on their last convolution & 161/161 blocks, factor $\approx$ expansion ratio & expl. & Sec.~\ref{sec:blockout}, Fig.~\ref{fig:blockout} \\
+  Block outputs exceed the bound on their last convolution & 161/161 blocks, factor $\approx$ expansion ratio & expl. & Sec.~\ref{sec:blockout}, Fig.~S2 \\
   Each statistic gives a reproducible profile & $k^*$, PR, erank: recipe agreement $0.85$--$0.89$ & pre-reg. & Sec.~\ref{sec:metrics} \\
-  Head-weighted statistics reorder layers; RankMe does not & PR vs ruler $\rho$ $0.41$ (VGG-16 $-0.52$); RankMe $0.94$--$0.99$; $\alpha$ $-0.66$ & expl. & Table~\ref{tab:estimators} \\
+  Head-weighted statistics reorder layers; RankMe does not & PR vs ruler $\rho$ $0.41$ (VGG-16 $-0.52$); RankMe $0.94$--$0.99$; $\alpha$ $-0.66$ & expl. & Table~S3 \\
   The threshold changes the level, not the ordering & $\tau \in \{0.9, \ldots, 0.999\}$ on VGG-16; six recipes at $0.999$ & pre-reg. & Sec.~\ref{sec:threshold} \\
   Trained $\ne$ random (ResNet-50) & six recipes vs one draw, 45--50/53, $p \le 4 \times 10^{-8}$; level $0.23 \to 0.47$ vs step $0.09$ & expl. & Sec.~\ref{sec:learned} \\
   Plain/basic/dense families keep the architecture's ordering & T--R $0.61$--$0.75$ vs ceilings $0.79$--$0.98$, four families & expl. & Table~\ref{tab:families} \\
