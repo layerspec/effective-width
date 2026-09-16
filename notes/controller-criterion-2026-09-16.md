@@ -215,3 +215,22 @@ DeiT-S 的 ε 方案下次補跑。
 **多類任務沒有閒置寬度**是跨架構、跨量法（從頭訓練與零重訓摺入）的同一個事實。RSB A1 在 τ=0.95 崩到 38.7 而其他配方 62–72：
 RSB 配方把功能放在尾端變異裡，與現稿 §3.10 的觀察一致。ε（CSSP 殘差）選寬度比 τ 更貼近實際損失（ResNet-50 V1：ε=0.01 砍 4.1% 掉 0.19，
 τ=0.99 砍 6.1% 掉 0.91）。
+
+---
+
+## 套件 `layerspec.realloc` 第一版與端到端檢查（2026-09-17）
+
+`code/layerspec/realloc/`：`sites.py`（Site、三個 discoverer）、`stats.py`（measure：後激活與輸入 patch 的均值／共變異數）、
+`ops.py`（greedy_cssp、removable_width、shrink、unmet_directions、grow）、`allocate.py`（water_fill）。`tests/test_realloc.py` 十個測試全過。
+一個踩到的坑：`nn.BatchNorm2d()` 新建模組預設 training 模式，替換進 eval 網路會改用 batch 統計——`set_module` 現在繼承被換掉模組的模式。
+
+`scripts/realloc_check.py` 在 A18 的 VGG-16 CIFAR-10 seed-0 上（`discover_sites` 自動找到 13 個 site）：
+
+| 步驟 | 結果 |
+|---|---|
+| shrink 到 A18 ReLU 後尺寬度 | **93.82%、67.3% 參數**（與 `fold_cssp.py` 完全一致） |
+| grow 每個 site +8 通道（沿未滿足變異方向） | **93.83%＝全寬**，一分不差（命題 B 的函數保持） |
+| water_fill 在同一參數預算 | 寬度 [59,64,128,128,256,256,256,512,510,507,305,237,204] → **93.82%**；把前段留滿、末三層砍得比尺深 |
+
+未滿足變異（新通道能接到的輸入變異比例）：第一層 0（RGB patch 秩 27 ≤ 64，命題 B 說放寬無用——stem 是資料限制）、
+features.3 最高 0.13、往後遞減到 0.02。這就是注水「放」那一側的訊號分布。
