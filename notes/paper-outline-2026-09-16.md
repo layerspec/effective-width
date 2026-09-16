@@ -1,0 +1,77 @@
+# 新論文：題目、大綱、預期成果（2026-09-16，作者要求；第一稿）
+
+## 題目
+
+主案：**Width Is Not a Hyperparameter: Allocating the Channels of a Convolutional Network from Its Covariance, Before and During Training**
+
+備案：*How Wide Should Each Layer Be? Covariance-Guided Width Allocation Before and During Training*
+
+一句話主張：一個卷積網路每層的寬度可以在訓練前從架構與資料的二階統計算出、在訓練中依無標籤的前向統計在層間調撥；
+結果是同準確率下更少的算力，或同算力下更準；而且每一步都有可證的界。
+
+## 三隻腳（審稿人會拿來量的）
+
+| | 內容 | 狀態 |
+|---|---|---|
+| 新理論 | 寬度三段定律（架構界 r_max → 初始剖面由資料二階統計定 → 訓練加水準、機制是核與輸入對齊）＋控制器三命題（A 可移除寬度的一階界、B 放寬的變異上限、C 反向注水最佳性） | A/B/C 已推導；三段定律的第一、三段已有量測，第二段（先驗預測）待做 |
+| 新架構 | 可調撥寬度的卷積層＋控制器：CSSP 摺入縮、未滿足變異初始化放、注水分配、由對齊到位觸發 | 縮已驗證（P1）；放、注水、訓練迴圈待做 |
+| 可用、可比 | 同準確率省訓練與推論算力；對手 Yuan 2023、GradMax、Firefly、NORTH\*、DemP、AWN | CIFAR 零重訓 67% 參數持平已有；ImageNet 曲線待做 |
+
+## 大綱（TPAMI 12 頁）
+
+**I. Introduction**（1 頁）
+寬度是唯一還靠手選或搜尋的架構量；現有成長／剪枝法要梯度、要排程、要第二次訓練。主張：寬度可算、可調撥、有界。
+貢獻五條：(1) 三段定律與其量測；(2) 命題 A–C；(3) 控制器；(4) 零重訓摺入結果；(5) 一次訓練追平／ImageNet 曲線。
+
+**II. Related Work**（1 頁）
+成長法（Net2Net、Firefly、GradMax、Yuan 2023、TINY、SENN、SWE）、縮法（MorphNet、DemP、slimming、HRank）、學寬度（AWN）、
+supernet（slimmable、AutoSlim）；寬度量測（Garg、E&B、Ansuini、NORTH\*）；理論（Saxe、Xiao 2018、Daneshmand、Feng、Han／Kim 界）。
+每個只寫用到的結論。
+
+**III. Effective Width from the Covariance Identity**（2.5 頁）
+A. 恆等式 Σ_out = WΣ_patch W^T、r_max、量測協定（閘門、估計量、張量——現稿 §II 壓成一頁）。
+B. 三段定律：架構界；初始剖面（先驗預測，對照 11 個家族的隨機剖面）；訓練加水準（對齊 ρ 0.9、epoch 7–15），
+   plain／basic／dense 家族順序不變（T–R 0.6–0.75）；bottleneck 在 ImageNet 配方下重排（邊界）。
+C. 命題 A（可移除寬度＝後激活共變異數的座標子集，CSSP 兩側界）、B（未滿足變異）、C（注水最佳性，無 τ）。
+
+**IV. The Controller**（2 頁）
+縮運算子（CSSP＋摺入下一層／分類器）、放運算子（未滿足變異方向初始化、下一層零行）、注水（守參數或 FLOPs）、
+時程（訓練前先驗注水；對齊到位與剖面定時各讀一次）、殘差網路只調 block 內部、額外成本（幾次前向、無標籤）。
+
+**V. Experiments**（4.5 頁）
+A. 先驗剖面 vs 量到的隨機剖面（11 家族，ρ 對 R–R 天花板）。
+B. 零重訓摺入：CIFAR-10／100 VGG-16、ImageNet ResNet-18／50——參數與 FLOPs 對準確率的曲線，對照結構化剪枝不微調的基線。
+C. 一次訓練追平兩次訓練：VGG-16、ResNet-20 CIFAR-10／100，三臂（全寬、均勻、尺重訓）＋控制器（P2、P3）。
+D. ImageNet ResNet-50 對 Yuan 2023／GradMax／Firefly／Net2Net：訓練 FLOPs vs top-1。
+E. 資料複雜度曲線：類別數 10→1000（CIFAR 子集、ImageNet 子集），控制器省下的算力隨複雜度單調收斂（A24／A25 的定律變成用途）。
+F. 消融：訊號（本文 vs 梯度範數 vs γ）、觸發時刻（統計量觸發 vs 固定排程）、ε 不敏感、只縮／只放。
+G.（選配）ViT 的 MLP 寬度。
+
+**VI. Discussion and Limitations**（0.5 頁）
+代理目標與準確率只有上界；尾端變異可能是任務不需要的（CIFAR-100）；stage 寬度未調；bottleneck 重排的原因。寫一次，不道歉。
+
+**VII. Conclusion**（0.25 頁）
+
+補充：證明、量測協定細節（現稿的 §III 大半）、44 個 checkpoint 的表、主張表。
+
+## 預期成果（已有的標「有」，目標標「要」）
+
+| 結果 | 數字 | 狀態 |
+|---|---|---|
+| 零重訓摺入 VGG-16 CIFAR-10 | 67% 參數 93.82 vs 93.83；39% 93.34 | 有（P1） |
+| 命題 A 的界 | 比值 1.02–2.84，遠在 (m+1) 內 | 有 |
+| 尺寬度重訓（對照臂） | 67% 參數 93.84；均勻 93.20 | 有（A18） |
+| 類別數定律 | 尺保留 0.88→0.99 隨 10→100 類單調 | 有（A24／A25） |
+| 訓練 vs 初始化、對齊 | T–R 0.6–0.75／−0.08；ρ_align 0.9、epoch 7–15 | 有（現稿） |
+| 先驗剖面預測 | 各家族 ρ ≥ 0.75（天花板 0.79–0.98） | 要（Mac，2–3 週） |
+| 一次訓練追平（P2） | 守 67%／34.5% 參數 ≥ 尺臂 −0.3、> 均勻臂 | 要（Mac，各半天） |
+| 多類不縮（P3） | CIFAR-100 控制器 = 全寬 ± 0.3 | 要（Mac） |
+| 零重訓摺入 ImageNet ResNet-18／50 | k\*(0.99) 掉多少——未知；預期 ≤ 1 點於 ≥ 20% 參數減少 | 要（pod，US$5–10） |
+| ImageNet ResNet-50 對 Yuan | ≤ 60% 訓練 FLOPs、≤ −0.3；或同 −0.8 下 ≤ 50% | 要（pod，US$100–300，餘額 60） |
+| 複雜度曲線 | 10→1000 類，省下算力單調收斂到 0 | 要（CIFAR 免費；ImageNet 子集 US$20–40） |
+
+## 風險（寫一次）
+
+1. 先驗剖面預測若只到 ρ 0.5–0.6，第二段定律降為「順序大致可預測」，論文仍成立但理論腳變短。
+2. ImageNet 上控制器若贏不了 Yuan 的 60%，「可比」那腳只剩 CIFAR 與零重訓摺入；那時題目改為「零重訓的寬度讀取與調撥」，仍是方法論文。
+3. 錢：ImageNet 曲線是幾百美元；先做 CIFAR 與零重訓 ImageNet（便宜），有結果再決定加值。
