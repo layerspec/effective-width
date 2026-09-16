@@ -29,16 +29,16 @@ import torch
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.cssp_check import (RELU_LAYERS, Patch, Stats, cssp_map, greedy_cssp,  # noqa: E402
                                 kstar, load_model, loaders)
-from scripts.reproduce_garg import evaluate                                        # noqa: E402
+from scripts.reproduce_garg import CIFAR_STATS, evaluate                                        # noqa: E402
 from scripts.trajectory_cifar import build_vgg16_bn_cifar_widths                    # noqa: E402
 
 CONV_OF = {r: f"features.{int(r.split('.')[1]) - 2}" for r in RELU_LAYERS}
 BN_OF = {r: f"features.{int(r.split('.')[1]) - 1}" for r in RELU_LAYERS}
 
 
-def fold(model, moments, subsets, widths, device):
+def fold(model, moments, subsets, widths, device, num_classes=10):
     """Return a VGG with the given widths whose weights are the folded ones."""
-    narrow = build_vgg16_bn_cifar_widths(widths, num_classes=10)
+    narrow = build_vgg16_bn_cifar_widths(widths, num_classes=num_classes)
     src = dict(model.named_modules())
     dst = dict(narrow.named_modules())
     prev = None                                   # (S, B, c) of the previous post-activation layer
@@ -91,11 +91,12 @@ def main(argv=None) -> int:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--schemes", nargs="+", default=["a18_ruler_act_0.999", "kstar_0.999", "kstar_0.99", "a18_ruler_act_0.95"])
     p.add_argument("--out", default="../results/cssp")
+    p.add_argument("--dataset", default="cifar10", choices=["cifar10", "cifar100"])
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
 
-    model = load_model(a.checkpoint, a.device)
-    calib, test = loaders(a.data_root, a.n_calib, a.batch_size, 0, a.seed)
+    model = load_model(a.checkpoint, a.device, CIFAR_STATS[a.dataset][2])
+    calib, test = loaders(a.data_root, a.n_calib, a.batch_size, 0, a.seed, a.dataset)
     mods = dict(model.named_modules())
     stats = {n: Stats() for n in RELU_LAYERS}
     hs = [mods[n].register_forward_hook(lambda mod, inp, out, n=n: stats[n].update(out)) for n in RELU_LAYERS]
@@ -135,7 +136,7 @@ def main(argv=None) -> int:
             logits_hook = model(xb).cpu()
         pt.remove()
         t0 = time.time()
-        narrow = fold(model, moments, subsets, widths, a.device)
+        narrow = fold(model, moments, subsets, widths, a.device, CIFAR_STATS[a.dataset][2])
         with torch.no_grad():
             acc_fold = evaluate(narrow, test, a.device)
             logits_fold = narrow(xb).cpu()

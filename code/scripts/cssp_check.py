@@ -39,13 +39,14 @@ RELU_LAYERS = ["features.2", "features.5", "features.9", "features.12", "feature
                "features.42"]
 
 
-def loaders(root: str, n_calib: int, batch_size: int, workers: int, seed: int):
+def loaders(root: str, n_calib: int, batch_size: int, workers: int, seed: int, dataset: str = "cifar10"):
     from torch.utils.data import DataLoader, Subset
     from torchvision import datasets, transforms
-    mean, std, _ = CIFAR_STATS["cifar10"]
+    mean, std, _ = CIFAR_STATS[dataset]
     tf = transforms.Compose([transforms.ToTensor(), transforms.Normalize(mean, std)])
-    tr = datasets.CIFAR10(root, train=True, download=False, transform=tf)
-    te = datasets.CIFAR10(root, train=False, download=False, transform=tf)
+    cls = datasets.CIFAR10 if dataset == "cifar10" else datasets.CIFAR100
+    tr = cls(root, train=True, download=False, transform=tf)
+    te = cls(root, train=False, download=False, transform=tf)
     g = np.random.default_rng(seed)
     idx = g.choice(len(tr), size=n_calib, replace=False)
     calib = DataLoader(Subset(tr, idx.tolist()), batch_size=batch_size, shuffle=False, num_workers=workers)
@@ -53,8 +54,8 @@ def loaders(root: str, n_calib: int, batch_size: int, workers: int, seed: int):
     return calib, test
 
 
-def load_model(path: str, device: str) -> nn.Module:
-    m = build_vgg16_bn_cifar_widths(VGG16_WIDTHS, num_classes=10)
+def load_model(path: str, device: str, num_classes: int = 10) -> nn.Module:
+    m = build_vgg16_bn_cifar_widths(VGG16_WIDTHS, num_classes=num_classes)
     sd = torch.load(path, map_location="cpu")
     if isinstance(sd, dict) and "model" in sd and isinstance(sd["model"], dict):
         sd = sd["model"]
@@ -169,12 +170,13 @@ def main(argv=None) -> int:
     p.add_argument("--taus", type=float, nargs="+", default=[0.95, 0.99, 0.999])
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--out", default="../results/cssp")
+    p.add_argument("--dataset", default="cifar10", choices=["cifar10", "cifar100"])
     a = p.parse_args(argv)
     os.makedirs(a.out, exist_ok=True)
     torch.manual_seed(a.seed)
 
-    model = load_model(a.checkpoint, a.device)
-    calib, test = loaders(a.data_root, a.n_calib, a.batch_size, a.workers, a.seed)
+    model = load_model(a.checkpoint, a.device, CIFAR_STATS[a.dataset][2])
+    calib, test = loaders(a.data_root, a.n_calib, a.batch_size, a.workers, a.seed, a.dataset)
     mods = dict(model.named_modules())
 
     # ---- calibration: mean and covariance of every post-activation output over all positions
