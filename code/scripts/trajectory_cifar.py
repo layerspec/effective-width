@@ -29,6 +29,7 @@ import time
 import numpy as np
 import pandas as pd
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -114,7 +115,63 @@ def build_resnet18_cifar(num_classes: int = 10, widths=None):
     return build_resnet18_widths(RESNET18_WIDTHS if widths is None else widths, num_classes, "cifar")
 
 
+class _PadShortcut(nn.Module):
+    """Option-A shortcut of He et al. (2016) for CIFAR ResNets: stride-2 subsample and zero-pad channels."""
+
+    def __init__(self, planes: int):
+        super().__init__()
+        self.pad = planes // 4
+
+    def forward(self, x):
+        return F.pad(x[:, :, ::2, ::2], (0, 0, 0, 0, self.pad, self.pad))
+
+
+class _CifarBasicBlock(nn.Module):
+    def __init__(self, inp: int, planes: int, stride: int):
+        super().__init__()
+        self.conv1 = nn.Conv2d(inp, planes, 3, stride, 1, bias=False)
+        self.bn1 = nn.BatchNorm2d(planes)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = nn.Conv2d(planes, planes, 3, 1, 1, bias=False)
+        self.bn2 = nn.BatchNorm2d(planes)
+        self.shortcut = _PadShortcut(planes) if (stride != 1 or inp != planes) else nn.Identity()
+
+    def forward(self, x):
+        out = self.relu(self.bn1(self.conv1(x)))
+        out = self.bn2(self.conv2(out))
+        return self.relu(out + self.shortcut(x))
+
+
+class CifarResNet(nn.Module):
+    """ResNet-20/32/44/56 of He et al. (2016), Section 4.2: 16/32/64 channels, 2n+2 layers,
+    option-A shortcuts (0.27M parameters for n = 3).  The CIFAR network of Yuan et al. (2023)."""
+
+    def __init__(self, n: int = 3, num_classes: int = 10):
+        super().__init__()
+        self.conv1 = nn.Conv2d(3, 16, 3, 1, 1, bias=False)
+        self.bn1 = nn.BatchNorm2d(16)
+        self.relu = nn.ReLU(inplace=True)
+        layers, inp = [], 16
+        for planes, stride in ((16, 1), (32, 2), (64, 2)):
+            for i in range(n):
+                layers.append(_CifarBasicBlock(inp, planes, stride if i == 0 else 1))
+                inp = planes
+        self.layers = nn.Sequential(*layers)
+        self.avgpool = nn.AdaptiveAvgPool2d(1)
+        self.fc = nn.Linear(64, num_classes)
+
+    def forward(self, x):
+        x = self.relu(self.bn1(self.conv1(x)))
+        x = self.layers(x)
+        return self.fc(torch.flatten(self.avgpool(x), 1))
+
+
+def build_resnet20_cifar(num_classes: int = 10):
+    return CifarResNet(3, num_classes)
+
+
 ARCHS = {"vgg16_bn": lambda nc=10: build_vgg16_bn_cifar(nc, "small"),
+         "resnet20": lambda nc=10: build_resnet20_cifar(nc),
          "resnet18": lambda nc=10: build_resnet18_cifar(nc),
          "resnet50": lambda nc=10: build_resnet50_cifar(nc),
          "resnet_basic52": lambda nc=10: build_resnet_basic52_cifar(nc),
