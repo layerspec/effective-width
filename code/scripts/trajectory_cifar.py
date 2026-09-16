@@ -326,7 +326,20 @@ def main(argv=None) -> int:
                         "resnet18: stem + per stage [out, mid0, mid1] (plan 9.11, scripts/resnet_widths.py)")
     p.add_argument("--save-checkpoints", action="store_true",
                    help="also write epoch_<E>.pt (state_dict) at every measured epoch (analysis-plan 9.6)")
+    p.add_argument("--realloc-budget", type=float, default=None,
+                   help="width controller (layerspec.realloc): after each --realloc-epochs epoch, water-fill the "
+                        "sites to this fraction of the full network's parameters (shrink by CSSP fold, grow along "
+                        "unmet directions); vgg16_bn only in this version")
+    p.add_argument("--realloc-epochs", type=int, nargs="+", default=[15, 40],
+                   help="epochs after which the controller acts (alignment settles by 7-15, the profile by 40-60)")
+    p.add_argument("--realloc-calib", type=int, default=6400, help="training images (plain transform) for the statistics")
+    p.add_argument("--realloc-grow-cap", type=float, default=0.25, help="max relative growth of a site per action")
+    p.add_argument("--realloc-min-width", type=int, default=8)
+    p.add_argument("--realloc-shrink-only-after", type=int, default=None,
+                   help="from this epoch on the controller only shrinks (grow early, shrink late); default: the last trigger")
     args = p.parse_args(argv)
+    if args.realloc_budget is not None and args.arch != "vgg16_bn":
+        p.error("--realloc-budget is implemented for --arch vgg16_bn in this version")
     if args.widths is not None and args.arch not in ("vgg16_bn", "resnet18"):
         p.error("--widths is only defined for --arch vgg16_bn and resnet18")
 
@@ -361,13 +374,20 @@ def main(argv=None) -> int:
     if args.gpu_data:
         train_loader = GPUCifarTrain(args.data_root, args.batch_size, args.device, args.seed,
                                      dataset=args.dataset, indices=sub_idx, lmap=sub_map)
-    if args.widths is None:
+    state_path = os.path.join(args.out, "resume.pt")
+    saved_widths = None
+    if os.path.exists(state_path):
+        saved_widths = torch.load(state_path, map_location="cpu", weights_only=False).get("widths")
+    if saved_widths is not None:
+        model = build_vgg16_bn_cifar_widths(saved_widths, num_classes)
+    elif args.widths is None:
         model = ARCHS[args.arch](num_classes)
     elif args.arch == "resnet18":
         model = build_resnet18_cifar(num_classes, args.widths)
     else:
         model = build_vgg16_bn_cifar_widths(args.widths, num_classes)
     model = model.to(args.device)
+    full_params = sum(q.numel() for q in ARCHS[args.arch](num_classes).parameters())
     opt = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9,
                           weight_decay=5e-4, nesterov=True)
     steps = len(train_loader) if args.max_train_batches is None \
@@ -378,8 +398,12 @@ def main(argv=None) -> int:
     scaler = torch.amp.GradScaler("cuda", enabled=use_amp)
 
     frames = []
-    state_path = os.path.join(args.out, "resume.pt")
     start_epoch = 1
+    realloc_log = []
+    rl_path = os.path.join(args.out, "realloc.json")
+    if os.path.exists(rl_path):
+        import json
+        realloc_log = json.load(open(rl_path))
     if os.path.exists(state_path):
         # Resume: the run was interrupted (laptop closed, pod killed).  Model,
         # optimiser, schedule, RNG and the measured frames all come back, so
@@ -394,11 +418,95 @@ def main(argv=None) -> int:
             frames.append(pd.read_csv(traj))
         print(f"resumed from {state_path} at epoch {st['epoch']} (next: {start_epoch})", flush=True)
 
+    def current_widths():
+        from layerspec.realloc import discover_sites
+        return [s.width(model) for s in discover_sites(model)]
+
     def save_state(epoch):
         torch.save({"model": model.state_dict(), "opt": opt.state_dict(), "sched": sched.state_dict(),
                     "scaler": scaler.state_dict(), "rng_cpu": torch.get_rng_state(), "epoch": epoch,
-                    "arch": args.arch, "seed": args.seed, "ortho": args.ortho}, state_path + ".tmp")
+                    "arch": args.arch, "seed": args.seed, "ortho": args.ortho,
+                    "widths": current_widths() if args.realloc_budget is not None else None}, state_path + ".tmp")
         os.replace(state_path + ".tmp", state_path)
+
+    def reallocate(epoch):
+        """The controller's action.  Pass 1 (unless shrink-only): measure with patch statistics, water-fill
+        with the unmet-variance eigenvalues appended (Proposition B) and GROW the sites the fill asks for,
+        deepest first.  Pass 2: measure again (cheap, post-activation only), water-fill the budget with the
+        costs of the grown network and SHRINK (Proposition A).  Two passes because a channel's parameter
+        cost is bilinear in its neighbours' widths: a single linear fill after growth lands over budget.
+        Then rebuild the optimiser around the new parameters; the LR schedule continues."""
+        nonlocal opt, sched
+        import json
+        from layerspec.realloc import discover_sites, greedy_cssp, grow, measure, shrink, unmet_directions, water_fill
+        from scripts.cssp_check import loaders as plain_loaders
+        t0 = time.time()
+        shrink_only = epoch >= (args.realloc_shrink_only_after if args.realloc_shrink_only_after is not None
+                                else max(args.realloc_epochs))
+        calib, _ = plain_loaders(args.data_root, args.realloc_calib, 256, 0, args.seed, args.dataset)
+        model.eval()
+        sites = discover_sites(model)
+        cur0 = [s.width(model) for s in sites]
+        n0 = sum(q.numel() for q in model.parameters())
+        budget_total = args.realloc_budget * full_params
+
+        def fill(mom, allow_grow):
+            spectra = [np.clip(np.linalg.eigvalsh(mom[s.name].act_cov.numpy())[::-1], 0, None) for s in sites]
+            cost = np.array([s.cost_per_channel(model) for s in sites], dtype=float)
+            cur = np.array([s.width(model) for s in sites])
+            fixed = sum(q.numel() for q in model.parameters()) - float(cost @ cur)
+            hi = cur.copy()
+            if allow_grow:
+                hi = np.maximum(cur, np.floor(cur * (1 + args.realloc_grow_cap)).astype(int))
+                mods = dict(model.named_modules())
+                for l, s in enumerate(sites):
+                    k = int(hi[l] - cur[l])
+                    if k > 0:
+                        _, lam = unmet_directions(mods[s.producer], mom[s.name].patch_cov, k)
+                        ext = (lam.numpy() / float(torch.trace(mom[s.name].patch_cov))).clip(0, None)
+                        spectra[l] = np.concatenate([spectra[l] / spectra[l].sum(), ext])
+            target, mu, obj = water_fill(spectra, cost, budget_total - fixed,
+                                         min_width=[args.realloc_min_width] * len(sites), max_width=hi.tolist())
+            return cur, target, mu, obj
+
+        grown = []
+        if not shrink_only:
+            mom = measure(model, sites, calib, args.device, patch=True, max_rows_per_batch=2048)
+            cur, target, _, _ = fill(mom, True)
+            for s, t, c in reversed(list(zip(sites, target, cur))):
+                if t > c:
+                    grow(model, s, int(t - c), mom[s.name])
+                    grown.append((s.producer, int(c), int(t)))
+        # shrink pass, iterated: the parameter count is bilinear in neighbouring widths, so the linearised
+        # fill lands above the budget when many sites shrink at once; re-linearise until within 0.5%
+        for _it in range(6):
+            mom = measure(model, sites, calib, args.device, patch=False, max_rows_per_batch=8192)
+            cur, target, mu, obj = fill(mom, False)
+            if not any(t < c for t, c in zip(target, cur)):
+                break
+            for s, t, c in zip(sites, target, cur):
+                if t < c:
+                    order, _ = greedy_cssp(mom[s.name].act_cov, int(t))
+                    shrink(model, s, order[:int(t)], mom[s.name])
+            if sum(q.numel() for q in model.parameters()) <= budget_total * 1.005:
+                break
+        model.train()
+        sched_state = sched.state_dict()
+        opt = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9, weight_decay=5e-4, nesterov=True)
+        sched = torch.optim.lr_scheduler.OneCycleLR(opt, max_lr=args.lr, epochs=args.epochs, steps_per_epoch=steps)
+        sched.load_state_dict(sched_state)
+        after = [s.width(model) for s in sites]
+        n1 = sum(q.numel() for q in model.parameters())
+        rec = {"epoch": epoch, "shrink_only": shrink_only, "before": cur0, "grown": grown, "after": after,
+               "params_before": int(n0), "params_after": int(n1), "budget_fraction": args.realloc_budget,
+               "actual_fraction": n1 / full_params, "mu": float(mu), "objective": float(obj),
+               "seconds": round(time.time() - t0)}
+        realloc_log.append(rec)
+        with open(rl_path, "w") as fh:
+            json.dump(realloc_log, fh, indent=1)
+        print(f"  [realloc] epoch {epoch}: {cur0} -> {after}  params {n0 / 1e6:.2f}M -> {n1 / 1e6:.2f}M "
+              f"({n1 / full_params:.3f} of full, budget {args.realloc_budget})  "
+              f"{'shrink only' if shrink_only else f'grew {len(grown)} sites then shrank'}  ({rec['seconds']}s)", flush=True)
 
     def checkpoint(epoch):
         acc = evaluate(model, test_loader, args.device)
@@ -442,6 +550,8 @@ def main(argv=None) -> int:
             sched.step()
         print(f"  epoch {ep:3d}/{args.epochs}  loss {loss.item():.3f}  "
               f"({time.time() - t0:.0f}s)", flush=True)
+        if args.realloc_budget is not None and ep in args.realloc_epochs:
+            reallocate(ep)
         if ep in schedule:
             checkpoint(ep)
         save_state(ep)

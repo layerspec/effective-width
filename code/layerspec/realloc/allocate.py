@@ -40,6 +40,8 @@ def water_fill(spectra: list[np.ndarray], cost, budget: float, *, weights=None, 
     w = np.ones(L) if weights is None else np.asarray(weights, dtype=float)
     lo = np.ones(L, dtype=int) if min_width is None else np.asarray(min_width, dtype=int)
     hi = np.array([len(s) for s in spectra]) if max_width is None else np.asarray(max_width, dtype=int)
+    hi = np.minimum(hi, np.array([len(s) for s in spectra]))      # no value is known beyond the spectrum
+    lo = np.minimum(lo, hi)
     # bisection on mu: widths decrease with mu
     ratios = np.concatenate([w[l] * s / cost[l] for l, s in enumerate(spectra)])
     a, b = 0.0, float(ratios.max()) * 1.0001 + 1e-30
