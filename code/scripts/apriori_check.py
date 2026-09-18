@@ -40,9 +40,11 @@ from layerspec import api  # noqa: E402
 
 ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 DATA = os.path.join(ROOT, "data", "imagenet_val_6400")
+COCO = os.path.join(ROOT, "data", "coco", "val2017")          # 5,000 images, out-of-sample check
 OUT = os.path.join(ROOT, "results", "apriori")
 CSD_PATH = os.path.join(OUT, "rgb_csd.pt")
 CSD_PARAM_PATH = os.path.join(OUT, "rgb_csd_param.pt")
+CSD_COCO_PATH = os.path.join(OUT, "rgb_csd_coco.pt")
 
 FAMILIES = {
     # family -> (random model name, directories holding the real-image random profiles)
@@ -68,7 +70,8 @@ def stem(name: str) -> str:
 # ----------------------------------------------------------------- estimate
 def estimate(args) -> None:
     """Stationary (circular) cross-spectral density of the preprocessed images."""
-    loader = api.image_loader(DATA, batch_size=32, workers=0, image_size=224)
+    src, out_path = (COCO, CSD_COCO_PATH) if args.source == "coco" else (DATA, CSD_PATH)
+    loader = api.image_loader(src, batch_size=32, workers=0, image_size=224)
     n = 0
     mean = torch.zeros(3, dtype=torch.float64)
     S = None
@@ -85,8 +88,8 @@ def estimate(args) -> None:
         S = acc if S is None else S + acc
     S /= n
     os.makedirs(OUT, exist_ok=True)
-    torch.save({"csd": S, "mean": mean, "n": n, "size": 224}, CSD_PATH)
-    print(f"estimated csd from {n} images in {time.time() - t0:.0f}s -> {CSD_PATH}")
+    torch.save({"csd": S, "mean": mean, "n": n, "size": 224}, out_path)
+    print(f"estimated csd from {n} images ({args.source}) in {time.time() - t0:.0f}s -> {out_path}")
     print(f"channel means {mean.tolist()}")
 
 
@@ -151,8 +154,8 @@ class MatchedGaussian(Dataset):
 
 
 def make_loader(inputs: str, seed: int, n: int = 6400, batch_size: int = 32):
-    if inputs in ("matched", "param"):
-        ds = MatchedGaussian(n, seed, CSD_PATH if inputs == "matched" else CSD_PARAM_PATH)
+    if inputs in ("matched", "param", "cocomatched"):
+        ds = MatchedGaussian(n, seed, {"matched": CSD_PATH, "param": CSD_PARAM_PATH, "cocomatched": CSD_COCO_PATH}[inputs])
         return DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=0)
     if inputs == "pink":
         return api.image_loader("synthetic", batch_size=batch_size, workers=0, limit=n, seed=seed)
@@ -160,6 +163,8 @@ def make_loader(inputs: str, seed: int, n: int = 6400, batch_size: int = 32):
         return api.image_loader("gaussian", batch_size=batch_size, workers=0, limit=n, seed=seed)
     if inputs == "real":
         return api.image_loader(DATA, batch_size=batch_size, workers=0, image_size=224)
+    if inputs == "coco":                      # all 5,000 val2017 images, real
+        return api.image_loader(COCO, batch_size=batch_size, workers=0, image_size=224)
     raise ValueError(inputs)
 
 
@@ -205,7 +210,7 @@ def measure(args) -> None:
         prof = api.profile(model, loader, device=args.device, positions=16, seed=args.seed)
         prof.table["model"] = name
         prof.table["weights"] = f"random_init(seed={args.seed})"
-        prof.table["source"] = f"{args.inputs}[6400]"
+        prof.table["source"] = f"{args.inputs}[{len(loader.dataset)}]"
         prof.to_csv(path)
         np.savez_compressed(os.path.join(out, f"{stem(name)}_spectra.npz"), **prof.spectra)
         dense = prof.dense(0.95)
@@ -256,6 +261,8 @@ def rho(a: pd.DataFrame, b: pd.DataFrame) -> tuple[float, int, float, float]:
 
 
 def compare(args) -> None:
+    """--reference coco: the 'real' profile is the one measured on COCO images (results/apriori/coco/seed1),
+    the ceiling still from the ImageNet random draws; tests whether an ImageNet-fitted spectrum transfers."""
     rows = []
     print(f"{'family':16s} {'inputs':8s} {'L':>4s}  {'rho same-W':>10s} {'rho other-W':>11s} {'R-R ceiling':>11s}  "
           f"{'level real':>10s} {'level surr':>10s} {'med|diff|':>9s}  {'layer-1 real/surr':>18s}")
@@ -267,6 +274,11 @@ def compare(args) -> None:
         # R-R ceiling: median Spearman over pairs of real-image random draws
         rr = [rho(reals[a], reals[b])[0] for a in reals for b in reals if a < b]
         ceiling = float(np.median(rr))
+        if args.reference == "coco":
+            c = surrogate_profile(fam, "coco", 1)
+            if c is None:
+                continue
+            reals = {1: c, **{s: r for s, r in reals.items() if s != 1}}
         for inputs in args.inputs:
             for s in sorted(reals):
                 sur = surrogate_profile(fam, inputs, s)
@@ -283,7 +295,7 @@ def compare(args) -> None:
                       f"{lvl_r:10.3f} {lvl_s:10.3f} {mad:9.3f}  {l1:>18s}")
     if rows:
         df = pd.DataFrame(rows)
-        df.to_csv(os.path.join(OUT, "compare.csv"), index=False)
+        df.to_csv(os.path.join(OUT, "compare.csv" if args.reference == "imagenet" else "compare_coco.csv"), index=False)
         for inputs in args.inputs:
             d = df[df.inputs == inputs]
             if d.empty:
@@ -302,12 +314,15 @@ def main(argv=None) -> int:
     sub.add_parser("fit")
     m = sub.add_parser("measure")
     m.add_argument("models", nargs="+")
-    m.add_argument("--inputs", default="matched", choices=["matched", "param", "pink", "white"])
+    m.add_argument("--inputs", default="matched", choices=["matched", "param", "pink", "white", "coco", "cocomatched"])
     m.add_argument("--seed", type=int, default=1)
     m.add_argument("--device", default="mps")
     m.add_argument("--force", action="store_true")
     c = sub.add_parser("compare")
     c.add_argument("--inputs", nargs="+", default=["matched", "param", "pink", "white"])
+    c.add_argument("--reference", default="imagenet", choices=["imagenet", "coco"])
+    e = sub.choices["estimate"]
+    e.add_argument("--source", default="imagenet", choices=["imagenet", "coco"])
     args = ap.parse_args(argv)
     {"estimate": estimate, "check": check_surrogate, "fit": fit_param, "measure": measure, "compare": compare}[args.cmd](args)
     return 0
