@@ -1,7 +1,8 @@
 #!/bin/bash
 # A-priori feasibility part A (2026-09-18): random-init profiles on Gaussian surrogate images.
-# While the matched seed-1 pass runs, the P2 training process is paused (SIGSTOP) so the probe's many
-# small MPS kernels do not queue behind the training kernels (7x slowdown measured); resumed afterwards.
+# Waits for the P2 seed-0 run to reach epoch 100, then pauses the P2 training process (SIGSTOP) so the
+# probe's many small MPS kernels do not queue behind the training kernels (7x slowdown measured), runs the
+# ladder param / matched seed 2 / pink / white, and resumes training (also on exit).
 set -u
 cd "$(dirname "$0")/../code" || exit 1
 PY=$HOME/.venvs/effwidth/bin/python
@@ -12,11 +13,12 @@ pause_training() {
   done
 }
 echo "=== apriori queue start $(date) ==="
+until [ -f ../results/p2/c10_b673_s0/epoch_100_layers.csv ]; do sleep 30; done
 pause_training STOP; echo "training paused $(date)"
 trap 'pause_training CONT' EXIT
-$PY scripts/apriori_check.py measure --inputs matched --seed 1 $M
+$PY -u scripts/apriori_check.py measure --inputs param --seed 1 $M
+$PY -u scripts/apriori_check.py measure --inputs matched --seed 2 $M
+$PY -u scripts/apriori_check.py measure --inputs pink --seed 1 $M
+$PY -u scripts/apriori_check.py measure --inputs white --seed 1 $M
 pause_training CONT; echo "training resumed $(date)"
-$PY scripts/apriori_check.py measure --inputs matched --seed 2 $M
-$PY scripts/apriori_check.py measure --inputs pink --seed 1 $M
-$PY scripts/apriori_check.py measure --inputs white --seed 1 $M
 echo "=== apriori queue done $(date) ==="

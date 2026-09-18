@@ -17,7 +17,8 @@ ReLU can differ, and the size of that difference is what we want.
     python scripts/apriori_check.py measure --inputs matched --seed 1 timm:vgg16_bn.tv_in1k_random ...
     python scripts/apriori_check.py compare                        # table + results/apriori/compare.csv
 
-`--inputs` is one of matched (Gaussian, matched cross-spectral density),
+`--inputs` is one of matched (Gaussian, matched cross-spectral density), param (Gaussian,
+isotropic power law times one 3x3 channel matrix fitted to it: `fit`),
 pink (the pipeline's 1/f smoke-test noise), white (i.i.d. Gaussian).
 """
 from __future__ import annotations
@@ -41,6 +42,7 @@ ROOT = os.path.join(os.path.dirname(__file__), "..", "..")
 DATA = os.path.join(ROOT, "data", "imagenet_val_6400")
 OUT = os.path.join(ROOT, "results", "apriori")
 CSD_PATH = os.path.join(OUT, "rgb_csd.pt")
+CSD_PARAM_PATH = os.path.join(OUT, "rgb_csd_param.pt")
 
 FAMILIES = {
     # family -> (random model name, directories holding the real-image random profiles)
@@ -88,11 +90,44 @@ def estimate(args) -> None:
     print(f"channel means {mean.tolist()}")
 
 
+def fit_param(args) -> None:
+    """Parametric cross-spectral density: isotropic power law times one 3x3 channel matrix,
+    S_param(w) = A |w|^-alpha * Sigma_ch (8 numbers), fitted to the measured density."""
+    d = torch.load(CSD_PATH)
+    S, n = d["csd"], d["size"]
+    fy = torch.fft.fftfreq(n).unsqueeze(1)
+    fx = torch.fft.rfftfreq(n).unsqueeze(0)
+    r = torch.sqrt(fy ** 2 + fx ** 2)
+    T = torch.einsum("ccij->ij", S).real
+    m = (r > 0) & (r < 0.45)
+    bins = np.logspace(np.log10(1 / n), np.log10(0.45), 30)
+    rb = np.digitize(r[m].numpy(), bins)
+    lr, lt = [], []
+    for b in range(1, len(bins)):
+        sel = rb == b
+        if sel.sum() > 0:
+            lr.append(np.log(r[m].numpy()[sel]).mean())
+            lt.append(np.log(T[m].numpy()[sel]).mean())
+    slope, _ = np.polyfit(lr, lt, 1)
+    alpha = -slope
+    Sch = S.sum(dim=(2, 3)).real
+    Sch = Sch / Sch.trace()
+    g = r.clamp_min(1 / n) ** (-alpha)
+    g = g * (T[m].sum() / g[m].sum())            # match the total power off DC
+    g[0, 0] = T[0, 0]                            # keep the measured DC (image-mean) power
+    Sp = g[None, None] * Sch[:, :, None, None]
+    rel = float(((S - Sp)[:, :, m]).abs().pow(2).sum().sqrt() / S[:, :, m].abs().pow(2).sum().sqrt())
+    torch.save({"csd": Sp.to(S.dtype), "mean": d["mean"], "n": d["n"], "size": n,
+                "alpha": float(alpha), "channel": Sch}, CSD_PARAM_PATH)
+    print(f"alpha (power) {alpha:.2f}; channel matrix {np.round(Sch.numpy(), 3).tolist()}; "
+          f"rel. Frobenius error of the parametric density {rel:.3f} -> {CSD_PARAM_PATH}")
+
+
 class MatchedGaussian(Dataset):
     """Gaussian images whose circular cross-spectral density equals the estimate."""
 
-    def __init__(self, n: int, seed: int):
-        d = torch.load(CSD_PATH)
+    def __init__(self, n: int, seed: int, csd_path: str = CSD_PATH):
+        d = torch.load(csd_path)
         S, self.mean, size = d["csd"], d["mean"].to(torch.float32), d["size"]
         self.n, self.seed, self.size = n, seed, size
         # rfft2 of unit white noise has E|W|^2 = H*W per bin, so filter by sqrt(S / (H*W)).
@@ -116,8 +151,8 @@ class MatchedGaussian(Dataset):
 
 
 def make_loader(inputs: str, seed: int, n: int = 6400, batch_size: int = 32):
-    if inputs == "matched":
-        ds = MatchedGaussian(n, seed)
+    if inputs in ("matched", "param"):
+        ds = MatchedGaussian(n, seed, CSD_PATH if inputs == "matched" else CSD_PARAM_PATH)
         return DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=0)
     if inputs == "pink":
         return api.image_loader("synthetic", batch_size=batch_size, workers=0, limit=n, seed=seed)
@@ -264,16 +299,17 @@ def main(argv=None) -> int:
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("estimate")
     sub.add_parser("check")
+    sub.add_parser("fit")
     m = sub.add_parser("measure")
     m.add_argument("models", nargs="+")
-    m.add_argument("--inputs", default="matched", choices=["matched", "pink", "white"])
+    m.add_argument("--inputs", default="matched", choices=["matched", "param", "pink", "white"])
     m.add_argument("--seed", type=int, default=1)
     m.add_argument("--device", default="mps")
     m.add_argument("--force", action="store_true")
     c = sub.add_parser("compare")
-    c.add_argument("--inputs", nargs="+", default=["matched", "pink", "white"])
+    c.add_argument("--inputs", nargs="+", default=["matched", "param", "pink", "white"])
     args = ap.parse_args(argv)
-    {"estimate": estimate, "check": check_surrogate, "measure": measure, "compare": compare}[args.cmd](args)
+    {"estimate": estimate, "check": check_surrogate, "fit": fit_param, "measure": measure, "compare": compare}[args.cmd](args)
     return 0
 
 
