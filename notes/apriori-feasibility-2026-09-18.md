@@ -166,6 +166,18 @@ z₂ = W₂·a₁ 在 3×3 鄰域上又高度相關，所以 z₂ 的「獨立�
 - Chowers et al. 2023（ICML，第一層由資料統計決定的線性系統觀點）：與「第一層精確」一致，要引。
 - Trockman et al. 2023（ICLR，學到的濾波器共變異數結構）：與初始化相關，可引。
 - 心理物理的相位打亂影像（逐張保留功率譜、破壞高階統計）是經典替身，可補一個對照。
+- **09-18 晚再查一輪（四組查詢）**，仍沒有先例；新增要引的：
+  - Guth, Ménard, Rochette, Mallat, "A Rainbow in Deep Network Black Boxes," JMLR 2024（arXiv 2305.18512）：訓練後的網路
+    近似「逐層隨機特徵、權重共變異數學出來且低秩」；激活核跨初始化相似。與我們互補——他們描述訓練後的權重共變異數，
+    我們描述訓練前的激活剖面由架構＋影像二階統計決定；「跨隨機初始化相似」與我們的 R–R 天花板 0.79–0.98 一致，要引。
+  - Everett, "Transforming Rank: How Architecture Navigates the Spectral Pathologies of Depth," arXiv 2607.14018（2026-07）：
+    transformer FF block 的 Jacobian 秩在初始化時預測 CIFAR-10 可訓練性；skip／norm 是保秩機制。對象不同（Jacobian、
+    transformer），但「初始化的秩剖面由架構決定且有預測力」是同一句話的另一半，要引並劃清：我們量的是激活共變異數的
+    k*/r_max，且把資料二階統計放進來。
+  - Wang & Fan, "Nonlinear spiked covariance matrices and signal propagation in deep neural networks," COLT 2024：輸入
+    spiked 特徵結構如何穿過隨機權重層——與步驟 1b「低維輸入讓高斯遞推失效」是同一現象的理論端，可引作機制參考。
+  - Fu et al., ICIP 2021（arXiv 2106.00368）：激活圖的統計逐層冪律、指數隨深度線性增加；只在蒸餾脈絡，可引一句。
+  - 沒有人用相位打亂或高斯替身餵隨機初始化網路量剖面；相位打亂本身引 Oppenheim & Lim 1981（相位的重要性）。
 
 ## 判定
 
