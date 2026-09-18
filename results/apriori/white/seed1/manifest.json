@@ -1,0 +1,11 @@
+{"model": "resnet50_random", "inputs": "white", "seed": 1, "n_dense": 53, "median_k95_rmax": 0.37890625, "elapsed_sec": 332.9}
+{"model": "timm:resnet18.tv_in1k_random", "inputs": "white", "seed": 1, "n_dense": 20, "median_k95_rmax": 0.7578125, "elapsed_sec": 64.9}
+{"model": "timm:resnet34.tv_in1k_random", "inputs": "white", "seed": 1, "n_dense": 36, "median_k95_rmax": 0.677734375, "elapsed_sec": 102.9}
+{"model": "timm:vgg16_bn.tv_in1k_random", "inputs": "white", "seed": 1, "n_dense": 13, "median_k95_rmax": 0.75, "elapsed_sec": 372.4}
+{"model": "timm:densenet121.tv_in1k_random", "inputs": "white", "seed": 1, "n_dense": 120, "median_k95_rmax": 0.3125, "elapsed_sec": 258.8}
+{"model": "timm:resnet101.tv_in1k_random", "inputs": "white", "seed": 1, "n_dense": 104, "median_k95_rmax": 0.421875, "elapsed_sec": 576.7}
+{"model": "timm:wide_resnet50_2.tv_in1k_random", "inputs": "white", "seed": 1, "n_dense": 53, "median_k95_rmax": 0.3828125, "elapsed_sec": 463.1}
+{"model": "timm:resnext50_32x4d.tv_in1k_random", "inputs": "white", "seed": 1, "n_dense": 53, "median_k95_rmax": 0.39453125, "elapsed_sec": 403.2}
+{"model": "timm:mobilenetv2_100.ra_in1k_random", "inputs": "white", "seed": 1, "n_dense": 35, "median_k95_rmax": 0.7083333333333334, "elapsed_sec": 86.8}
+{"model": "timm:mobilenetv3_large_100.ra_in1k_random", "inputs": "white", "seed": 1, "n_dense": 31, "median_k95_rmax": 0.7, "elapsed_sec": 115.8}
+{"model": "timm:efficientnet_b0.ra_in1k_random", "inputs": "white", "seed": 1, "n_dense": 33, "median_k95_rmax": 0.796875, "elapsed_sec": 185.9}
