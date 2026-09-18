@@ -84,16 +84,19 @@ class Moments:
         self.n = 0
         self.s1 = None
         self.s2 = None
+        self.s4 = None                   # per-channel sum of x^4 (channel kurtosis, elliptical diagnostic)
 
     def add(self, x):                    # x: (N, C); per-batch products on the device, sums in float64 on the CPU
         x = x.to(torch.float32)
         s1 = x.sum(0).cpu().to(torch.float64)
         s2 = (x.T @ x).cpu().to(torch.float64)
+        s4 = (x ** 4).sum(0).cpu().to(torch.float64)
         if self.s1 is None:
-            self.s1, self.s2 = torch.zeros_like(s1), torch.zeros_like(s2)
+            self.s1, self.s2, self.s4 = torch.zeros_like(s1), torch.zeros_like(s2), torch.zeros_like(s4)
         self.n += x.shape[0]
         self.s1 += s1
         self.s2 += s2
+        self.s4 += s4
 
     def mean_cov(self):
         m = self.s1 / self.n
@@ -115,6 +118,9 @@ def main(argv=None) -> int:
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--device", default="mps")
     ap.add_argument("--max-batches", type=int, default=None)
+    ap.add_argument("--tag", default="", help="suffix for the output file names (e.g. a --max-batches subset)")
+    ap.add_argument("--save-moments", action="store_true",
+                    help="also write <stem>_<inputs>_seed<s>_moments.npz with E z, Cov z, E a, Cov a, E z^4 per ReLU")
     args = ap.parse_args(argv)
 
     model = api.load_model(args.model, seed=args.seed).eval().to(args.device)
@@ -153,6 +159,7 @@ def main(argv=None) -> int:
     print(f"{args.model} on {args.inputs} seed {args.seed}: {len(order)} ReLUs, {time.time() - t0:.0f}s")
 
     rows = []
+    saved = {}
     print(f"{'relu':24s} {'C':>4s}  {'k*z .95':>7s}  {'k*a meas':>8s} {'k*a pred':>8s}  {'meas/C':>6s} {'pred/C':>6s}  "
           f"{'k*a .99 meas/pred':>17s}  {'relF':>5s}  {'skew z':>6s} {'kurt z':>6s}")
     for key in order:
@@ -162,6 +169,9 @@ def main(argv=None) -> int:
         C = Sz.shape[0]
         kz, ka, kp = k_star(Sz), k_star(Sa), k_star(Sp)
         rel = float((Sa - Sp).norm() / Sa.norm())
+        if args.save_moments:
+            saved[key] = dict(mz=mz.numpy(), Sz=Sz.numpy(), ma=ma.numpy(), Sa=Sa.numpy(), Sp=Sp.numpy(), mp=mp.numpy(),
+                              m4z=(mom_z[key].s4 / mom_z[key].n).numpy(), n=mom_z[key].n)
         rows.append(dict(model=args.model, inputs=args.inputs, seed=args.seed, relu=key, C=C, n=mom_z[key].n,
                          kz95=kz[0.95], ka95=ka[0.95], kp95=kp[0.95], ka99=ka[0.99], kp99=kp[0.99],
                          ka90=ka[0.90], kp90=kp[0.90], rel_frob=rel,
@@ -170,8 +180,12 @@ def main(argv=None) -> int:
               f"{ka[0.99]:8d}/{kp[0.99]:<8d}  {rel:5.3f}")
     df = pd.DataFrame(rows)
     os.makedirs(os.path.join(OUT, "relu"), exist_ok=True)
-    path = os.path.join(OUT, "relu", f"{stem(args.model)}_{args.inputs}_seed{args.seed}.csv")
+    path = os.path.join(OUT, "relu", f"{stem(args.model)}_{args.inputs}_seed{args.seed}{args.tag}.csv")
     df.to_csv(path, index=False)
+    if args.save_moments:
+        mpath = path.replace(".csv", "_moments.npz")
+        np.savez(mpath, keys=np.array(list(saved)), **{f"{k}__{f}": v for k, d in saved.items() for f, v in d.items()})
+        print(f"-> {mpath}")
     d95 = (df.kp95 - df.ka95) / df.C
     print(f"\nk*(0.95)/C pred - meas: median {d95.median():+.3f}, max |.| {d95.abs().max():.3f}; "
           f"Spearman(meas, pred) over layers {df.ka95.corr(df.kp95, method='spearman'):+.2f}; "

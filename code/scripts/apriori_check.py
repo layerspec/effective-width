@@ -153,6 +153,28 @@ class MatchedGaussian(Dataset):
         return y, 0
 
 
+class PhaseScrambled(Dataset):
+    """The real images with their Fourier phases randomised: one random Hermitian phase field per image, shared by
+    the three channels, so every image keeps its own power spectrum and cross-spectrum exactly (per-image second-order
+    statistics, including the image-to-image variation the ensemble surrogate averages away) and loses everything of
+    higher order.  Classic psychophysics control (Oppenheim & Lim 1981; Wichmann et al. 2006)."""
+
+    def __init__(self, base: Dataset, seed: int):
+        self.base, self.seed = base, seed
+
+    def __len__(self) -> int:
+        return len(self.base)
+
+    def __getitem__(self, i: int):
+        x, _ = self.base[i]
+        g = torch.Generator().manual_seed(self.seed * 100003 + 7919 + i)
+        F = torch.fft.fft2(torch.randn(x.shape[-2:], generator=g))
+        phase = F / F.abs().clamp_min(1e-12)                     # Hermitian-symmetric unit-modulus field
+        phase[0, 0] = 1.0                                        # keep each channel's mean
+        y = torch.fft.ifft2(torch.fft.fft2(x) * phase).real
+        return y, 0
+
+
 def make_loader(inputs: str, seed: int, n: int = 6400, batch_size: int = 32):
     if inputs in ("matched", "param", "cocomatched"):
         ds = MatchedGaussian(n, seed, {"matched": CSD_PATH, "param": CSD_PARAM_PATH, "cocomatched": CSD_COCO_PATH}[inputs])
@@ -163,6 +185,9 @@ def make_loader(inputs: str, seed: int, n: int = 6400, batch_size: int = 32):
         return api.image_loader("gaussian", batch_size=batch_size, workers=0, limit=n, seed=seed)
     if inputs == "real":
         return api.image_loader(DATA, batch_size=batch_size, workers=0, image_size=224)
+    if inputs == "phase":                     # the real images, phase-scrambled per image
+        base = api.image_loader(DATA, batch_size=batch_size, workers=0, image_size=224).dataset
+        return DataLoader(PhaseScrambled(base, seed), batch_size=batch_size, shuffle=False, num_workers=0)
     if inputs == "coco":                      # all 5,000 val2017 images, real
         return api.image_loader(COCO, batch_size=batch_size, workers=0, image_size=224)
     raise ValueError(inputs)
@@ -314,7 +339,7 @@ def main(argv=None) -> int:
     sub.add_parser("fit")
     m = sub.add_parser("measure")
     m.add_argument("models", nargs="+")
-    m.add_argument("--inputs", default="matched", choices=["matched", "param", "pink", "white", "coco", "cocomatched"])
+    m.add_argument("--inputs", default="matched", choices=["matched", "param", "pink", "white", "coco", "cocomatched", "phase"])
     m.add_argument("--seed", type=int, default=1)
     m.add_argument("--device", default="mps")
     m.add_argument("--force", action="store_true")
