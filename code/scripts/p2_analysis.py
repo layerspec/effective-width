@@ -23,6 +23,7 @@ GROUPS = {
     "c10_fixed339": ("cifar10", 0.339, "ruler",     "uniform"),   # P2b: start from the uniform arm, conserve its budget
     "c100_b673":   ("cifar100", 0.673, None,        None),        # P3-type stress test: CIFAR-100 has no tau=0.999 slack
     "c10_b673_nogrow": ("cifar10", 0.673, "ruler_act", "uniform"),  # P2c ablation: shrink-only (--realloc-grow-cap 0)
+    "c10_narrow341": ("cifar10", 0.341, "ruler",     "uniform"),    # P2d: wrong start (front narrow, back wide), conserved
 }
 
 
