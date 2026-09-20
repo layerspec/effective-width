@@ -25,6 +25,9 @@ GROUPS = {
     "c10_b673_nogrow": ("cifar10", 0.673, "ruler_act", "uniform"),  # P2c ablation: shrink-only (--realloc-grow-cap 0)
     "c10_narrow341": ("cifar10", 0.341, "ruler",     "uniform"),    # P2d: wrong start (front narrow, back wide), conserved
     "c10_narrow341_asis": ("cifar10", 0.341, None, None),           # P2f: the P2d start trained as is (no controller)
+    "c10_f88":        ("cifar10", 0.88,  "ruler_act", "uniform"),   # P2g: FLOPs-conserving, ruler_act's MACs
+    "c10_f60":        ("cifar10", 0.60,  "ruler",     "uniform"),   # P2g: FLOPs-conserving, ruler's MACs
+    "c10_ffixed342":  ("cifar10", 0.342, "ruler",     "uniform"),   # P2g: from the uniform net at conserved MACs
     "c10_b673_cap50":  ("cifar10", 0.673, "ruler_act", "uniform"),  # P2e: grow-cap 0.5
     "c10_b673_cap100": ("cifar10", 0.673, "ruler_act", "uniform"),  # P2e: grow-cap 1.0
 }
@@ -60,7 +63,8 @@ def read_run(d):
     actions = json.load(open(rl)) if os.path.exists(rl) else []
     return dict(epoch=last, acc=acc, done=os.path.exists(os.path.join(d, "epoch_100_layers.csv")), actions=actions,
                 widths=actions[-1]["after"] if actions else None,
-                frac=actions[-1]["actual_fraction"] if actions else None)
+                frac=actions[-1]["actual_fraction"] if actions else None,
+                macs=actions[-1].get("macs_fraction") if actions else None)
 
 
 def main():
@@ -86,7 +90,8 @@ def main():
             st = "done" if r["done"] else f"epoch {r['epoch']}"
             ev = "; ".join(f"ep{x['epoch']}: {x['params_before']/1e6:.2f}M->{x['params_after']/1e6:.2f}M"
                            + ("" if x["shrink_only"] else " grow+shrink") for x in r["actions"])
-            print(f"  {name:16s} {st:9s} acc {r['acc']:6.2f}  frac {r['frac'] if r['frac'] is not None else float('nan'):.3f}  [{ev}]")
+            mf = f"  macs {r['macs']:.3f}" if r.get("macs") is not None else ""
+            print(f"  {name:16s} {st:9s} acc {r['acc']:6.2f}  frac {r['frac'] if r['frac'] is not None else float('nan'):.3f}{mf}  [{ev}]")
             if r["widths"]:
                 line = f"      widths {r['widths']}"
                 if ds in ruler_widths and beat == "ruler_act":

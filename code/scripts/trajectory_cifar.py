@@ -170,6 +170,54 @@ def build_resnet20_cifar(num_classes: int = 10):
     return CifarResNet(3, num_classes)
 
 
+
+def _module_hw(model, sample):
+    """Output (H, W) of every Conv2d / Linear for one forward pass of `sample` (Linear -> (1, 1)).
+    Spatial sizes do not depend on the widths, so one pass per reallocation is enough."""
+    hw, hooks = {}, []
+    for name, m in model.named_modules():
+        if isinstance(m, (torch.nn.Conv2d, torch.nn.Linear)):
+            hooks.append(m.register_forward_hook(
+                lambda mod, i, o, n=name: hw.__setitem__(n, (int(o.shape[-2]), int(o.shape[-1])) if o.dim() == 4 else (1, 1))))
+    with torch.no_grad():
+        model(sample)
+    for h in hooks:
+        h.remove()
+    return hw
+
+
+def model_macs(model, hw) -> int:
+    """Forward multiply-adds per image (convs and linears; norms, activations and pools ignored)."""
+    total = 0
+    for name, m in model.named_modules():
+        if isinstance(m, torch.nn.Conv2d):
+            H, W = hw[name]
+            total += m.out_channels * (m.in_channels // m.groups) * m.kernel_size[0] * m.kernel_size[1] * H * W
+        elif isinstance(m, torch.nn.Linear):
+            total += m.in_features * m.out_features
+    return int(total)
+
+
+def site_macs_per_channel(site, model, hw) -> int:
+    """Forward MACs per image that one channel of the site costs: its producer row at the producer's resolution
+    plus each consumer's column at the consumer's resolution (the FLOPs analogue of Site.cost_per_channel)."""
+    mods = dict(model.named_modules())
+    p = mods[site.producer]
+    if isinstance(p, torch.nn.Conv2d):
+        H, W = hw[site.producer]
+        c = (p.in_channels // p.groups) * p.kernel_size[0] * p.kernel_size[1] * H * W
+    else:
+        c = p.in_features
+    for con in site.consumers:
+        m = mods[con.name]
+        if isinstance(m, torch.nn.Conv2d):
+            H, W = hw[con.name]
+            c += (m.out_channels * m.kernel_size[0] * m.kernel_size[1] // m.groups) * H * W
+        else:
+            c += m.out_features
+    return int(c)
+
+
 ARCHS = {"vgg16_bn": lambda nc=10: build_vgg16_bn_cifar(nc, "small"),
          "resnet20": lambda nc=10: build_resnet20_cifar(nc),
          "resnet18": lambda nc=10: build_resnet18_cifar(nc),
@@ -334,6 +382,8 @@ def main(argv=None) -> int:
                    help="epochs after which the controller acts (alignment settles by 7-15, the profile by 40-60)")
     p.add_argument("--realloc-calib", type=int, default=6400, help="training images (plain transform) for the statistics")
     p.add_argument("--realloc-grow-cap", type=float, default=0.25, help="max relative growth of a site per action")
+    p.add_argument("--realloc-cost", choices=("params", "flops"), default="params",
+                   help="what the controller conserves: parameters (default) or forward MACs per image")
     p.add_argument("--realloc-min-width", type=int, default=8)
     p.add_argument("--realloc-shrink-only-after", type=int, default=None,
                    help="from this epoch on the controller only shrinks (grow early, shrink late); default: the last trigger")
@@ -388,6 +438,9 @@ def main(argv=None) -> int:
         model = build_vgg16_bn_cifar_widths(args.widths, num_classes)
     model = model.to(args.device)
     full_params = sum(q.numel() for q in ARCHS[args.arch](num_classes).parameters())
+    _full = ARCHS[args.arch](num_classes).eval()
+    full_macs = model_macs(_full, _module_hw(_full, torch.zeros(1, 3, 32, 32)))
+    del _full
     opt = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=0.9,
                           weight_decay=5e-4, nesterov=True)
     steps = len(train_loader) if args.max_train_batches is None \
@@ -446,15 +499,22 @@ def main(argv=None) -> int:
         calib, _ = plain_loaders(args.data_root, args.realloc_calib, 256, 0, args.seed, args.dataset)
         model.eval()
         sites = discover_sites(model)
+        hw = _module_hw(model, torch.zeros(1, 3, 32, 32, device=args.device))
+        by_flops = args.realloc_cost == "flops"
         cur0 = [s.width(model) for s in sites]
         n0 = sum(q.numel() for q in model.parameters())
-        budget_total = args.realloc_budget * full_params
+        f0 = model_macs(model, hw)
+
+        def current_total():
+            return model_macs(model, hw) if by_flops else sum(q.numel() for q in model.parameters())
+        budget_total = args.realloc_budget * (full_macs if by_flops else full_params)
 
         def fill(mom, allow_grow):
             spectra = [np.clip(np.linalg.eigvalsh(mom[s.name].act_cov.numpy())[::-1], 0, None) for s in sites]
-            cost = np.array([s.cost_per_channel(model) for s in sites], dtype=float)
+            cost = np.array([site_macs_per_channel(s, model, hw) if by_flops else s.cost_per_channel(model)
+                             for s in sites], dtype=float)
             cur = np.array([s.width(model) for s in sites])
-            fixed = sum(q.numel() for q in model.parameters()) - float(cost @ cur)
+            fixed = current_total() - float(cost @ cur)
             hi = cur.copy()
             if allow_grow:
                 hi = np.maximum(cur, np.floor(cur * (1 + args.realloc_grow_cap)).astype(int))
@@ -488,7 +548,7 @@ def main(argv=None) -> int:
                 if t < c:
                     order, _ = greedy_cssp(mom[s.name].act_cov, int(t))
                     shrink(model, s, order[:int(t)], mom[s.name])
-            if sum(q.numel() for q in model.parameters()) <= budget_total * 1.005:
+            if current_total() <= budget_total * 1.005:
                 break
         model.train()
         sched_state = sched.state_dict()
@@ -497,15 +557,18 @@ def main(argv=None) -> int:
         sched.load_state_dict(sched_state)
         after = [s.width(model) for s in sites]
         n1 = sum(q.numel() for q in model.parameters())
+        f1 = model_macs(model, hw)
         rec = {"epoch": epoch, "shrink_only": shrink_only, "before": cur0, "grown": grown, "after": after,
                "params_before": int(n0), "params_after": int(n1), "budget_fraction": args.realloc_budget,
                "actual_fraction": n1 / full_params, "mu": float(mu), "objective": float(obj),
-               "seconds": round(time.time() - t0)}
+               "cost": args.realloc_cost, "macs_before": int(f0), "macs_after": int(f1),
+               "macs_fraction": f1 / full_macs, "seconds": round(time.time() - t0)}
         realloc_log.append(rec)
         with open(rl_path, "w") as fh:
             json.dump(realloc_log, fh, indent=1)
         print(f"  [realloc] epoch {epoch}: {cur0} -> {after}  params {n0 / 1e6:.2f}M -> {n1 / 1e6:.2f}M "
-              f"({n1 / full_params:.3f} of full, budget {args.realloc_budget})  "
+              f"({n1 / full_params:.3f} of full)  MACs {f0 / 1e6:.0f}M -> {f1 / 1e6:.0f}M ({f1 / full_macs:.3f} of full)  "
+              f"budget {args.realloc_budget} of full {args.realloc_cost}  "
               f"{'shrink only' if shrink_only else f'grew {len(grown)} sites then shrank'}  ({rec['seconds']}s)", flush=True)
 
     def checkpoint(epoch):
