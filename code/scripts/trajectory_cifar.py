@@ -382,6 +382,8 @@ def main(argv=None) -> int:
                    help="epochs after which the controller acts (alignment settles by 7-15, the profile by 40-60)")
     p.add_argument("--realloc-calib", type=int, default=6400, help="training images (plain transform) for the statistics")
     p.add_argument("--realloc-grow-cap", type=float, default=0.25, help="max relative growth of a site per action")
+    p.add_argument("--realloc-grow-random", action="store_true",
+                   help="ablation: grow along random directions of the complement instead of the unmet-variance directions")
     p.add_argument("--realloc-cost", choices=("params", "flops"), default="params",
                    help="what the controller conserves: parameters (default) or forward MACs per image")
     p.add_argument("--realloc-min-width", type=int, default=8)
@@ -535,7 +537,7 @@ def main(argv=None) -> int:
             cur, target, _, _ = fill(mom, True)
             for s, t, c in reversed(list(zip(sites, target, cur))):
                 if t > c:
-                    grow(model, s, int(t - c), mom[s.name])
+                    grow(model, s, int(t - c), mom[s.name], directions="random" if args.realloc_grow_random else "unmet")
                     grown.append((s.producer, int(c), int(t)))
         # shrink pass, iterated: the parameter count is bilinear in neighbouring widths, so the linearised
         # fill lands above the budget when many sites shrink at once; re-linearise until within 0.5%
@@ -594,6 +596,8 @@ def main(argv=None) -> int:
     print(f"schedule: {schedule}", flush=True)
     if start_epoch == 1:
         checkpoint(0)
+        if args.realloc_budget is not None and 0 in args.realloc_epochs:
+            reallocate(0)                 # act on the untrained network: the a-priori start (route A', 2026-09-20)
     for ep in range(start_epoch, args.epochs + 1):
         model.train()
         t0 = time.time()

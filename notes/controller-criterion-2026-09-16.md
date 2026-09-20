@@ -431,3 +431,17 @@ A18 CIFAR-100「沒有閒置寬度」的措辭——沒有可**砍**的寬度，
 
 判定用 `scripts/p2_analysis.py`（新增三組）與 `scripts/p2_flops.py`。隊列 `results/mac_queue_p2g.sh` 排在 P2f 之後（週一開機後接著跑，
 9 跑約 20 小時）。
+
+## 預登記 P2h：A′ 先驗起點與 A″ 歸因臂（2026-09-20 晚，第二審稿人 S2／S5；跑之前寫）
+
+程式：`trajectory_cifar.py` 09-20 晚加 (a) `--realloc-epochs` 含 0 時在訓練前對**未訓練**網路做一次注水（用真實 CIFAR 影像的初始
+統計；A 節已證與高斯替身等價）；(b) `--realloc-grow-random`：放的方向改為正交補空間內的隨機方向（`ops.random_complement_directions`），
+放的數量與時程不變。冒煙測試皆過、`tests/test_realloc.py` 10/10。隊列 `results/mac_queue_p2h.sh` 排在 P2g 之後。
+
+| 組 | 設定 | 對照 | 預測 |
+|---|---|---|---|
+| apriori673 | 全寬起點，epoch 0／15／40 動作，參數 0.673 | P2（94.11）、P2c、P2d | **P-h1**：epoch 0 的形狀與 epoch 15 不同（冒煙已見：中段縮、後段留寬），epoch 15 會再往「前放後縮」修；最終準確率 ≥ P2 − 0.3；若 < P2 − 0.3，「先驗起點」對這個任務無益，路 2 與路 1 的連接只能寫成「順序預測」 |
+| p2widths | P2 seed 0 最終寬度從頭訓、無控制器 | P2 | **P-h2**：≤ P2 − 0.2（控制器的價值不只在寬度）；若 ≥ P2，價值在寬度、控制器只是找寬度的工具，論文措辭要改 |
+| randgrow | P2 設定、放沿隨機方向 | P2、P2c | **P-h3**：介於 P2c（93.75）與 P2（94.11）之間；若 ≥ P2，未滿足變異方向無貢獻，命題 B 只剩函數保持 |
+
+三組各三種子；判定用 `p2_analysis.py`（已登記）與 `p2_flops.py`。

@@ -25,6 +25,9 @@ GROUPS = {
     "c10_b673_nogrow": ("cifar10", 0.673, "ruler_act", "uniform"),  # P2c ablation: shrink-only (--realloc-grow-cap 0)
     "c10_narrow341": ("cifar10", 0.341, "ruler",     "uniform"),    # P2d: wrong start (front narrow, back wide), conserved
     "c10_narrow341_asis": ("cifar10", 0.341, None, None),           # P2f: the P2d start trained as is (no controller)
+    "c10_apriori673": ("cifar10", 0.673, "ruler_act", "uniform"),   # P2h A': controller acts at epoch 0 too (a-priori start)
+    "c10_p2widths":   ("cifar10", 0.673, "ruler_act", "uniform"),   # P2h A'': P2 final widths trained from scratch
+    "c10_b673_randgrow": ("cifar10", 0.673, "ruler_act", "uniform"), # P2h A'': grow along random directions
     "c10_f88":        ("cifar10", 0.88,  "ruler_act", "uniform"),   # P2g: FLOPs-conserving, ruler_act's MACs
     "c10_f60":        ("cifar10", 0.60,  "ruler",     "uniform"),   # P2g: FLOPs-conserving, ruler's MACs
     "c10_ffixed342":  ("cifar10", 0.342, "ruler",     "uniform"),   # P2g: from the uniform net at conserved MACs

@@ -169,16 +169,43 @@ def unmet_directions(prod: nn.Module, patch_cov: torch.Tensor, k: int):
     return evecs[:, idx], evals[idx]
 
 
+def random_complement_directions(prod: nn.Module, patch_cov: torch.Tensor, k: int, seed: int = 0):
+    """k random orthonormal directions in the orthogonal complement of the producer's row space (the
+    ablation of unmet_directions: same subspace, no preference for variance), with their variances."""
+    W = prod.weight.detach().cpu().double().reshape(prod.weight.shape[0], -1)       # C_out x d
+    d = W.shape[1]
+    if patch_cov.shape[0] != d:
+        raise ValueError(f"patch covariance is {patch_cov.shape[0]}-dimensional but the producer's input patch has {d}")
+    S = patch_cov.detach().cpu().double()
+    _, sv, Vt = torch.linalg.svd(W, full_matrices=True)
+    r = int((sv > sv.max() * 1e-8).sum()) if sv.numel() else 0
+    Q = Vt[r:].T                                                                     # d x (d - r) complement basis
+    if Q.shape[1] < k:
+        raise ValueError(f"only {Q.shape[1]} complement directions, asked for {k}")
+    g = torch.Generator().manual_seed(seed)
+    R = torch.randn(Q.shape[1], k, generator=g, dtype=torch.float64)
+    V, _ = torch.linalg.qr(Q @ R)                                                    # d x k, orthonormal
+    lam = torch.diagonal(V.T @ S @ V)
+    return V, lam
+
+
 @torch.no_grad()
-def grow(model: nn.Module, site: Site, k: int, mom: Moments, scale: float | None = None) -> torch.Tensor:
-    """Add k channels to `site` along the unmet input directions.  Function-preserving.
+def grow(model: nn.Module, site: Site, k: int, mom: Moments, scale: float | None = None,
+         directions: str = "unmet") -> torch.Tensor:
+    """Add k channels to `site` along the unmet input directions (directions="unmet", default) or along random
+    directions of the same orthogonal complement (directions="random", the ablation).  Function-preserving.
     Returns the variances the new directions carry (the gain Proposition B bounds)."""
     if mom.patch_cov is None:
         raise ValueError("grow needs patch statistics (measure(..., patch=True))")
     mods = dict(model.named_modules())
     prod = mods[site.producer]
     dev, dt = prod.weight.device, prod.weight.dtype
-    V, lam = unmet_directions(prod, mom.patch_cov, k)                                # d x k
+    if directions == "random":
+        V, lam = random_complement_directions(prod, mom.patch_cov, k, seed=k + prod.weight.shape[0])
+    elif directions == "unmet":
+        V, lam = unmet_directions(prod, mom.patch_cov, k)                            # d x k
+    else:
+        raise ValueError(f"directions must be 'unmet' or 'random', got {directions!r}")
     if scale is None:
         scale = float(prod.weight.detach().reshape(prod.weight.shape[0], -1).norm(dim=1).median())
     new_rows = (V.T * scale).to(dt)                                                  # k x d
