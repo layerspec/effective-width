@@ -24,6 +24,7 @@ GROUPS = {
     "c100_b673":   ("cifar100", 0.673, None,        None),        # P3-type stress test: CIFAR-100 has no tau=0.999 slack
     "c10_b673_nogrow": ("cifar10", 0.673, "ruler_act", "uniform"),  # P2c ablation: shrink-only (--realloc-grow-cap 0)
     "c10_narrow341": ("cifar10", 0.341, "ruler",     "uniform"),    # P2d: wrong start (front narrow, back wide), conserved
+    "c10_narrow341_asis": ("cifar10", 0.341, None, None),           # P2f: the P2d start trained as is (no controller)
     "c10_b673_cap50":  ("cifar10", 0.673, "ruler_act", "uniform"),  # P2e: grow-cap 0.5
     "c10_b673_cap100": ("cifar10", 0.673, "ruler_act", "uniform"),  # P2e: grow-cap 1.0
 }
@@ -107,6 +108,14 @@ def main():
             print(f"  P2 ({prefix}): controller >= {beat} - 0.3 -> {'yes' if ok1 else 'NO'} ({mean:.2f} vs {A[beat][2]-0.3:.2f}); "
                   f"> {above} -> {'yes' if ok2 else 'NO'}; every seed above every {above} seed -> {'yes' if allabove else 'no'}"
                   f"{'' if len(accs) >= 3 else '  [fewer than 3 seeds: provisional]'}")
+        elif prefix == "c10_narrow341_asis":
+            ctrl = {os.path.basename(d): read_run(d) for d in sorted(glob.glob(os.path.join(a.results, "p2", "c10_narrow341_s*")))}
+            pairs = [(ctrl[n]["acc"], done[n.replace("narrow341_", "narrow341_asis_")]) for n in ctrl
+                     if ctrl[n] and ctrl[n]["done"] and n.replace("narrow341_", "narrow341_asis_") in done]
+            if pairs:
+                diffs = [c - x for c, x in pairs]
+                print(f"  P2d vs as-is (same seed): controller {np.mean([c for c, _ in pairs]):.2f} vs as-is {mean:.2f}, "
+                      f"paired diff mean {np.mean(diffs):+.2f} (min {min(diffs):+.2f}), {sum(d > 0 for d in diffs)}/{len(diffs)} positive")
         else:
             full = A["full"][2]
             print(f"  P3-type ({prefix}): controller vs full {mean - full:+.2f} (arms have no slack at tau=0.999; "
