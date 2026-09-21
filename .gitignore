@@ -52,3 +52,10 @@ notes/orthogonality-novelty-*.md
 paper/main.out
 paper/*.aux
 notes/invention-*
+results/bootstrap/*/mean_*.npy
+results/bootstrap/*/n_*.npy
+results/bootstrap/*/pooled_mean_*.npy
+results/bootstrap/*/pooled_n_*.npy
+results/bootstrap/*/proj.npz
+results/bootstrap/*/*M2_*.npy
+results/bootstrap_queue.log
