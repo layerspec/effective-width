@@ -128,6 +128,112 @@ def main():
             full = A["full"][2]
             print(f"  P3-type ({prefix}): controller vs full {mean - full:+.2f} (arms have no slack at tau=0.999; "
                   f"ruler_act {A['ruler_act'][2]:.2f}, uniform {A['uniform'][2]:.2f})")
+    r20_section(a.results)
+
+
+
+# ---------------------------------------------------------------------------------------------------------------------
+# P2i: ResNet-20 (block-internal widths; notes/controller-criterion-2026-09-16.md, "預登記 P2i"). Baseline = results/r20;
+# compute from realloc.json (macs_before/after) with the 3x forward convention of p2_flops.py; uniform arms from widths.
+R20_PLANES, R20_RES, R20_N_TRAIN, R20_EPOCHS, R20_CALIB = (16, 32, 64), (32, 16, 8), 50_000, 100, 6_400
+R20_FULL_INNER = [16] * 3 + [32] * 3 + [64] * 3
+R20_GROUPS = {   # prefix -> (control prefix, training-cost fraction the arm is designed for)
+    "r20_f47": ("r20_ufixed47", 0.55),
+    "r20_apriori55": ("r20_ufixed55", 0.55),
+}
+
+
+def r20_macs(inner):
+    """Forward MACs per image of CifarResNet(3) with the given 9 block-internal widths (matches trajectory_cifar.model_macs)."""
+    total, b = 9 * 3 * 16 * 32 * 32, 0
+    for s, (planes, res) in enumerate(zip(R20_PLANES, R20_RES)):
+        for j in range(3):
+            cin = R20_PLANES[s - 1] if (j == 0 and s > 0) else planes
+            total += 9 * cin * inner[b] * res * res + 9 * inner[b] * planes * res * res
+            b += 1
+    return total + 64 * 10
+
+
+def r20_train_cost(actions, widths):
+    """Training MACs of a run as a fraction of the full-width run (3x forward per image; calibration passes added)."""
+    full = 3 * r20_macs(R20_FULL_INNER) * R20_N_TRAIN * R20_EPOCHS
+    if not actions:
+        return 3 * r20_macs(widths) * R20_N_TRAIN * R20_EPOCHS / full
+    sched, prev, w = [], 0, actions[0]["before"]
+    for a in actions:
+        sched.append((a["epoch"] - prev, w)); prev, w = a["epoch"], a["after"]
+    sched.append((R20_EPOCHS - prev, w))
+    calib = sum(r20_macs(a["before"]) * R20_CALIB * (1 if a["shrink_only"] else 2) for a in actions)
+    return (sum(3 * r20_macs(w) * R20_N_TRAIN * n for n, w in sched) + calib) / full
+
+
+def r20_widths_of(run_dir, r):
+    if r["widths"]:
+        return r["widths"]
+    st = os.path.join(run_dir, "epoch_100_layers.csv") if r["done"] else None
+    if st and os.path.exists(st):
+        t = pd.read_csv(st)
+        t = t[t.layer.str.endswith("conv1") & t.layer.str.startswith("layers.")].sort_values("depth_index")
+        if len(t) == 9:
+            return [int(c) for c in t.C]
+    return None
+
+
+def r20_section(results):
+    base = {}
+    for d in sorted(glob.glob(os.path.join(results, "r20", "cifar10_full_s*"))):
+        r = read_run(d)
+        if r and r["done"]:
+            base[os.path.basename(d)] = r["acc"]
+    runs = {}
+    for d in sorted(glob.glob(os.path.join(results, "p2", "r20_*_s*"))):
+        r = read_run(d)
+        if r:
+            r["widths"] = r20_widths_of(d, r)
+            runs[os.path.basename(d)] = r
+    if not runs:
+        return
+    print("\n==== P2i: ResNet-20 CIFAR-10 (block-internal widths, FLOPs-conserving) ====")
+    if base:
+        print(f"  full width: {' '.join(f'{v:.2f}' for v in base.values())}  mean {np.mean(list(base.values())):.2f}")
+    for name, r in runs.items():
+        st = "done" if r["done"] else f"epoch {r['epoch']}"
+        w = r["widths"]
+        mi = f"{r20_macs(w) / r20_macs(R20_FULL_INNER):.3f}" if w else "  ?  "
+        tc = f"{r20_train_cost(r['actions'], w):.3f}" if w else "  ?  "
+        print(f"  {name:18s} {st:9s} acc {r['acc']:6.2f}  inference MACs {mi}  training MACs {tc}  widths {w}")
+    full_mean = np.mean(list(base.values())) if base else None
+    for prefix, (ctrl_prefix, _) in R20_GROUPS.items():
+        arm = {n: r for n, r in runs.items() if n.startswith(prefix + "_s") and r["done"]}
+        ctrl = {n: r for n, r in runs.items() if n.startswith(ctrl_prefix + "_s") and r["done"]}
+        if not arm:
+            continue
+        a = [r["acc"] for r in arm.values()]; c = [r["acc"] for r in ctrl.values()]
+        line = f"  {prefix}: n={len(a)} mean {np.mean(a):.2f} (spread {max(a) - min(a):.2f})"
+        if c:
+            line += f"  vs {ctrl_prefix} n={len(c)} mean {np.mean(c):.2f}  diff {np.mean(a) - np.mean(c):+.2f}" \
+                    f"  every seed above every control seed: {'yes' if min(a) > max(c) else 'no'}"
+        if full_mean is not None:
+            line += f"  vs full {np.mean(a) - full_mean:+.2f}"
+        print(line)
+        ws = [r["widths"] for r in arm.values() if r["widths"]]
+        if len(ws) >= 2:
+            spread = np.max(np.array(ws), axis=0) - np.min(np.array(ws), axis=0)
+            stage = [np.mean([w[i] for i in range(3 * s, 3 * s + 3)]) / R20_PLANES[s] for w in ws for s in range(3)]
+            stage = np.array(stage).reshape(len(ws), 3).mean(axis=0)
+            print(f"    shape: per-site seed spread max {int(spread.max())} channels; mean width fraction per stage "
+                  f"{' '.join(f'{x:.2f}' for x in stage)}  (P-r4: stage 1 <= 0.5, stage 3 >= 0.6)")
+    if "r20_f47" in {n.rsplit('_s', 1)[0] for n in runs} and full_mean is not None:
+        a = [r["acc"] for n, r in runs.items() if n.startswith("r20_f47_s") and r["done"]]
+        c = [r["acc"] for n, r in runs.items() if n.startswith("r20_ufixed47_s") and r["done"]]
+        if len(a) >= 3 and len(c) >= 3:
+            print(f"  P-r1 (f47 >= ufixed47 + 0.3): {'yes' if np.mean(a) >= np.mean(c) + 0.3 else 'NO'};  "
+                  f"P-r2 (f47 >= full - 0.5): {'yes' if np.mean(a) >= full_mean - 0.5 else 'NO'}")
+        a2 = [r["acc"] for n, r in runs.items() if n.startswith("r20_apriori55_s") and r["done"]]
+        c2 = [r["acc"] for n, r in runs.items() if n.startswith("r20_ufixed55_s") and r["done"]]
+        if len(a2) >= 3 and len(c2) >= 3 and len(a) >= 3:
+            print(f"  P-r3 (apriori55 >= ufixed55 + 0.2 and >= f47 - 0.3): "
+                  f"{'yes' if (np.mean(a2) >= np.mean(c2) + 0.2 and np.mean(a2) >= np.mean(a) - 0.3) else 'NO'}")
 
 
 if __name__ == "__main__":
