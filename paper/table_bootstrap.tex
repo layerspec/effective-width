@@ -1,0 +1,20 @@
+\begin{tabular}{l c c}
+\toprule
+Statistic & resnet50 & vgg16\_bn \\
+\midrule
+Pooled lower than positional, count of gated layers & 15 $[$15, 15$]$ & 4 $[$4, 4$]$ \\
+Pooling drop, median over layers, $k^*/r_{\max}$ & 0.148 $[$0.141, 0.148$]$ & 0.168 $[$0.168, 0.168$]$ \\
+Drop-to-jitter ratio, $k^*/r_{\max}$ & 0.83 $[$0.78, 0.83$]$ & 5.00 $[$5.00, 5.00$]$ \\
+$\max_\ell\, k^*(0.999)/r_{\max}$ & 0.977 $[$0.977, 0.977$]$ & 0.973 $[$0.973, 0.973$]$ \\
+Bounded $-$ unbounded median, $k^*(0.999)/C$ & -0.702 $[$-0.702, -0.700$]$ & -- \\
+Bounded $-$ unbounded median, $k^*(0.999)/r_{\max}$ & -0.012 $[$-0.013, -0.010$]$ & -- \\
+Block output above the conv3 bound, count & 16 $[$16, 16$]$ & -- \\
+Block/conv3 ratio, median & 4.13 $[$4.13, 4.13$]$ & -- \\
+Level, median $k^*(0.95)/r_{\max}$ & 0.422 $[$0.418, 0.422$]$ & 0.420 $[$0.398, 0.422$]$ \\
+$\rho$(trained, random), $k^*(0.95)/r_{\max}$ & -0.20 $[$-0.20, -0.20$]$ & 0.84 $[$0.80, 0.87$]$ \\
+Trained $-$ random, median over layers & 0.152 $[$0.152, 0.156$]$ & 0.184 $[$0.180, 0.188$]$ \\
+$\rho_{\mathrm{align}}$, median over dense convs & 0.95 $[$0.95, 0.96$]$ & 0.96 $[$0.95, 0.96$]$ \\
+Per-layer CI half-width $k^*(0.95)/C$, median / max & 0.000 / 0.008 & 0.001 / 0.030 \\
+Per-layer CI half-width $k^*(0.999)/r_{\max}$, median / max & 0.000 / 0.008 & 0.000 / 0.006 \\
+\bottomrule
+\end{tabular}

@@ -32,3 +32,31 @@
     random level k*(.95)/C 0.109 [0.109, 0.109]   random rho(depth) -0.54 [-0.54, -0.54]
   rho_align median over 53 dense convs 0.95 [0.95, 0.96]   neg/pos 1/52  (pos count CI 52 [52, 52])
     random rho_align median -0.02 [-0.02, -0.02]
+
+=== vgg16_bn (VGG16_BN_Weights.IMAGENET1K_V1), imagenet_val[6400], 32 blocks x 200 images, 200 replicates ===
+  gate-passing dense conv layers: 13
+  pooled lower (count of pooled-gate layers)                 4 [4, 4]
+  pooled-gate layers                                         4
+  pooling drop /C (median over layers)                       0.168 [0.168, 0.168]
+  pooling drop /r_max                                        0.168 [0.168, 0.168]
+  jitter /C                                                  0.141 [0.141, 0.141]
+  jitter /r_max                                              0.034 [0.034, 0.034]
+  drop-to-jitter ratio /C                                    1.19 [1.19, 1.19]
+  drop-to-jitter ratio /r_max                                5.00 [5.00, 5.00]
+  max k*(.999)/r_max                                         0.973 [0.973, 0.973]
+  level: median k*(.95)/C                                    0.420 [0.398, 0.422]
+  level: median k*(.95)/r_max                                0.420 [0.398, 0.422]
+  rho(depth, k*(.95)/C)                                      0.77 [0.73, 0.84]
+  per-layer 95% CI half-width, k_star_ratio_0.95            median 0.0010  max 0.0303
+  per-layer 95% CI half-width, k_star_rmax_0.95             median 0.0010  max 0.0303
+  per-layer 95% CI half-width, k_star_ratio_0.999           median 0.0000  max 0.0059
+  per-layer 95% CI half-width, k_star_rmax_0.999            median 0.0000  max 0.0059
+  per-layer 95% CI half-width, pooled_k_star_ratio_0.95     median 0.0000  max 0.0000
+  trained vs random (vgg16_bn_random, same block draws), 13 common layers:
+    rho T-R k_star_ratio_0.95      0.84 [0.80, 0.87]     median T-R difference 0.184 [0.180, 0.188]
+    rho T-R k_star_rmax_0.95       0.84 [0.80, 0.87]     median T-R difference 0.184 [0.180, 0.188]
+    rho T-R k_star_ratio_0.999     0.91 [0.88, 0.92]     median T-R difference -0.016 [-0.018, -0.012]
+    rho T-R k_star_rmax_0.999      0.91 [0.88, 0.92]     median T-R difference -0.016 [-0.018, -0.012]
+    random level k*(.95)/C 0.234 [0.230, 0.236]   random rho(depth) 0.88 [0.86, 0.89]
+  rho_align median over 13 dense convs 0.96 [0.95, 0.96]   neg/pos 0/13  (pos count CI 13 [13, 13])
+    random rho_align median 0.02 [0.02, 0.02]
