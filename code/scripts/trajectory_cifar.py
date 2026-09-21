@@ -127,12 +127,13 @@ class _PadShortcut(nn.Module):
 
 
 class _CifarBasicBlock(nn.Module):
-    def __init__(self, inp: int, planes: int, stride: int):
+    def __init__(self, inp: int, planes: int, stride: int, mid: int | None = None):
         super().__init__()
-        self.conv1 = nn.Conv2d(inp, planes, 3, stride, 1, bias=False)
-        self.bn1 = nn.BatchNorm2d(planes)
+        mid = planes if mid is None else int(mid)   # block-internal width: the one Site of the block
+        self.conv1 = nn.Conv2d(inp, mid, 3, stride, 1, bias=False)
+        self.bn1 = nn.BatchNorm2d(mid)
         self.relu = nn.ReLU(inplace=True)
-        self.conv2 = nn.Conv2d(planes, planes, 3, 1, 1, bias=False)
+        self.conv2 = nn.Conv2d(mid, planes, 3, 1, 1, bias=False)
         self.bn2 = nn.BatchNorm2d(planes)
         self.shortcut = _PadShortcut(planes) if (stride != 1 or inp != planes) else nn.Identity()
 
@@ -146,16 +147,22 @@ class CifarResNet(nn.Module):
     """ResNet-20/32/44/56 of He et al. (2016), Section 4.2: 16/32/64 channels, 2n+2 layers,
     option-A shortcuts (0.27M parameters for n = 3).  The CIFAR network of Yuan et al. (2023)."""
 
-    def __init__(self, n: int = 3, num_classes: int = 10):
+    def __init__(self, n: int = 3, num_classes: int = 10, inner=None):
+        """`inner`: the 3n block-internal widths (conv1 out = conv2 in of each block), the sites that
+        layerspec.realloc adjusts; the stage widths 16/32/64 on the residual stream are fixed."""
         super().__init__()
         self.conv1 = nn.Conv2d(3, 16, 3, 1, 1, bias=False)
         self.bn1 = nn.BatchNorm2d(16)
         self.relu = nn.ReLU(inplace=True)
-        layers, inp = [], 16
+        inner = None if inner is None else [int(w) for w in inner]
+        if inner is not None and (len(inner) != 3 * n or min(inner) < 1):
+            raise ValueError(f"inner widths need {3 * n} positive integers, got {inner}")
+        layers, inp, b = [], 16, 0
         for planes, stride in ((16, 1), (32, 2), (64, 2)):
             for i in range(n):
-                layers.append(_CifarBasicBlock(inp, planes, stride if i == 0 else 1))
-                inp = planes
+                layers.append(_CifarBasicBlock(inp, planes, stride if i == 0 else 1,
+                                               None if inner is None else inner[b]))
+                inp, b = planes, b + 1
         self.layers = nn.Sequential(*layers)
         self.avgpool = nn.AdaptiveAvgPool2d(1)
         self.fc = nn.Linear(64, num_classes)
@@ -166,8 +173,26 @@ class CifarResNet(nn.Module):
         return self.fc(torch.flatten(self.avgpool(x), 1))
 
 
-def build_resnet20_cifar(num_classes: int = 10):
-    return CifarResNet(3, num_classes)
+RESNET20_INNER = [16] * 3 + [32] * 3 + [64] * 3      # the 9 block-internal widths of ResNet-20
+
+
+def build_resnet20_cifar(num_classes: int = 10, widths=None):
+    """ResNet-20; `widths` (9 integers) sets the block-internal widths, the controller's sites."""
+    return CifarResNet(3, num_classes, widths)
+
+
+WIDTH_COUNT = {"vgg16_bn": 13, "resnet18": 13, "resnet20": 9}   # length of --widths per architecture
+
+
+def build_with_widths(arch: str, widths, num_classes: int):
+    """The width-parameterised builder of `arch` (used for --widths and for resuming a controller run)."""
+    if arch == "vgg16_bn":
+        return build_vgg16_bn_cifar_widths(widths, num_classes)
+    if arch == "resnet18":
+        return build_resnet18_cifar(num_classes, widths)
+    if arch == "resnet20":
+        return build_resnet20_cifar(num_classes, widths)
+    raise ValueError(f"--widths is not defined for --arch {arch}")
 
 
 
@@ -369,9 +394,10 @@ def main(argv=None) -> int:
                    help="plan 9.12: train on the first K classes of the fixed permutation (scripts/class_subset.py), K-way head")
     p.add_argument("--per-class", type=int, default=None,
                    help="plan 9.12: at most this many training images per class (seeded choice)")
-    p.add_argument("--widths", type=int, nargs=13, default=None, metavar="W",
+    p.add_argument("--widths", type=int, nargs="+", default=None, metavar="W",
                    help="vgg16_bn: the 13 conv widths (analysis-plan 9.5 arms b/c/d); "
-                        "resnet18: stem + per stage [out, mid0, mid1] (plan 9.11, scripts/resnet_widths.py)")
+                        "resnet18: stem + per stage [out, mid0, mid1] (13; plan 9.11, scripts/resnet_widths.py); "
+                        "resnet20: the 9 block-internal widths")
     p.add_argument("--save-checkpoints", action="store_true",
                    help="also write epoch_<E>.pt (state_dict) at every measured epoch (analysis-plan 9.6)")
     p.add_argument("--realloc-budget", type=float, default=None,
@@ -390,10 +416,13 @@ def main(argv=None) -> int:
     p.add_argument("--realloc-shrink-only-after", type=int, default=None,
                    help="from this epoch on the controller only shrinks (grow early, shrink late); default: the last trigger")
     args = p.parse_args(argv)
-    if args.realloc_budget is not None and args.arch != "vgg16_bn":
-        p.error("--realloc-budget is implemented for --arch vgg16_bn in this version")
-    if args.widths is not None and args.arch not in ("vgg16_bn", "resnet18"):
-        p.error("--widths is only defined for --arch vgg16_bn and resnet18")
+    if args.realloc_budget is not None and args.arch not in ("vgg16_bn", "resnet20"):
+        p.error("--realloc-budget is implemented for --arch vgg16_bn and resnet20 in this version")
+    if args.widths is not None:
+        if args.arch not in WIDTH_COUNT:
+            p.error("--widths is only defined for --arch " + ", ".join(WIDTH_COUNT))
+        if len(args.widths) != WIDTH_COUNT[args.arch]:
+            p.error(f"--widths for {args.arch} needs {WIDTH_COUNT[args.arch]} integers, got {len(args.widths)}")
 
     schedule = sorted(set(args.schedule or [e for e in DEFAULT_SCHEDULE if e <= args.epochs]))
     if args.epochs not in schedule:
@@ -431,13 +460,11 @@ def main(argv=None) -> int:
     if os.path.exists(state_path):
         saved_widths = torch.load(state_path, map_location="cpu", weights_only=False).get("widths")
     if saved_widths is not None:
-        model = build_vgg16_bn_cifar_widths(saved_widths, num_classes)
+        model = build_with_widths(args.arch, saved_widths, num_classes)
     elif args.widths is None:
         model = ARCHS[args.arch](num_classes)
-    elif args.arch == "resnet18":
-        model = build_resnet18_cifar(num_classes, args.widths)
     else:
-        model = build_vgg16_bn_cifar_widths(args.widths, num_classes)
+        model = build_with_widths(args.arch, args.widths, num_classes)
     model = model.to(args.device)
     full_params = sum(q.numel() for q in ARCHS[args.arch](num_classes).parameters())
     _full = ARCHS[args.arch](num_classes).eval()
