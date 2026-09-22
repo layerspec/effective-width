@@ -9,8 +9,8 @@
 set -u
 cd "$(dirname "$0")/../code" || exit 1
 PY=$HOME/.venvs/effwidth/bin/python
-while pgrep -f 'results/mac_queue_(0918|p2c|p2d|p2e|p2f|p2g)\.sh' > /dev/null; do sleep 120; done
-while pgrep -f 'scripts/trajectory_cifar.py' > /dev/null; do sleep 120; done
+until pgrep -f 'results/mac_queue_(0918|p2c|p2d|p2e|p2f|p2g)\.sh' > /dev/null 2>&1; [ $? -eq 1 ]; do sleep 120; done   # wait unless pgrep says 'no match'; a failing pgrep (shutdown) counts as busy
+until pgrep -f 'scripts/trajectory_cifar.py' > /dev/null 2>&1; [ $? -eq 1 ]; do sleep 120; done   # wait unless pgrep says 'no match'; a failing pgrep (shutdown) counts as busy
 echo "=== mac_queue_p2h start/resume $(date) ==="
 P2W="64 80 159 160 320 320 320 632 402 435 236 164 170"
 run() {
