@@ -1,0 +1,35 @@
+D3: bounded (r_max < C) vs unbounded layers within each trained checkpoint,
+k*(0.999) under C and under r_max.  Delta = Hodges-Lehmann shift bounded - unbounded,
+95% CI from a layer bootstrap (4000 reps); A = P(bounded > unbounded);
+delta_min = smallest equivalence margin (max |90% CI bound|); eq. = equivalence at
+the profile's own jitter / at 0.05 (six-recipe per-layer SD) / at 0.1.
+
+  model                                     nb  nu   Delta_C   A_C       Delta_rmax [95% CI]     A_rmax [95% CI]   d_min jitter  eq(jit/.05/.1)
+  resnet18                                   3  17    -0.500  0.00   -0.020 [-0.051, +0.008]  0.30 [0.09, 0.57]   0.047  0.047  no /yes/yes
+  timm_efficientnet_b0.ra_in1k              17  32    -0.740  0.00   +0.011 [-0.010, +0.153]  0.56 [0.40, 0.72]   0.144  0.151  yes/no /no
+  timm_mobilenetv2_100.ra_in1k              18  34    -0.762  0.00   +0.010 [+0.000, +0.078]  0.64 [0.50, 0.78]   0.073  0.073  no /no /yes
+  timm_mobilenetv3_large_100.ra_in1k        15  31    -0.635  0.00   +0.035 [+0.000, +0.101]  0.67 [0.51, 0.82]   0.091  0.078  no /no /yes
+  timm_resnet101.tv_in1k                    37  67    -0.705  0.00   -0.020 [-0.047, +0.006]  0.41 [0.30, 0.52]   0.043  0.047  yes/yes/yes
+  timm_resnet34.a1_in1k                      3  33    -0.516  0.03   -0.041 [-0.062, -0.031]  0.11 [0.02, 0.21]   0.059  0.012  no /no /yes
+  timm_resnet50.a1_in1k                     20  33    -0.721  0.01   -0.020 [-0.049, +0.000]  0.35 [0.20, 0.50]   0.043  0.035  no /yes/yes
+  timm_resnet50.a3_in1k                     20  33    -0.703  0.00   -0.031 [-0.066, -0.003]  0.34 [0.20, 0.48]   0.057  0.045  no /no /yes
+  timm_resnet50.fb_ssl_yfcc100m_ft_in1k     20  33    -0.718  0.00   -0.004 [-0.024, +0.012]  0.44 [0.28, 0.59]   0.021  0.023  yes/yes/yes
+  timm_resnet50.gluon_in1k                  20  33    -0.712  0.00   -0.004 [-0.033, +0.016]  0.47 [0.30, 0.62]   0.026  0.029  yes/yes/yes
+  timm_resnet50.tv2_in1k                    20  33    -0.715  0.00   -0.016 [-0.031, +0.000]  0.36 [0.22, 0.51]   0.027  0.031  yes/yes/yes
+  timm_resnet50.tv_in1k                     20  33    -0.700  0.00   -0.008 [-0.047, +0.021]  0.44 [0.29, 0.59]   0.039  0.036  no /yes/yes
+  timm_resnext50_32x4d.tv_in1k              21  32    -0.463  0.01   -0.037 [-0.086, +0.029]  0.41 [0.26, 0.57]   0.082  0.082  no /no /yes
+  timm_wide_resnet50_2.tv_in1k              21  32    -0.469  0.02   -0.057 [-0.142, +0.036]  0.38 [0.23, 0.54]   0.125  0.115  no /no /no
+
+  under C:     |Delta| range 0.463-0.762, A range 0.00-0.03, CI excludes 0 in 14/14
+  under r_max: |Delta| range 0.004-0.057, A range 0.11-0.67, CI excludes 0 in 2/14, CI covers 0.5 for A in 11/14
+  |Delta_rmax| / |Delta_C|: median 0.027
+  equivalence at own jitter: 5/14; at margin 0.05: 7/14; at margin 0.1: 12/14; delta_min median 0.052, max 0.144 (timm_efficientnet_b0.ra_in1k)
+
+  across models (each model's Delta_rmax one observation, n = 14):
+    median -0.018 [95% CI -0.028, -0.004], 90% CI [-0.025, -0.004], negative 11, positive 3, max |Delta| 0.057
+    (the sign is mostly negative: bounded layers sit slightly BELOW the unbounded ones
+     under r_max -- 'fill the bound' is 'to within delta_min', not 'exactly')
+
+  Where the two populations are not equivalent at the jitter margin, the residual
+  shift is reported as such (the note lists them); it is not hidden behind p > 0.01.
+wrote ../paper/table_equivalence.tex

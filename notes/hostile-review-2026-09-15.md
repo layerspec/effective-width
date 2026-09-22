@@ -284,7 +284,7 @@
 | M1 | 做了：貢獻 2 改為倍數（分母 4–6×、池化 2.2× 自身階差、張量＝擴張比）；摘要與結論改「they measure different objects」；§3.5 明說殘差和必然升秩、發現是差距大小與兩個文獻各讀一邊 |
 | M2a | 做了：貢獻 3、§3.9 結論、§5.2、結論、限制段五處改「the block alone is not sufficient／alone or in interaction with the block」；§3.9 補 bottleneck 水準下降 vs basic 上升（0.21→0.32） |
 | M2b／D2 | 未做，作者決定 |
-| M3／D1／D3 | D3 部分做了（§3.2 給 r_max 下兩群中位數差 ≤ 0.056 的效果量）；影像 bootstrap 未做 |
+| M3／D1／D3 | D1 做了（09-21，`notes/bootstrap-2026-09-21.md`，影像噪音低於 k* 整數解析度）；**D3 做了（09-23，`notes/equivalence-2026-09-23.md`）**：HL 位移 C 版 −0.46…−0.76 → r_max 版 −0.057…+0.035（比 0.027），跨模型中位 −0.018 [−0.028, −0.004]，0.05 邊界等價 7/14、0.10 邊界 12/14；「merge」改「merge to within the between-weights scatter」，p > 0.01 這句撤掉。稿子未動，改法在筆記 |
 | M4 | 做了：§3.1 改為 7 個過門檻 block（中位 \|Δlog\| 0.035、最大 0.098、ρ 0.96），16 block 的 0.997 標為「both estimates carry the bias」；摘要與貢獻 1 同步；補充 survey 表 E&B 的張量由 conv out 改 block out |
 | M5 | 做了：摘要拆成 44 個排序／水準、10 個分解 |
 | M6 | 做了：§I 改「identity and a measurement」；Prop. 1 後加展開在特徵值聚集處失效、門檻由實算譜定 |
