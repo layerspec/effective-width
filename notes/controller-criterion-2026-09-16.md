@@ -502,3 +502,22 @@ b673）；cap 已在 P2e 掃過。24 跑、約 48 小時。
 - P-j3：六個敏感度跑全部落在 b673 seed 0（94.11）± 0.3 內 → 「控制器設定不是調出來的」；任何一跑掉 > 0.5 就把該設定寫成敏感、
   給曲線，不隱藏。預測 ep15（只一次觸發）最低（少一次放的機會），ep154070 與基準同。
 - 統計：5 vs 5 用 Mann–Whitney 精確 p 與 all-above-all；配對（同種子）Wilcoxon n=5 最小 p = 0.0625，只作描述。
+
+## P2k：transformer 臂（2026-09-23；`code/scripts/trajectory_vit.py`、`vit_ruler.py`、`results/mac_queue_p2k.sh`，等 p2j）
+
+**目的**：審稿 09-20 的「只有 VGG／ResNet-20」與作者「寬度不該是超參數」不限於 CNN。站點是 ViT 每個 block 的 MLP 隱藏寬度
+（fc1 輸出＝fc2 輸入；套件的 `mlp` 配接器找到 6 個 site，`test_trajectory_vit.py` 的 CPU 冒煙已驗證放／縮／摺入與續跑）。
+模型：timm VisionTransformer，32×32、patch 4（65 token）、dim 192、depth 6、heads 3、hidden 768，2.69M 參數；配方 AdamW 1e-3、
+wd 0.05、OneCycle、100 epoch、crop＋flip、label smoothing 0.1。**這個 ViT 在 CIFAR-10 從頭訓大約 85–88%，遠低於 CNN；
+這一臂測的是控制器換站點類型（Linear／GELU、無 BN）是否照樣成立，不是 SOTA。** 每個 Linear 看同樣 65 個 token，所以
+MLP 站點的 MACs 與參數成正比：參數預算在這裡同時是 FLOPs 預算。每跑約 3 小時（估，MPS），15 跑。
+
+**臂**：full ×3；ruler（seed-0 全寬網 ReLU 後——這裡是 GELU 後——τ=0.999 的 k*）×3；uniform（同參數、等寬）×3；
+b（控制器、預算＝尺的參數比例、15/40）×3；apriori（0/15/40）×3。
+
+**預登記**：
+- P-v1：尺在 τ=0.999 讀出的 MLP 參數 < 0.9 全寬（few-class 閒置寬度在 transformer MLP 也存在）。若 ≥ 0.95，寫成「此 ViT 無閒置
+  MLP 寬度」，控制器臂改用 0.6 預算做 P3 型壓力測試。
+- P-v2：b 三種子平均 ≥ ruler − 0.3，且每個種子 > uniform 每個種子（3 vs 3，p=0.05，描述用；需要時再補到 5）。
+- P-v3：apriori 與 b 差 ≤ 0.3。
+- P-v4：形狀——控制器把寬度往淺層或深層搬的方向與 VGG 相反或相同要記錄，不預測。
