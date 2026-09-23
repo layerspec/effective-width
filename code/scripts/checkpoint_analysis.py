@@ -1387,7 +1387,7 @@ def _a18_runs(results: str, arm: str, dataset: str = "cifar10") -> dict:
     else:
         base = os.path.join(results, f"a18_{dataset}", f"vgg16_bn_{arm}_s{{}}")
     out = {}
-    for seed in "012":
+    for seed in "01234":   # seeds 3-4 added 2026-09-23 (hostile review S7: 3 vs 3 all-above-all has p = 0.05 under the null)
         path = os.path.join(base.format(seed), "trajectory_layers.csv")
         if not os.path.exists(path):
             continue

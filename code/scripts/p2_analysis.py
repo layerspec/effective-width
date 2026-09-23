@@ -33,6 +33,13 @@ GROUPS = {
     "c10_ffixed342":  ("cifar10", 0.342, "ruler",     "uniform"),   # P2g: from the uniform net at conserved MACs
     "c10_b673_cap50":  ("cifar10", 0.673, "ruler_act", "uniform"),  # P2e: grow-cap 0.5
     "c10_b673_cap100": ("cifar10", 0.673, "ruler_act", "uniform"),  # P2e: grow-cap 1.0
+    # P2j sensitivity scan (2026-09-23, hostile review S4: the controller's own settings), seed 0, budget 0.673 params
+    "c10_b673_ep1030":   ("cifar10", 0.673, "ruler_act", "uniform"),  # triggers at 10/30 instead of 15/40
+    "c10_b673_ep2050":   ("cifar10", 0.673, "ruler_act", "uniform"),  # triggers at 20/50
+    "c10_b673_ep15":     ("cifar10", 0.673, "ruler_act", "uniform"),  # one trigger at 15
+    "c10_b673_ep154070": ("cifar10", 0.673, "ruler_act", "uniform"),  # three triggers 15/40/70
+    "c10_b673_calib1600": ("cifar10", 0.673, "ruler_act", "uniform"), # 1,600 calibration images instead of 6,400
+    "c10_b673_minw16":   ("cifar10", 0.673, "ruler_act", "uniform"),  # min width 16 instead of 8
 }
 
 
