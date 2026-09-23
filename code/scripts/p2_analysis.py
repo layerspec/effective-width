@@ -77,6 +77,50 @@ def read_run(d):
                 macs=actions[-1].get("macs_fraction") if actions else None)
 
 
+# ------------------------------------------------------------------ P2k: transformer arm (2026-09-23)
+
+def vit_section(results):
+    """CIFAR-10 ViT (scripts/trajectory_vit.py): full / ruler / uniform / controller / a-priori, P-v1..v4."""
+    root = os.path.join(results, "vit_c10")
+    runs = {}
+    for d in sorted(glob.glob(os.path.join(root, "*_s*"))):
+        r = read_run(d)
+        if r:
+            wj = os.path.join(d, "widths.json")
+            if r["widths"] is None and os.path.exists(wj):
+                r["widths"] = json.load(open(wj))["widths"]
+            runs[os.path.basename(d)] = r
+    if not runs:
+        return
+    print("\n==== P2k: CIFAR-10 ViT (six MLP hidden widths; parameter budget = FLOPs budget on the sites) ====")
+    wj = os.path.join(root, "widths.json")
+    if os.path.exists(wj):
+        W = json.load(open(wj))
+        print(f"  ruler (tau {W['tau']}): {W['ruler']}  fraction {W['fraction']['ruler']:.3f}; uniform {W['uniform']}")
+        print(f"  P-v1 (ruler fraction < 0.9): {'yes' if W['fraction']['ruler'] < 0.9 else 'NO'}"
+              f"{' (>= 0.95: no idle MLP width)' if W['fraction']['ruler'] >= 0.95 else ''}")
+    for name, r in runs.items():
+        st = "done" if r["done"] else f"epoch {r['epoch']}"
+        print(f"  {name:14s} {st:9s} acc {r['acc']:6.2f}  frac {r['frac'] if r['frac'] is not None else float('nan'):.3f}"
+              f"  widths {r['widths']}")
+    acc = lambda pre: [r["acc"] for n, r in runs.items() if n.startswith(pre + "_s") and r["done"]]  # noqa: E731
+    full, ruler, uni, b, ap = (acc(k) for k in ("full", "ruler", "uniform", "b", "apriori"))
+    for lab, v in (("full", full), ("ruler", ruler), ("uniform", uni), ("controller", b), ("a-priori", ap)):
+        if v:
+            print(f"  {lab:10s} n={len(v)} {' '.join(f'{x:.2f}' for x in v)}  mean {np.mean(v):.2f}")
+    if b and ruler and uni:
+        print(f"  P-v2 (b >= ruler - 0.3): {'yes' if np.mean(b) >= np.mean(ruler) - 0.3 else 'NO'} ({np.mean(b):.2f} vs {np.mean(ruler):.2f});"
+              f"  every b seed above every uniform seed: {'yes' if min(b) > max(uni) else 'no'} ({min(b):.2f} vs {max(uni):.2f})"
+              f"{'' if len(b) >= 3 and len(uni) >= 3 else '  [fewer than 3 seeds: provisional]'}")
+    if ap and b:
+        print(f"  P-v3 (|apriori - b| <= 0.3): {'yes' if abs(np.mean(ap) - np.mean(b)) <= 0.3 else 'NO'} ({np.mean(ap):.2f} vs {np.mean(b):.2f})")
+    ws = [r["widths"] for n, r in runs.items() if n.startswith("b_s") and r["done"] and r["widths"]]
+    if ws:
+        A = np.array(ws)
+        print(f"  P-v4 shape (controller widths, mean over seeds): {[int(x) for x in A.mean(axis=0)]}"
+              f"{'  per-site seed spread max ' + str(int((A.max(0) - A.min(0)).max())) if len(ws) >= 2 else ''}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--results", default="../results")
@@ -136,6 +180,7 @@ def main():
             print(f"  P3-type ({prefix}): controller vs full {mean - full:+.2f} (arms have no slack at tau=0.999; "
                   f"ruler_act {A['ruler_act'][2]:.2f}, uniform {A['uniform'][2]:.2f})")
     r20_section(a.results)
+    vit_section(a.results)
 
 
 
