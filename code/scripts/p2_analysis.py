@@ -121,6 +121,93 @@ def vit_section(results):
               f"{'  per-site seed spread max ' + str(int((A.max(0) - A.min(0)).max())) if len(ws) >= 2 else ''}")
 
 
+# ------------------------------------------------------------------ P2m: ImageNet-1k ResNet-18 (2026-09-24)
+R18_MIDS = (2, 3, 5, 6, 8, 9, 11, 12)          # positions of the 8 block-internal widths in the 13-vector
+R18_FULL = (64, 64, 64, 64, 128, 128, 128, 256, 256, 256, 512, 512, 512)
+
+
+def _r18_run(d):
+    """result.json (done) or the last epochs.csv row (running) of a train_imagenet_r18.py run, plus realloc.json."""
+    rj, ec, rl = (os.path.join(d, f) for f in ("result.json", "epochs.csv", "realloc.json"))
+    r = None
+    if os.path.exists(rj):
+        j = json.load(open(rj))
+        r = dict(done=True, epoch=j["epochs"], acc=j["final_top1"], widths=j["widths"],
+                 params_fraction=j.get("params_fraction"), epochs=j["epochs"])
+    elif os.path.exists(ec):
+        df = pd.read_csv(ec)
+        if len(df):
+            r = dict(done=False, epoch=int(df.epoch.iloc[-1]), acc=float(df.top1.iloc[-1]), widths=None,
+                     params_fraction=None, epochs=90)
+    if r is None:
+        return None
+    r["actions"] = json.load(open(rl)) if os.path.exists(rl) else []
+    r["macs_fraction"] = r["actions"][-1]["macs_fraction"] if r["actions"] else None
+    return r
+
+
+def _r18_train_cost(actions, epochs):
+    """Training compute in units of one full-width training: the MACs fraction in force at each epoch, averaged."""
+    frac, at = 1.0, {a["epoch"]: a["macs_fraction"] for a in actions}
+    total = 0.0
+    if 0 in at:
+        frac = at[0]
+    for ep in range(1, epochs + 1):
+        total += frac
+        if ep in at:
+            frac = at[ep]
+    return total / epochs
+
+
+def p2m_section(results):
+    """ImageNet-1k ResNet-18: controller (f60, 0.60 MACs) vs uniform (ufixed60) vs A23 full width; P-m1..m4
+    (notes/controller-criterion-2026-09-16.md, section P2m).  2 vs 2: descriptive only."""
+    runs = {os.path.basename(d): _r18_run(d) for d in sorted(glob.glob(os.path.join(results, "p2m", "r18_*_s*")))}
+    runs = {k: v for k, v in runs.items() if v}
+    if not runs:
+        return
+    full = [_r18_run(d) for d in sorted(glob.glob(os.path.join(results, "a18_imagenet", "resnet18_full_s*")))]
+    full = [r["acc"] for r in full if r and r["done"]]
+    print("\n==== P2m: ImageNet-1k ResNet-18, FLOPs-conserving controller (8 block-internal widths) ====")
+    if full:
+        print(f"  A23 full width: {' '.join(f'{x:.2f}' for x in full)}  mean {np.mean(full):.2f}  spread {max(full) - min(full):.2f}")
+    for name, r in runs.items():
+        st = "done" if r["done"] else f"epoch {r['epoch']}"
+        extra = ""
+        if r["actions"]:
+            extra = (f"  macs {r['macs_fraction']:.3f}  training compute {_r18_train_cost(r['actions'], r['epochs']):.2f} of full  "
+                     + "[" + "; ".join(f"ep{x['epoch']}: {x['macs_fraction']:.3f}" + ("" if x["shrink_only"] else " grow+shrink")
+                                        for x in r["actions"]) + "]")
+        pf = f"  params {r['params_fraction']:.3f}" if r["params_fraction"] is not None else ""
+        print(f"  {name:18s} {st:9s} top1 {r['acc']:6.2f}{pf}{extra}")
+        if r["widths"]:
+            print(f"      widths {r['widths']}")
+    acc = lambda pre: [r["acc"] for n, r in runs.items() if n.startswith(pre + "_s") and r["done"]]  # noqa: E731
+    f60, uni, ap = acc("r18_f60"), acc("r18_ufixed60"), acc("r18_apriori60")
+    prov = "" if len(f60) >= 2 and len(uni) >= 2 else "  [fewer than 2 seeds: provisional]"
+    if f60 and uni:
+        print(f"  P-m1 (f60 >= ufixed60 + 0.5, mean) -> {'yes' if np.mean(f60) >= np.mean(uni) + 0.5 else 'NO'} "
+              f"({np.mean(f60):.2f} vs {np.mean(uni):.2f}, diff {np.mean(f60) - np.mean(uni):+.2f}); "
+              f"every f60 seed above every ufixed60 seed: {'yes' if min(f60) > max(uni) else 'no'} "
+              f"(2 vs 2: p = 1/6 under the null, descriptive){prov}")
+    if f60 and full:
+        print(f"  P-m2 (f60 >= full - 1.0) -> {'yes' if np.mean(f60) >= np.mean(full) - 1.0 else 'NO'} "
+              f"({np.mean(f60):.2f} vs {np.mean(full):.2f}, diff {np.mean(f60) - np.mean(full):+.2f}){prov}")
+    if ap and f60:
+        print(f"  a-priori arm vs f60: {np.mean(ap):.2f} vs {np.mean(f60):.2f} ({np.mean(ap) - np.mean(f60):+.2f})")
+    ws = np.array([r["widths"] for n, r in runs.items() if n.startswith("r18_f60_s") and r["done"] and r["widths"]], dtype=float)
+    if len(ws):
+        rel = ws.mean(axis=0) / np.array(R18_FULL)
+        s1, s4 = rel[[2, 3]], rel[[11, 12]]
+        print(f"  P-m3 shape (mid / full, mean over seeds): stage1 {s1.round(2).tolist()} stage2 {rel[[5, 6]].round(2).tolist()} "
+              f"stage3 {rel[[8, 9]].round(2).tolist()} stage4 {s4.round(2).tolist()} -> "
+              f"stage1 <= 0.5 -> {'yes' if s1.max() <= 0.5 else 'NO'}; stage4 >= 0.7 -> {'yes' if s4.min() >= 0.7 else 'NO'}")
+        if len(ws) >= 2:
+            spread = (ws.max(0) - ws.min(0))[list(R18_MIDS)] / ws.mean(0)[list(R18_MIDS)]
+            print(f"  P-m4 (per-site relative seed spread <= 10%) -> {'yes' if spread.max() <= 0.10 else 'NO'} "
+                  f"(max {100 * spread.max():.1f}%, per site {[f'{100 * x:.0f}%' for x in spread]})")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--results", default="../results")
@@ -181,6 +268,7 @@ def main():
                   f"ruler_act {A['ruler_act'][2]:.2f}, uniform {A['uniform'][2]:.2f})")
     r20_section(a.results)
     vit_section(a.results)
+    p2m_section(a.results)
 
 
 

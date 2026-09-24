@@ -1295,15 +1295,15 @@ def section_round3_ortho(results: str, latex: str | None = None) -> None:
     if not files:
         return
     hdr("13. Round 3, orthogonality penalties vs the analytic prediction (analysis-plan 9.2)")
-    print("  For each penalty arm (so, srip), per layer: measured k*(0.95)/r_max of the")
+    print("  For each penalty arm (so, srip) and the exact-isometry arm (oni, D5 2026-09-24), per layer: measured k*(0.95)/r_max of the")
     print("  penalised network vs the 'ortho' counterfactual of the matching no-penalty")
-    print("  network (same arch, same seed).  P9.3: median |diff| < 0.1 for SO; P9.4: SRIP does not.")
+    print("  network (same arch, same seed).  P9.3: median |diff| < 0.1 for SO; P9.4: SRIP does not; P-d5.1: ONI within 0.1.")
     none_of = {"vgg16_bn": {k: f"a5_vgg16_bn_none_s{k}" for k in "012"},
                "basic52": {k: f"a2_basic52_s{k}" for k in "012"}}
     rows = []
     for f in sorted(files):
         run = os.path.basename(f).replace("_decompose.csv", "")   # a5_<arch>_<o>_s<k>
-        m = re.match(r"a5_(vgg16_bn|basic52)_(so|srip)_s(\d)", run)
+        m = re.match(r"a5_(vgg16_bn|basic52)_(so|srip|oni)_s(\d)", run)
         if not m:
             continue
         arch, o, k = m.groups()
@@ -1338,7 +1338,7 @@ def section_round3_ortho(results: str, latex: str | None = None) -> None:
               f"{r['ortho_pen']:9.3f}  {r['ker_none']:8.3f} -> {r['ker_pen']:5.3f}  {r['data_none']:6.3f} -> {r['data_pen']:5.3f}  "
               f"{r['kdata_none']:6.3f} -> {r['kdata_pen']:5.3f}  {r['out999_none']:5.3f} -> {r['out999_pen']:5.3f} -> {r['pred999']:5.3f}  "
               f"{r['acc_none']:5.2f} -> {r['acc_pen']:5.2f}")
-    for o in ("so", "srip"):
+    for o in ("so", "srip", "oni"):
         v = [r["mad"] for r in rows if r["arm"] == o]
         if v:
             print(f"  {o.upper()}: median |out - prediction| over arms = {np.median(v):.3f}  -> "
@@ -1355,9 +1355,9 @@ def section_round3_ortho(results: str, latex: str | None = None) -> None:
                "Network & penalty & $L$ & none & pen. & pred. & realised & $\\rho$(gain, pred.) & kernel erank & acc. \\\\",
                "\\midrule"]
         names = {"vgg16_bn": "VGG-16 (BN)", "basic52": "basic $[6,6,6,6]$"}
-        arms = {"so": "SO", "srip": "SRIP"}
+        arms = {"so": "SO", "srip": "SRIP", "oni": "ONI"}
         for arch in ("vgg16_bn", "basic52"):
-            for o in ("so", "srip"):
+            for o in ("so", "srip", "oni"):
                 R = [r for r in rows if r["arch"] == arch and r["arm"] == o]
                 if not R:
                     continue
