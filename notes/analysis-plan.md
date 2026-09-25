@@ -397,6 +397,17 @@ ResNet-50 六個公開配方的重排（T–R −0.08）歸因於「資料集或
     報告兩個效應量，不下單一歸因。
 - **次要（探索性，標示）**：水準是否如公開配方那樣上升（0.23→0.47）、ρ_depth 是否反轉為正。
 
+**9.4 縮減版補記（2026-09-25，投稿門檻 D2，作者定「做 D2」，寫於跑之前；`scripts/train_imagenet_a17.py`、`run_a17_pod.sh`）**
+- 縮減：兩個架構（basic [6,6,6,6]、bottleneck ResNet-50，torchvision 定義、ImageNet stem、52 對 53 個 conv）**各 2 種子**，MobileNetV2 不跑；
+  配方照原登記（SGD 0.9、batch 256、lr 0.1 cosine 到 0、90 epoch、wd 1e-4、RRC＋flip、無 label smoothing／mixup）。量測沿軌跡
+  （epoch 0、1、2、5、10、20、30、45、60、75、90）在 **與 §6 公開 checkpoint 相同的 6,400 張驗證影像、16 位置**；CSV 與 round-3 同 schema，
+  `checkpoint_analysis.py` 新段 A17 用同一套 R–R／T–T／T–R 統計。ResNet-50 的層名與 timm 相同，可直接與六個公開配方算 T–T。
+- 判定門檻依 2 種子改寫：**H9.4a** bottleneck 的 4 個 T–R（2 trained × 2 random）全部低於 basic 的 4 個之最小值（Mann–Whitney 4 對 4 單尾最小 p = 0.014，
+  只作描述）；**H9.4b** 本配方 ResNet-50 的同種子 T–R 中位 ≥ 0.4 且與六個公開配方的 T–T 中位 < 0.5。四種後果照原登記。
+- 成本：4090 約 100 GPU 小時（ResNet-50 每對約 43 h、basic 約 55 h，兩跑並行）、US$75–95；A100／H100 價格相近、時間短一半。
+  作者 09-25 核准（餘額 60.37 要加值）。D5 ONI（US$2）同一次 pod 跑。
+- 冒煙：`tests/test_train_imagenet_a17.py`（卷積數 52／53、假資料訓＋量＋續跑）。
+
 ### 9.5 用尺定寬度再重訓（2026-09-09 寫，資料未見；投稿門檻 A18）
 
 論文 §VI 說寬度判準應以 k*(0.999)/r_max 為目標，Limitations 說「不是剪枝主張」。本實驗

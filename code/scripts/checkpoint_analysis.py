@@ -1289,6 +1289,106 @@ def _run_acc(results: str, run: str) -> float:
     return acc[epochs[-1]]
 
 
+def _a17_profiles(results: str, arch: str):
+    """{seed: dict(init, final, acc, layers, epochs, P, accs, settle, rho_depth_*)} for results/a17/<arch>_s<seed>/;
+    a run counts as finished when result.json exists (its last measured epoch is the final profile)."""
+    out = {}
+    for path in sorted(glob.glob(os.path.join(results, "a17", f"{arch}_s*", "trajectory_layers.csv"))):
+        d = os.path.dirname(path)
+        if not os.path.exists(os.path.join(d, "result.json")):
+            continue
+        seed = os.path.basename(d).rsplit("_s", 1)[1]
+        epochs, P, acc, layers = _load_trajectory(path)
+        init, final = P[epochs[0]], P[epochs[-1]]
+        depth = np.arange(len(final))
+        out[seed] = dict(init=init, final=final, acc=acc[epochs[-1]], layers=layers, epochs=epochs, P=P, accs=acc,
+                         settle=next((e for e in epochs if _rho(final, P[e]) >= 0.95), None),
+                         rho_depth_init=_rho(depth, init), rho_depth_final=_rho(depth, final))
+    return out
+
+
+def _public_resnet50_profiles(results: str) -> dict:
+    """{recipe: {layer: k*(0.95)/r_max}} of the section-6 ResNet-50 checkpoints (dense conv, gate passed)."""
+    out = {}
+    for f in sorted(glob.glob(os.path.join(results, "local6400", "trained", "*resnet50*_layers.csv"))):
+        d = pd.read_csv(f)
+        d = d[(d.kind == "conv") & (d.n_over_C >= 50)]
+        if "is_depthwise" in d:
+            d = d[~d.is_depthwise.astype(bool)]
+        out[os.path.basename(f).replace("_layers.csv", "")] = dict(zip(d.layer, d["k_star_0.95"] / d["r_max"]))
+    return out
+
+
+def section_a17(results: str) -> None:
+    """A17 reduced (D2): basic [6,6,6,6] vs bottleneck ResNet-50 on ImageNet-1k under one recipe (plan 9.4
+    and its 2026-09-25 addendum); k*(0.95)/r_max profiles on the 6,400-image subset along the trajectory."""
+    groups = {"basic6666": _a17_profiles(results, "basic6666"), "resnet50": _a17_profiles(results, "resnet50")}
+    if not any(groups.values()):
+        return
+    hdr("26. A17 reduced: controlled block type on ImageNet-1k, one recipe (analysis-plan 9.4, D2)")
+    print("  same recipe (SGD, lr 0.1 cosine, 90 epochs), same stage widths, 52 vs 53 conv; k*(0.95)/r_max on the")
+    print("  section-6 validation subset; R-R / T-T / T-R as in section 12 (all trained x random pairs)")
+    print(f"    {'arch':10s} {'seeds':>5s}  {'R-R':>6s} {'T-T':>6s} {'T-R':>6s} {'T-R range':>12s}  {'level R->T':>12s}  "
+          f"{'rho_depth R->T':>14s}  {'settle':>6s}  {'top1':>6s}")
+    tr_all, tr_same_by = {}, {}
+    for arch, runs in groups.items():
+        if not runs:
+            print(f"    {arch:10s} (no finished runs)"); continue
+        inits = [v["init"] for v in runs.values()]; finals = [v["final"] for v in runs.values()]
+        rr = [_rho(a, b) for a, b in itertools.combinations(inits, 2)]
+        tt = [_rho(a, b) for a, b in itertools.combinations(finals, 2)]
+        tr = [_rho(a, b) for a in finals for b in inits]
+        tr_same = [_rho(v["init"], v["final"]) for v in runs.values()]
+        tr_all[arch], tr_same_by[arch] = tr, tr_same
+        fmt = lambda v: f"{np.median(v):+6.2f}" if v else "   n/a"   # noqa: E731
+        settles = [v["settle"] for v in runs.values() if v["settle"] is not None]
+        print(f"    {arch:10s} {len(runs):5d}  {fmt(rr)} {fmt(tt)} {fmt(tr)} {min(tr):+5.2f}..{max(tr):+5.2f}  "
+              f"{np.median(np.concatenate(inits)):5.2f} -> {np.median(np.concatenate(finals)):4.2f}  "
+              f"{np.median([v['rho_depth_init'] for v in runs.values()]):+6.2f} -> "
+              f"{np.median([v['rho_depth_final'] for v in runs.values()]):+5.2f}  "
+              f"{(np.median(settles) if settles else float('nan')):6.0f}  {np.mean([v['acc'] for v in runs.values()]):6.2f}")
+        print(f"    {'':10s} T-R same seed: {' '.join(f'{x:+.2f}' for x in tr_same)};  L = {len(next(iter(runs.values()))['layers'])} dense conv")
+        ep = next(iter(runs.values()))["epochs"]
+        print(f"    {'':10s} {'epoch':>5s} {'top1':>6s} {'level':>6s} {'rho(depth)':>10s} {'rho vs init':>11s} {'rho vs final':>12s}")
+        for e in ep:
+            vals = [v["P"][e] for v in runs.values() if e in v["P"]]
+            print(f"    {'':10s} {e:5d} {np.median([v['accs'][e] for v in runs.values() if e in v['accs']]):6.2f} "
+                  f"{np.median([np.median(x) for x in vals]):6.3f} "
+                  f"{np.median([_rho(np.arange(len(x)), x) for x in vals]):+10.2f} "
+                  f"{np.median([_rho(v['init'], v['P'][e]) for v in runs.values() if e in v['P']]):+11.2f} "
+                  f"{np.median([_rho(v['final'], v['P'][e]) for v in runs.values() if e in v['P']]):+12.2f}")
+    b, t = tr_all.get("basic6666"), tr_all.get("resnet50")
+    h94a = h94b = None
+    if b and t:
+        p = mannwhitneyu(t, b, alternative="less").pvalue if len(b) > 1 and len(t) > 1 else float("nan")
+        h94a = max(t) < min(b)
+        print(f"\n  H9.4a (bottleneck T-R below basic T-R on ImageNet): max bottleneck {max(t):+.2f} vs min basic {min(b):+.2f}; "
+              f"Mann-Whitney one-sided p = {p:.3g} (2 seeds: descriptive)  -> {'SUPPORTED' if h94a else 'NOT supported'}")
+    pub = _public_resnet50_profiles(results)
+    if groups["resnet50"] and pub:
+        layers = next(iter(groups["resnet50"].values()))["layers"]
+        tt_pub = {}
+        for seed, v in groups["resnet50"].items():
+            for name, prof in pub.items():
+                common = [i for i, lay in enumerate(layers) if lay in prof]
+                if len(common) >= 5:
+                    tt_pub[(seed, name)] = _rho(v["final"][common], np.array([prof[layers[i]] for i in common]))
+        if tt_pub:
+            med_pub = float(np.median(list(tt_pub.values())))
+            print(f"  this-recipe ResNet-50 final profile vs the {len(pub)} public ResNet-50 recipes (T-T on shared layers): "
+                  f"median {med_pub:+.2f}, range {min(tt_pub.values()):+.2f}..{max(tt_pub.values()):+.2f}")
+            tr_med = float(np.median(tr_same_by["resnet50"]))
+            h94b = tr_med >= 0.4 and med_pub < 0.5
+            print(f"  H9.4b (reordering is the recipe's doing: this-recipe ResNet-50 same-seed T-R median >= 0.4 and T-T vs public "
+                  f"< 0.5): T-R {tr_med:+.2f}, T-T {med_pub:+.2f}  -> {'SUPPORTED' if h94b else 'NOT supported'}")
+    if h94a is not None and h94b is not None:
+        verdict = {(True, False): "block effect exists but depends on scale (ImageNet yes, CIFAR no)",
+                   (False, True): "the public recipes cause the reordering; attribute to recipe",
+                   (False, False): "this recipe reorders both architectures on ImageNet; attribute to the dataset",
+                   (True, True): "block and recipe each contribute; report both effect sizes"}[(h94a, h94b)]
+        print(f"  Pre-registered outcome (plan 9.4): {verdict}")
+
+
 def section_round3_ortho(results: str, latex: str | None = None) -> None:
     d = os.path.join(results, "round3_decompose")
     files = glob.glob(os.path.join(d, "a5_*_decompose.csv"))
@@ -2427,6 +2527,7 @@ def main(argv=None) -> int:
     section_decompose(a.results, latex=a.latex_decompose)
     section_round3(a.results, latex=a.latex_round3)
     section_round3_ortho(a.results, latex=a.latex_ortho)
+    section_a17(a.results)
     section_ablations(a.results, latex=a.latex_ablation)
     section_a18(a.results, latex=a.latex_a18)
     section_alignment(a.results)
