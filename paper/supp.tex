@@ -611,6 +611,13 @@ ruler's widths retrain to full accuracy is Section~\ref{sec:a18} of the main tex
   \input{table_a18}
 \end{table*}
 
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{fig9_classes.pdf}
+  \caption{Class count at fixed architecture and recipe (plan Section~9.12): VGG-16 (BN) on nested CIFAR-100 subsets of $13$, $20$, $50$ and $100$ classes, three seeds (dots) and their mean (line), widths read after the ReLU at $\tau = 0.999$ on each network's training images. Left: fraction of the full parameter count the ruler keeps. Right: mean $k^*(0.999)/C$ of the last three layers. Squares: the ten-class CIFAR-10 task on $50{,}000$ images (filled) and on $6{,}400$ images for the same $100$ epochs (open), the latter the image count of the thirteen-class subset; triangle: the same $6{,}400$ images for $780$ epochs, the full set's $39{,}000$ steps (plan Section~9.13).}
+  \label{fig:classes}
+\end{figure}
+
 \section{Claims, Evidence and Status}
 \label{supp:claims}
 

@@ -1074,7 +1074,7 @@ datasets. The idle width is the excess of a layer over the dimension the
 few-class terminal representation needs, about $150$ of $512$ channels for
 VGG-16 on ten classes, and ResNet-20's $64$ are below it. Varying the
 class count alone, on nested CIFAR-100 subsets of $13$, $20$, $50$ and $100$
-classes under one recipe (Fig.~\ref{fig:classes}), the fraction the ruler
+classes under one recipe (supplement, Fig.~S7), the fraction the ruler
 keeps rises monotonically in every seed, $0.88$, $0.92$, $0.98$, $0.99$
 (P9.31), and the last three layers go $0.83 \to 0.89 \to 0.98 \to 0.99$;
 the thirteen-class network does not collapse below $0.6$ (P9.32 fails),
@@ -1092,12 +1092,6 @@ layers, reached by optimising long enough, closing monotonically as
 classes are added and absent in a network whose late layers are already
 narrow.
 
-\begin{figure}[t]
-  \centering
-  \includegraphics[width=0.92\columnwidth]{fig9_classes.pdf}
-  \caption{Class count at fixed architecture and recipe (plan Section~9.12): VGG-16 (BN) on nested CIFAR-100 subsets of $13$, $20$, $50$ and $100$ classes, three seeds (dots) and their mean (line), widths read after the ReLU at $\tau = 0.999$ on each network's training images. Left: fraction of the full parameter count the ruler keeps. Right: mean $k^*(0.999)/C$ of the last three layers. Squares: the ten-class CIFAR-10 task on $50{,}000$ images (filled) and on $6{,}400$ images for the same $100$ epochs (open), the latter the image count of the thirteen-class subset; triangle: the same $6{,}400$ images for $780$ epochs, the full set's $39{,}000$ steps (plan Section~9.13).}
-  \label{fig:classes}
-\end{figure}
 
 % =========================================================================
 \section{Discussion}
@@ -1139,7 +1133,8 @@ $0.33$--$0.72$ of its attainable rank in the median over layers across
 eleven families; that number orders layers and tracks training but is not
 removable width, since truncating to it costs ResNet-50 $21$ points. At
 the $99.9\%$ criterion it uses $0.84$--$0.93$, and in six of eight
-checkpoints truncating to that costs nothing a paired test detects. The
+checkpoints truncating to that costs nothing a paired test detects
+(supplement). The
 second number is the one a width-selection method has to explain. Read
 after the nonlinearity, it is
 a width a network can be built at: two thirds of VGG-16's parameters on
@@ -1155,16 +1150,25 @@ three-quarters idle.
 What differs across architectures is how much of the profile is learned.
 For plain, basic-residual and dense networks the ordering is the
 architecture's and training adds a level, so a criterion that sets widths
-from the network at initialisation would order those layers correctly;
-for the ImageNet ResNet-50 checkpoints it would not, and the controlled
+from the network at initialisation would order those layers correctly,
+and that ordering can be computed from the architecture and one spectrum
+before any training; the level cannot, and a network started at the
+computed widths gains nothing over one started at full width. For the
+ImageNet ResNet-50 checkpoints the ordering is learned, and the controlled
 experiment says the block alone is not the reason.
 Whether the count can be raised by regularisation is not a matter of
 pushing the kernel toward an isometry alone: the trained kernel is aligned
 with its input, the decomposition predicts a rise of about $0.3\,r_{\max}$
 rather than a jump to the ceiling, and the penalties in use realise half
-of it, in the layers named. A width-selection method built on this
-statistic is a separate piece of work; what this paper fixes is the
-quantity it should optimise and the checks it must pass.
+of it, in the layers named. What a width-selection method built on this statistic can add is
+bounded by Section~\ref{sec:a18}: where idle width exists, folding after
+one training already reaches the ruler's width at nine tenths of the
+compute, a label-free controller reaches it within one training at two
+thirds and is $0.2$--$0.3$ better than folding or than its own widths
+trained from scratch below $0.7$ of the compute; where the ruler reads full
+width, as on ResNet-20 and on the hundred- and thousand-class tasks, no
+reallocation helps. What this paper fixes is the quantity such a method
+should read, the checks it must pass and the margin it can expect.
 
 \subsection{Limitations and Failure Cases}
 \label{sec:limits}
@@ -1174,12 +1178,14 @@ channel covariance at one tensor, not a manifold dimension, and a layer
 whose covariance has high rank may still carry a low-dimensional manifold
 (Section~\ref{sec:four}). No measurement here says by itself that a
 narrower network trains to the same accuracy; where the paper says so it
-is by retraining one architecture, and the statement holds for the
-post-activation widths at $\tau = 0.999$ on a few-class task and nowhere
-else. The paper makes two shape statements
-only, the reversal of the depth trend in ResNet-50 (six recipes, five
-seeds, exploratory) and the terminal collapse of few-class networks
-(three seeds per class count, against its registered rule).
+is by retraining or reallocating one architecture, and the statement
+holds for the post-activation widths at $\tau = 0.999$ where a network's
+late layers exceed the terminal dimension of a few-class task (VGG-16 on
+CIFAR-10) and nowhere else tested: ResNet-20 on the same task has no such
+width. The paper makes two shape statements only, the reversal of the
+depth trend in ResNet-50 (six recipes, five seeds, exploratory) and the
+terminal collapse of wide late layers on few-class tasks (three seeds per
+class count, against its registered rule).
 
 \emph{Where the ruler is silent or inside the noise.} The pooled
 estimator cannot be read at a wide layer, and eleven of ResNet-50's
@@ -1195,9 +1201,11 @@ MobileNetV3-Large's random draws agree only at $0.75$, so its reference
 is itself unstable.
 
 \emph{Registered predictions that failed.} H9.1, P9.3, P9.7, P9.10,
-P9.14, P9.15, P9.21, P9.23, P9.25, P9.30, P9.32--P9.34 and the layer part
-of P9.19, each reported at the place cited with its registered rule and
-none softened by an unregistered re-analysis. $k^*(0.999)$ bounds the
+P9.14, P9.15, P9.21, P9.23, P9.25, P9.30, P9.32--P9.34, the layer part
+of P9.19, and for the controller the ResNet-20 predictions P-r1--P-r3,
+each reported at the place cited with its registered rule and none
+softened by an unregistered re-analysis; every registered prediction and
+its outcome is listed in the supplement (Table~S17). $k^*(0.999)$ bounds the
 width in use for conventional recipes and not for the RSB recipes, so the
 threshold that names the width in use is recipe-dependent.
 
@@ -1210,7 +1218,9 @@ the ImageNet effect is the dataset's, the recipes', or theirs in
 interaction with the block; the experiment that would, the same
 architectures under one ImageNet recipe with seeds, is left to a study
 with the compute. Head depth at fixed class count was
-not varied. The inverted-residual finding is about the checkpoints one
+not varied. The controller was run on two architectures and one dataset
+with three seeds per arm; its margins over folding and over uniform
+networks are of the size of the seed spread and are stated as such. The inverted-residual finding is about the checkpoints one
 can download. A ViT-B/16 profile against one random initialisation
 (supplement, Table~S6) shows the protocol applies unchanged to linear
 layers, with an ordering that is the architecture's and a level training
