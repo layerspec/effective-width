@@ -497,11 +497,17 @@ pooling the 261 bounded layers of the trained checkpoints by $r_{\max}/C$
 $k^*(0.999)/C$ of $0.165$, $0.234$, $0.410$ at bounds $1/6$, $1/4$, $1/2$)
 while the attainable ratio sits at $0.990$, $0.938$, $0.820$, within the
 range of the unbounded layers. \emph{Within a model the two populations
-merge}: bounded against unbounded layers differ under $C$ in all 14 models
-with expansion layers (Mann--Whitney $p < 10^{-2}$, the medians $0.4$ to
-$0.8$ apart) and in none under $r_{\max}$, where the two medians are
-within $0.056$ of each other in every model, in either direction
-($p > 0.01$ in all 14); ResNet-50's medians move from $0.236$ against
+merge to within the between-weights scatter}: the Hodges--Lehmann shift of
+the bounded layers against the unbounded ones is $-0.46$ to $-0.76$ under
+$C$ (probability of superiority $\le 0.03$, 14/14 layer-bootstrap CIs
+exclude zero) and $-0.057$ to $+0.035$ under $r_{\max}$ (median across the
+14 models $-0.018$, 95\% CI $[-0.028, -0.004]$; supplement, Table~S14).
+The residual is a deficit of the bounded layers, not a surplus: a trained
+expansion reaches $94$--$99\%$ of its bound while an unbounded layer
+reaches $94$--$97\%$ of $C$. Equivalence within the six-recipe scatter of
+$0.05$ holds in 7 of 14 models and within $0.10$ in 12; the two exceptions
+(EfficientNet-B0, Wide-ResNet-50-2) have flat bounded spectra and wide
+intervals, not large shifts. ResNet-50's medians move from $0.236$ against
 $0.938$ to $0.927$ against $0.938$, and its median $k^*(0.95)/r_{\max}$
 of $0.42$ (V1 on the full set; the six recipes on the subset have median
 $0.47$, Table~\ref{tab:families}) is in line with VGG-16 ($0.42$) and
