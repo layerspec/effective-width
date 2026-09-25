@@ -404,7 +404,7 @@ lifting the attention projection from $0.01$ to $0.31$.
 \section{Further Propositions and Proofs}
 \label{supp:proofs}
 
-The main text states Propositions~\ref{prop:gate}, \ref{prop:ostrowski} and \ref{prop:truncation} and Corollary~\ref{cor:kstar}. Two further statements complete the decomposition of Section~\ref{sec:decompose}; the notation is that of Equation~\eqref{eq:decomp} in the main text, with $W = PW_{\circ}$ the polar decomposition and $r = \operatorname{rank} W$.
+The main text states Propositions~\ref{prop:gate} and \ref{prop:ostrowski} and Corollary~\ref{cor:kstar}; Proposition~\ref{prop:truncation} above accompanies the truncation calibration. Two further statements complete the decomposition of Section~\ref{sec:decompose} and three underlie the controller of Section~\ref{sec:a18}; the notation is that of Equation~\eqref{eq:decomp} in the main text, with $W = PW_{\circ}$ the polar decomposition and $r = \operatorname{rank} W$.
 
 \begin{proposition}[the counterfactual is a compression of the data]
 \label{prop:compression}
@@ -422,6 +422,25 @@ of layer $\ell$, each almost surely in the range of
 $\Sigma_{\rm act}^{(\ell)}$, then
 $\operatorname{rank} \Sigma_{\rm out}^{(\ell+1)} \le \min\bigl(C_{\ell+1},\,
 k_h k_w \operatorname{rank} \Sigma_{\rm act}^{(\ell)}\bigr)$.
+\end{proposition}
+
+
+Three further statements underlie the controller of Section~\ref{sec:a18}. At a site (a layer whose output width is free) let $a \in \mathbb{R}^{C}$ be the post-activation channel vector with covariance $\Sigma_a$, $x$ the patch the layer reads with covariance $\Sigma_x$, $J_a$ the Jacobian of the logits with respect to $a$, and for a kept subset $S$ of the channels let $R_S = \Sigma_a - \Sigma_a[:,S]\,\Sigma_a[S,S]^{+}\,\Sigma_a[S,:]$ be the Nystr\"om residual of reconstructing the dropped channels from the kept ones.
+
+\begin{proposition}[first-order effect of dropping channels]
+\label{prop:shrink}
+Dropping the channels outside $S$ and folding their least-squares reconstruction $B = \Sigma_a[S,S]^{+}\Sigma_a[S,S^c]$ into the next layer perturbs the logits, to first order, by $\operatorname{tr}(J_a R_S J_a^{\top}) \le \|J_a\|_{\rm op}^2 \operatorname{tr} R_S$ in mean square, and
+$\sum_{i > m} \lambda_i(\Sigma_a) \le \operatorname{tr} R_S \le (m+1) \sum_{i > m} \lambda_i(\Sigma_a)$ for $|S| = m$, the left inequality for every $S$ and the right for a volume-sampled $S$.
+\end{proposition}
+
+\begin{proposition}[the variance a wider site can admit]
+\label{prop:grow}
+$\operatorname{rank} \Sigma_z \le \min(C, \operatorname{rank} \Sigma_x)$ and $\lambda_i(\Sigma_{\circ}) \le \lambda_i(\Sigma_x)$ for every kernel, so a site of width $C$ passes at most the top $C$ directions of its input. Adding $\Delta$ channels raises the variance the site can pass by at most $\sum_{C < i \le C + \Delta} \lambda_i(\Sigma_x) / \operatorname{tr}\Sigma_x$, the \emph{unmet variance}; new channels whose rows are the top eigenvectors of $\Sigma_x$ in the orthogonal complement of the kernel's row space, with zero outgoing weights, leave the network's function unchanged.
+\end{proposition}
+
+\begin{proposition}[water-filling is optimal for the surrogate]
+\label{prop:fill}
+Let $D_\ell(C)$ be the fraction of variance a site drops at width $C$ (on the shrink side $\operatorname{tr} R_S / \operatorname{tr} \Sigma_a$, on the grow side the unmet variance) and $p_\ell(C)$ its cost, linear in $C$. $D_\ell$ is convex and decreasing, so minimising $\sum_\ell \omega_\ell D_\ell(C_\ell)$ under $\sum_\ell p_\ell(C_\ell) = P$ is a convex problem whose solution equalises $\omega_\ell \lambda_{C_\ell}(\Sigma^{(\ell)}) / (\operatorname{tr}\Sigma^{(\ell)}\, p'_\ell)$ across sites (reverse water-filling), and the greedy discrete exchange decreases the objective monotonically and terminates.
 \end{proposition}
 
 \subsection*{Proofs}
@@ -479,6 +498,13 @@ $\operatorname{rank}(W \Sigma W^{\top}) \le \min(\operatorname{rank} W,
 \operatorname{rank} \Sigma)$ and $\operatorname{rank} W \le C_{\ell + 1}$. \qed
 
 
+
+\emph{Proposition~\ref{prop:shrink}.} As for Proposition~\ref{prop:truncation} with the orthogonal projection replaced by the oblique projection $\Pi_S$ onto the span of the kept coordinates: $\mathbb{E}\|a - \Pi_S a\|^2 = \operatorname{tr} R_S$ is the Frobenius residual of column-subset selection, and the two-sided bound on that residual is the standard one (a coordinate subset cannot beat the best subspace; volume sampling gives the factor $m+1$ \cite{deshpande2006volume}, greedy selection a comparable factor \cite{civril2009greedy}). \qed
+
+\emph{Proposition~\ref{prop:grow}.} $\Sigma_z = W\Sigma_x W^{\top}$ has rank at most $\min(C, \operatorname{rank}\Sigma_x)$; by Proposition~\ref{prop:compression} $\Sigma_{\circ}$ is a compression of $\Sigma_x$ to the row space of $W$, whence the termwise bound and the statement that only the top $C$ directions pass. A new row orthogonal to the existing row space with zero outgoing weights adds a channel the next layer ignores, so the function is unchanged. \qed
+
+\emph{Proposition~\ref{prop:fill}.} $D_\ell(C) - D_\ell(C+1) = \lambda_{C+1}/\operatorname{tr}\Sigma$ is decreasing in $C$, so $D_\ell$ is convex; with linear costs the relaxed problem is convex and its KKT condition is the stated equalisation. In the discrete problem, moving one channel from the site with the smallest marginal loss per unit cost saved to the site with the largest marginal gain per unit cost added does not increase the objective, and the number of configurations is finite. \qed
+
 \subsection*{Limiting Cases}
 
 Each proposition has a regime in which it says nothing, and the regime is worth naming.
@@ -496,6 +522,85 @@ Each proposition has a regime in which it says nothing, and the regime is worth 
 
 
 \clearpage
+\section{Further Results}
+\label{supp:further}
+
+\subsection*{Functional Calibration by Truncation}
+\label{sec:projection}
+
+\emph{Exploratory; the $6{,}400$-image subset.} Whether the directions the
+statistic discards carry function can be checked at inference by
+replacing each convolution output $y$ with
+$\bar y + U_k U_k^{\top}(y - \bar y)$, $U_k$ its top-$k$ principal channel
+directions, the response-PCA truncation of Zhang \emph{et al.}
+\cite{zhang2016accelerating}, here with $k = k^*(\tau)$ from the
+measurement, at every dense convolution at once, without fine-tuning. The
+scale of the answer is fixed to first order by the discarded variance.
+
+\begin{proposition}[first-order effect of truncation]
+\label{prop:truncation}
+Let $z$ be the output of layer $\ell$ at a position, $\Sigma_\ell = \sum_i \lambda_i u_i u_i^{\top}$ its covariance, $r = (I - U_k U_k^{\top})(z - \bar z)$ the discarded component, and $J_\ell$ the Jacobian of the logits with respect to $z$. Then $\mathbb{E}\|r\|^2 = (1 - \tau_k)\operatorname{tr}\Sigma_\ell$ with $\tau_k$ the captured fraction, and to first order
+\[
+  \mathbb{E}\|J_\ell r\|^2 = \operatorname{tr}\bigl(J_\ell \Sigma_\ell^{\perp}(k) J_\ell^{\top}\bigr) \le \|J_\ell\|_{\rm op}^2 (1 - \tau_k) \operatorname{tr}\Sigma_\ell,
+\]
+where $\Sigma_\ell^{\perp}(k) = \sum_{i > k} \lambda_i u_i u_i^{\top}$; truncating $L$ layers at once perturbs the logits by at most $\sum_\ell (\mathbb{E}\|J_\ell r_\ell\|^2)^{1/2}$ in root mean square.
+\end{proposition}
+
+Between $\tau = 0.999$ and $0.95$ the discarded energy per layer differs by
+a factor of $50$ and the layers add, so the two thresholds are an order of
+magnitude apart in what they inject; on the A1 recipe the linearisation
+agrees with the actual logit change in rank order across layers at
+$\rho = 0.99$--$1.00$ at every $\tau$. Covariances were accumulated on one
+half of the subset and the truncated network evaluated on the other, with
+a control that truncates to $k^*(\tau)$ random directions
+(Table~\ref{tab:sprojection}; exact McNemar test per cell).
+
+
+At $\tau = 0.999$ the truncation keeps $84$--$93\%$ of each layer's
+attainable rank and accuracy is unchanged in six of eight checkpoints
+(ResNet-18, VGG-16 and four of the six ResNet-50 recipes: $-0.3$ to
+$+0.2$ points on $3{,}200$ images, exact McNemar $p \ge 0.15$); the two
+ResNet-50 checkpoints
+trained with the A1 and A3 recipes of Wightman \emph{et al.}
+\cite{wightman2021rsb} lose $1.7$ points each ($p < 10^{-4}$), so binary
+cross-entropy with heavy augmentation places function in directions
+holding under $0.1\%$ of the variance. Random directions of the same
+dimension give chance throughout: what is retained is the subspace, not
+the count. Below $0.999$ the cost is recipe-dependent, from $1.6$--$5.2$
+points to a fall to $11\%$ at $0.99$, and at the registered $0.95$ three
+checkpoints lose $19$--$21$ points and five collapse. We conclude that
+$k^*(0.999)$ bounds the width a conventionally trained network uses and
+undercounts it by about two points for the RSB recipes, while
+$k^*(0.95)$ orders layers and tracks training but says nothing about
+removable width. This is not a compression or pruning result; whether a
+narrower network trained from scratch reaches the same accuracy is the
+question of Section~\ref{sec:a18}.
+
+
+\subsection*{The Profile as a Diagnostic}
+\label{sec:diagnostic}
+
+\emph{Exploratory.} Pooling the six ResNet-50 recipes by role and stage
+(Table~\ref{tab:sdiagnostic}), $k^*(0.999)/r_{\max}$ reads above $0.9$ on 29 of
+the 53 layers in every recipe and $0.95$--$0.97$ at every $3\!\times\!3$
+convolution. The width not used sits at the entry of the network and in
+its projection shortcuts: the stem at $0.49$, the first block of stage~1
+at $0.40$--$0.61$, and the four stride-2 shortcuts at $0.61$ to $0.94$
+from stage 1 to 4, the only layers below $0.7$ in all six recipes. The reading
+is not ``ResNet-50 is half idle'' but ``its entry and its shortcuts are
+wider than what passes through them, by about two, in every recipe''.
+Beside network slimming \cite{liu2017slimming} on the same CIFAR-10
+VGG-16, the ruler agrees where the profile is decided (both cut the first
+convolution to a fifth or a third of 64 and collapse the last resolution
+to $32$--$40$ of $512$) and disagrees at the fourth resolution, since the
+ruler reports the rank the activations span and slimming what can be
+removed when the network is retrained around the removal; the rank of a
+feature map is also HRank's pruning score \cite{lin2020hrank}, read per
+filter where the ruler reads per layer. Whether the
+ruler's widths retrain to full accuracy is Section~\ref{sec:a18} of the main text.
+
+
+
 \section{Claims, Evidence and Status}
 \label{supp:claims}
 

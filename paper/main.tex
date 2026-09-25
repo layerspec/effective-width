@@ -137,7 +137,7 @@ dimension; the two differ by an order of magnitude on the same VGG-16
 layer (TwoNN 18 against 200 principal components at $90\%$
 variance \cite{ansuini2019intrinsic}). It is the linear count that width
 concerns, because the consumer of a layer's output is the next
-convolution, linear in its input patch; Section~\ref{sec:projection} makes
+convolution, linear in its input patch; the supplement (Functional Calibration by Truncation) makes
 that operational.
 
 \textbf{Depth profiles of dimensionality.}\label{sec:profiles} The
@@ -248,7 +248,7 @@ report, on one scale for every architecture.
   parameters; on CIFAR-100 and ImageNet-1k the same widths are the full
   ones, and a registered class-count control shows the unused width is the
   few-class task's, closing monotonically with the class count
-  (Sections~\ref{sec:projection} and \ref{sec:a18}).
+  (Section~\ref{sec:a18} and the supplement).
 \end{enumerate}
 
 The analysis was specified before the ImageNet data were collected. The
@@ -333,7 +333,7 @@ $k^*/r_{\max}$ beside it, hereafter \emph{the ruler}. $k^*(0.95)/C$ is
 the registered primary outcome;
 $\tau = 0.999$, the criterion of \cite{garg2019lowEffort}, is used where we
 compare with their table and where function is at stake
-(Section~\ref{sec:projection}).
+(supplement, Functional Calibration by Truncation).
 
 \subsection{Estimation}
 
@@ -444,7 +444,7 @@ $k^*(0.95)/C$, is reported for every registered claim in the supplement's
 claims table; the text leads with the ruler, the statistic the data showed
 to be the informative one, and says so where it does.
 
-Section~\ref{sec:repro-garg} validates the protocol against both published profiles. Sections~\ref{sec:rmax}--\ref{sec:blockout} quantify the three choices; Section~\ref{sec:metrics} settles the registered comparison of statistics (the registered threshold comparison is in the supplement: $\tau$ sets the level and does not reorder) and Section~\ref{sec:dwsplit} separates depthwise layers. Section~\ref{sec:learned} compares trained networks with their initialisations, Section~\ref{sec:decompose} decomposes the statistic into its kernel and data factors, and Sections~\ref{sec:projection}, \ref{sec:diagnostic} and \ref{sec:a18} put the measurement to use.
+Section~\ref{sec:repro-garg} validates the protocol against both published profiles. Sections~\ref{sec:rmax}--\ref{sec:blockout} quantify the three choices; Section~\ref{sec:metrics} settles the registered comparison of statistics (the registered threshold comparison is in the supplement: $\tau$ sets the level and does not reorder) and Section~\ref{sec:dwsplit} separates depthwise layers. Section~\ref{sec:learned} compares trained networks with their initialisations, Section~\ref{sec:decompose} decomposes the statistic into its kernel and data factors, and Section~\ref{sec:a18} puts the measurement to use: widths read from it are folded, retrained and reached in one training (the truncation calibration and the diagnostic reading of the profile are in the supplement).
 
 \subsection{Validation Against Published Profiles}
 \label{sec:repro-garg}
@@ -766,6 +766,39 @@ interaction with the block, which this experiment does not separate
 the CIFAR bottleneck's level falls on training where the basic block's
 rises ($0.21 \to 0.32$).
 
+\emph{The profile at initialisation is computable.} Before training the
+profile is a function of the architecture and one statistic of the images.
+At the first layer this is an identity, $\Sigma_{\rm out} = W\Sigma_{\rm patch}
+W^{\top}$ with $\Sigma_{\rm patch}$ the $27 \times 27$ RGB patch covariance;
+deeper, Proposition~S2 bounds the rank and the level is a measured
+regularity: a stationary Gaussian field with the images' cross-power
+spectrum (a $3 \times 3$ Hermitian matrix per spatial frequency, estimated on
+the $6{,}400$ images), passed through the \emph{same} random weights, gives
+the real-image profile of all eleven families to within seed noise, $\rho$
+$0.97$--$1.00$ against random-vs-random ceilings of $0.75$--$0.98$, with the
+level within $0.04$ and the first layer's $k^*$ equal; against a
+\emph{different} random draw the surrogate reaches exactly the ceiling
+($0.95$, $0.98$, $0.95$, $0.81$ for ResNet-50/18/34 and VGG-16), which is all
+a prediction of one draw can reach. What the images contribute is small
+and nameable: white noise gives $\rho = 0.62$ at a level $0.18$ too high,
+$1/f$ noise $0.84$ and $+0.16$, a power law $|\omega|^{-2.61}$ times one
+$3 \times 3$ channel matrix (eight numbers) $0.99$ and $-0.02$; ImageNet
+and COCO share those eight numbers and the same random profile
+($\rho = 1.00$), and phase-scrambled images, each keeping its spectrum
+and losing its structure, give $0.99$ (supplement). A Gaussian
+recursion through the ReLUs (the mean-field form of
+\cite{poole2016exponential,xiao2018dynamical}) recovers the ordering
+($\rho \ge 0.97$) but overestimates the level by $0.05$--$0.14$ at these
+widths, because a layer's input spans few directions and the central-limit
+step fails; the level is therefore taken from the Gaussian field, not from
+a closed form. This profile is what training keeps in the plain, basic and
+dense families and reorders in the bottleneck ones: the correlation of a
+checkpoint with the computed profile equals its correlation with the
+measured random one to within $0.04$ in every family, as it must. It is
+not the trained width: training raises the level everywhere, and a
+network started at the computed widths gains nothing over one started at
+full width (Section~\ref{sec:a18}).
+
 \emph{When.} A VGG-16 (BN) on CIFAR-10 has its final ordering by epoch 40
 ($\rho$ to the final profile $0.98$ from then on) while accuracy still
 rises from $84\%$ to $94\%$, and its final profile agrees with the initial
@@ -783,57 +816,6 @@ our ImageNet VGG-16 ($0.44$--$0.53$); Section~\ref{sec:a18} ties it to
 few classes and long optimisation. One caution: at $\tau = 0.999$
 ResNet-50's T--R is $0.25$ rather than $-0.07$, the ceiling compressing
 both profiles.
-
-\subsection{Functional Calibration by Truncation}
-\label{sec:projection}
-
-\emph{Exploratory; the $6{,}400$-image subset.} Whether the directions the
-statistic discards carry function can be checked at inference by
-replacing each convolution output $y$ with
-$\bar y + U_k U_k^{\top}(y - \bar y)$, $U_k$ its top-$k$ principal channel
-directions, the response-PCA truncation of Zhang \emph{et al.}
-\cite{zhang2016accelerating}, here with $k = k^*(\tau)$ from the
-measurement, at every dense convolution at once, without fine-tuning. The
-scale of the answer is fixed to first order by the discarded variance.
-
-\begin{proposition}[first-order effect of truncation]
-\label{prop:truncation}
-Let $z$ be the output of layer $\ell$ at a position, $\Sigma_\ell = \sum_i \lambda_i u_i u_i^{\top}$ its covariance, $r = (I - U_k U_k^{\top})(z - \bar z)$ the discarded component, and $J_\ell$ the Jacobian of the logits with respect to $z$. Then $\mathbb{E}\|r\|^2 = (1 - \tau_k)\operatorname{tr}\Sigma_\ell$ with $\tau_k$ the captured fraction, and to first order
-\[
-  \mathbb{E}\|J_\ell r\|^2 = \operatorname{tr}\bigl(J_\ell \Sigma_\ell^{\perp}(k) J_\ell^{\top}\bigr) \le \|J_\ell\|_{\rm op}^2 (1 - \tau_k) \operatorname{tr}\Sigma_\ell,
-\]
-where $\Sigma_\ell^{\perp}(k) = \sum_{i > k} \lambda_i u_i u_i^{\top}$; truncating $L$ layers at once perturbs the logits by at most $\sum_\ell (\mathbb{E}\|J_\ell r_\ell\|^2)^{1/2}$ in root mean square.
-\end{proposition}
-
-Between $\tau = 0.999$ and $0.95$ the discarded energy per layer differs by
-a factor of $50$ and the layers add, so the two thresholds are an order of
-magnitude apart in what they inject; on the A1 recipe the linearisation
-agrees with the actual logit change in rank order across layers at
-$\rho = 0.99$--$1.00$ at every $\tau$. Covariances were accumulated on one
-half of the subset and the truncated network evaluated on the other, with
-a control that truncates to $k^*(\tau)$ random directions
-(supplement, Table~S11; exact McNemar test per cell).
-
-
-At $\tau = 0.999$ the truncation keeps $84$--$93\%$ of each layer's
-attainable rank and accuracy is unchanged in six of eight checkpoints
-(ResNet-18, VGG-16 and four of the six ResNet-50 recipes: $-0.3$ to
-$+0.2$ points on $3{,}200$ images, exact McNemar $p \ge 0.15$); the two
-ResNet-50 checkpoints
-trained with the A1 and A3 recipes of Wightman \emph{et al.}
-\cite{wightman2021rsb} lose $1.7$ points each ($p < 10^{-4}$), so binary
-cross-entropy with heavy augmentation places function in directions
-holding under $0.1\%$ of the variance. Random directions of the same
-dimension give chance throughout: what is retained is the subspace, not
-the count. Below $0.999$ the cost is recipe-dependent, from $1.6$--$5.2$
-points to a fall to $11\%$ at $0.99$, and at the registered $0.95$ three
-checkpoints lose $19$--$21$ points and five collapse. We conclude that
-$k^*(0.999)$ bounds the width a conventionally trained network uses and
-undercounts it by about two points for the RSB recipes, while
-$k^*(0.95)$ orders layers and tracks training but says nothing about
-removable width. This is not a compression or pruning result; whether a
-narrower network trained from scratch reaches the same accuracy is the
-question of Section~\ref{sec:a18}.
 
 \subsection{Decomposition of the Effective Width}
 \label{sec:decompose}
@@ -969,140 +951,146 @@ approaches by half, in the layers it names; an exact isometry constraint
 \cite{huang2020oni} was not run.
 
 
-\subsection{The Profile as a Diagnostic}
-\label{sec:diagnostic}
-
-\emph{Exploratory.} Pooling the six ResNet-50 recipes by role and stage
-(supplement, Table~S5), $k^*(0.999)/r_{\max}$ reads above $0.9$ on 29 of
-the 53 layers in every recipe and $0.95$--$0.97$ at every $3\!\times\!3$
-convolution. The width not used sits at the entry of the network and in
-its projection shortcuts: the stem at $0.49$, the first block of stage~1
-at $0.40$--$0.61$, and the four stride-2 shortcuts at $0.61$ to $0.94$
-from stage 1 to 4, the only layers below $0.7$ in all six recipes. The reading
-is not ``ResNet-50 is half idle'' but ``its entry and its shortcuts are
-wider than what passes through them, by about two, in every recipe''.
-Beside network slimming \cite{liu2017slimming} on the same CIFAR-10
-VGG-16, the ruler agrees where the profile is decided (both cut the first
-convolution to a fifth or a third of 64 and collapse the last resolution
-to $32$--$40$ of $512$) and disagrees at the fourth resolution, since the
-ruler reports the rank the activations span and slimming what can be
-removed when the network is retrained around the removal; the rank of a
-feature map is also HRank's pruning score \cite{lin2020hrank}, read per
-filter where the ruler reads per layer. Whether the
-ruler's widths retrain to full accuracy is the next section.
-
-\subsection{Retraining at the Measured Widths}
+\subsection{Widths Read from the Covariance, Used Three Ways}
 \label{sec:a18}
 
-\emph{Pre-registered (plan Sections~9.5, 9.7, 9.8, 9.9, 9.11--9.13); three
-seeds per arm unless stated.} The widths above were read off one trained
-network. The plan asked whether a network built at them and trained from
-scratch keeps the accuracy of the full one, and whether the per-layer
-allocation matters. VGG-16 (BN) on CIFAR-10 under the recipe of
-Section~\ref{sec:repro-garg}, four arms: full width; the ruler's
-$\lceil k^*(0.999)_\ell \rceil$ read on the seed-0 full network over
-$6{,}400$ training images ($34.5\%$ of the parameters); a uniform cut to
-the same parameter count; and the ruler at $\tau = 0.95$ ($0.63$M
-parameters). Table~\ref{tab:a18} gives the outcome.
+\emph{Pre-registered (plan Sections~9.5, 9.7--9.9, 9.11--9.13 and the
+controller notes); three seeds per arm unless stated.} A width read after
+the ReLU at $\tau = 0.999$ can be used in three ways, at three training
+costs: the trained network can be \emph{folded} to it without retraining,
+a network can be \emph{retrained} at it from scratch, or the width can be
+\emph{reached} within the one training that also trains the network.
+Table~\ref{tab:ctrl} puts the three beside each other at equal inference
+cost.
 
 \begin{table}[t]
-  \caption{Widths from the ruler, retrained from scratch (pre-registered, plan Sections~9.5, 9.7 and 9.8): VGG-16 (BN), three seeds per arm, test accuracy at epoch 100 as mean $\pm$ SD over seeds, and the median over layers of the retrained network's own $k^*(0.999)/r_{\max}$. MACs are multiply-adds per $32 \times 32$ image; img/s is inference throughput measured on one RTX 4090 at batch 256. The CIFAR-10 full-width arm is the untreated arm of the penalty test (supplement, Table~S10). The lower block (plan Section~9.11) is ResNet-18 on ImageNet-1k under the \texttt{torchvision} reference recipe, two seeds per arm, final-epoch top-1 as mean $\pm$ SD of the two seeds (the two full-width seeds differ by $0.60$ points); its MACs are per $224 \times 224$ image, and its throughput and retrained level were not measured.}
-  \label{tab:a18}
+  \caption{One width, three uses: VGG-16 (BN) and ResNet-20 on CIFAR-10 under the recipe of Section~\ref{sec:repro-garg}. MACs and parameters as fractions of the full network; \emph{training} in units of one full-width training (the MACs fraction in force at each epoch, averaged; a retrained arm counts the full training it was read from); accuracy mean $\pm$ SD over $n$ seeds at epoch 100. Fold: the ruler's widths cut by column-subset selection and folded into the next layer, no retraining. Controller: grow on unmet-variance directions after epoch 15, shrink by column-subset selection after epochs 15 and 40, water-filled under the MACs budget.}
+  \label{tab:ctrl}
   \centering
   \scriptsize
-  \setlength{\tabcolsep}{2.5pt}
-  \input{table_a18}
+  \setlength{\tabcolsep}{3pt}
+  \input{table_controller}
 \end{table}
 
-\emph{CIFAR-10.} P9.6, that the ruler's widths lose under $0.3$ points
-with no seed more than $0.5$ below, holds ($93.55$ against $93.77$); P9.8,
-that the $\tau = 0.95$ widths lose at least one point, holds with $2.15$,
-the training-side counterpart of Section~\ref{sec:projection}; P9.7, that
-every uniform-cut seed falls below every ruler seed, fails by one image
-(eight pairs of nine, the ninth an exact tie), so by the registered rule
-we do not claim the allocation is needed at this budget, which is what
-Liu \emph{et al.} \cite{liu2019rethinkingPruning} report for pruned
-architectures retrained from scratch. The retrained
-network does not fill the ruler's widths ($0.85$ of $r_{\max}$ against
-$0.74$ at full width): the count is re-made by training rather than
+\emph{Retrained from scratch (plan Sections~9.5, 9.7, 9.8; Table~\ref{tab:a18}).}
+Built at the ruler's post-activation widths and trained from scratch,
+VGG-16 matches full width on CIFAR-10 at two thirds of the parameters
+($93.86$ against $93.82$; P9.17) and beats the uniform cut to the same
+count seed for seed (P9.18). Read at the convolution output instead, the
+same ruler names $34.5\%$ of the parameters and loses $0.22$ points (P9.6
+holds, P9.7 fails by one image): the convolution output is the width a
+layer \emph{produces}, the post-activation tensor the width the next
+layer \emph{consumes}, and the ReLU raises the rank where the input is a
+low-rank RGB patch ($14$--$15$ directions at the first convolution, $47$--$48$
+after its ReLU). On CIFAR-100 the ruler removes $1\%$ after the ReLU
+(and, at the convolution output, $13\%$ at a cost of $0.59$; P9.14 fails).
+The retrained network does not fill the widths it was built at ($0.85$ of
+$r_{\max}$ against $0.74$): the count is re-made by training, not
 inherited.
 
-\emph{CIFAR-100 (plan Section~9.7).} With widths re-read from a CIFAR-100
-network the last five layers are nearly full ($466$--$490$ of $512$,
-against $40$ on CIFAR-10), the ruler removes $13\%$ of the parameters, and
-the answer reverses: P9.14 fails (the ruler arm loses $0.59$ points),
-P9.15 fails in the direction opposite to P9.7 (the uniform cut is above
-the ruler in nine pairs of nine), and P9.16 holds with $5.8$ points.
+\emph{Folded without retraining.} The same widths can be imposed on the
+trained network directly: keep the $k^*(0.999)$ channels chosen by greedy
+column-subset selection on the post-activation covariance and fold the
+least-squares reconstruction of the rest into the next layer, the
+interpolative-decomposition fold of Chee \emph{et al.}
+\cite{chee2022id}, whose fine-tuned ancestors are
+\cite{he2017channel,luo2017thinet}. We add nothing to the operator and use
+it at the width the ruler names: on CIFAR-10 it removes a
+third of VGG-16's parameters and $12\%$ of its MACs for $-0.07$ points
+(three seeds), $61\%$ and $31\%$ for $-0.5$ at $k^*(0.99)$, and collapses
+at $\tau = 0.95$ ($-6.4$). Chee \emph{et al.} reach $35\%$ fewer MACs at no
+loss on the same network with a searched allocation; the ruler's is not
+searched. On ImageNet the fold removes $1$--$3\%$ of a ResNet's parameters
+for at most $0.4$ points, $7.5\%$ of ViT-B/16's for $0.28$ and $2\%$ of
+ConvNeXt-T's for none: the thousand-class networks have little to fold
+(below).
 
-\emph{The tensor the next layer consumes (plan Section~9.8).} The measurement
-exposes the cause: the ruler reads the convolution output, where the bound
-holds, but the next layer consumes the post-activation tensor, and the
-ReLU raises the rank where the input is a low-rank RGB patch (the first
-convolution spans $14$--$15$ directions at $\tau = 0.999$, its ReLU output
-$47$--$48$). A layer narrowed to the rank of its own output caps what the
-next layer receives. The registered fifth arm reads the widths after the
-ReLU ($67\%$ of the parameters); P9.17, within $0.3$ of full width, and
-P9.18, above the convolution-output widths seed for seed, both hold
-($93.84$ against $93.77$), and on CIFAR-100 the post-activation widths are
-$99\%$ of the full ones, so that arm is not evidence. We conclude that a
-width read at $\tau = 0.999$ is the rank the activations span: at the
-convolution output it is the width the layer \emph{produces}, and a
-network built at it loses where the nonlinearity had raised the rank;
-after the nonlinearity it is the width the next layer \emph{consumes}, and
-a network built at it matches full width on CIFAR-10 at two thirds of the
-parameters and beats the uniform cut in nine pairs of nine. The
-measurement is taken at the convolution output because that is where
-$r_{\max}$ bounds it and the factors separate; a design decision reads the
-same profile one tensor later.
+\emph{Reached in one training.} A controller with no labels can find these
+widths while the network trains. After epoch 15 it measures every site's
+post-activation covariance and its patch covariance on $6{,}400$ training
+images, grows each site along the input directions its kernel does not
+yet span (function-preserving: the new channels start with zero outgoing
+weights), and shrinks every site by the fold above, the widths set by
+water-filling the covariance spectra under a budget of forward MACs
+(supplement, Propositions~S4--S6); after epoch 40 it shrinks only. Under a
+FLOPs budget, which is the only one in which accuracies are comparable
+(under a parameter budget accuracy tracks the compute the budget allows,
+$93.4$--$94.6$ at $0.9$--$2.1\times$ MACs), the controller reaches the accuracy of the retrained
+ruler arm at $0.88$ MACs ($93.79$ against $93.86$) for $0.90$ of one
+training instead of $1.88$, and at $0.60$ MACs it is $0.24$ above a uniform
+network of equal MACs trained from scratch ($93.44$ against $93.20$ at
+$0.34$; every controller seed above every uniform seed, $n = 3$, $p =
+0.05$). Its value relative to folding is bounded: at $0.88$ MACs the fold
+after one full training is as good ($93.75$) at one tenth more compute; at
+$0.60$--$0.69$ the controller is $0.3$ above the fold; below $0.5$ the
+fold breaks down ($87.5$ at $0.42$) and the controller does not ($93.44$ at
+$0.34$). Attribution arms bound it further: the controller's final widths
+trained from scratch reach $93.89$, growing along random directions
+$93.88$, and acting on the untrained network as well $94.06$ at
+$1.35\times$ the MACs, so the value is in the widths it finds, and the
+timing and direction of its actions add about $0.2$ each. On ResNet-20,
+where the ruler reads $0.93$--$1.00$ of every block-internal width, the
+controller equals the uniform network ($90.64$ against $90.50$ at $0.47$
+MACs, the first stage pinned at the minimum width) and both lose $1.8$ to
+full width: with no idle width there is nothing to reallocate. CHEX
+\cite{hou2022chex} interleaves column-subset pruning with regrowth and
+redistributes channels in one training; the controller differs in what it
+reads (forward second-order statistics) and where it grows, not in the
+mechanics, and on this evidence it is a way of reaching the ruler's
+widths, not a method that improves on them.
 
-\emph{The same arms in the representation (plan Section~9.9).} By linear CKA
-\cite{kornblith2019cka} to full-width seed 0 (ceiling $0.906 \pm 0.004$)
-the post-activation widths lie at $0.910$, the convolution-output widths
-at $0.904$ and $\tau = 0.95$ at $0.859$, the gap between the first two
-sitting at the layers the convolution-output ruler had cut to $40$
-channels: a width sufficient for the accuracy is not thereby sufficient
-for the representation. Under CIFAR-10-C \cite{hendrycks2019robustness}
-the post-activation widths keep mean corruption accuracy ($74.55$ against
-$74.06$; P9.24 holds) while the uniform cut loses $1.66$ points, three
-times its clean loss; linear probes to CIFAR-100, STL-10 and SVHN drop by
-$1.4$, $0.0$ and $2.3$ points at the post-activation widths (P9.21 not
-supported) and by $4.8$, $0.6$ and $9.5$ at the convolution-output widths
-(P9.22 holds). The width the ruler removes from the last layers is width
-the task does not use and a probe on another task does.
+\emph{In the representation (plan Section~9.9).} By linear CKA
+\cite{kornblith2019cka} to full width the post-activation widths lie at
+the seed ceiling ($0.910$ against $0.906$) and the convolution-output
+widths below it at the layers they had cut to $40$ channels; under
+CIFAR-10-C \cite{hendrycks2019robustness} the post-activation widths keep
+mean corruption accuracy ($+0.49$; P9.24) while the uniform cut loses
+$1.66$; linear probes to CIFAR-100, STL-10 and SVHN drop by $1.4$, $0.0$ and
+$2.3$ points at the post-activation widths (P9.21 fails) and by $4.8$,
+$0.6$ and $9.5$ at the convolution-output widths (P9.22 holds): the width
+the ruler removes is width the task does not use and a probe on another
+task does.
 
 \emph{ImageNet-1k (plan Section~9.11).} ResNet-18 from scratch under the
-\texttt{torchvision} reference recipe, two seeds per arm, widths read
-after the ReLU. The ruler names the full width: every site but the stem
-reads $0.98$--$1.00$ of its channels at $\tau = 0.999$ (the stem $44$ of
-$64$), so the ruler arm keeps $99.2\%$ of the parameters. P9.29 holds by
-its letter ($69.00$ against $68.84$) and P9.30 does not, but the three arms
-differ by less than the $0.60$ points between the two full-width seeds: at
-this scale the experiment tests nothing about allocation, because the
-ruler found nothing to allocate. What it establishes is the reading: after
-the ReLU at $\tau = 0.999$ the ruler removes a third of VGG-16's parameters
-on CIFAR-10 and one per cent on CIFAR-100 and on ImageNet-1k.
+\texttt{torchvision} reference recipe, two seeds per arm: the ruler names
+the full width (every site but the stem at $0.98$--$1.00$, the stem $44$ of
+$64$), the ruler arm keeps $99.2\%$ of the parameters, P9.29 holds by its
+letter ($69.00$ against $68.84$) and P9.30 does not, and the three arms
+differ by less than the $0.60$ points between the two full-width seeds:
+the experiment tests nothing about allocation because the ruler found
+nothing to allocate (Table~\ref{tab:a18}).
 
-\emph{Class count, controlled (plan Sections~9.12 and 9.13).} The plan varied
-the class count alone: nested CIFAR-100 subsets of $13$, $20$, $50$ and
-$100$ classes under one recipe, three seeds each, with the ten-class task
-on $640$ images per class as the image-count control
-(Fig.~\ref{fig:classes}). The fraction of the parameters the ruler keeps
-rises monotonically with the class count in every seed, $0.88$, $0.92$,
-$0.98$, $0.99$ (P9.31 holds), and the last three layers, which the
-ten-class network collapses to $0.52$ of their width, go
-$0.83 \to 0.89 \to 0.98 \to 0.99$. Three registered predictions fail: the
-thirteen-class network keeps $0.83$ rather than collapsing below $0.6$
-(P9.32); the first convolution follows the optimisation length rather
-than staying fixed (P9.33); and on an eighth of the images the ten-class
-collapse is shallower, not deeper ($0.74$ against $0.52$; P9.34), because
-the control had cut the step count with the images. The follow-up
-registered after it restores the steps: the same $6{,}400$ images for
-$39{,}000$ steps collapse to $0.38$ (P9.35 holds). We conclude that the
-unused width of a ten-class network is a terminal collapse reached by a
-few-class network optimised long enough, closing monotonically as classes
-are added and gone by a hundred; since more images at fixed epochs deepen
-it while more classes lift it, the rise with class count is not an
-artefact of the image count.
+\emph{Where the idle width is (plan Sections~9.12, 9.13).} After the ReLU
+at $\tau = 0.999$ the ruler removes a third of VGG-16's parameters on
+CIFAR-10, one per cent on CIFAR-100 and on ImageNet-1k, and nothing from
+ResNet-20 on CIFAR-10. The last is not a fourth data point of the first
+kind: read at the convolution output, VGG-16's idle width sits in its last
+five layers ($0.30$ of their channels at full width against $0.82$ in the
+first five), it is still there when every width is cut uniformly to a
+third of the parameters ($0.47$), and it is gone only in the network built
+at the ruler's shape ($0.95$); on CIFAR-100 the same layers read $0.95$,
+and ResNet-20's last stage reads $0.93$--$0.99$ at three widths and on both
+datasets. The idle width is the excess of a layer over the dimension the
+few-class terminal representation needs, about $150$ of $512$ channels for
+VGG-16 on ten classes, and ResNet-20's $64$ are below it. Varying the
+class count alone, on nested CIFAR-100 subsets of $13$, $20$, $50$ and $100$
+classes under one recipe (Fig.~\ref{fig:classes}), the fraction the ruler
+keeps rises monotonically in every seed, $0.88$, $0.92$, $0.98$, $0.99$
+(P9.31), and the last three layers go $0.83 \to 0.89 \to 0.98 \to 0.99$;
+the thirteen-class network does not collapse below $0.6$ (P9.32 fails),
+the first convolution follows the optimisation length (P9.33 fails), and
+on an eighth of the images the collapse is shallower at equal epochs
+($0.74$ against $0.52$; P9.34 fails) and deeper at equal steps ($0.38$;
+P9.35 holds). Two definitions must be kept apart: \emph{idle} width is what
+the ruler reads at $\tau = 0.999$; \emph{removable} width is what a
+retrained or reallocated network gives up without loss, and the two
+coincide only where the first is large (a controller under a parameter
+budget removes a third of a CIFAR-100 VGG-16's parameters at $+0.74$, by
+spending $1.1\times$ the MACs, with $1\%$ idle). We conclude that the idle
+width of a few-class network is a terminal collapse of its widest late
+layers, reached by optimising long enough, closing monotonically as
+classes are added and absent in a network whose late layers are already
+narrow.
 
 \begin{figure}[t]
   \centering
