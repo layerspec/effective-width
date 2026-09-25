@@ -208,6 +208,59 @@ def p2m_section(results):
                   f"(max {100 * spread.max():.1f}%, per site {[f'{100 * x:.0f}%' for x in spread]})")
 
 
+# ------------------------------------------------------------------ P2l: shrink-only (FLOPs) and the x4-wide ResNet-20 (2026-09-25)
+def _p2l_run(d):
+    """acc at epoch 100, last macs_fraction from realloc.json, and the conv1-output k*(0.999)/C per stage (thirds)."""
+    f = os.path.join(d, "epoch_100_layers.csv")
+    if not os.path.exists(f):
+        return None
+    df = pd.read_csv(f)
+    conv = df[(df.kind == "conv") & (df.epoch == 100)].sort_values("depth_index")
+    sites = conv[conv.layer.str.contains(r"\.conv1$", regex=True)]
+    r = (sites["k_star_0.999"] / sites.C).to_numpy()
+    thirds = [float(np.mean(x)) for x in np.array_split(r, 3)] if len(r) >= 3 else []
+    rl = os.path.join(d, "realloc.json")
+    act = json.load(open(rl)) if os.path.exists(rl) else []
+    return dict(acc=float(conv.test_acc.iloc[0]), macs=act[-1]["macs_fraction"] if act else None,
+                widths=[int(c) for c in sites.C], stages=thirds)
+
+
+def p2l_section(results):
+    """P-l1..l4 (notes/controller-criterion-2026-09-16.md, section P2l)."""
+    arms = {}
+    for pre in ("c10_f60_nogrow", "c10_f60", "r20w4_full", "r20w4_f60", "r20w4_ufixed60"):
+        runs = {os.path.basename(d): _p2l_run(d) for d in sorted(glob.glob(os.path.join(results, "p2", pre + "_s*")))}
+        arms[pre] = {k: v for k, v in runs.items() if v}
+    if not any(arms[k] for k in ("c10_f60_nogrow", "r20w4_full", "r20w4_f60", "r20w4_ufixed60")):
+        return
+    print("\n==== P2l: FLOPs-conserving shrink-only arm (VGG-16) and the x4-wide ResNet-20 (P-l1..l4) ====")
+    for pre, runs in arms.items():
+        for name, r in runs.items():
+            st = [f"{x:.2f}" for x in r["stages"]]
+            print(f"  {name:22s} acc {r['acc']:6.2f}" + (f"  macs {r['macs']:.3f}" if r["macs"] is not None else "")
+                  + f"  conv1-out k*(.999)/C per stage {st}  widths {r['widths']}")
+    acc = lambda pre: [r["acc"] for r in arms[pre].values()]   # noqa: E731
+    ng, f60 = acc("c10_f60_nogrow"), acc("c10_f60")
+    if ng and f60:
+        d = np.mean(ng) - np.mean(f60)
+        print(f"  P-l1 (nogrow <= f60 - 0.2: growing contributes under a FLOPs budget) -> {'yes' if d <= -0.2 else 'NO'} "
+              f"({np.mean(ng):.2f} vs {np.mean(f60):.2f}, diff {d:+.2f}; n={len(ng)}/{len(f60)})"
+              + ("  [>= -0.1: no measurable contribution of the grow operator]" if d >= -0.1 else ""))
+    full = arms["r20w4_full"]
+    if full:
+        s1 = np.mean([r["stages"][0] for r in full.values()]); s3 = np.mean([r["stages"][2] for r in full.values()])
+        print(f"  P-l2 (x4 full: stage-3 conv1-out ruler < 0.7 and stage-1 >= 0.9: idle width appears when widened) -> "
+              f"{'yes' if s3 < 0.7 and s1 >= 0.9 else 'NO'} (stage 1 {s1:.2f}, stage 3 {s3:.2f}; n={len(full)})")
+    c, u, fw = acc("r20w4_f60"), acc("r20w4_ufixed60"), acc("r20w4_full")
+    if c and u:
+        print(f"  P-l3 (x4 controller >= uniform + 0.3 and every seed above every uniform seed) -> "
+              f"{'yes' if np.mean(c) >= np.mean(u) + 0.3 and min(c) > max(u) else 'NO'} "
+              f"({np.mean(c):.2f} vs {np.mean(u):.2f}, diff {np.mean(c) - np.mean(u):+.2f}; min {min(c):.2f} vs max {max(u):.2f}; n={len(c)}/{len(u)})")
+    if c and fw:
+        print(f"  P-l4 (x4 controller >= full - 0.5 at 0.60 MACs) -> {'yes' if np.mean(c) >= np.mean(fw) - 0.5 else 'NO'} "
+              f"({np.mean(c):.2f} vs {np.mean(fw):.2f}, diff {np.mean(c) - np.mean(fw):+.2f})")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--results", default="../results")
@@ -269,6 +322,7 @@ def main():
     r20_section(a.results)
     vit_section(a.results)
     p2m_section(a.results)
+    p2l_section(a.results)
 
 
 

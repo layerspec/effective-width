@@ -620,3 +620,25 @@ b（控制器、預算＝尺的參數比例、15/40）×3；apriori（0/15/40）
 - 先驗起點在 ResNet-20 上無益（−0.14），與 VGG（P2h 追平但多算力）並列：**先驗起點兩個架構都沒有可量到的增益**，論文不寫成貢獻。
 - stage 1 全砍到 8 是 FLOPs 成本的必然（每通道 295k 對 74k）；水位法在小網路上被最小寬度綁住，控制器沒有表達結構的空間。
 - **走路 C 的依據之一**（審稿筆記 09-20 §10）：控制器降為一節，ResNet-20 如實寫成負結果、當 (iv)「閒置寬度是 few-class 性質」的第四個資料點。
+
+## 預登記 P2l：FLOPs 守恆只縮臂＋加寬 ResNet-20（2026-09-25 晚，敵意審稿 09-25 (e)1 與 E1b；`results/mac_queue_p2l.sh`，等 p2k；跑之前寫）
+
+**接法**：`scripts/trajectory_r20wide.py --width-mult 4` 把 ResNet-20 三個 stage 加寬 4 倍（64/128/256，4.29M 參數、644M MACs，
+約 VGG-16 的兩倍），以包裝方式替換 `trajectory_cifar.build_resnet20_cifar`（不改該檔），控制器、`--widths`、續跑照常
+（`tests/test_trajectory_r20wide.py` 兩個測試：builder 與 9 個 site；CPU 冒煙訓＋調撥＋最終寬度重建）。
+
+**臂**（各三種子）：
+- `c10_f60_nogrow`：VGG-16 CIFAR-10、0.60 MACs、`--realloc-grow-cap 0`（只縮，注水仍逐層）；對照 f60 93.60（3 種子）。
+- `r20w4_full`：加寬 ResNet-20 全寬。
+- `r20w4_f60`：控制器 0.60 MACs、15/40。
+- `r20w4_ufixed60`：均勻 [38,38,38,77,77,77,154,154,154]，MACs 0.600、參數 0.602。
+
+**預測**：
+- **P-l1**：f60_nogrow 三種子平均 ≤ f60 − 0.2（放在 FLOPs 守恆下有貢獻）。若 ≥ f60 − 0.1：命題 B 的放在公平預算下無可量到的貢獻，
+  (iii) 的措辭改為「shrink-only water-filling」，放運算子降為函數保持的技術細節。
+- **P-l2**：r20w4_full 的後段（stage 3 的 conv1 輸出，conv 輸出 k*(0.999)/C）三種子平均 < 0.7（閒置隨相對寬度出現），
+  且 stage 1 仍 ≥ 0.9。若後段 ≥ 0.9：(iv) 只能寫成 VGG-16 的性質，「終端維度」的解釋撤回。
+- **P-l3**（只在 P-l2 成立時承重）：r20w4_f60 ≥ r20w4_ufixed60 ＋ 0.3 且 3 對 3 all-above-all（有閒置寬度的第二架構上控制器贏均勻）。
+  若 ≤ +0.1：控制器的增益是 VGG 的性質而不是閒置寬度的性質，(iii) 縮到一個架構。
+- **P-l4**：r20w4_f60 ≥ r20w4_full − 0.5（有閒置時 0.60 MACs 不掉分），對照 ResNet-20 基準寬度的 −1.80。
+- 統計：3 對 3 只作描述；判定寫 `p2_analysis.py` 新段 P2l（要加：r20w4 的 MACs 讀 `realloc.json`，尺讀數用 epoch_100 的 conv 列）。
