@@ -796,10 +796,8 @@ them ($\rho \ge 0.95$, level within $0.05$, all six slightly high) and the
 ImageNet-spectrum field misses them by the real-to-real difference. A Gaussian
 recursion through the ReLUs (the mean-field form of
 \cite{poole2016exponential,xiao2018dynamical}) recovers the ordering
-($\rho \ge 0.97$) but overestimates the level by $0.05$--$0.14$ at these
-widths, because a layer's input spans few directions and the central-limit
-step fails; the level is therefore taken from the Gaussian field, not from
-a closed form. Training keeps this profile in the plain, basic and dense families and
+($\rho \ge 0.97$) but overestimates the level by $0.05$--$0.14$, the
+central-limit step failing where a layer's input spans few directions. Training keeps this profile in the plain, basic and dense families and
 reorders it in the bottleneck ones (a checkpoint's correlation with the
 computed profile equals that with the measured random one, as it must).
 It is not the trained width: training raises the level everywhere, and a
@@ -954,8 +952,11 @@ at $\rho = 0.72$ (ResNet) and $0.91$ (VGG-16), across the SRIP layers it
 does not ($-0.14$, $-0.19$), the form in which P9.4 holds; P9.5 holds,
 accuracy moving by $-0.1$ to $+0.3$ points uncorrelated with the width
 gained. The counterfactual is an upper bound that a soft penalty
-approaches by half, in the layers it names; an exact isometry constraint
-\cite{huang2020oni} was not run.
+approaches by half, in the layers it names, and that an exact isometry
+reaches: with every kernel orthogonalised by construction
+\cite{huang2020oni} (erank $1.00$), VGG-16 lands within $0.02$ of the
+prediction on three seeds, realising $0.91$ of the predicted gain at
+$-0.16$ points (P-d5.1--4; supplement, Table~S10).
 
 
 \subsection{Widths Read from the Covariance, Used Three Ways}
