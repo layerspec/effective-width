@@ -46,6 +46,27 @@ CSD_PATH = os.path.join(OUT, "rgb_csd.pt")
 CSD_PARAM_PATH = os.path.join(OUT, "rgb_csd_param.pt")
 CSD_COCO_PATH = os.path.join(OUT, "rgb_csd_coco.pt")
 
+# Registered image sets (2026-09-26): NAME -> directory; inputs NAME = its real images, NAMEmatched = a Gaussian
+# surrogate with its own cross-spectral density at results/apriori/rgb_csd_NAME.pt.  `--dataset NAME=PATH` adds one.
+DATASETS = {"imagenet": DATA, "coco": COCO}
+
+
+def register_dataset(name: str, path: str) -> None:
+    DATASETS[name] = path
+
+
+def source_path_for(name: str) -> str:
+    return DATASETS[name]
+
+
+def csd_path_for(inputs: str) -> str:
+    fixed = {"matched": CSD_PATH, "param": CSD_PARAM_PATH, "cocomatched": CSD_COCO_PATH, "imagenetmatched": CSD_PATH}
+    if inputs in fixed:
+        return fixed[inputs]
+    if inputs.endswith("matched") and inputs[:-len("matched")] in DATASETS:
+        return os.path.join(OUT, f"rgb_csd_{inputs[:-len('matched')]}.pt")
+    raise ValueError(inputs)
+
 FAMILIES = {
     # family -> (random model name, directories holding the real-image random profiles)
     "resnet50": ("resnet50_random", [os.path.join(ROOT, "results", "local6400", f"seed{s}") for s in range(1, 6)]),
@@ -70,7 +91,7 @@ def stem(name: str) -> str:
 # ----------------------------------------------------------------- estimate
 def estimate(args) -> None:
     """Stationary (circular) cross-spectral density of the preprocessed images."""
-    src, out_path = (COCO, CSD_COCO_PATH) if args.source == "coco" else (DATA, CSD_PATH)
+    src, out_path = source_path_for(args.source), csd_path_for(args.source + "matched")
     loader = api.image_loader(src, batch_size=32, workers=0, image_size=224)
     n = 0
     mean = torch.zeros(3, dtype=torch.float64)
@@ -176,9 +197,11 @@ class PhaseScrambled(Dataset):
 
 
 def make_loader(inputs: str, seed: int, n: int = 6400, batch_size: int = 32):
-    if inputs in ("matched", "param", "cocomatched"):
-        ds = MatchedGaussian(n, seed, {"matched": CSD_PATH, "param": CSD_PARAM_PATH, "cocomatched": CSD_COCO_PATH}[inputs])
+    if inputs in ("matched", "param", "cocomatched") or (inputs.endswith("matched") and inputs[:-len("matched")] in DATASETS):
+        ds = MatchedGaussian(n, seed, csd_path_for(inputs))
         return DataLoader(ds, batch_size=batch_size, shuffle=False, num_workers=0)
+    if inputs in DATASETS and inputs != "imagenet":   # a registered image set, real images
+        return api.image_loader(source_path_for(inputs), batch_size=batch_size, workers=0, image_size=224, limit=n)
     if inputs == "pink":
         return api.image_loader("synthetic", batch_size=batch_size, workers=0, limit=n, seed=seed)
     if inputs == "white":
@@ -299,14 +322,15 @@ def compare(args) -> None:
         # R-R ceiling: median Spearman over pairs of real-image random draws
         rr = [rho(reals[a], reals[b])[0] for a in reals for b in reals if a < b]
         ceiling = float(np.median(rr))
-        if args.reference == "coco":
-            c = surrogate_profile(fam, "coco", 1)
+        imagenet_reals = dict(reals)
+        if args.reference != "imagenet":
+            c = surrogate_profile(fam, args.reference, 1)
             if c is None:
                 continue
             reals = {1: c, **{s: r for s, r in reals.items() if s != 1}}
         for inputs in args.inputs:
             for s in sorted(reals):
-                sur = surrogate_profile(fam, inputs, s)
+                sur = imagenet_reals.get(s) if inputs == "imagenet" else surrogate_profile(fam, inputs, s)
                 if sur is None:
                     continue
                 r_same, L, mad, lvl_s = rho(reals[s], sur)
@@ -320,7 +344,7 @@ def compare(args) -> None:
                       f"{lvl_r:10.3f} {lvl_s:10.3f} {mad:9.3f}  {l1:>18s}")
     if rows:
         df = pd.DataFrame(rows)
-        df.to_csv(os.path.join(OUT, "compare.csv" if args.reference == "imagenet" else "compare_coco.csv"), index=False)
+        df.to_csv(os.path.join(OUT, "compare.csv" if args.reference == "imagenet" else f"compare_{args.reference}.csv"), index=False)
         for inputs in args.inputs:
             d = df[df.inputs == inputs]
             if d.empty:
@@ -333,22 +357,27 @@ def compare(args) -> None:
 
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser()
+    ap.add_argument("--dataset", action="append", default=[], metavar="NAME=PATH",
+                    help="register an image set (inputs NAME / NAMEmatched, estimate --source NAME, compare --reference NAME)")
     sub = ap.add_subparsers(dest="cmd", required=True)
     sub.add_parser("estimate")
     sub.add_parser("check")
     sub.add_parser("fit")
     m = sub.add_parser("measure")
     m.add_argument("models", nargs="+")
-    m.add_argument("--inputs", default="matched", choices=["matched", "param", "pink", "white", "coco", "cocomatched", "phase"])
+    m.add_argument("--inputs", default="matched", help="matched / param / pink / white / coco / cocomatched / phase / a registered NAME or NAMEmatched")
     m.add_argument("--seed", type=int, default=1)
     m.add_argument("--device", default="mps")
     m.add_argument("--force", action="store_true")
     c = sub.add_parser("compare")
     c.add_argument("--inputs", nargs="+", default=["matched", "param", "pink", "white"])
-    c.add_argument("--reference", default="imagenet", choices=["imagenet", "coco"])
+    c.add_argument("--reference", default="imagenet", help="imagenet, coco or a registered NAME (its real-image profiles at results/apriori/NAME/seed1)")
     e = sub.choices["estimate"]
-    e.add_argument("--source", default="imagenet", choices=["imagenet", "coco"])
+    e.add_argument("--source", default="imagenet", help="imagenet, coco or a registered NAME")
     args = ap.parse_args(argv)
+    for spec in args.dataset:
+        name, path = spec.split("=", 1)
+        register_dataset(name, path)
     {"estimate": estimate, "check": check_surrogate, "fit": fit_param, "measure": measure, "compare": compare}[args.cmd](args)
     return 0
 

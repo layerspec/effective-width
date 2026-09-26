@@ -272,3 +272,25 @@ z₂ = W₂·a₁ 在 3×3 鄰域上又高度相關，所以 z₂ 的「獨立�
 3. ~~相位打亂影像對照~~ —— 09-19 01:10 跑完，見 A6（11/11 到天花板、水準 −0.009）；09-18 晚實作（`--inputs phase`，逐張同一組 Hermitian 隨機相位、三通道共用，功率譜與交叉譜逐張保留到 1e-7），`results/apriori_queue3.sh` 排在 COCO 之後。
 4. ~~有限寬度修正：步驟 1 的高估是否可證為上界~~ —— 09-18 晚做完（步驟 1b）：殘差不定號、非秩一，不可證；關閉。
 5. 稿子：進第一篇 §IV 之前先給作者看本檔；標題與摘要的改法等 1–2 做完。
+
+## A7. 譜不同的影像集：先驗剖面是否跟著譜走（2026-09-26 寫於跑之前；敵意審稿 09-25 第 3 項）
+
+**問題。** A5 只有 ImageNet 與 COCO 兩個譜幾乎相同（α 2.61 vs 2.62、通道矩陣逐元素差 ≤ 0.01）的自然影像集，所以「替身預測 COCO」
+等於沒換資料。要證明「資料只透過譜進來」，需要一個譜**不同**的影像集：它的隨機剖面應該不同於 ImageNet 的，而用它自己的譜做的替身
+應該追上它，用 ImageNet 譜做的替身應該追不上。
+
+**影像集。** CIFAR-10 測試集 6,400 張（`data/cifar10_png_6400`，seed 0 抽樣），走管線同一套前處理（resize 256、centre crop 224）：32×32
+放大 7 倍，高頻幾乎為零，譜比自然影像陡得多。這是刻意選的極端；醫學／衛星影像下載不通（EuroSAT 站點無回應）。
+
+**量測。** `apriori_check.py` 一般化為任意影像集（`--dataset cifar10=data/cifar10_png_6400`）：`estimate --source cifar10` 存
+`rgb_csd_cifar10.pt`；`measure --inputs cifar10`（真實）與 `cifar10matched`（自身譜替身），seed 1，六個家族（ResNet-50／18、VGG-16、
+DenseNet-121、MobileNetV2、EfficientNet-B0），6,400 張、16 位置；對照已有的 `matched`（ImageNet 譜替身，seed 1）。量測時暫停訓練隊列。
+
+**預測（三條都要成立才算通過）：**
+- **P-a1（資料集有差）**：同權重下 CIFAR 真實剖面對 ImageNet 真實剖面的 ρ 在多數家族 < 天花板 − 0.05，或水準差中位 |Δ| ≥ 0.05。
+  若不成立（CIFAR 放大後剖面仍與 ImageNet 相同），這個影像集分不出東西，測試無效，要換影像集。
+- **P-a2（自身譜替身追上）**：cifar10matched 對 CIFAR 真實：ρ_same ≥ 0.8 × 天花板在 ≥ 5/6 家族，水準差中位 |Δ| < 0.05。
+- **P-a3（譜決定差異）**：ImageNet 譜替身（matched）對 CIFAR 真實的 ρ 與水準差，比 cifar10matched 差，差的方向與幅度和
+  「ImageNet 真實 vs CIFAR 真實」一致（|Δρ| 差 ≤ 0.1、水準差同號）。
+- 成立 → (i) 可寫「the images enter through their spectrum: a set with a different spectrum has a different random profile, and the
+  surrogate built from its spectrum recovers it」。P-a2 不成立 → 高階統計在非自然影像上有貢獻，(i) 限定於自然影像。
