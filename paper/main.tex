@@ -785,7 +785,12 @@ $1/f$ noise $0.84$ and $+0.16$, a power law $|\omega|^{-2.61}$ times one
 $3 \times 3$ channel matrix (eight numbers) $0.99$ and $-0.02$; ImageNet
 and COCO share those eight numbers and the same random profile
 ($\rho = 1.00$), and phase-scrambled images, each keeping its spectrum
-and losing its structure, give $0.99$ (supplement). A Gaussian
+and losing its structure, give $0.99$ (supplement). A set whose spectrum
+differs tests the reading: CIFAR-10 images upsampled to $224$ follow
+$|\omega|^{-4.45}$, their random profiles sit $0.06$--$0.24$ below
+ImageNet's (six families), the field built from their spectrum recovers
+them ($\rho \ge 0.95$, level within $0.05$, all six slightly high) and the
+ImageNet-spectrum field misses them by the real-to-real difference. A Gaussian
 recursion through the ReLUs (the mean-field form of
 \cite{poole2016exponential,xiao2018dynamical}) recovers the ordering
 ($\rho \ge 0.97$) but overestimates the level by $0.05$--$0.14$ at these
@@ -999,8 +1004,7 @@ it at the width the ruler names: on CIFAR-10 it removes a
 third of VGG-16's parameters and $12\%$ of its MACs for $-0.07$ points
 (three seeds), $61\%$ and $31\%$ for $-0.5$ at $k^*(0.99)$, and collapses
 at $\tau = 0.95$ ($-6.4$). Chee \emph{et al.} reach $35\%$ fewer MACs at no
-loss on the same network with a searched allocation; the ruler's is not
-searched. On ImageNet the fold removes $1$--$3\%$ of a ResNet's parameters
+loss on the same network with a searched allocation. On ImageNet the fold removes $1$--$3\%$ of a ResNet's parameters
 for at most $0.4$ points, $7.5\%$ of ViT-B/16's for $0.28$ and $2\%$ of
 ConvNeXt-T's for none: the thousand-class networks have little to fold
 (below).
@@ -1033,11 +1037,10 @@ where the ruler reads $0.93$--$1.00$ of every block-internal width, the
 controller equals the uniform network ($90.64$ against $90.50$ at $0.47$
 MACs, the first stage pinned at the minimum width) and both lose $1.8$ to
 full width: with no idle width there is nothing to reallocate. CHEX
-\cite{hou2022chex} interleaves column-subset pruning with regrowth and
-redistributes channels in one training; the controller differs in what it
-reads (forward second-order statistics) and where it grows, not in the
-mechanics, and on this evidence it is a way of reaching the ruler's
-widths, not a method that improves on them.
+\cite{hou2022chex} already interleaves column-subset pruning with regrowth
+in one training; the controller differs in what it reads and where it
+grows, not in the mechanics, and on this evidence it reaches the ruler's
+widths rather than improving on them.
 
 \emph{In the representation (plan Section~9.9).} By linear CKA
 \cite{kornblith2019cka} to full width the post-activation widths lie at
@@ -1084,9 +1087,8 @@ on an eighth of the images the collapse is shallower at equal epochs
 P9.35 holds). Two definitions must be kept apart: \emph{idle} width is what
 the ruler reads at $\tau = 0.999$; \emph{removable} width is what a
 retrained or reallocated network gives up without loss, and the two
-coincide only where the first is large (a controller under a parameter
-budget removes a third of a CIFAR-100 VGG-16's parameters at $+0.74$, by
-spending $1.1\times$ the MACs, with $1\%$ idle). We conclude that the idle
+coincide only where the first is large (a parameter-budget controller removes a third of a CIFAR-100 VGG-16's
+parameters at $+0.74$ by spending $1.1\times$ the MACs, with $1\%$ idle). We conclude that the idle
 width of a few-class network is a terminal collapse of its widest late
 layers, reached by optimising long enough, closing monotonically as
 classes are added and absent in a network whose late layers are already
@@ -1162,13 +1164,13 @@ with its input, the decomposition predicts a rise of about $0.3\,r_{\max}$
 rather than a jump to the ceiling, and the penalties in use realise half
 of it, in the layers named. What a width-selection method built on this statistic can add is
 bounded by Section~\ref{sec:a18}: where idle width exists, folding after
-one training already reaches the ruler's width at nine tenths of the
-compute, a label-free controller reaches it within one training at two
-thirds and is $0.2$--$0.3$ better than folding or than its own widths
-trained from scratch below $0.7$ of the compute; where the ruler reads full
-width, as on ResNet-20 and on the hundred- and thousand-class tasks, no
-reallocation helps. What this paper fixes is the quantity such a method
-should read, the checks it must pass and the margin it can expect.
+one training already reaches the ruler's width, and a label-free
+controller reaches it within one training at two thirds of the compute,
+$0.2$--$0.3$ better than folding below $0.7$ of the compute; where the
+ruler reads full width, as on ResNet-20 and the hundred- and
+thousand-class tasks, no reallocation helps. What this paper fixes is the
+quantity such a method should read, the checks it must pass and the
+margin it can expect.
 
 \subsection{Limitations and Failure Cases}
 \label{sec:limits}
@@ -1218,9 +1220,8 @@ the ImageNet effect is the dataset's, the recipes', or theirs in
 interaction with the block; the experiment that would, the same
 architectures under one ImageNet recipe with seeds, is left to a study
 with the compute. Head depth at fixed class count was
-not varied. The controller was run on two architectures and one dataset
-with three seeds per arm; its margins over folding and over uniform
-networks are of the size of the seed spread and are stated as such. The inverted-residual finding is about the checkpoints one
+not varied. The controller's margins are of the size of the seed spread
+(three seeds, two architectures, one dataset) and are stated as such. The inverted-residual finding is about the checkpoints one
 can download. A ViT-B/16 profile against one random initialisation
 (supplement, Table~S6) shows the protocol applies unchanged to linear
 layers, with an ordering that is the architecture's and a level training

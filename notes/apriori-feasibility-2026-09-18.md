@@ -294,3 +294,25 @@ DenseNet-121、MobileNetV2、EfficientNet-B0），6,400 張、16 位置；對照
   「ImageNet 真實 vs CIFAR 真實」一致（|Δρ| 差 ≤ 0.1、水準差同號）。
 - 成立 → (i) 可寫「the images enter through their spectrum: a set with a different spectrum has a different random profile, and the
   surrogate built from its spectrum recovers it」。P-a2 不成立 → 高階統計在非自然影像上有貢獻，(i) 限定於自然影像。
+
+**A7 判定（09-26 09:35 跑完，`results/apriori/cifar10/seed1`、`cifar10matched/seed1`、`compare_cifar10.csv`，seed 1 列）。**
+CIFAR-10 放大後的譜：α = 4.45（ImageNet 2.61、COCO 2.62），通道矩陣與自然影像幾乎相同。
+
+| 家族 | 天花板 | 水準 CIFAR 真實 | ImageNet 真實（同權重）ρ／Δ水準 | 自身譜替身 ρ／Δ | ImageNet 譜替身 ρ／Δ |
+|---|---|---|---|---|---|
+| ResNet-50 | 0.94 | 0.137 | 0.74／+0.090 | 0.95／+0.047 | 0.82／+0.117 |
+| ResNet-18 | 0.98 | 0.113 | 0.94／+0.225 | 0.99／+0.020 | 0.95／+0.201 |
+| VGG-16 | 0.79 | 0.141 | 0.67／+0.221 | 0.98／+0.045 | 0.70／+0.256 |
+| DenseNet-121 | 0.94 | 0.281 | 0.90／+0.113 | 1.00／+0.062 | 0.91／+0.141 |
+| MobileNetV2 | 0.85 | 0.562 | 0.98／+0.056 | 0.99／+0.003 | 0.94／+0.078 |
+| EfficientNet-B0 | 0.97 | 0.350 | 0.98／+0.239 | 0.99／+0.100 | 0.96／+0.275 |
+
+- **P-a1 成立 6/6**：CIFAR 的隨機剖面與 ImageNet 的不同——水準低 0.06–0.24，順序在 VGG／ResNet-50 也掉到 0.67／0.74（天花板 0.79／0.94）。
+- **P-a2 成立**：自身譜替身 ρ ≥ 0.8×天花板 6/6（ρ/天花板中位 1.04），水準差中位 +0.046（< 0.05，壓線）。**殘餘**：六個家族替身全部略高
+  （+0.003…+0.100，EfficientNet 最大）——這個放大影像集的高階結構（塊狀、7 倍內插）對水準有約 0.05 的貢獻，比自然影像（0.00）大。
+- **P-a3 成立 6/6**：ImageNet 譜替身對 CIFAR 真實的 ρ 每個家族都低於自身譜替身（0.70–0.96 對 0.95–1.00），水準差 +0.078…+0.275，
+  與「ImageNet 真實 − CIFAR 真實」（+0.056…+0.239）同號、同量級（差 ≤ 0.04）。**資料進來的通道就是譜。**
+- pink 0.67／white 0.15 的階梯在這個集上同樣成立。
+- 論文措辭（已加進 `sec:learned` 的先驗段）：a set with a different spectrum has a different random profile, the field built from its
+  spectrum recovers it to within $0.05$ (the six surrogates all slightly high: the higher-order structure of upsampled images contributes
+  about that much), and the ImageNet-spectrum field misses it by the real-to-real difference.
