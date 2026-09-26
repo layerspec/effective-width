@@ -7,8 +7,8 @@
 #      of an account that accepted the ILSVRC terms) -- 8 min on the A23 pod
 #   2. the 6,400-image measurement subset: scripts/fetch_imagenet_val.py --limit 6400 (sorted parquet order,
 #      the same 6,400 files as data/imagenet_val_6400 on the Mac; or rsync that folder, 647 MB)
-#   3. pair resnet50  (seeds 0 and 1 in parallel on one GPU)
-#   4. pair basic6666 (seeds 0 and 1 in parallel)
+#   3. pair 0: resnet50_s0 and basic6666_s0 in parallel on one GPU (about 55 h, US$41 on a 4090)
+#   4. pair 1: the same with seed 1 (SEED0_ONLY=1 skips it; re-run the script later to add it)
 # Each run resumes itself from resume.pt if the pod restarts; re-running this script continues.
 # Budget: about 100 GPU-hours on a 4090 (US$75-95), less wall-clock on an A100/H100 at a similar price.
 # Usage on the pod:
@@ -55,13 +55,13 @@ run() {  # name, then train_imagenet_a17.py args
       --out $OUT/$name >> $OUT/$name.log 2>&1
   echo "=== $name end $(date) ==="
 }
-pair() {  # arch: seeds 0 and 1 in parallel
-  local arch=$1; shift
-  for s in 0 1; do run ${arch}_s$s --arch $arch --seed $s "$@" & done; wait
+pair() {  # seed: both architectures in parallel (one seed of each first, so a partial budget still gives a full comparison)
+  local s=$1; shift
+  for arch in resnet50 basic6666; do run ${arch}_s$s --arch $arch --seed $s "$@" & done; wait
 }
 
-pair resnet50
-pair basic6666
+pair 0
+if [ -z "${SEED0_ONLY:-}" ]; then pair 1; fi
 echo "=== A17 done $(date) ==="
 for f in $OUT/*/result.json; do
   echo -n "$(basename $(dirname $f)): "; $PY -c "import json; r=json.load(open('$f')); print(r['final_top1'], r['final_top5'], round(r['train_hours'],1), 'h')"
