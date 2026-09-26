@@ -316,3 +316,25 @@ CIFAR-10 放大後的譜：α = 4.45（ImageNet 2.61、COCO 2.62），通道矩�
 - 論文措辭（已加進 `sec:learned` 的先驗段）：a set with a different spectrum has a different random profile, the field built from its
   spectrum recovers it to within $0.05$ (the six surrogates all slightly high: the higher-order structure of upsampled images contributes
   about that much), and the ImageNet-spectrum field misses it by the real-to-real difference.
+
+## B. 層內定理：自由機率的譜預測（2026-09-26 下午，敵意審稿 09-25 第 1 項「讓 (i) 有定理」；判準寫於看結果前）
+
+**命題（層內，精確到比例極限）。** 初始化時每個 dense conv 的 Σ_out = W Σ_patch Wᵀ，W 的元素 i.i.d. 高斯（Kaiming），所以在 C、d 同比例
+趨無窮的極限下，Σ_out 的經驗譜分布是 Σ_patch 譜分布與 Marchenko–Pastur 律（比例 y = d/C）的**自由乘積摺積**：
+Stieltjes 轉換 m 解 Silverstein 方程 m(z) = −1/(z − y∫ t dH(t)/(1 + t m(z)))，H 為 Σ_patch 的譜分布（含零）。k*(τ) 是這個律的
+τ-質量分位數的計數。這是 Silverstein–Bai 1995 的定理套在「輸入 patch 共變異數、隨機核」上；Fan–Wang 2020 的 conjugate kernel 譜是
+它的全連接深層版本。**與步驟 1 的差別**：這裡不假設輸入高斯、不用 arc-cosine；它預測的是「給定該層的 Σ_patch 譜，隨機核會給出什麼輸出譜」
+——正是水準。層與層之間的傳遞（ReLU、BN、patch 堆疊）另計。
+
+**數值。** `scripts/freeprob_check.py`：Silverstein 方程在對數格點上定點迭代（1,500 點、相對虛部 1e-3、600 次），由計數 CDF 取 C 個典型
+特徵值再算 k*（孤立大特徵值的 Lorentzian 抹寬會污染一階矩，計數分位數不會）。對照：合成冪律譜 d=600、C=200 時，Silverstein 與 8 次
+W 抽樣的蒙地卡羅在 τ=0.9／0.95／0.99 差 ≤ 1.6 通道（`tests/test_freeprob.py`）。
+
+**判準（看結果前寫）。** 隨機初始化 VGG-16 與 ResNet-18，1,600 張 ImageNet-val、48 位置，`api.decompose` 累積每層 Σ_patch；
+每層以其 Σ_patch 譜算 Silverstein 預測的 k*(0.95)、k*(0.999)，對照同一批 W 實際的輸出 k*（表的 out 欄）與 4 次新 W 抽樣：
+- **B1**：|Silverstein − 量測| 的逐層中位 ≤ 2 通道且 ≤ 0.02·r_max（τ=0.95），≥ 90% 的層在 0.05·r_max 內 → 層內定理成立，
+  可寫成命題「給定該層輸入譜，初始化的輸出寬度是 MP ⊠ ν_patch 的分位數」，並把「水準」從實證改成定理（層內）。
+- **B2**：|MC − 量測| 與 |Silverstein − MC| 同量級 → 殘差是 W 抽樣噪音，不是定理誤差。
+- 不成立（中位 > 0.05·r_max）：Kaiming 核與 i.i.d. 高斯的差（或有限尺寸）在這個尺度上可量到，定理只能寫成近似；照報。
+- 成立後的下一步（B3）：傳遞——由 Σ_out^{(ℓ)} 的譜與 ReLU／BN／patch 堆疊得到 Σ_patch^{(ℓ+1)} 的譜（Fan–Wang 的非線性項＋位移自相關），
+  能做到就是整條先驗剖面的定理；做不到則寫「層內精確、層間實證」。
