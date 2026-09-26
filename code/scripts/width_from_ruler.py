@@ -70,7 +70,7 @@ def train_image_loader(root: str, n_images: int, batch_size: int, workers: int, 
                                        shuffle=False, num_workers=workers)
 
 
-def imagenet_train_image_loader(root: str, n_images: int, batch_size: int, workers: int, seed: int):
+def imagenet_train_image_loader(root: str, n_images: int, batch_size: int, workers: int, seed: int, class_ids=None):
     """`n_images` images from an ImageFolder of ImageNet TRAINING images (the
     class sub-folders written by fetch_imagenet.py), a seeded random subset,
     the evaluation transform (resize 256, centre crop 224, no augmentation)."""
@@ -84,7 +84,13 @@ def imagenet_train_image_loader(root: str, n_images: int, batch_size: int, worke
     else:
         from torchvision import datasets
         ds = datasets.ImageFolder(root, transform=tf)
-    idx = torch.randperm(len(ds), generator=torch.Generator().manual_seed(seed))[:n_images].tolist()
+    if class_ids is not None:                              # plan 9.15: restrict to the task's classes
+        keep = set(int(c) for c in class_ids)
+        pool = [i for i, t in enumerate(ds.targets) if int(t) in keep]
+    else:
+        pool = list(range(len(ds)))
+    order = torch.randperm(len(pool), generator=torch.Generator().manual_seed(seed))[:n_images].tolist()
+    idx = [pool[i] for i in order]
     return torch.utils.data.DataLoader(torch.utils.data.Subset(ds, idx), batch_size=batch_size,
                                        shuffle=False, num_workers=workers)
 
@@ -168,14 +174,16 @@ def main(argv=None) -> int:
                    help="resnet18 applies the stage rule of scripts/resnet_widths.py (plan 9.11)")
     p.add_argument("--classes", type=int, default=None, help="plan 9.12: the K-class subset the checkpoint was trained on")
     p.add_argument("--per-class", type=int, default=None, help="plan 9.12: per-class cap used in training")
+    p.add_argument("--class-ids", type=int, nargs="+", default=None,
+                   help="plan 9.15: ImageNet label indices the checkpoint was trained on (its ten-class task)")
     p.add_argument("--tensor", choices=("conv", "act"), default="conv",
                    help="read k* at the conv output (default; the paper's ruler) or after the ReLU, "
                         "the tensor the next layer consumes (analysis-plan 9.8, arm ruler_act)")
     a = p.parse_args(argv)
 
     if a.dataset == "imagenet":
-        num_classes = IMAGENET_STATS[2]
-        loader = imagenet_train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed)
+        num_classes = IMAGENET_STATS[2] if a.class_ids is None else len(a.class_ids)
+        loader = imagenet_train_image_loader(a.data, a.n_images, a.batch_size, a.workers, a.seed, class_ids=a.class_ids)
     else:
         num_classes = CIFAR_STATS[a.dataset][2]
         if a.classes is not None:

@@ -463,6 +463,27 @@ ResNet-50 六個公開配方的重排（T–R −0.08）歸因於「資料集或
 - **實作**：`decompose_rows` 加 `rho_align`（一行 SVD 已有）；`trajectory_cifar.py --save-checkpoints`
   在每個量測 epoch 存 `epoch_XXX.pt`；`checkpoint_analysis.py` 新增 §16。
 
+### 9.15 十類 ImageNet 任務的閒置寬度（A26；2026-09-26 寫，資料未見；敵意審稿 09-25 第 2 項）
+
+§10.11–10.12 把閒置寬度歸為「few-class 任務、優化夠久」，09-25 的 E1 再把它定位在「後段層超出終端維度的部分」。證據全在 CIFAR（32×32）
+與 VGG-16；ResNet-20 讀滿被解釋為「後段只有 64 通道、低於終端維度」。本實驗在 ImageNet 解析度、殘差網路、最後 stage 512 寬的設定下
+直接測這個解釋。
+
+- **設計**：ResNet-18（ImageNet stem）從頭訓練 Imagenette 的十個類別（ImageNet 標籤索引 0 217 482 491 497 566 569 571 574 701；
+  約 13,000 張訓練、500 張驗證），torchvision 參考配方（SGD 0.9、batch 256、lr 0.1、wd 1e-4、RRC＋flip），**300 epoch、lr 於 100／200
+  降**（51 步／epoch、共 15,300 步：A25 說收縮要優化夠久），三種子。訓練後用 §9.11 的 stage 規則讀 ReLU 後 τ=0.999 的尺（6,400 張自己的
+  訓練影像、16 位置）。程式：`train_imagenet_r18.py --class-ids`、`width_from_ruler.py --class-ids`（`tests/test_imagenet_subset.py`）、
+  `run_a26_imagenet10_pod.sh`。成本：每種子約 1 h、三種子約 US$2.5，排在 A17 第一對之後。
+- **預測**：
+  - **P9.36**：最後 stage 的兩個 block 內部寬度（conv1 輸出）k*(0.999)/C < 0.8，3/3 種子（512 寬的後段在十類任務上出現閒置）。
+    對照：ImageNet-1k 同位置 0.98–1.00（§10.10）。
+  - **P9.37**：前兩個 stage 的內部寬度 ≥ 0.9，3/3（閒置在後段，不在前段——與 VGG 的 E1 同型）。
+  - **P9.38**：尺保留參數比例 < 0.85（ImageNet-1k 是 0.992；CIFAR-10 VGG 是 0.67）。
+- **判定與後果**：三條成立 → (iv) 寫成「few-class 任務的終端維度低於後段層寬時出現閒置，在 32×32 與 224 解析度、plain 與殘差網路上皆然」，
+  Fig. S7 加一點、主張表一列。P9.36 不成立（後段仍讀滿）→ 「終端維度」的解釋只在 VGG／CIFAR 成立，ResNet-20 讀滿的原因不是後段太窄；
+  (iv) 退回「VGG-16 CIFAR-10 的觀察」，論文照報。P9.37 不成立而 P9.36 成立 → 閒置也在前段，與 VGG 不同型，照報。
+- **只有三種子、單一架構**；統計只作描述。準確率不承重（十類 Imagenette 從頭訓約 90%+）。
+
 ## 10. 第三輪結果（2026-09-09；`results/checkpoint_analysis.txt` §12–§13、`results/round3*/`）
 
 24 個 run（RunPod 3090，2026-09-08）全部跑完 100 epoch；判定依 §9 的規則，資料見過之前的規則一字未改。

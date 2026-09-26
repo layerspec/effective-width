@@ -55,7 +55,7 @@ def _val_tf(crop: int):
                                transforms.ToTensor(), transforms.Normalize(MEAN, STD)])
 
 
-def loaders(root: str, batch_size: int, workers: int, seed: int, crop: int = 224):
+def loaders(root: str, batch_size: int, workers: int, seed: int, crop: int = 224, class_ids=None):
     from torchvision import transforms
     train_tf = transforms.Compose([transforms.RandomResizedCrop(crop), transforms.RandomHorizontalFlip(),
                                    transforms.ToTensor(), transforms.Normalize(MEAN, STD)])
@@ -63,11 +63,18 @@ def loaders(root: str, batch_size: int, workers: int, seed: int, crop: int = 224
     va = imagenet_split(root, "val", _val_tf(crop))
     if tr.classes != va.classes:
         raise SystemExit("train/ and val/ class sets differ")
+    n_classes = len(tr.classes)
+    if class_ids is not None:                              # plan 9.15: a K-class ImageNet task, labels renumbered 0..K-1
+        from scripts.class_subset import RemapSubset, label_map, subset_indices
+        lmap = label_map(list(class_ids))
+        tr = RemapSubset(tr, subset_indices(tr.targets, list(class_ids), None), lmap)
+        va = RemapSubset(va, subset_indices(va.targets, list(class_ids), None), lmap)
+        n_classes = len(class_ids)
     g = torch.Generator().manual_seed(seed)
     kw = dict(num_workers=workers, pin_memory=True, persistent_workers=workers > 0,
               prefetch_factor=4 if workers > 0 else None)
     return (torch.utils.data.DataLoader(tr, batch_size=batch_size, shuffle=True, drop_last=True, generator=g, **kw),
-            torch.utils.data.DataLoader(va, batch_size=batch_size, shuffle=False, **kw), len(tr.classes))
+            torch.utils.data.DataLoader(va, batch_size=batch_size, shuffle=False, **kw), n_classes)
 
 
 def calib_loader(root: str, n_images: int, batch_size: int, workers: int, seed: int, crop: int = 224):
@@ -120,6 +127,8 @@ def main(argv=None) -> int:
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--device", default="cuda" if torch.cuda.is_available() else "cpu")
     p.add_argument("--crop", type=int, default=224, help="training / evaluation crop (smoke tests use less)")
+    p.add_argument("--class-ids", type=int, nargs="+", default=None,
+                   help="plan 9.15: train on these ImageNet label indices only (a K-class task)")
     p.add_argument("--max-train-batches", type=int, default=None, help="smoke test")
     p.add_argument("--max-val-batches", type=int, default=None, help="smoke test")
     p.add_argument("--realloc-budget", type=float, default=None,
@@ -140,7 +149,7 @@ def main(argv=None) -> int:
     os.makedirs(a.out, exist_ok=True)
     torch.manual_seed(a.seed)
     torch.backends.cudnn.benchmark = True
-    train_loader, val_loader, num_classes = loaders(a.data, a.batch_size, a.workers, a.seed, a.crop)
+    train_loader, val_loader, num_classes = loaders(a.data, a.batch_size, a.workers, a.seed, a.crop, a.class_ids)
     state_path, csv_path = os.path.join(a.out, "resume.pt"), os.path.join(a.out, "epochs.csv")
     rl_path = os.path.join(a.out, "realloc.json")
     widths = list(a.widths) if a.widths is not None else list(RESNET18_WIDTHS)
@@ -254,6 +263,7 @@ def main(argv=None) -> int:
     best = max(history, key=lambda r: r["top1"]) if history else {}
     result = {"widths": widths, "params": n_params, "macs_224": n_macs, "seed": a.seed, "epochs": a.epochs,
               "crop": a.crop, "full_params": full_params, "params_fraction": n_params / full_params,
+              "class_ids": a.class_ids, "num_classes": num_classes, "n_train": len(train_loader.dataset),
               "recipe": {"optimizer": "SGD", "momentum": 0.9, "lr": a.lr, "wd": a.wd, "batch_size": a.batch_size,
                          "milestones": a.milestones, "gamma": 0.1, "aug": f"RandomResizedCrop{a.crop}+flip",
                          "eval": f"Resize{int(round(a.crop * 256 / 224))}+CenterCrop{a.crop}", "amp": use_amp},
