@@ -14,6 +14,7 @@ PY=${PY:-python}
 OUT=../results/round3; DEC=../results/round3_decompose
 mkdir -p $OUT $DEC
 COMMON="--device cuda --epochs 100 --workers 2 --gpu-data --data-root ../data"
+export OMP_NUM_THREADS=${OMP_NUM_THREADS:-8} MKL_NUM_THREADS=${MKL_NUM_THREADS:-8}   # a 128-core pod thrashes the CPU-side covariance eigendecompositions (2026-09-26)
 ITERS=${ONI_ITERS:-20}
 
 run() {  # name, then trajectory_oni.py args   (foreground)
