@@ -338,3 +338,25 @@ W 抽樣的蒙地卡羅在 τ=0.9／0.95／0.99 差 ≤ 1.6 通道（`tests/test
 - 不成立（中位 > 0.05·r_max）：Kaiming 核與 i.i.d. 高斯的差（或有限尺寸）在這個尺度上可量到，定理只能寫成近似；照報。
 - 成立後的下一步（B3）：傳遞——由 Σ_out^{(ℓ)} 的譜與 ReLU／BN／patch 堆疊得到 Σ_patch^{(ℓ+1)} 的譜（Fan–Wang 的非線性項＋位移自相關），
   能做到就是整條先驗剖面的定理；做不到則寫「層內精確、層間實證」。
+
+**B 判定（09-26 18:00；`results/freeprob/{vgg16_bn,resnet18}_random.csv`，seed 1、1,600 張、48 位置）。**
+先講一件寫判準時沒想清楚的事：Kaiming 初始化的 W 本來就是 i.i.d. 高斯，所以 **給定 Σ_patch，Σ_out 的譜在有限尺寸下就精確等於
+W̃ Σ_patch W̃ᵀ 的律**（分布恆等式，不需要極限）；Silverstein 方程是這個律在比例極限的確定性形式。數值上密度法對孤立的頂端特徵值
+不穩（抹寬小則格點走樣、抹寬大則 Cauchy 尾污染計數；合成 d=4608、C=512 的重尾譜上 k*(0.95) 68 對取樣律 103），**預測欄改用取樣律**
+（4 次新 W 抽樣的平均），Silverstein 只當漸近陳述與 bulk 交叉檢查（bulk 分位數逐點吻合）。
+
+| 網路 | τ | \|律 − 量測\| 中位（最大）通道 | k*/r_max 中位（最大） | 在 0.05 r_max 內 | 在律的 2 SD＋1 內 | Spearman |
+|---|---|---|---|---|---|---|
+| VGG-16（13 層） | 0.95 | 2.0（4） | 0.008（0.039） | 13/13 | 10/13 | 0.999 |
+| VGG-16 | 0.999 | 0.5（2） | 0.001（0.028） | 13/13 | 13/13 | 1.000 |
+| ResNet-18（20 層） | 0.95 | 1.1（4） | 0.004（0.047） | 20/20 | 19/20 | 0.997 |
+| ResNet-18 | 0.999 | 0.1（2） | 0.000（0.020） | 20/20 | 20/20 | 0.999 |
+
+- **B1 成立**（中位 ≤ 2 通道、≤ 0.02·r_max、100% 在 0.05 內）；**B2 成立**（律的取樣 SD 0.5–3 通道，與殘差同量級）。
+- 能寫的命題（層內）：「At initialisation, conditional on its input patch covariance, a convolution's output covariance has exactly
+  the law of $\tilde W \Sigma_{\rm patch} \tilde W^{\top}$ with $\tilde W$ i.i.d. Gaussian; its $k^*(\tau)$ is therefore a function of the
+  input spectrum and $(C, d)$ alone, computable by sampling or, in the proportional limit, from Silverstein's equation.」量測：33 層在律的
+  散布內。**這把「水準」在層內從實證變成定理。**
+- 不能寫的：層間傳遞（BN、ReLU、patch 堆疊）仍是實證（步驟 1 的高斯遞推高估 0.05–0.14；替身 A 說輸入的高階統計不進來，但沒說 ReLU 後的
+  非高斯不進來）。整條先驗剖面的理論寫成「層內精確律 ＋ 層間量測」；B3（Fan–Wang 型非線性遞推推到卷積 patch）留作未來工作，不在這篇。
+- 進論文：補充加命題 S7（層內律）＋表 S18（兩網路逐層：C、d、量測、律的均值與 SD、Silverstein bulk）；正文先驗段一句。

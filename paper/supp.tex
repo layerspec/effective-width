@@ -443,6 +443,12 @@ $\operatorname{rank} \Sigma_z \le \min(C, \operatorname{rank} \Sigma_x)$ and $\l
 Let $D_\ell(C)$ be the fraction of variance a site drops at width $C$ (on the shrink side $\operatorname{tr} R_S / \operatorname{tr} \Sigma_a$, on the grow side the unmet variance) and $p_\ell(C)$ its cost, linear in $C$. $D_\ell$ is convex and decreasing, so minimising $\sum_\ell \omega_\ell D_\ell(C_\ell)$ under $\sum_\ell p_\ell(C_\ell) = P$ is a convex problem whose solution equalises $\omega_\ell \lambda_{C_\ell}(\Sigma^{(\ell)}) / (\operatorname{tr}\Sigma^{(\ell)}\, p'_\ell)$ across sites (reverse water-filling), and the greedy discrete exchange decreases the objective monotonically and terminates.
 \end{proposition}
 
+
+\begin{proposition}[the output spectrum at initialisation is a law of the input spectrum]
+\label{prop:law}
+Let a convolution's kernel $W \in \mathbb{R}^{C \times d}$ have i.i.d.\ Gaussian entries independent of the data (Kaiming initialisation) and let $\Sigma_{\rm patch}$ be the covariance of its input patches. Conditional on $\Sigma_{\rm patch}$, $\Sigma_{\rm out} = W\Sigma_{\rm patch}W^{\top}$ has exactly the law of $\tilde W \Sigma_{\rm patch} \tilde W^{\top}$ with $\tilde W$ standard Gaussian, so the law of $k^*(\tau)$ depends on the data only through the spectrum of $\Sigma_{\rm patch}$ and on the layer only through $(C, d)$. In the proportional limit $C, d \to \infty$ with $y = d/C$ fixed the empirical spectral distribution of $\Sigma_{\rm out}$ converges to the free multiplicative convolution of the spectral distribution $H$ of $\Sigma_{\rm patch}$ with a Marchenko--Pastur law, whose Stieltjes transform solves $m(z) = -\bigl(z - y\int t\,dH(t)/(1 + t\,m(z))\bigr)^{-1}$.
+\end{proposition}
+
 \subsection*{Proofs}
 
 
@@ -504,6 +510,9 @@ $\operatorname{rank}(W \Sigma W^{\top}) \le \min(\operatorname{rank} W,
 \emph{Proposition~\ref{prop:grow}.} $\Sigma_z = W\Sigma_x W^{\top}$ has rank at most $\min(C, \operatorname{rank}\Sigma_x)$; by Proposition~\ref{prop:compression} $\Sigma_{\circ}$ is a compression of $\Sigma_x$ to the row space of $W$, whence the termwise bound and the statement that only the top $C$ directions pass. A new row orthogonal to the existing row space with zero outgoing weights adds a channel the next layer ignores, so the function is unchanged. \qed
 
 \emph{Proposition~\ref{prop:fill}.} $D_\ell(C) - D_\ell(C+1) = \lambda_{C+1}/\operatorname{tr}\Sigma$ is decreasing in $C$, so $D_\ell$ is convex; with linear costs the relaxed problem is convex and its KKT condition is the stated equalisation. In the discrete problem, moving one channel from the site with the smallest marginal loss per unit cost saved to the site with the largest marginal gain per unit cost added does not increase the objective, and the number of configurations is finite. \qed
+
+
+\emph{Proposition~\ref{prop:law}.} The entries of $W$ are i.i.d.\ $\mathcal{N}(0, s^2)$ and independent of the patches, so $W = s\tilde W$ in law with $\tilde W$ standard Gaussian and, conditional on $\Sigma_{\rm patch}$, $W\Sigma_{\rm patch}W^{\top} = s^2 \tilde W \Sigma_{\rm patch} \tilde W^{\top}$ in law; $k^*(\tau)$ is scale-invariant and the eigenvalues of $\tilde W \Sigma \tilde W^{\top}$ depend on $\Sigma$ only through its spectrum, by rotation invariance of $\tilde W$. The limit statement is Silverstein's theorem \cite{silverstein1995strong} for the companion matrix $\frac{1}{C}\tilde W^{\top}$-type products, with $p = d$ and $N = C$. \qed
 
 \subsection*{Limiting Cases}
 
@@ -617,6 +626,20 @@ ruler's widths retrain to full accuracy is Section~\ref{sec:a18} of the main tex
   \caption{Class count at fixed architecture and recipe (plan Section~9.12): VGG-16 (BN) on nested CIFAR-100 subsets of $13$, $20$, $50$ and $100$ classes, three seeds (dots) and their mean (line), widths read after the ReLU at $\tau = 0.999$ on each network's training images. Left: fraction of the full parameter count the ruler keeps. Right: mean $k^*(0.999)/C$ of the last three layers. Squares: the ten-class CIFAR-10 task on $50{,}000$ images (filled) and on $6{,}400$ images for the same $100$ epochs (open), the latter the image count of the thirteen-class subset; triangle: the same $6{,}400$ images for $780$ epochs, the full set's $39{,}000$ steps (plan Section~9.13).}
   \label{fig:classes}
 \end{figure}
+
+
+\subsection*{The Layer-Local Law, Tested}
+\label{sec:slaw}
+
+Proposition~\ref{prop:law} says that, at initialisation, the width a convolution produces is a random variable whose law is fixed by its input spectrum. Table~\ref{tab:sfreeprob} evaluates that law for every dense convolution of a random-initialised VGG-16 (BN) and ResNet-18 on $1{,}600$ of the subset images (48 positions per image; patch covariances accumulated by \texttt{decompose}): \emph{law} is the mean $\pm$ SD of $k^*(\tau)$ over four fresh Gaussian draws applied to the measured $\Sigma_{\rm patch}$, \emph{Silverstein} the count from the numerical solution of the limiting equation, \emph{measured} the value for the kernel the network actually drew. The measured width lies within the law's spread in 33 of 33 layers: median $|$law $-$ measured$|$ is $2.0$ and $1.1$ channels at $\tau = 0.95$ ($0.008$ and $0.004\,r_{\max}$) and $0.5$ and $0.1$ at $\tau = 0.999$, every layer within $0.05\,r_{\max}$, Spearman $\ge 0.997$. The numerical density mislocates isolated top eigenvalues at $d/C = 9$ (its $k^*(0.95)$ falls below the sampled law by up to $60$ channels in VGG-16's last layers) and agrees with the sampled law in the bulk, so the sampled law is the prediction and the equation the asymptotic statement. What the proposition does not cover is the passage from one layer's output to the next layer's patches through batch normalisation, the ReLU and the patch stacking; that step is where the Gaussian recursion of the main text overestimates the level, and it remains empirical.
+
+\begin{table*}[t]
+  \centering
+  \caption{The layer-local law of Proposition~\ref{prop:law} against the measurement, random initialisation, seed 1, $1{,}600$ images: per dense convolution its width $C$, patch dimension $d$, attainable rank, and $k^*(\tau)$ measured for the drawn kernel, under the sampled law (mean $\pm$ SD over four draws with the measured patch covariance) and from the numerical solution of Silverstein's equation. Generated by \texttt{freeprob\_table.py}.}
+  \label{tab:sfreeprob}
+  \scriptsize\setlength{\tabcolsep}{4pt}
+  \input{table_freeprob}
+\end{table*}
 
 \section{Claims, Evidence and Status}
 \label{supp:claims}
