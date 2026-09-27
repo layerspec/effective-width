@@ -67,3 +67,23 @@ def test_kurtosis_matched_marginal_tables_reproduce_a_student_t_marginal():
     tab_fit = matched_tables(z.mean(0), z.std(0), kurt)
     inner = np.abs(GRID_ABS := np.linspace(-5, 5, 1001)) < 3
     assert np.abs(tab_fit[0][inner] - tab_emp[0][inner]).max() < 0.15
+
+
+def test_box_filtered_patch_energy_equals_unfold():
+    import torch.nn as nn
+    from scripts.relu_copula_check import _patch_energy
+    torch.manual_seed(0)
+    x = torch.randn(2, 5, 12, 12); conv = nn.Conv2d(5, 7, 3, padding=1)
+    cols = torch.nn.functional.unfold(x, 3, padding=1)                     # (2, 45, 144)
+    ref = (cols ** 2).sum(1).reshape(2, 1, 12, 12)
+    got = _patch_energy(x, conv, max_pos=10_000).reshape(2, 1, 12, 12)
+    assert torch.allclose(got, ref, atol=1e-4)
+
+
+def test_cornish_fisher_tables_are_monotone_and_reduce_to_gaussian():
+    from scripts.relu_copula_check import cornish_fisher_tables
+    g = cornish_fisher_tables([0.2], [1.5], [0.0], [0.0])
+    ref = marginal_tables((np.random.default_rng(1).standard_normal((400_000, 1)) * 1.5 + 0.2))
+    assert np.all(np.diff(g[0]) >= 0) and np.abs(g[0] - ref[0])[np.abs(GRID_ABS := np.linspace(-5, 5, 1001)) < 3].max() < 0.05
+    sk = cornish_fisher_tables([0.0], [1.0], [1.0], [1.5])
+    assert np.all(np.diff(sk[0]) >= 0)

@@ -88,14 +88,27 @@ def matched_tables(mean, sd, kurt, grid: np.ndarray = GRID) -> np.ndarray:
     return out
 
 
+def cornish_fisher_tables(mean, sd, skew, kurt, grid: np.ndarray = GRID) -> np.ndarray:
+    """(C, G): r_c(t) = relu(mean_c + sd_c q_c(t)) with q_c the Cornish-Fisher quantile of a variable with skewness
+    skew_c and excess kurtosis kurt_c: q = z + (z^2 - 1) g1/6 + (z^3 - 3z) g2/24 - (2z^3 - 5z) g1^2/36, z = t,
+    made monotone by a running maximum."""
+    mean, sd, skew, kurt = (np.asarray(v, dtype=np.float64).reshape(-1) for v in (mean, sd, skew, kurt))
+    z = grid[None, :]
+    g1, g2 = skew[:, None], kurt[:, None]
+    q = z + (z ** 2 - 1) * g1 / 6 + (z ** 3 - 3 * z) * g2 / 24 - (2 * z ** 3 - 5 * z) * g1 ** 2 / 36
+    q = np.maximum.accumulate(q, axis=1)
+    return np.clip(mean[:, None] + sd[:, None] * q, 0.0, None)
+
+
 def _patch_energy(x: torch.Tensor, conv: nn.Conv2d, max_pos: int) -> torch.Tensor:
-    """|patch|^2 at the subsampled positions of the conv's input x (B, C, H, W) -> (N,)."""
-    cols = torch.nn.functional.unfold(x, conv.kernel_size, dilation=conv.dilation, padding=conv.padding, stride=conv.stride)
-    e = (cols.float() ** 2).sum(1)                                     # (B, L)
-    B = x.shape[0]
-    Ho = (x.shape[2] + 2 * conv.padding[0] - conv.dilation[0] * (conv.kernel_size[0] - 1) - 1) // conv.stride[0] + 1
-    Wo = e.shape[1] // Ho
-    return subsample(e.reshape(B, 1, Ho, Wo), max_pos).reshape(-1)
+    """|patch|^2 at the subsampled positions of the conv's input x (B, C, H, W) -> (N,): the channel-summed squares
+    box-filtered over the k x k window (zero padding, as unfold would), O(HW) instead of O(HW d)."""
+    if conv.dilation != (1, 1):
+        raise NotImplementedError("dilated convolutions")
+    sq = (x.float() ** 2).sum(1, keepdim=True)
+    kh, kw = conv.kernel_size
+    e = torch.nn.functional.avg_pool2d(sq, (kh, kw), stride=conv.stride, padding=conv.padding, count_include_pad=True) * (kh * kw)
+    return subsample(e, max_pos).reshape(-1)
 
 
 class _Acc:
@@ -162,7 +175,7 @@ def main(argv=None) -> int:
         return f
     def conv_pre(name):
         def f(mod, inp):
-            e = _patch_energy(inp[0].detach(), mod, a.max_pos).double().cpu()
+            e = _patch_energy(inp[0].detach(), mod, a.max_pos).cpu().double()
             energy[name][0] += e.numel(); energy[name][1] += float(e.sum()); energy[name][2] += float((e ** 2).sum())
         return f
     hs = [m.register_forward_pre_hook(pre(n)) for n, m in relus] + [m.register_forward_hook(post(n)) for n, m in relus]
@@ -191,15 +204,17 @@ def main(argv=None) -> int:
         if n in energy and energy[n][0] > 0 and conv_of[n] in pr_of:
             cnt, s1, s2 = energy[n]; kurt_pred = predicted_kurtosis(s1 / cnt, s2 / cnt, pr_of[conv_of[n]])
         Sm = copula_relu_cov(R, matched_tables(z.mean(0), z.std(0), kurt_c))            # parametric marginals, measured kurtosis
+        skew_c = (zc ** 3).mean(0) / (zc ** 2).mean(0) ** 1.5
+        Scf = copula_relu_cov(R, cornish_fisher_tables(z.mean(0), z.std(0), skew_c, kurt_c))   # four cumulants
         Sp = copula_relu_cov(R, matched_tables(z.mean(0), z.std(0), np.full(C, kurt_pred))) if np.isfinite(kurt_pred) else Sm
         ks = lambda M, t: k_star(torch.as_tensor(np.asarray(M)), (t,))[t]   # noqa: E731
-        rows.append(dict(relu=n, C=C, meas=ks(Sa, 0.95), gauss=ks(Sg, 0.95), copula=ks(Sc, 0.95), matched=ks(Sm, 0.95), energy=ks(Sp, 0.95),
-                         meas_999=ks(Sa, 0.999), gauss_999=ks(Sg, 0.999), copula_999=ks(Sc, 0.999), matched_999=ks(Sm, 0.999), energy_999=ks(Sp, 0.999),
-                         kurtosis=kurt, kurtosis_pred=kurt_pred, mean_over_sd=float(np.mean(np.abs(mz.numpy()) / s)), rows=len(z), seconds=round(tc)))
+        rows.append(dict(relu=n, C=C, meas=ks(Sa, 0.95), gauss=ks(Sg, 0.95), copula=ks(Sc, 0.95), matched=ks(Sm, 0.95), energy=ks(Sp, 0.95), cf=ks(Scf, 0.95),
+                         meas_999=ks(Sa, 0.999), gauss_999=ks(Sg, 0.999), copula_999=ks(Sc, 0.999), matched_999=ks(Sm, 0.999), energy_999=ks(Sp, 0.999), cf_999=ks(Scf, 0.999),
+                         kurtosis=kurt, kurtosis_pred=kurt_pred, skewness=float(skew_c.mean()), mean_over_sd=float(np.mean(np.abs(mz.numpy()) / s)), rows=len(z), seconds=round(tc)))
         r = rows[-1]
         print(f"{n:12s} C {C:4d}  k*(.95)/C meas {r['meas']/C:.3f} gauss {r['gauss']/C:.3f} copula {r['copula']/C:.3f} matched {r['matched']/C:.3f} energy {r['energy']/C:.3f}   "
               f"k*(.999)/C meas {r['meas_999']/C:.3f} gauss {r['gauss_999']/C:.3f} copula {r['copula_999']/C:.3f} matched {r['matched_999']/C:.3f} energy {r['energy_999']/C:.3f}   "
-              f"kurt meas {kurt:+.2f} pred {kurt_pred:+.2f}  ({tc:.0f}s)", flush=True)
+              f"cf {r['cf']/C:.3f}/{r['cf_999']/C:.3f}   kurt meas {kurt:+.2f} pred {kurt_pred:+.2f} skew {r['skewness']:+.2f}  ({tc:.0f}s)", flush=True)
     df = pd.DataFrame(rows)
     path = os.path.join(a.out, f"{stem(a.model)}_{a.inputs}_seed{a.seed}.csv")
     df.to_csv(path, index=False); print("wrote", path)
