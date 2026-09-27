@@ -773,8 +773,10 @@ initialisation $W$ is an independent Gaussian draw, so conditional on its
 input spectrum the width a convolution produces has an exact law
 (supplement, Proposition~S6); the measured width lies within $0.05\,r_{\max}$
 of that law in $94$--$100\%$ of the $535$ dense convolutions of the eleven
-families, at a median distance of one channel (Tables~S18, S19). What is
-not a theorem is the passage through the nonlinearities, and there the
+families, at a median distance of one channel (Tables~S18, S19); by
+induction the whole profile's law depends on the images only through the
+pairwise inner products of their RGB patches (Proposition~S7). What no
+theorem gives is the level after the nonlinearities, and there the
 profile is a measured regularity: a stationary Gaussian field with the images' cross-power
 spectrum (a $3 \times 3$ Hermitian matrix per spatial frequency, estimated on
 the $6{,}400$ images), passed through the \emph{same} random weights, gives
@@ -789,12 +791,11 @@ $1/f$ noise $0.84$ and $+0.16$, a power law $|\omega|^{-2.61}$ times one
 $3 \times 3$ channel matrix (eight numbers) $0.99$ and $-0.02$; ImageNet
 and COCO share those eight numbers and the same random profile
 ($\rho = 1.00$), and phase-scrambled images, each keeping its spectrum
-and losing its structure, give $0.99$ (supplement). A set whose spectrum
-differs tests the reading: CIFAR-10 images upsampled to $224$ follow
-$|\omega|^{-4.45}$, their random profiles sit $0.06$--$0.24$ below
-ImageNet's (six families), the field built from their spectrum recovers
-them ($\rho \ge 0.95$, level within $0.05$, all six slightly high) and the
-ImageNet-spectrum field misses them by the real-to-real difference. A Gaussian
+and losing its structure, give $0.99$ (supplement). A set with a different spectrum (CIFAR-10 upsampled to $224$,
+$|\omega|^{-4.45}$) has random profiles $0.06$--$0.24$ lower, which the
+field built from its spectrum recovers ($\rho \ge 0.95$, level within
+$0.05$) and the ImageNet-spectrum field misses by the real-to-real
+difference. A Gaussian
 recursion through the ReLUs (the mean-field form of
 \cite{poole2016exponential,xiao2018dynamical}) recovers the ordering
 ($\rho \ge 0.97$) but overestimates the level by $0.05$--$0.14$, the
@@ -1026,10 +1027,9 @@ ruler arm at $0.88$ MACs ($93.79$ against $93.86$) for $0.90$ of one
 training instead of $1.88$, and at $0.60$ MACs it is $0.24$ above a uniform
 network of equal MACs trained from scratch ($93.44$ against $93.20$ at
 $0.34$; every controller seed above every uniform seed, $n = 3$, $p =
-0.05$). Its value relative to folding is bounded: at $0.88$ MACs the fold
-after one full training is as good ($93.75$) at one tenth more compute; at
-$0.60$--$0.69$ the controller is $0.3$ above the fold; below $0.5$ the
-fold breaks down ($87.5$ at $0.42$) and the controller does not ($93.44$ at
+0.05$). Relative to folding after one full training it is equal at $0.88$
+MACs ($93.75$), $0.3$ better at $0.60$--$0.69$, and the fold breaks down
+below $0.5$ ($87.5$ at $0.42$) where the controller holds ($93.44$ at
 $0.34$). Attribution arms bound it further: the controller's final widths
 trained from scratch reach $93.89$, growing along random directions
 $93.88$, and acting on the untrained network as well $94.06$ at
@@ -1074,10 +1074,12 @@ five layers ($0.30$ of their channels at full width against $0.82$ in the
 first five), it is still there when every width is cut uniformly to a
 third of the parameters ($0.47$), and it is gone only in the network built
 at the ruler's shape ($0.95$); on CIFAR-100 the same layers read $0.95$,
-and ResNet-20's last stage reads $0.93$--$0.99$ at three widths and on both
-datasets. The idle width is the excess of a layer over the dimension the
-few-class terminal representation needs, about $150$ of $512$ channels for
-VGG-16 on ten classes, and ResNet-20's $64$ are below it. Varying the
+ResNet-20's last stage reads $0.93$--$0.99$ at three widths and on both
+datasets, and a ResNet-18 trained from scratch on ten ImageNet classes
+reads $0.95$--$0.99$ in its $512$-wide last stage (three seeds; P9.36 and
+P9.38 fail, plan Section~9.15). The collapse is therefore not a matter of
+width alone; whether it is a property of plain networks is the registered
+question of plan Section~9.16. Varying the
 class count alone, on nested CIFAR-100 subsets of $13$, $20$, $50$ and $100$
 classes under one recipe (supplement, Fig.~S7), the fraction the ruler
 keeps rises monotonically in every seed, $0.88$, $0.92$, $0.98$, $0.99$
@@ -1086,15 +1088,14 @@ the thirteen-class network does not collapse below $0.6$ (P9.32 fails),
 the first convolution follows the optimisation length (P9.33 fails), and
 on an eighth of the images the collapse is shallower at equal epochs
 ($0.74$ against $0.52$; P9.34 fails) and deeper at equal steps ($0.38$;
-P9.35 holds). Two definitions must be kept apart: \emph{idle} width is what
-the ruler reads at $\tau = 0.999$; \emph{removable} width is what a
-retrained or reallocated network gives up without loss, and the two
-coincide only where the first is large (a parameter-budget controller gains $+0.74$ on CIFAR-100 by spending
-$1.1\times$ the MACs, with $1\%$ idle). We conclude that the idle
-width of a few-class network is a terminal collapse of its widest late
-layers, reached by optimising long enough, closing monotonically as
-classes are added and absent in a network whose late layers are already
-narrow.
+P9.35 holds). \emph{Idle} width (what the ruler reads at $\tau = 0.999$) and
+\emph{removable} width (what a retrained or reallocated network gives up
+without loss) coincide only where the first is large: a parameter-budget
+controller gains $+0.74$ on CIFAR-100 by spending $1.1\times$ the MACs
+with $1\%$ idle. We conclude that VGG-16's idle width on a few-class task is a
+terminal collapse of its late layers, reached by optimising long enough
+and closing monotonically as classes are added; residual networks at
+three widths and two resolutions show none.
 
 
 % =========================================================================
