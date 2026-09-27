@@ -40,3 +40,30 @@ def test_copula_matches_monte_carlo_for_a_uniform_marginal():
     tab = marginal_tables(z)
     pred = copula_relu_cov(R, tab)
     assert np.abs(pred - mc).max() < 0.03 * np.abs(mc).max()
+
+
+def test_channel_kurtosis_of_random_projections_equals_three_times_energy_cv2():
+    from scripts.relu_copula_check import predicted_kurtosis
+    rng = np.random.default_rng(5)
+    d, n = 40, 200_000
+    x = rng.standard_normal((n, d)) * (1 + 0.8 * rng.random(n))[:, None]   # a Gaussian scale mixture: heavy-tailed patches
+    e = (x ** 2).sum(1)
+    lam = np.linalg.eigvalsh(np.cov(x.T)); pr = lam.sum() ** 2 / (lam ** 2).sum()
+    pred = predicted_kurtosis(e.mean(), (e ** 2).mean(), pr)
+    W = rng.standard_normal((300, d))
+    z = x @ W.T
+    zc = z - z.mean(0); k = (zc ** 4).mean(0) / (zc ** 2).mean(0) ** 2 - 3
+    assert abs(pred - k.mean()) < 0.15 * max(1.0, abs(pred))
+
+
+def test_kurtosis_matched_marginal_tables_reproduce_a_student_t_marginal():
+    from scripts.relu_copula_check import matched_tables
+    from scipy.stats import t as student
+    rng = np.random.default_rng(7)
+    z = student.rvs(df=6, size=300_000, random_state=rng) * 1.3 + 0.4          # excess kurtosis 3, mean 0.4, sd 1.3*sqrt(1.5)
+    z = z[:, None]
+    tab_emp = marginal_tables(z)
+    zc = z - z.mean(0); kurt = (zc ** 4).mean(0) / (zc ** 2).mean(0) ** 2 - 3
+    tab_fit = matched_tables(z.mean(0), z.std(0), kurt)
+    inner = np.abs(GRID_ABS := np.linspace(-5, 5, 1001)) < 3
+    assert np.abs(tab_fit[0][inner] - tab_emp[0][inner]).max() < 0.15
