@@ -956,9 +956,10 @@ accuracy moving by $-0.1$ to $+0.3$ points uncorrelated with the width
 gained. The counterfactual is an upper bound that a soft penalty
 approaches by half, in the layers it names, and that an exact isometry
 reaches: with every kernel orthogonalised by construction
-\cite{huang2020oni} (erank $1.00$), VGG-16 lands within $0.02$ of the
-prediction on three seeds, realising $0.91$ of the predicted gain at
-$-0.16$ points (P-d5.1--4; supplement, Table~S10).
+\cite{huang2020oni} (erank $1.00$), both networks land within $0.03$ of
+the prediction on three seeds each, realising $0.91$--$1.04$ of the
+predicted gain at $-0.16$ and $-0.10$ points (P-d5.1--4; supplement,
+Table~S10).
 
 
 \subsection{Widths Read from the Covariance, Used Three Ways}
@@ -994,9 +995,7 @@ layer \emph{consumes}, and the ReLU raises the rank where the input is a
 low-rank RGB patch ($14$--$15$ directions at the first convolution, $47$--$48$
 after its ReLU). On CIFAR-100 the ruler removes $1\%$ after the ReLU
 (and, at the convolution output, $13\%$ at a cost of $0.59$; P9.14 fails).
-The retrained network does not fill the widths it was built at ($0.85$ of
-$r_{\max}$ against $0.74$): the count is re-made by training, not
-inherited.
+
 
 \emph{Folded without retraining.} The same widths can be imposed on the
 trained network directly: keep the $k^*(0.999)$ channels chosen by greedy
@@ -1059,11 +1058,10 @@ task does.
 \emph{ImageNet-1k (plan Section~9.11).} ResNet-18 from scratch under the
 \texttt{torchvision} reference recipe, two seeds per arm: the ruler names
 the full width (every site but the stem at $0.98$--$1.00$, the stem $44$ of
-$64$), the ruler arm keeps $99.2\%$ of the parameters, P9.29 holds by its
-letter ($69.00$ against $68.84$) and P9.30 does not, and the three arms
-differ by less than the $0.60$ points between the two full-width seeds:
-the experiment tests nothing about allocation because the ruler found
-nothing to allocate (supplement, Table~S16).
+$64$), the ruler arm keeps $99.2\%$ of the parameters, P9.29 holds by
+its letter, P9.30 does not, and the three arms differ by less than the
+$0.60$ points between the full-width seeds: the ruler found nothing to
+allocate (supplement, Table~S16).
 
 \emph{Where the idle width is (plan Sections~9.12, 9.13).} After the ReLU
 at $\tau = 0.999$ the ruler removes a third of VGG-16's parameters on

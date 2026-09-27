@@ -1,3 +1,7 @@
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/numpy/_core/fromnumeric.py:3862: RuntimeWarning: Mean of empty slice
+  return _methods._mean(a, axis=axis, dtype=dtype,
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/numpy/_core/_methods.py:142: RuntimeWarning: invalid value encountered in scalar divide
+  ret = ret.dtype.type(ret / rcount)
 loaded 22 layer tables from ../results
 duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
 
@@ -54,7 +58,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     layer4.0    2048     1.07     1.07  0.998
     layer4.1    2048     1.06     1.06  1.000
     layer4.2    2048     1.06     1.06  0.996
-  wrote ../paper/table_models.tex
 
 ========================================================================
 1. r_max as the denominator, on every checkpoint
@@ -254,7 +257,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       (DenseNet-121's jitter is the 1x1/3x3 alternation of its dense
        layers, which is structural; its ratio is below 1 with either
        denominator and is reported as such)
-  wrote ../paper/table_pooling.tex
 
 ========================================================================
 3b. Layers whose k*(.95)/C had not flattened at n/C = 250 (|delta| > 0.02)
@@ -468,7 +470,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   look at its per-checkpoint levels before saying anything about it.
   VGG-16's two checkpoints are with and without BN, so its T-T compares
   two architectures.
-  wrote ../paper/table_families.tex
 
 ========================================================================
 9. When does the profile become the trained one?  CIFAR-10 trajectories
@@ -710,38 +711,59 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     model                                    L n/d min    tau    out kernel  data ortho  rho(kern) rho(data) rho(ortho)  ortho>out  |out-meas|
     resnet18                                20      67  0.950   0.53   0.75  1.00  0.80      +0.81     +0.41      +0.67    19/20              
     resnet18                                20      67  0.999   0.96   0.99  1.00  1.00      +0.86     +0.34      +0.58    20/20              
+    resnet18_random                         20      67  0.950   0.44   0.91  1.00  0.47      +0.74     +0.78      +0.99    20/20              
+    resnet18_random                         20      67  0.999   0.98   1.00  1.00  0.98      +0.46     +0.70      +0.93    16/20              
     resnet50                                53      67  0.950   0.42   0.69  1.00  0.76      +0.88     +0.32      +0.84    52/53         0.004
     resnet50                                53      67  0.999   0.93   0.99  1.00  1.00      +0.90     +0.36      +0.75    53/53              
     resnet50_random                         53      67  0.950   0.20   0.86  0.28  0.22      +0.44     +0.94      +0.99    45/53              
     resnet50_random                         53      67  0.999   0.88   1.00  1.00  0.91      +0.45     +0.83      +0.96    49/53              
     timm:densenet121.tv_in1k               120     267  0.950   0.70   0.84  1.00  0.87      +0.97     +0.50      +0.97   119/120        0.008
     timm:densenet121.tv_in1k               120     267  0.999   0.99   1.00  1.00  1.00      +0.84     +0.40      +0.66    65/120             
+    timm:densenet121.tv_in1k_random        120     267  0.950   0.43   0.90  1.00  0.46      +0.92     +0.91      +0.99    81/120             
+    timm:densenet121.tv_in1k_random        120     267  0.999   0.98   1.00  1.00  0.98      +0.61     +0.39      +0.99    62/120             
     timm:efficientnet_b0.ra_in1k            33     267  0.950   0.70   0.86  0.89  0.82      +0.46     +0.78      +0.82    31/33         0.005
     timm:efficientnet_b0.ra_in1k            33     267  0.999   0.99   1.00  1.00  1.00      +0.31     +0.56      +0.59    16/33              
+    timm:efficientnet_b0.ra_in1k_random     33     267  0.950   0.56   0.89  0.67  0.62      +0.21     +0.74      +0.98    31/33              
+    timm:efficientnet_b0.ra_in1k_random     33     267  0.999   0.98   1.00  1.00  0.99      +0.30     +0.50      +0.53    22/33              
     timm:mobilenetv3_large_100.ra_in1k      31     320  0.950   0.67   0.82  0.88  0.80      +0.70     +0.67      +0.75    30/31         0.006
     timm:mobilenetv3_large_100.ra_in1k      31     320  0.999   0.97   1.00  1.00  1.00      +0.57     +0.57      +0.60    25/31              
+    timm:mobilenetv3_large_100.ra_in1k_random  31     320  0.950   0.28   0.85  0.36  0.31      +0.50     +0.69      +0.91    26/31              
+    timm:mobilenetv3_large_100.ra_in1k_random  31     320  0.999   0.88   1.00  0.97  0.93      +0.25     +0.24      +0.91    30/31              
     timm:resnet34.a1_in1k                   36      67  0.950   0.62   0.82  1.00  0.82      +0.57     +0.42      +0.83    36/36         0.008
     timm:resnet34.a1_in1k                   36      67  0.999   0.98   1.00  1.00  1.00      +0.45     +0.49      +0.71    34/36              
+    timm:resnet34.a1_in1k_random            36      67  0.950   0.41   0.91  1.00  0.43      +0.68     +0.91      +0.99    34/36              
+    timm:resnet34.a1_in1k_random            36      67  0.999   0.98   1.00  1.00  0.98      +0.44     +0.56      +0.93    31/36              
     timm:resnet50.a1_in1k                   53      67  0.950   0.52   0.77  1.00  0.75      +0.88     +0.28      +0.82    50/53         0.008
     timm:resnet50.a1_in1k                   53      67  0.999   0.95   0.99  1.00  0.99      +0.70     +0.51      +0.82    52/53              
+    timm:resnet50.a1_in1k_random            53      67  0.950   0.35   0.86  0.41  0.39      +0.78     +0.93      +0.99    51/53              
+    timm:resnet50.a1_in1k_random            53      67  0.999   0.88   1.00  1.00  0.92      +0.52     +0.72      +0.94    49/53              
     timm:resnet50.tv2_in1k                  53      67  0.950   0.50   0.73  1.00  0.77      +0.84     +0.24      +0.76    52/53         0.008
     timm:resnet50.tv2_in1k                  53      67  0.999   0.95   0.99  1.00  0.99      +0.77     +0.47      +0.74    53/53              
     vgg16_bn                                13      67  0.950   0.42   0.73  1.00  0.76      +0.97     +0.63      +0.88    12/13              
     vgg16_bn                                13      67  0.999   0.95   0.98  1.00  0.99      +0.90     +0.46      +0.80    13/13              
+    vgg16_bn_random                         13      67  0.950   0.24   0.90  0.46  0.24      +0.36     +0.98      +0.98    11/13              
+    vgg16_bn_random                         13      67  0.999   0.95   1.00  1.00  0.96      -0.68     +0.46      +0.98    12/13              
 
   Proposition 1 check (Ostrowski ratios in [s_min^2, s_max^2]; k*_out(tau) <= k*_ortho(tau')):
     model                                    L null dirs ostrowski bound .95 bound .999 informative .95 kappa med
     resnet18                                20         1        20        20         20               5       8.8
+    resnet18_random                         20         0        20        20         20              20       2.0
     resnet50                                53         6        53        53         53              21      10.6
     resnet50_random                         53         0        53        53         53              52       2.9
     timm:densenet121.tv_in1k               120         5       119       120        120              14       5.0
+    timm:densenet121.tv_in1k_random        120         0       120       120        120             120       2.1
     timm:efficientnet_b0.ra_in1k            33         0        33        33         33              26       4.3
+    timm:efficientnet_b0.ra_in1k_random     33         0        33        33         33              32       2.3
     timm:mobilenetv3_large_100.ra_in1k      31         0        31        31         31              15       5.5
+    timm:mobilenetv3_large_100.ra_in1k_random  31         0        31        31         31              30       3.5
     timm:resnet34.a1_in1k                   36         1        36        36         36              28       6.8
+    timm:resnet34.a1_in1k_random            36         0        36        36         36              36       2.0
     timm:resnet50.a1_in1k                   53         5        53        53         53              46       9.8
+    timm:resnet50.a1_in1k_random            53         0        53        53         53              52       2.9
     timm:resnet50.tv2_in1k                  53         1        53        53         53              37       9.7
     vgg16_bn                                13         5        13        13         13               2     269.6
-    TOTAL                                  465                 464       465        465             246
+    vgg16_bn_random                         13         0        13        13         13              13       2.0
+    TOTAL                                  771                 770       771        771             549
     (a layer with numerically null kernel directions has kappa set by the tolerance;
      the bound then degenerates to r_max and 'informative' counts layers where it does not)
 
@@ -825,16 +847,22 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
 ========================================================================
 13. Round 3, orthogonality penalties vs the analytic prediction (analysis-plan 9.2)
 ========================================================================
-  For each penalty arm (so, srip), per layer: measured k*(0.95)/r_max of the
+  For each penalty arm (so, srip) and the exact-isometry arm (oni, D5 2026-09-24), per layer: measured k*(0.95)/r_max of the
   penalised network vs the 'ortho' counterfactual of the matching no-penalty
-  network (same arch, same seed).  P9.3: median |diff| < 0.1 for SO; P9.4: SRIP does not.
+  network (same arch, same seed).  P9.3: median |diff| < 0.1 for SO; P9.4: SRIP does not; P-d5.1: ONI within 0.1.
     arch      arm   seed   L  out none out pen   pred  |out-pred|   gain pred gain rho(gain,pred)  ortho pen  kernel erank n->p  data erank n->p  data k*.999 n->p  out.999 n->p->pred       acc n->p
+    basic52   oni      0  41     0.359   0.711  0.734       0.023 +0.359    +0.344          +0.83      0.711     0.534 -> 1.000   1.000 -> 1.000   1.000 -> 1.000  0.891 -> 0.996 -> 0.996  95.33 -> 95.49
+    basic52   oni      1  41     0.359   0.734  0.734       0.031 +0.359    +0.359          +0.87      0.734     0.525 -> 1.000   1.000 -> 1.000   1.000 -> 1.000  0.895 -> 0.996 -> 0.996  95.55 -> 95.09
+    basic52   oni      2  41     0.375   0.719  0.742       0.023 +0.336    +0.359          +0.86      0.719     0.529 -> 1.000   1.000 -> 1.000   1.000 -> 1.000  0.895 -> 0.996 -> 0.996  95.47 -> 95.48
     basic52   so       0  41     0.359   0.562  0.734       0.172 +0.172    +0.344          +0.75      0.758     0.534 -> 0.845   1.000 -> 1.000   1.000 -> 1.000  0.891 -> 0.977 -> 0.996  95.33 -> 95.39
     basic52   so       1  41     0.359   0.562  0.734       0.168 +0.180    +0.359          +0.68      0.758     0.525 -> 0.837   1.000 -> 1.000   1.000 -> 1.000  0.895 -> 0.977 -> 0.996  95.55 -> 95.51
     basic52   so       2  41     0.375   0.547  0.742       0.180 +0.160    +0.359          +0.72      0.750     0.529 -> 0.835   1.000 -> 1.000   1.000 -> 1.000  0.895 -> 0.977 -> 0.996  95.47 -> 95.40
     basic52   srip     0  41     0.359   0.531  0.734       0.172 +0.148    +0.344          -0.14      0.758     0.534 -> 0.832   1.000 -> 1.000   1.000 -> 1.000  0.891 -> 0.980 -> 0.996  95.33 -> 95.37
     basic52   srip     1  41     0.359   0.539  0.734       0.180 +0.148    +0.359          -0.14      0.758     0.525 -> 0.812   1.000 -> 1.000   1.000 -> 1.000  0.895 -> 0.980 -> 0.996  95.55 -> 95.57
     basic52   srip     2  41     0.375   0.547  0.742       0.164 +0.172    +0.359          -0.06      0.754     0.529 -> 0.830   1.000 -> 1.000   1.000 -> 1.000  0.895 -> 0.984 -> 0.996  95.47 -> 95.40
+    vgg16_bn  oni      0   8     0.356   0.684  0.714       0.021 +0.285    +0.312          +0.95      0.684     0.555 -> 1.000   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.992 -> 0.993  93.83 -> 93.41
+    vgg16_bn  oni      1   8     0.342   0.689  0.715       0.021 +0.291    +0.314          +0.95      0.689     0.556 -> 1.000   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.992 -> 0.993  93.74 -> 93.84
+    vgg16_bn  oni      2   8     0.350   0.688  0.713       0.023 +0.285    +0.309          +0.98      0.688     0.563 -> 1.000   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.992 -> 0.993  93.74 -> 93.58
     vgg16_bn  so       0   8     0.356   0.525  0.714       0.154 +0.156    +0.312          +0.91      0.733     0.555 -> 0.849   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.976 -> 0.993  93.83 -> 94.14
     vgg16_bn  so       1   8     0.342   0.526  0.715       0.154 +0.158    +0.314          +0.81      0.734     0.556 -> 0.849   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.976 -> 0.993  93.74 -> 93.87
     vgg16_bn  so       2   8     0.350   0.526  0.713       0.156 +0.145    +0.309          +0.93      0.730     0.563 -> 0.848   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.976 -> 0.993  93.74 -> 93.74
@@ -843,8 +871,10 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     vgg16_bn  srip     2   8     0.350   0.418  0.713       0.219 +0.074    +0.309          -0.06      0.722     0.563 -> 0.795   1.000 -> 1.000   1.000 -> 1.000  0.911 -> 0.951 -> 0.993  93.74 -> 93.64
   SO: median |out - prediction| over arms = 0.162  -> not within 0.1
   SRIP: median |out - prediction| over arms = 0.198  -> not within 0.1
-  P9.5 (gain vs accuracy change, 12 runs): Spearman rho = +0.15; accuracy change -0.10..+0.31 points  -> no monotone relation (|rho| < 0.5)
-  Fraction of the predicted gain realised, median over runs: 0.46 (range 0.24..0.50)
+  ONI: median |out - prediction| over arms = 0.023  -> within 0.1 (prediction holds)
+  P9.5 (gain vs accuracy change, 18 runs): Spearman rho = -0.07; accuracy change -0.46..+0.31 points  -> no monotone relation (|rho| < 0.5)
+  Fraction of the predicted gain realised, median over runs: 0.50 (range 0.24..1.05)
+  wrote ../paper/table_ortho.tex
 
 ========================================================================
 15. Ablations of the protocol on ResNet-50 V1 (A11-A15): k*(0.95)/r_max profile vs the reference run
@@ -877,19 +907,19 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
 
   cifar10 (plan 9.5); widths: [14, 47, 107, 121, 238, 247, 249, 456, 376, 261, 40, 40, 40]
     arm       n      params            acc per seed    mean  final k*(.999)/r_max med
-    full      3  14,728,266       93.83 93.74 93.74   93.77                     0.738
-    ruler     3   5,087,969       93.62 93.37 93.66   93.55                     0.850
-    uniform   3   4,995,278       93.31 92.91 93.37   93.20                     0.919
+    full      5  14,728,266  93.83 93.74 93.74 93.90 93.89   93.82                     0.734
+    ruler     5   5,087,969  93.62 93.37 93.66 93.74 93.45   93.57                     0.850
+    uniform   5   4,995,278  93.31 92.91 93.37 93.37 92.82   93.16                     0.919
     ruler95   3     634,692       91.44 91.95 91.47   91.62                     0.979
-    ruler_act  3   9,915,277       93.80 93.87 93.85   93.84                     0.753
+    ruler_act  5   9,915,277  93.80 93.87 93.85 93.81 93.96   93.86                     0.753
 
-  P9.6 (ruler within 0.3 of full, no seed below full-0.5): diff -0.22, min ruler 93.37 vs full-0.5 93.27 -> SUPPORTED
-     (seed spread: full 0.09, ruler 0.29)
-  P9.7 (all uniform below all ruler): uniform max 93.37 vs ruler min 93.37 -> NOT supported  [pairs: ruler higher 8/9, ties 1; means 93.55 vs 93.20, diff +0.35]
-  P9.8 (ruler95 loses >= 1.0 point): +2.15 -> SUPPORTED
+  P9.6 (ruler within 0.3 of full, no seed below full-0.5): diff -0.25, min ruler 93.37 vs full-0.5 93.32 -> SUPPORTED
+     (seed spread: full 0.16, ruler 0.37)
+  P9.7 (all uniform below all ruler): uniform max 93.37 vs ruler min 93.37 -> NOT supported  [pairs: ruler higher 23/25, ties 2; means 93.57 vs 93.16, diff +0.41]
+  P9.8 (ruler95 loses >= 1.0 point): +2.20 -> SUPPORTED
   P9.9 (exploratory; ruler arm filled: median k*(.999)/r_max >= 0.9): 0.850 -> no
-  P9.17 (plan 9.8; ruler_act within 0.3 of full, no seed below full-0.5): diff +0.07, min 93.80 vs 93.27 -> SUPPORTED; params 0.673 of full, counts
-  P9.18 (ruler_act mean above ruler mean; C-100 also all 3 above all 3): 93.84 vs 93.55 -> yes; all-above-all yes
+  P9.17 (plan 9.8; ruler_act within 0.3 of full, no seed below full-0.5): diff +0.04, min 93.80 vs 93.32 -> SUPPORTED; params 0.673 of full, counts
+  P9.18 (ruler_act mean above ruler mean; C-100 also all 3 above all 3): 93.86 vs 93.57 -> yes; all-above-all yes
 
   cifar100 (plan 9.7); widths: [15, 48, 101, 116, 226, 238, 244, 466, 481, 489, 472, 484, 490]
     arm       n      params            acc per seed    mean  final k*(.999)/r_max med
@@ -914,28 +944,29 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   < 0: the kernel suppresses the data's high-variance directions (compressive).
 
     checkpoint                                 L  median  neg/pos   p(neg)   p(pos)
+    resnet18_random                           20   +0.04   7/13       0.94     0.13
+    timm_densenet121.tv_in1k_random          120   -0.03  70/50      0.041     0.97
+    timm_efficientnet_b0.ra_in1k_random       33   -0.02  19/14       0.24     0.85
+    timm_mobilenetv3_large_100.ra_in1k_random  31   +0.04  13/18       0.86     0.24
+    timm_resnet34.a1_in1k_random              36   -0.01  20/16       0.31      0.8
+    timm_resnet50.a1_in1k_random              53   -0.01  28/25       0.39     0.71
+    vgg16_bn_random                           13   +0.02   5/8        0.87     0.29
     convnext_tiny                              4   +0.89   0/4           1    0.062
     convnext_tiny_random                       4   -0.06   3/1        0.31     0.94
     resnet18                                  20   +0.81   1/19          1    2e-05
-    resnet18_random                           20   +0.04   7/13       0.94     0.13
     resnet50                                  53   +0.95   1/52          1    6e-15
     resnet50_random                           53   -0.02  29/24       0.29     0.79
     timm_convnext_tiny.fb_in22k_ft_in1k        4   +0.92   0/4           1    0.062
     timm_convnext_tiny.fb_in22k_ft_in1k_random   4   -0.06   3/1        0.31     0.94
     timm_densenet121.tv_in1k                 120   +0.83  13/107         1  7.5e-20
-    timm_densenet121.tv_in1k_random          120   -0.03  70/50      0.041     0.97
     timm_efficientnet_b0.ra_in1k              33   +0.61  14/19       0.85     0.24
-    timm_efficientnet_b0.ra_in1k_random       33   -0.02  19/14       0.24     0.85
     timm_mobilenetv2_100.ra_in1k              35   +0.11  16/19       0.75     0.37
     timm_mobilenetv2_100.ra_in1k_random       35   -0.04  20/15       0.25     0.84
     timm_mobilenetv3_large_100.ra_in1k        31   +0.28  10/21       0.99    0.035
-    timm_mobilenetv3_large_100.ra_in1k_random  31   +0.04  13/18       0.86     0.24
     timm_resnet101.tv_in1k                   104   +0.97   1/103         1  5.2e-30
     timm_resnet101.tv_in1k_random            104   -0.00  54/50       0.38     0.69
     timm_resnet34.a1_in1k                     36   +0.83   1/35          1  5.4e-10
-    timm_resnet34.a1_in1k_random              36   -0.01  20/16       0.31      0.8
     timm_resnet50.a1_in1k                     53   +0.86   3/50          1  2.8e-12
-    timm_resnet50.a1_in1k_random              53   -0.01  28/25       0.39     0.71
     timm_resnet50.a3_in1k                     53   +0.94   2/51          1  1.6e-13
     timm_resnet50.a3_in1k_random              53   -0.01  28/25       0.39     0.71
     timm_resnet50.fb_ssl_yfcc100m_ft_in1k     53   +0.86   2/51          1  1.6e-13
@@ -953,7 +984,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     timm_wide_resnet50_2.tv_in1k              53   +0.98   0/53          1  1.1e-16
     timm_wide_resnet50_2.tv_in1k_random       53   -0.00  27/26        0.5     0.61
     vgg16_bn                                  13   +0.96   0/13          1  0.00012
-    vgg16_bn_random                           13   +0.02   5/8        0.87     0.29
     a2_basic52_s0                             52   +0.97   0/52          1  2.2e-16
     a2_basic52_s1                             52   +0.96   0/52          1  2.2e-16
     a2_basic52_s2                             52   +0.97   0/52          1  2.2e-16
@@ -1130,7 +1160,6 @@ layer4 conv1       0.97   0.51
     attention proj.    T-R rho +0.94; level 0.31 -> 0.01 (random)
     MLP fc1            T-R rho +0.98; level 0.38 -> 0.16 (random)
     MLP fc2            T-R rho +0.46; level 0.50 -> 0.25 (random)
-  wrote ../paper/table_vit.tex
 
 ========================================================================
 22. Estimator comparison (B10, plan section 11): the ruler against RankMe, alpha-ReQ, corrected PR, on identical layers and images
@@ -1191,7 +1220,7 @@ layer4 conv1       0.97   0.51
 23. Representation-level diagnostics of the A18 CIFAR-10 arms (analysis-plan 9.9; scripts/repr_diagnostics.py)
 ========================================================================
   6,400 seeded TEST images, one globally pooled vector per layer (Kornblith 2019 setting, not position sampling).
-  clean CIFAR-10 drop vs full (mean of 3 seeds): ruler +0.22, uniform +0.57, ruler95 +2.15, ruler_act -0.07
+  clean CIFAR-10 drop vs full (mean of 3 seeds): ruler +0.25, uniform +0.66, ruler95 +2.20, ruler_act -0.04
 
   9.9.1 per-layer linear CKA vs full seed 0 (13 post-ReLU layers); median over layers, then mean +- SD over seeds
     full       0.906 +- 0.004  seeds 0.909, 0.902 (seed ceiling: full s1, s2 vs s0)
@@ -1211,7 +1240,7 @@ layer4 conv1       0.97   0.51
     ruler95    cifar100  17.54+-0.10  stl10  74.36+-0.24  svhn  30.80+-0.87
     ruler_act  cifar100  21.35+-0.53  stl10  77.20+-0.06  svhn  38.99+-0.61
     ruler_act drop vs full: cifar100 +1.44, stl10 -0.02, svhn +2.33 -> P9.21 (all < 1.0): does not hold
-    conv-ruler drop vs full: cifar100 +4.81, stl10 +0.60, svhn +9.52; clean drop +0.22 -> P9.22 (>= 2x clean drop on >= 2 sets): 3/3 sets, HOLDS
+    conv-ruler drop vs full: cifar100 +4.81, stl10 +0.60, svhn +9.52; clean drop +0.25 -> P9.22 (>= 2x clean drop on >= 2 sets): 3/3 sets, HOLDS
 
   9.9.3 arrival epochs: rho_align (first >= 90% of final) vs representation (first layer-median CKA to final >= 0.9)
     ruler    s0: rho_align arrives 10, CKA arrives 90, schedule gap 9 --  (final rho_align 0.96)
@@ -1233,8 +1262,8 @@ layer4 conv1       0.97   0.51
     ruler95    mCA  71.67 +- 0.19
     ruler_act  mCA  74.55 +- 0.27
     ruler_act mCA drop vs full -0.49 (worst seed -0.26) -> P9.24 (< 1.0, no seed > 1.5): HOLDS
-    conv-ruler mCA drop vs full -0.15 vs 2x clean drop +0.44 -> P9.25: does not hold
-    uniform mCA drop vs full +1.66 (clean drop +0.57)
+    conv-ruler mCA drop vs full -0.15 vs 2x clean drop +0.50 -> P9.25: does not hold
+    uniform mCA drop vs full +1.66 (clean drop +0.66)
     exploratory, drop vs full by corruption family:
       ruler_act  noise -2.15  blur -0.14  weather -0.16  digital +0.10
       ruler      noise -3.00  blur +1.22  weather +0.08  digital +0.46

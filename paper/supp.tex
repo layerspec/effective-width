@@ -709,6 +709,7 @@ rests on, whether it was pre-registered, and where the numbers are.
   Training moves the bottleneck from data to kernel & random: follows data ($\rho = 0.94$); trained: follows kernel ($0.8$--$0.97$ in 6/9) & expl. & Table~\ref{tab:sdecompose}, Fig.~\ref{fig:sdecompose} \\
   Orthogonalising a trained kernel would add $\approx 0.3\,r_{\max}$ & 401/412 layers, nine checkpoints; Proposition~\ref{prop:ostrowski} & prediction & Table~\ref{tab:sdecompose} \\
   Penalised networks reach the counterfactual & P9.3 \emph{not supported}: half the predicted gain (SO $0.50$, SRIP $0.24$--$0.43$); kernels not isometric (erank $0.80$--$0.85$) & pre-reg. (round 3) & Table~\ref{tab:sortho} \\
+  An exact isometry reaches the counterfactual & P-d5.1--4: ONI kernels (erank $1.00$) land within $0.021$--$0.031$ of the prediction on VGG-16 and basic $[6,6,6,6]$, three seeds each, realising $0.91$--$1.04$ of the predicted gain & pre-reg. (plan 9.2 addendum); yes & Table~\ref{tab:sortho} \\
   SO gains follow the predicted layer order, SRIP's do not & $\rho$(gain, pred.) $0.72$, $0.91$ vs $-0.14$, $-0.19$ (P9.4) & pre-reg. (round 3) & Table~\ref{tab:sortho} \\
   Width gained is unrelated to accuracy & P9.5: 12 runs, $\rho = 0.15$, accuracy within $\pm 0.3$ points & pre-reg. (round 3) & Table~\ref{tab:sortho} \\
   Trained kernels suppress the input's principal directions ($\rho_{\rm align} < 0$) & P9.10 as registered: 0/48 & pre-reg., not supported & Sec.~\ref{sec:decompose} \\
