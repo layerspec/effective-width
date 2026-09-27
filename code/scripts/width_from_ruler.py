@@ -176,6 +176,7 @@ def main(argv=None) -> int:
     p.add_argument("--per-class", type=int, default=None, help="plan 9.12: per-class cap used in training")
     p.add_argument("--class-ids", type=int, nargs="+", default=None,
                    help="plan 9.15: ImageNet label indices the checkpoint was trained on (its ten-class task)")
+    p.add_argument("--no-gate", action="store_true", help="smoke tests: do not stop when a layer fails the n/C gate")
     p.add_argument("--tensor", choices=("conv", "act"), default="conv",
                    help="read k* at the conv output (default; the paper's ruler) or after the ReLU, "
                         "the tensor the next layer consumes (analysis-plan 9.8, arm ruler_act)")
@@ -196,9 +197,11 @@ def main(argv=None) -> int:
         model = rw.build_resnet18_widths(rw.RESNET18_WIDTHS, num_classes,
                                          "imagenet" if a.dataset == "imagenet" else "cifar")
     else:
-        if a.dataset == "imagenet":
-            raise SystemExit("--dataset imagenet is only defined for --arch resnet18")
-        model = build_vgg16_bn_cifar(num_classes, "small")
+        if a.dataset == "imagenet":                       # plan 9.16: torchvision VGG-16 (BN) with the ImageNet head
+            from scripts.vgg_imagenet import build_vgg16_bn_imagenet
+            model = build_vgg16_bn_imagenet(num_classes=num_classes)
+        else:
+            model = build_vgg16_bn_cifar(num_classes, "small")
     sd = torch.load(a.checkpoint, map_location="cpu", weights_only=False)
     sd = sd["model"] if isinstance(sd, dict) and "model" in sd else sd
     if a.arch == "resnet18" and sd["fc.weight"].shape[0] != num_classes:   # e.g. a smoke-test subset
@@ -210,19 +213,27 @@ def main(argv=None) -> int:
                              seed=a.seed)
     if a.arch == "resnet18":
         return write_resnet18(a, prof, num_classes)
-    conv = prof.table[prof.table.kind == a.tensor].sort_values("depth_index").reset_index(drop=True)
+    tab = prof.table
+    if a.dataset == "imagenet":      # the ImageNet head has two more ReLUs after its linear layers: keep the conv stack only
+        tab = tab[tab.layer.str.startswith("features.")]
+    conv = tab[tab.kind == a.tensor].sort_values("depth_index").reset_index(drop=True)
     if a.tensor == "act":      # the bound is the conv's; carry it over for the printout
-        rm = prof.table[prof.table.kind == "conv"].sort_values("depth_index")["r_max"].to_numpy()
+        rm = tab[tab.kind == "conv"].sort_values("depth_index")["r_max"].to_numpy()
         conv["r_max"] = rm[: len(conv)]
     if len(conv) != 13:
         raise SystemExit(f"expected 13 conv layers, measured {len(conv)}")
-    if not conv["ok"].all():
+    if not conv["ok"].all() and not a.no_gate:
         raise SystemExit("a layer fails the n/C >= 50 gate; use more images:\n" + "\n".join(prof.warnings()))
 
     ruler = [max(MIN_WIDTH, math.ceil(k)) for k in conv["k_star_0.999"]]
     ruler95 = [max(MIN_WIDTH, math.ceil(k)) for k in conv["k_star_0.95"]]
-    full_n, ruler_n, ruler95_n = n_params(VGG16_WIDTHS, num_classes), n_params(ruler, num_classes), n_params(ruler95, num_classes)
-    uniform, uniform_n, factor = uniform_widths_matching(ruler_n, num_classes=num_classes)
+    if a.dataset == "imagenet":
+        from scripts.vgg_imagenet import n_params as _np_img
+        np_ = lambda w: _np_img(w, num_classes)                                  # noqa: E731
+    else:
+        np_ = lambda w: n_params(w, num_classes)                                 # noqa: E731
+    full_n, ruler_n, ruler95_n = np_(VGG16_WIDTHS), np_(ruler), np_(ruler95)
+    uniform, uniform_n, factor = uniform_widths_matching(ruler_n, num_classes=num_classes) if a.dataset != "imagenet" else (list(ruler), ruler_n, float("nan"))
 
     print(f"{'layer':12s} {'C':>4s} {'r_max':>5s} {'n/C':>6s} {'k*.95':>6s} {'k*.999':>7s}  ruler  ruler95  uniform")
     for i, r in conv.iterrows():

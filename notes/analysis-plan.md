@@ -499,6 +499,28 @@ ResNet-50 六個公開配方的重排（T–R −0.08）歸因於「資料集或
   (iv) 退回「VGG-16 CIFAR-10 的觀察」，論文照報。P9.37 不成立而 P9.36 成立 → 閒置也在前段，與 VGG 不同型，照報。
 - **只有三種子、單一架構**；統計只作描述。準確率不承重（十類 Imagenette 從頭訓約 90%+）。
 
+### 9.16 plain 對殘差：VGG-16 於十類 ImageNet（A27；2026-09-27 寫，資料未見；§9.15 seed 0 的事後解讀之證偽實驗）
+
+§9.15 的 seed 0：ResNet-18 在十類 ImageNet（Imagenette）上後段讀滿（stage-4 內部 0.95／0.99、參數保留 0.95、top-1 92.4）——P9.36、P9.38
+**不成立**（seed 1–2 在跑）。合看 VGG-16 CIFAR-10（閒置 33%）、ResNet-20 CIFAR-10（讀滿）、ResNet-18 十類 ImageNet（讀滿）：
+**事後解讀**是「閒置寬度是 plain 網路的終端塌縮，殘差流保秩」（Daneshmand 2020／Feng 2022 的秩隨深度塌縮在有 skip 時不發生，是已知機制），
+而不是 09-25 E1 寫的「後段層寬超出終端維度」。這個解讀在事前登記一個能證偽它的實驗：
+
+- **設計**：VGG-16 (BN)（torchvision 定義、ImageNet 頭、13 個 conv）從頭訓練同一個 Imagenette 十類，與 §9.15 **完全相同的配方**
+  （SGD 0.9、batch 256、lr 0.1、wd 1e-4、300 epoch、lr 於 100／200 降、RRC＋flip），三種子；訓練後讀 ReLU 後 τ=0.999 的尺（6,400 張自己的
+  訓練影像、16 位置，VGG 的 13 層規則）。程式：`train_imagenet_r18.py --arch vgg16_bn`、`width_from_ruler.py --arch vgg16_bn --dataset imagenet`
+  （`scripts/vgg_imagenet.py` 寬度參數化的 torchvision VGG；`tests/test_vgg_imagenet.py`）、`run_a27_vgg_imagenet10_pod.sh`。
+  成本：每種子約 1.2 h（VGG-16 於 224、batch 256、AMP），三種子約 US$3；排在 A26 之後、A17 續跑之前。
+- **預測**：
+  - **P9.39**：VGG-16 的最後三個 conv（ReLU 後）k*(0.999)/C < 0.7，3/3 種子（plain 網路在十類、224 解析度上塌縮；CIFAR-10 是 0.30）。
+  - **P9.40**：尺保留參數 < 0.85（ResNet-18 同任務 0.95）。
+  - **P9.41**：前五層 ≥ 0.9（塌縮在後段）。
+- **判定與後果**：P9.39 且 P9.40 成立 → (iv) 寫成「a plain network's late layers collapse to what a few-class task uses; a residual stream does not」，
+  兩個資料點（CIFAR-10、Imagenette）× 兩種拓樸，Fig. S7 加點、主張表一列；E1 的「終端維度」措辭撤回為「plain 網路的終端塌縮」。
+  P9.39 不成立（VGG-16 在 224 上也讀滿）→ 閒置寬度只在 32×32 CIFAR 上出現，(iv) 退回「VGG-16 CIFAR-10 的觀察」，論文照報、A24／A25 的類別數
+  單調仍保留為該設定內的事實。
+- 三種子、單一任務；統計只作描述。
+
 ## 10. 第三輪結果（2026-09-09；`results/checkpoint_analysis.txt` §12–§13、`results/round3*/`）
 
 24 個 run（RunPod 3090，2026-09-08）全部跑完 100 epoch；判定依 §9 的規則，資料見過之前的規則一字未改。

@@ -117,6 +117,8 @@ def main(argv=None) -> int:
     p = argparse.ArgumentParser(description=__doc__.split("\n")[0])
     p.add_argument("--data", required=True, help="folder with train/ and val/ (scripts/fetch_imagenet.py)")
     p.add_argument("--out", required=True)
+    p.add_argument("--arch", choices=("resnet18", "vgg16_bn"), default="resnet18",
+                   help="vgg16_bn (plan 9.16): torchvision VGG-16 (BN) with the ImageNet head, 13 widths, no controller")
     p.add_argument("--widths", type=int, nargs=13, default=None, metavar="W")
     p.add_argument("--epochs", type=int, default=90)
     p.add_argument("--batch-size", type=int, default=256)
@@ -145,6 +147,15 @@ def main(argv=None) -> int:
     a = p.parse_args(argv)
     if a.realloc_budget is not None and a.widths is not None:
         p.error("--realloc-budget starts from the full network; do not combine with --widths")
+    if a.realloc_budget is not None and a.arch != "resnet18":
+        p.error("--realloc-budget is implemented for --arch resnet18")
+    if a.arch == "vgg16_bn":
+        from scripts.vgg_imagenet import VGG16_WIDTHS as _VGGW, build_vgg16_bn_imagenet as _build_vgg
+        build = lambda w, nc: _build_vgg(w, nc)                         # noqa: E731
+        default_widths = list(_VGGW)
+    else:
+        build = lambda w, nc: build_resnet18_widths(w, nc, "imagenet")  # noqa: E731
+        default_widths = list(RESNET18_WIDTHS)
 
     os.makedirs(a.out, exist_ok=True)
     torch.manual_seed(a.seed)
@@ -152,15 +163,15 @@ def main(argv=None) -> int:
     train_loader, val_loader, num_classes = loaders(a.data, a.batch_size, a.workers, a.seed, a.crop, a.class_ids)
     state_path, csv_path = os.path.join(a.out, "resume.pt"), os.path.join(a.out, "epochs.csv")
     rl_path = os.path.join(a.out, "realloc.json")
-    widths = list(a.widths) if a.widths is not None else list(RESNET18_WIDTHS)
+    widths = list(a.widths) if a.widths is not None else list(default_widths)
     if os.path.exists(state_path):                        # a controller run resumes at the widths it had reached
         saved = torch.load(state_path, map_location="cpu", weights_only=False).get("widths")
         if saved is not None:
             widths = [int(w) for w in saved]
-    model = build_resnet18_widths(widths, num_classes, "imagenet").to(a.device).to(memory_format=torch.channels_last)
+    model = build(widths, num_classes).to(a.device).to(memory_format=torch.channels_last)
 
     from scripts.realloc_controller import model_macs, module_hw
-    _full = build_resnet18_widths(list(RESNET18_WIDTHS), num_classes, "imagenet")
+    _full = build(default_widths, num_classes)
     full_params = sum(q.numel() for q in _full.parameters())
     full_macs = model_macs(_full, module_hw(_full, torch.zeros(1, 3, a.crop, a.crop)))
     del _full
@@ -261,7 +272,7 @@ def main(argv=None) -> int:
     n_params = sum(q.numel() for q in model.parameters())
     n_macs = macs(model, (224, 224))
     best = max(history, key=lambda r: r["top1"]) if history else {}
-    result = {"widths": widths, "params": n_params, "macs_224": n_macs, "seed": a.seed, "epochs": a.epochs,
+    result = {"arch": a.arch, "widths": widths, "params": n_params, "macs_224": n_macs, "seed": a.seed, "epochs": a.epochs,
               "crop": a.crop, "full_params": full_params, "params_fraction": n_params / full_params,
               "class_ids": a.class_ids, "num_classes": num_classes, "n_train": len(train_loader.dataset),
               "recipe": {"optimizer": "SGD", "momentum": 0.9, "lr": a.lr, "wd": a.wd, "batch_size": a.batch_size,
