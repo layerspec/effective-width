@@ -1,0 +1,302 @@
+{
+  "checkpoint": "../results/a26/resnet18_in10_s2/final.pt",
+  "n_images": 6400,
+  "positions": 16,
+  "seed": 0,
+  "split": "train",
+  "min_width": 8,
+  "arch": "resnet18",
+  "stem": "imagenet",
+  "width_order": [
+    "stem",
+    "s1_out",
+    "s1_mid0",
+    "s1_mid1",
+    "s2_out",
+    "s2_mid0",
+    "s2_mid1",
+    "s3_out",
+    "s3_mid0",
+    "s3_mid1",
+    "s4_out",
+    "s4_mid0",
+    "s4_mid1"
+  ],
+  "rule": "plan 9.11: stem/mid after ReLU; stage out = max over blocks after add+ReLU",
+  "sites": {
+    "stem": 29.0,
+    "stage1": {
+      "block_out": [
+        57.0,
+        61.0
+      ],
+      "block_mid": [
+        61.0,
+        62.0
+      ]
+    },
+    "stage2": {
+      "block_out": [
+        127.0,
+        127.0
+      ],
+      "block_mid": [
+        125.0,
+        127.0
+      ]
+    },
+    "stage3": {
+      "block_out": [
+        254.0,
+        254.0
+      ],
+      "block_mid": [
+        252.0,
+        254.0
+      ]
+    },
+    "stage4": {
+      "block_out": [
+        506.0,
+        506.0
+      ],
+      "block_mid": [
+        502.0,
+        508.0
+      ]
+    }
+  },
+  "layers": [
+    {
+      "layer": "relu",
+      "call_index": 0,
+      "C": 64,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 12,
+      "k_star_0.999": 29
+    },
+    {
+      "layer": "layer1.0.relu",
+      "call_index": 0,
+      "C": 64,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 34,
+      "k_star_0.999": 61
+    },
+    {
+      "layer": "layer1.0.relu",
+      "call_index": 1,
+      "C": 64,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 18,
+      "k_star_0.999": 57
+    },
+    {
+      "layer": "layer1.1.relu",
+      "call_index": 0,
+      "C": 64,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 35,
+      "k_star_0.999": 62
+    },
+    {
+      "layer": "layer1.1.relu",
+      "call_index": 1,
+      "C": 64,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 27,
+      "k_star_0.999": 61
+    },
+    {
+      "layer": "layer2.0.relu",
+      "call_index": 0,
+      "C": 128,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 74,
+      "k_star_0.999": 125
+    },
+    {
+      "layer": "layer2.0.relu",
+      "call_index": 1,
+      "C": 128,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 82,
+      "k_star_0.999": 127
+    },
+    {
+      "layer": "layer2.1.relu",
+      "call_index": 0,
+      "C": 128,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 91,
+      "k_star_0.999": 127
+    },
+    {
+      "layer": "layer2.1.relu",
+      "call_index": 1,
+      "C": 128,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 90,
+      "k_star_0.999": 127
+    },
+    {
+      "layer": "layer3.0.relu",
+      "call_index": 0,
+      "C": 256,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 160,
+      "k_star_0.999": 252
+    },
+    {
+      "layer": "layer3.0.relu",
+      "call_index": 1,
+      "C": 256,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 178,
+      "k_star_0.999": 254
+    },
+    {
+      "layer": "layer3.1.relu",
+      "call_index": 0,
+      "C": 256,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 188,
+      "k_star_0.999": 254
+    },
+    {
+      "layer": "layer3.1.relu",
+      "call_index": 1,
+      "C": 256,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 182,
+      "k_star_0.999": 254
+    },
+    {
+      "layer": "layer4.0.relu",
+      "call_index": 0,
+      "C": 512,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 307,
+      "k_star_0.999": 502
+    },
+    {
+      "layer": "layer4.0.relu",
+      "call_index": 1,
+      "C": 512,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 370,
+      "k_star_0.999": 506
+    },
+    {
+      "layer": "layer4.1.relu",
+      "call_index": 0,
+      "C": 512,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 368,
+      "k_star_0.999": 508
+    },
+    {
+      "layer": "layer4.1.relu",
+      "call_index": 1,
+      "C": 512,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 318,
+      "k_star_0.999": 506
+    }
+  ],
+  "widths": {
+    "full": [
+      64,
+      64,
+      64,
+      64,
+      128,
+      128,
+      128,
+      256,
+      256,
+      256,
+      512,
+      512,
+      512
+    ],
+    "ruler": [
+      29,
+      61,
+      61,
+      62,
+      127,
+      125,
+      127,
+      254,
+      252,
+      254,
+      506,
+      502,
+      508
+    ],
+    "uniform": [
+      63,
+      63,
+      63,
+      63,
+      126,
+      126,
+      126,
+      252,
+      252,
+      252,
+      504,
+      504,
+      504
+    ]
+  },
+  "params": {
+    "full": 11181642,
+    "ruler": 10894407,
+    "uniform": 10835317
+  },
+  "macs": {
+    "full": 1813566464,
+    "ruler": 1631530424,
+    "uniform": 1759150512
+  },
+  "uniform_factor": 0.98453125,
+  "dataset": "imagenet",
+  "num_classes": 10,
+  "tensor": "act"
+}

@@ -576,3 +576,27 @@ widths [64, 64, 64, 64, 128, 128, 128, 256, 256, 256, 512, 512, 512]  params 11,
     ep 288 it 0/50 loss 0.112 180 img/s
   epoch 288/300  lr 0.0010  loss 0.095  top1 92.60  top5 98.40  (6s, 2217 img/s)
     ep 289 it 0/50 loss 0.126 264 img/s
+  epoch 289/300  lr 0.0010  loss 0.091  top1 93.00  top5 98.20  (6s, 2265 img/s)
+    ep 290 it 0/50 loss 0.057 197 img/s
+  epoch 290/300  lr 0.0010  loss 0.087  top1 92.60  top5 98.40  (6s, 2226 img/s)
+    ep 291 it 0/50 loss 0.078 179 img/s
+  epoch 291/300  lr 0.0010  loss 0.096  top1 93.20  top5 98.60  (6s, 2197 img/s)
+    ep 292 it 0/50 loss 0.111 161 img/s
+  epoch 292/300  lr 0.0010  loss 0.093  top1 93.40  top5 98.20  (6s, 2142 img/s)
+    ep 293 it 0/50 loss 0.082 205 img/s
+  epoch 293/300  lr 0.0010  loss 0.093  top1 93.20  top5 98.60  (6s, 2208 img/s)
+    ep 294 it 0/50 loss 0.132 216 img/s
+  epoch 294/300  lr 0.0010  loss 0.093  top1 93.20  top5 98.00  (6s, 2249 img/s)
+    ep 295 it 0/50 loss 0.056 192 img/s
+  epoch 295/300  lr 0.0010  loss 0.090  top1 93.00  top5 98.60  (6s, 2248 img/s)
+    ep 296 it 0/50 loss 0.064 189 img/s
+  epoch 296/300  lr 0.0010  loss 0.092  top1 92.80  top5 98.20  (6s, 2229 img/s)
+    ep 297 it 0/50 loss 0.118 208 img/s
+  epoch 297/300  lr 0.0010  loss 0.093  top1 93.20  top5 98.20  (6s, 2279 img/s)
+    ep 298 it 0/50 loss 0.136 206 img/s
+  epoch 298/300  lr 0.0010  loss 0.093  top1 93.20  top5 98.00  (6s, 2278 img/s)
+    ep 299 it 0/50 loss 0.116 178 img/s
+  epoch 299/300  lr 0.0010  loss 0.091  top1 93.00  top5 98.00  (6s, 2199 img/s)
+    ep 300 it 0/50 loss 0.045 174 img/s
+  epoch 300/300  lr 0.0010  loss 0.098  top1 93.00  top5 98.00  (6s, 2219 img/s)
+done {"final_top1": 93.0, "final_top5": 98.0, "params": 11181642, "train_hours": 0.4839644006225798}

@@ -771,8 +771,9 @@ profile is a function of the architecture and one statistic of the images.
 At every layer $\Sigma_{\rm out} = W\Sigma_{\rm patch}W^{\top}$, and at
 initialisation $W$ is an independent Gaussian draw, so conditional on its
 input spectrum the width a convolution produces has an exact law
-(supplement, Proposition~S6); the measured width lies within that law's
-spread in 33 of 33 layers of VGG-16 and ResNet-18 (Table~S18). What is
+(supplement, Proposition~S6); the measured width lies within $0.05\,r_{\max}$
+of that law in $94$--$100\%$ of the $535$ dense convolutions of the eleven
+families, at a median distance of one channel (Tables~S18, S19). What is
 not a theorem is the passage through the nonlinearities, and there the
 profile is a measured regularity: a stationary Gaussian field with the images' cross-power
 spectrum (a $3 \times 3$ Hermitian matrix per spatial frequency, estimated on
