@@ -52,3 +52,33 @@ def test_rows_cover_the_three_uses_with_compute_units(tmp_path):
     assert by["controller, 0.60 MACs"]["n"] == 3 and abs(by["controller, 0.60 MACs"]["acc"] - 93.603) < 0.01
     tex = render(rows)
     assert "\\begin{tabular}" in tex and "93.82" in tex and "\\pm" in tex and "0.60" in tex
+
+
+def _traj_widths(root, name, accs, widths):
+    """A retrained arm whose trajectory file records the widths it was actually built at."""
+    for s, a in enumerate(accs):
+        d = os.path.join(root, name.format(s=s)); os.makedirs(d, exist_ok=True)
+        rows = [{"epoch": 100, "test_acc": a, "kind": "conv", "layer": f"features.{i}", "depth_index": i, "C": c}
+                for i, c in enumerate(widths)]
+        rows.append({"epoch": 100, "test_acc": a, "kind": "post_act", "layer": "features.2", "depth_index": 0, "C": widths[0]})
+        pd.DataFrame(rows).to_csv(os.path.join(d, "trajectory_layers.csv"), index=False)
+        open(os.path.join(d, "epoch_100_layers.csv"), "w").write("epoch\n100\n")
+
+
+def test_retrained_arm_costs_come_from_the_widths_it_was_trained_at(tmp_path):
+    # widths_act.json lists a 67%-parameter uniform arm that was never trained; the trained uniform arm
+    # (results/a18/vgg16_bn_uniform_s*) is at the conv-output ruler's parameter count (widths 37, 37, 75, ...).
+    res = str(tmp_path)
+    os.makedirs(os.path.join(res, "a18"))
+    json.dump({"widths": {"ruler": [47, 64, 127, 128, 255, 255, 254, 504, 486, 469, 347, 285, 168],
+                          "uniform": [52, 52, 104, 104, 208, 208, 208, 417, 417, 417, 417, 417, 417]}},
+              open(os.path.join(res, "a18", "widths_act.json"), "w"))
+    trained = [37, 37, 75, 75, 149, 149, 149, 298, 298, 298, 298, 298, 298]
+    _traj_widths(res, "a18/vgg16_bn_uniform_s{s}", [93.31, 92.91], trained)
+    _traj_widths(res, "a18/vgg16_bn_ruler_act_s{s}", [93.80, 93.87], [47, 64, 127, 128, 255, 255, 254, 504, 486, 469, 347, 285, 168])
+    by = {r["arm"]: r for r in build_rows(res)}
+    u = by["uniform cut, retrained"]
+    assert abs(u["macs"] - macs(trained) / macs(FULL)) < 1e-6 and u["macs"] < 0.4
+    assert abs(u["params"] - 0.34) < 0.01
+    assert abs(u["train"] - (1.0 + u["macs"])) < 1e-6
+    assert abs(by["retrain at the ruler's widths"]["macs"] - macs([47, 64, 127, 128, 255, 255, 254, 504, 486, 469, 347, 285, 168]) / macs(FULL)) < 1e-6

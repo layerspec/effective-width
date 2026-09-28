@@ -874,7 +874,6 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   ONI: median |out - prediction| over arms = 0.023  -> within 0.1 (prediction holds)
   P9.5 (gain vs accuracy change, 18 runs): Spearman rho = -0.07; accuracy change -0.46..+0.31 points  -> no monotone relation (|rho| < 0.5)
   Fraction of the predicted gain realised, median over runs: 0.50 (range 0.24..1.05)
-  wrote ../paper/table_ortho.tex
 
 ========================================================================
 15. Ablations of the protocol on ResNet-50 V1 (A11-A15): k*(0.95)/r_max profile vs the reference run

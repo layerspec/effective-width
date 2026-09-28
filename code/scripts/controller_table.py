@@ -51,6 +51,24 @@ def _r20_accs(pattern):
     return out
 
 
+def _trained_widths(pattern):
+    """The conv widths an arm was actually trained at, read from its trajectory file (depth order at the
+    last epoch); None when no finished run is found.  The widths files list arms that were never trained
+    (widths_act.json's 67%-parameter uniform arm), so the costs come from the trained network."""
+    for d in sorted(glob.glob(pattern)):
+        tl = os.path.join(d, "trajectory_layers.csv")
+        if not os.path.exists(os.path.join(d, "epoch_100_layers.csv")) or not os.path.exists(tl):
+            continue
+        t = pd.read_csv(tl)
+        t = t[(t.epoch == t.epoch.max()) & (t.kind == "conv")]
+        if "depth_index" in t.columns:
+            t = t.sort_values("depth_index")
+        w = [int(c) for c in t.C]
+        if len(w) == len(FULL):
+            return w
+    return None
+
+
 def _row(arm, dataset, accs, macs_frac, params_frac, train, note=""):
     if not accs:
         return None
@@ -96,8 +114,9 @@ def build_rows(results):
     if os.path.exists(wj):
         W = json.load(open(wj))["widths"]
         for key, arm, label in (("ruler", "vgg16_bn_ruler_act", "retrain at the ruler's widths"), ("uniform", "vgg16_bn_uniform", "uniform cut, retrained")):
-            w = W[key]; mfrac = macs(w) / vgg_full_macs
-            rows.append(_row(label, ds, _accs(os.path.join(results, "a18", arm + "_s*")), mfrac, _vgg_params(w) / vgg_full_params, 1.0 + mfrac))
+            pat = os.path.join(results, "a18", arm + "_s*")
+            w = _trained_widths(pat) or W[key]; mfrac = macs(w) / vgg_full_macs
+            rows.append(_row(label, ds, _accs(pat), mfrac, _vgg_params(w) / vgg_full_params, 1.0 + mfrac))
     for prefix, arm in (("c10_f88", "controller, 0.88 MACs"), ("c10_f60", "controller, 0.60 MACs"),
                         ("c10_f60_nogrow", "controller, 0.60 MACs, shrink only"), ("c10_ffixed342", "controller, 0.34 MACs")):
         r = _controller_rows(results, prefix, arm, ds, lambda w: macs(w) / vgg_full_macs, _vgg_params, vgg_full_params)

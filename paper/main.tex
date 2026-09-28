@@ -966,7 +966,7 @@ Table~S10).
 \label{sec:a18}
 
 \emph{Pre-registered (plan Sections~9.5, 9.7--9.9, 9.11--9.13 and the
-controller notes); three seeds per arm unless stated.} A width read after
+controller notes); three seeds per arm unless Table~\ref{tab:ctrl} gives $n$.} A width read after
 the ReLU at $\tau = 0.999$ can be used in three ways, at three training
 costs: the trained network can be \emph{folded} to it without retraining,
 a network can be \emph{retrained} at it from scratch, or the width can be
@@ -986,8 +986,8 @@ cost.
 \emph{Retrained from scratch (plan Sections~9.5, 9.7, 9.8; supplement, Table~S16).}
 Built at the ruler's post-activation widths and trained from scratch,
 VGG-16 matches full width on CIFAR-10 at two thirds of the parameters
-($93.86$ against $93.82$; P9.17) and beats the uniform cut to the same
-count seed for seed (P9.18). Read at the convolution output instead, the
+($93.86$ against $93.82$; P9.17), every seed above the arm built at the
+convolution-output widths (P9.18). Read at the convolution output instead, the
 same ruler names $34.5\%$ of the parameters and loses $0.22$ points (P9.6
 holds, P9.7 fails by one image): the convolution output is the width a
 layer \emph{produces}, the post-activation tensor the width the next
@@ -1022,14 +1022,13 @@ water-filling the covariance spectra under a budget of forward MACs
 (supplement, Propositions~S3--S5); after epoch 40 it shrinks only. Under a
 FLOPs budget, which is the only one in which accuracies are comparable
 (under a parameter budget accuracy tracks compute), the controller reaches the accuracy of the retrained
-ruler arm at $0.88$ MACs ($93.79$ against $93.86$) for $0.90$ of one
-training instead of $1.88$, and at $0.60$ MACs it is $0.24$ above a uniform
-network of equal MACs trained from scratch ($93.44$ against $93.20$ at
-$0.34$; every controller seed above every uniform seed, $n = 3$, $p =
-0.05$). Relative to folding after one full training it is equal at $0.88$
-MACs ($93.75$), $0.3$ better at $0.60$--$0.69$, and the fold breaks down
-below $0.5$ ($87.5$ at $0.42$) where the controller holds ($93.44$ at
-$0.34$). Attribution arms bound it further: the controller's final widths
+ruler arms at $0.88$ and $0.60$ MACs ($93.84$ against $93.86$, $93.74$
+against $93.57$) for $0.90$ and $0.66$ of one training instead of $1.88$
+and $1.60$, and at $0.34$ MACs is $0.15$ above a uniform network of equal
+MACs trained from scratch ($93.30$ against $93.16$, five seeds each,
+within the seed spread). Relative to folding after one full training it is equal at $0.88$
+MACs ($93.75$), $0.5$ better at $0.60$--$0.69$, and the fold breaks down below $0.5$ ($87.5$ at $0.42$) where the
+controller holds ($93.30$ at $0.34$). Attribution arms bound it further: the controller's final widths
 trained from scratch reach $93.89$, growing along random directions
 $93.88$, and acting on the untrained network as well $94.06$ at
 $1.35\times$ the MACs, so the value is in the widths it finds, and the
