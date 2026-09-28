@@ -1179,13 +1179,13 @@ whose covariance has high rank may still carry a low-dimensional manifold
 (Section~\ref{sec:four}). No measurement here says by itself that a
 narrower network trains to the same accuracy; where the paper says so it
 is by retraining or reallocating one architecture, and the statement
-holds for the post-activation widths at $\tau = 0.999$ where a network's
-late layers exceed the terminal dimension of a few-class task (VGG-16 on
-CIFAR-10) and nowhere else tested: ResNet-20 on the same task has no such
-width. The paper makes two shape statements only, the reversal of the
-depth trend in ResNet-50 (six recipes, five seeds, exploratory) and the
-terminal collapse of wide late layers on few-class tasks (three seeds per
-class count, against its registered rule).
+holds for the post-activation widths at $\tau = 0.999$ of VGG-16 on
+CIFAR-10 and nowhere else tested: ResNet-20 on the same task and
+ResNet-18 on ten ImageNet classes have no such width. The paper makes two
+shape statements only, the reversal of the depth trend in ResNet-50 (six
+recipes, five seeds, exploratory) and the terminal collapse of VGG-16's
+late layers on few-class tasks (three seeds per class count, against its
+registered rule).
 
 \emph{Where the ruler is silent or inside the noise.} The pooled
 estimator cannot be read at a wide layer, and eleven of ResNet-50's
