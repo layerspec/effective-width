@@ -989,53 +989,62 @@
 @inproceedings{poole2016exponential,
   author    = {Poole, Ben and Lahiri, Subhaneil and Raghu, Maithra and Sohl-Dickstein, Jascha and Ganguli, Surya},
   title     = {Exponential Expressivity in Deep Neural Networks Through Transient Chaos},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  booktitle = {Advances in Neural Information Processing Systems (NIPS)},
   volume    = {29},
-  year      = {2016}
+  year      = {2016},
+  annote    = {arXiv:1606.05340. Verified 2026-09-29 via the NeurIPS proceedings site (title, five authors in this order, volume 29); the proceedings record carries no page numbers and none are inserted.}
 }
 
 @inproceedings{xiao2018dynamical,
   author    = {Xiao, Lechao and Bahri, Yasaman and Sohl-Dickstein, Jascha and Schoenholz, Samuel S. and Pennington, Jeffrey},
   title     = {Dynamical Isometry and a Mean Field Theory of {CNN}s: How to Train 10,000-Layer Vanilla Convolutional Neural Networks},
   booktitle = {Proceedings of the 35th International Conference on Machine Learning (ICML)},
+  series    = {PMLR},
+  volume    = {80},
   pages     = {5393--5402},
-  year      = {2018}
+  year      = {2018},
+  annote    = {Verified 2026-09-29 via proceedings.mlr.press/v80/xiao18a (title, five authors in this order, pages).}
 }
 
 @inproceedings{chee2022id,
-  author    = {Chee, Jerry and Renz, Megan and Damle, Anil and De Sa, Christopher},
+  author    = {Chee, Jerry and {Flynn (n{\'e}e Renz)}, Megan and Damle, Anil and De Sa, Christopher},
   title     = {Model Preserving Compression for Neural Networks},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   volume    = {35},
+  pages     = {38060--38074},
   year      = {2022},
-  annote    = {Interpolative decomposition (column subset + interpolation matrix folded into the next layer), no fine-tuning; VGG-16 CIFAR-10 Table 1 used in Sec. a18. Added 2026-09-26; verify pages/DOI against Crossref before submission.}
+  doi       = {10.52202/068431-2758},
+  annote    = {arXiv:2108.00065. Interpolative decomposition (column subset + interpolation matrix folded into the next layer), no fine-tuning; VGG-16 CIFAR-10 Table 1 used in Sec. a18. The NeurIPS proceedings and Crossref print the second author as "Megan Flynn (n\'ee Renz)"; the arXiv listing has "Megan Renz". Verified 2026-09-29 via the NeurIPS proceedings .bib record and Crossref (authors, pages, DOI).}
 }
 
 @inproceedings{he2017channel,
   author    = {He, Yihui and Zhang, Xiangyu and Sun, Jian},
   title     = {Channel Pruning for Accelerating Very Deep Neural Networks},
   booktitle = {Proceedings of the IEEE International Conference on Computer Vision (ICCV)},
-  pages     = {1389--1397},
+  pages     = {1398--1406},
   year      = {2017},
-  annote    = {LASSO channel selection + least-squares reconstruction of the next layer. Added 2026-09-26; verify against Crossref before submission.}
+  doi       = {10.1109/ICCV.2017.155},
+  annote    = {LASSO channel selection + least-squares reconstruction of the next layer. Verified 2026-09-29 via Crossref (IEEE record; pages corrected from 1389--1397).}
 }
 
 @inproceedings{luo2017thinet,
   author    = {Luo, Jian-Hao and Wu, Jianxin and Lin, Weiyao},
   title     = {{ThiNet}: A Filter Level Pruning Method for Deep Neural Network Compression},
   booktitle = {Proceedings of the IEEE International Conference on Computer Vision (ICCV)},
-  pages     = {5058--5066},
+  pages     = {5068--5076},
   year      = {2017},
-  annote    = {Greedy selection by next-layer reconstruction error. Added 2026-09-26; verify against Crossref before submission.}
+  doi       = {10.1109/ICCV.2017.541},
+  annote    = {Greedy selection by next-layer reconstruction error. Verified 2026-09-29 via Crossref (IEEE record; pages corrected from 5058--5066).}
 }
 
 @inproceedings{hou2022chex,
   author    = {Hou, Zejiang and Qin, Minghai and Sun, Fei and Ma, Xiaolong and Yuan, Kun and Xu, Yi and Chen, Yen-Kuang and Jin, Rong and Xie, Yuan and Kung, Sun-Yuan},
-  title     = {{CHEX}: Channel Exploration for {CNN} Model Compression},
+  title     = {{CHEX}: {CH}annel {EX}ploration for {CNN} Model Compression},
   booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
-  pages     = {12287--12298},
+  pages     = {12277--12288},
   year      = {2022},
-  annote    = {Column-subset pruning interleaved with regrowth, channels redistributed across layers in one training. Added 2026-09-26; verify against Crossref before submission.}
+  doi       = {10.1109/CVPR52688.2022.01197},
+  annote    = {Column-subset pruning interleaved with regrowth, channels redistributed across layers in one training. Verified 2026-09-29 via Crossref (IEEE record: ten authors in this order; pages corrected from 12287--12298).}
 }
 
 @inproceedings{deshpande2006volume,
@@ -1044,7 +1053,8 @@
   booktitle = {Proceedings of the 17th Annual ACM-SIAM Symposium on Discrete Algorithms (SODA)},
   pages     = {1117--1126},
   year      = {2006},
-  annote    = {The (k+1) factor for volume-sampled column subsets. Added 2026-09-26; verify against Crossref before submission.}
+  doi       = {10.1145/1109557.1109681},
+  annote    = {The (k+1) factor for volume-sampled column subsets. Verified 2026-09-29 via Crossref (SODA '06 record: authors, pages).}
 }
 
 @article{civril2009greedy,
@@ -1055,7 +1065,8 @@
   number    = {47--49},
   pages     = {4801--4811},
   year      = {2009},
-  annote    = {Greedy column selection bound. Added 2026-09-26; verify against Crossref before submission.}
+  doi       = {10.1016/j.tcs.2009.06.018},
+  annote    = {Greedy column selection bound. Verified 2026-09-29 via Crossref (volume, issue, pages).}
 }
 
 @article{silverstein1995strong,
@@ -1066,14 +1077,15 @@
   number  = {2},
   pages   = {331--339},
   year    = {1995},
-  annote  = {The limiting spectral distribution of (1/N) X^T T X: the equation used in Proposition S7. Added 2026-09-26; verify against Crossref before submission.}
+  doi     = {10.1006/jmva.1995.1083},
+  annote  = {The limiting spectral distribution of (1/N) X^T T X: the equation used in the supplement's layer-local law. Verified 2026-09-29 via Crossref (volume, issue, pages).}
 }
 
 @inproceedings{pennington2017nonlinear,
   author    = {Pennington, Jeffrey and Worah, Pratik},
   title     = {Nonlinear Random Matrix Theory for Deep Learning},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  booktitle = {Advances in Neural Information Processing Systems (NIPS)},
   volume    = {30},
   year      = {2017},
-  annote    = {Spectrum of the random-feature Gram sigma(WX) for Gaussian X: the Gaussian-equivalence (linear term + white remainder) formula tested in the supplement's law section. Added 2026-09-27; verify against Crossref before submission.}
+  annote    = {Spectrum of the random-feature Gram sigma(WX) for Gaussian X: the Gaussian-equivalence (linear term + white remainder) formula tested in the supplement's law section. Verified 2026-09-29 via the NeurIPS proceedings site (title, two authors, volume 30); the proceedings record carries no page numbers and none are inserted.}
 }
