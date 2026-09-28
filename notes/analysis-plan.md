@@ -803,6 +803,21 @@ $k^*(\tau)/r_{\max}$ 與文獻現行的秩／維度估計量給出的**層排序
   A27 排在 pod 的 A17 之後（VGG-16 batch 256 與 R50 同卡 OOM，需獨佔）。
 - 十類 Imagenette 從頭訓 ResNet-18 top-1 92.4–93.8，符合預期。
 
+### 10.14 A17 縮減版：ImageNet-1k 同配方 basic [6,6,6,6] 對 ResNet-50（**seed 0 暫定**，2026-09-28 收；pod 4090；`results/a17/{basic6666,resnet50}_s0/`、`checkpoint_analysis.txt` §26；seed 1 對約 10/1 收）
+
+| 架構 | top-1 | 水準 R→T | ρ_depth R→T | 同種子 T–R | settle | 對六個公開 ResNet-50 配方 T–T |
+|---|---|---|---|---|---|---|
+| basic [6,6,6,6]（52 conv） | 74.47 | 0.32 → 0.53 | −0.86 → +0.42 | **−0.21** | 60 | — |
+| ResNet-50（53 conv） | 75.70 | 0.20 → 0.41 | −0.78 → +0.57 | **−0.25** | 45 | 中位 **+0.86**（0.79–0.95） |
+
+對照（同統計量）：CIFAR-10 同兩架構（§10、round 3）T–R +0.55／+0.50；公開 ImageNet basic 網（ResNet-18 20 conv、ResNet-34 36 conv）T–R +0.73／+0.61；公開 ResNet-50 −0.08。
+
+- **H9.4a**：bottleneck −0.25 < basic −0.21，1 對 1 時字面成立，**差 0.04**——是 CIFAR 上同兩架構種子範圍（0.38–0.57）的十分之一，不是「block 效應」的量級；正式判定等 seed 1 的 4 對 4。
+- **H9.4b 不成立**：本配方（SGD、cosine、無增強技巧）的 ResNet-50 同種子 T–R −0.25（登記 ≥ 0.4），與六個公開配方的 T–T +0.86（登記 < 0.5）——**還比公開配方彼此的 T–T 0.84 高**。重排不是長 schedule／重增強／BCE 造成的；最簡配方就重排到同一個順序。
+- **實質讀法（暫定，等 seed 1）**：兩個 52／53 conv 的架構在 ImageNet 上都重排（−0.21／−0.25）、在 CIFAR-10 上都保序（+0.55／+0.50）；公開的淺 basic 網（20／36 conv）在 ImageNet 上保序。登記的第三種後果（「兩者皆不成立→資料集」）在方向上最接近，但 H9.4a 字面成立、且淺 basic 網保序，所以歸因只能寫到「**資料集在這個深度**」；配方排除、block 型別排除（0.04），深度 × 資料是剩下的候選，本篇未測。
+- **軌跡（探索性）**：兩架構的順序在 epoch 5 已與最終 ρ ≥ 0.69／0.83、epoch 10 ≥ 0.80／0.90，之後只有水準在升（0.33→0.53、0.21→0.41 到 epoch 90）；順序在前 5 個 epoch 定、水準跟著準確率走到底。與 CIFAR 的 settle（40–60）同型。
+- 論文措辭（seed 1 齊後才動）：`sec:learned` 的「data or recipe」改為「the data at this depth: under one plain recipe both block types reorder on ImageNet and neither does on CIFAR-10; the recipe is excluded (T–T 0.86 with the public recipes)」；主張表「訓練對剖面的作用依 block 類型」列補 A17。
+
 ### 9.7 用尺定寬度再重訓，第二個資料集（2026-09-10 寫，資料未見；A18 的可重複性）
 
 §10.4 的 P9.6 只在一個架構、一個資料集、一個預算上成立。作者決定在 CIFAR-100 上重做，
