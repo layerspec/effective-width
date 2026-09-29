@@ -1389,6 +1389,80 @@ def section_a17(results: str) -> None:
         print(f"  Pre-registered outcome (plan 9.4): {verdict}")
 
 
+def _public_profiles(results: str, pattern: str) -> dict:
+    """{weights: {layer: k*(0.95)/r_max}} of public checkpoints (dense conv, gate passed)."""
+    out = {}
+    for f in sorted(glob.glob(os.path.join(results, pattern))):
+        d = pd.read_csv(f)
+        d = d[(d.kind == "conv") & (d.n_over_C >= 50)]
+        if "is_depthwise" in d:
+            d = d[~d.is_depthwise.astype(bool)]
+        out[os.path.basename(f).replace("_layers.csv", "")] = dict(zip(d.layer, d["k_star_0.95"] / d["r_max"]))
+    return out
+
+
+def section_a29(results: str):
+    """A29 (plan 9.18): our own ImageNet-1k ResNet-18 weights (A23, step schedule) as the shallow end of the depth
+    axis.  The initialisation was rebuilt from the seed, so every trained x random pair is judged (P9.48, P9.49)."""
+    runs = {}
+    for path in sorted(glob.glob(os.path.join(results, "a29", "resnet18_s*", "trajectory_layers.csv"))):
+        d = os.path.dirname(path)
+        if not os.path.exists(os.path.join(d, "result.json")):
+            continue
+        epochs, P, acc, layers = _load_trajectory(path)
+        runs[os.path.basename(d).rsplit("_s", 1)[1]] = dict(init=P[epochs[0]], final=P[epochs[-1]], acc=acc[epochs[-1]], layers=layers)
+    if not runs:
+        return None
+    hdr("27. A29: our own ImageNet-1k ResNet-18 weights, the shallow end of the depth axis (analysis-plan 9.18)")
+    print("  A23 full-width weights (SGD, lr 0.1, steps at 30/60, 90 epochs); random networks rebuilt from the seed;")
+    print("  k*(0.95)/r_max on the section-6 validation subset, dense conv passing n/C >= 50")
+    seeds = sorted(runs)
+    inits = [runs[k]["init"] for k in seeds]; finals = [runs[k]["final"] for k in seeds]
+    layers = runs[seeds[0]]["layers"]
+    tr = {(t, r): _rho(runs[t]["final"], runs[r]["init"]) for t in seeds for r in seeds}
+    rr = [_rho(a, b) for a, b in itertools.combinations(inits, 2)]
+    tt = [_rho(a, b) for a, b in itertools.combinations(finals, 2)]
+    depth = np.arange(len(layers))
+    print(f"    weights {len(seeds)}  layers {len(layers)}  top-1 {' / '.join(f'{runs[k]['acc']:.2f}' for k in seeds)}")
+    print(f"    R-R {' '.join(f'{x:+.2f}' for x in rr) or 'n/a'}   T-T {' '.join(f'{x:+.2f}' for x in tt) or 'n/a'}")
+    print("    T-R (trained seed, random seed): " + "  ".join(f"({t},{r}) {v:+.2f}" for (t, r), v in tr.items()))
+    print(f"    level R -> T: {np.median(np.concatenate(inits)):.2f} -> {np.median(np.concatenate(finals)):.2f};  "
+          f"rho_depth R -> T: {np.median([_rho(depth, x) for x in inits]):+.2f} -> {np.median([_rho(depth, x) for x in finals]):+.2f}")
+    pub = _public_profiles(results, ARCH_FAMILIES["resnet18"][0])
+    tt_pub = []
+    for k in seeds:
+        for prof in pub.values():
+            common = [i for i, lay in enumerate(layers) if lay in prof]
+            if len(common) >= 5:
+                tt_pub.append(_rho(runs[k]["final"][common], np.array([prof[layers[i]] for i in common])))
+    verdicts = {}
+    if tt_pub:
+        print(f"    T-T with the {len(pub)} public ResNet-18 weights: median {np.median(tt_pub):+.2f}, "
+              f"range {min(tt_pub):+.2f}..{max(tt_pub):+.2f}")
+        if len(seeds) >= 2:
+            verdicts["P9.48"] = min(tr.values()) >= 0.40 and float(np.median(tt_pub)) >= 0.7
+            print(f"  P9.48 (all {len(tr)} T-R >= +0.40 and median T-T with the public weights >= 0.7): min T-R {min(tr.values()):+.2f}, "
+                  f"T-T {np.median(tt_pub):+.2f}  -> {'holds' if verdicts['P9.48'] else 'fails'}")
+    basic = _a17_profiles(results, "basic6666")
+    if basic and len(seeds) >= 2:
+        b = [_rho(v["final"], w["init"]) for v in basic.values() for w in basic.values()]
+        gap = float(np.median(list(tr.values())) - np.median(b))
+        if len(basic) >= 2:
+            verdicts["P9.49"] = gap >= 0.5
+        print(f"  P9.49 (median T-R above basic [6,6,6,6] of A17 by 0.5): {np.median(list(tr.values())):+.2f} vs {np.median(b):+.2f} "
+              f"({len(basic)} A17 seed(s)), gap {gap:+.2f}  -> "
+              f"{('holds' if verdicts['P9.49'] else 'fails') if 'P9.49' in verdicts else 'provisional, A17 basic seed 1 not in'}")
+    if "P9.48" in verdicts:
+        if verdicts["P9.48"] and verdicts.get("P9.49"):
+            print("  Registered consequence: under plain SGD recipes on ImageNet-1k a basic network of 20 convolutions keeps the")
+            print("  order of its initialisation and one of 52 does not (recipes differ in the schedule; stated once).")
+        elif not verdicts["P9.48"] and max(tr.values()) <= 0.10:
+            print("  Registered consequence: our ResNet-18 reorders too; depth is not the variable, attribution returns to the dataset.")
+        elif "P9.49" in verdicts or not verdicts["P9.48"]:
+            print("  Registered consequence: reported as measured, no depth statement.")
+    return verdicts
+
+
 def section_round3_ortho(results: str, latex: str | None = None) -> None:
     d = os.path.join(results, "round3_decompose")
     files = glob.glob(os.path.join(d, "a5_*_decompose.csv"))
@@ -2528,6 +2602,7 @@ def main(argv=None) -> int:
     section_round3(a.results, latex=a.latex_round3)
     section_round3_ortho(a.results, latex=a.latex_ortho)
     section_a17(a.results)
+    section_a29(a.results)
     section_ablations(a.results, latex=a.latex_ablation)
     section_a18(a.results, latex=a.latex_a18)
     section_alignment(a.results)
