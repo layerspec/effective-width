@@ -240,12 +240,20 @@ def p2l_section(results):
             print(f"  {name:22s} acc {r['acc']:6.2f}" + (f"  macs {r['macs']:.3f}" if r["macs"] is not None else "")
                   + f"  conv1-out k*(.999)/C per stage {st}  widths {r['widths']}")
     acc = lambda pre: [r["acc"] for r in arms[pre].values()]   # noqa: E731
-    ng, f60 = acc("c10_f60_nogrow"), acc("c10_f60")
-    if ng and f60:
-        d = np.mean(ng) - np.mean(f60)
+    # registered reference: f60 at the seeds of the shrink-only arm (three seeds, 93.60); the P2j seeds 3-4 of f60 have
+    # no shrink-only counterpart and enter only the descriptive all-seed mean
+    pairs = [(r["acc"], arms["c10_f60"][k.replace("_nogrow", "")]["acc"]) for k, r in arms["c10_f60_nogrow"].items()
+             if k.replace("_nogrow", "") in arms["c10_f60"]]
+    if pairs:
+        ng, f60 = np.array(pairs).T
+        d = ng.mean() - f60.mean()
         print(f"  P-l1 (nogrow <= f60 - 0.2: growing contributes under a FLOPs budget) -> {'yes' if d <= -0.2 else 'NO'} "
-              f"({np.mean(ng):.2f} vs {np.mean(f60):.2f}, diff {d:+.2f}; n={len(ng)}/{len(f60)})"
+              f"({ng.mean():.2f} vs {f60.mean():.2f}, diff {d:+.2f}; same seeds, n={len(pairs)}; "
+              f"per seed {' '.join(f'{x:+.2f}' for x in ng - f60)})"
               + ("  [>= -0.1: no measurable contribution of the grow operator]" if d >= -0.1 else ""))
+        allf = acc("c10_f60")
+        if len(allf) > len(pairs):
+            print(f"       descriptive: against all {len(allf)} f60 seeds ({np.mean(allf):.2f}) the difference is {ng.mean() - np.mean(allf):+.2f}")
     full = arms["r20w4_full"]
     if full:
         s1 = np.mean([r["stages"][0] for r in full.values()]); s3 = np.mean([r["stages"][2] for r in full.values()])
