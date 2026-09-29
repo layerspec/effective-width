@@ -1595,6 +1595,95 @@ def section_a28(results: str):
     return V
 
 
+A30_FAMILIES = {
+    "ViT-S/16": (["vit_small_patch16_224.augreg_in1k", "vit_small_patch16_224.augreg_in21k_ft_in1k",
+                  "deit_small_patch16_224.fb_in1k", "deit3_small_patch16_224.fb_in1k",
+                  "deit3_small_patch16_224.fb_in22k_ft_in1k"], "vit_small_patch16_224_random_s*"),
+    "ViT-B/16": (["vit_base_patch16_224.augreg_in1k", "vit_base_patch16_224.augreg_in21k_ft_in1k",
+                  "vit_base_patch16_224.orig_in21k_ft_in1k", "vit_base_patch16_224.sam_in1k",
+                  "deit_base_patch16_224.fb_in1k", "deit3_base_patch16_224.fb_in1k"], "vit_base_patch16_224_random_s*"),
+}
+A30_ROLES = ("qkv", "attention proj.", "MLP fc1", "MLP fc2")
+
+
+def _a30_profile(path: str):
+    """{layer: k*(0.95)/r_max} over the gate-passing linear layers of the 12 blocks, and their roles."""
+    d = pd.read_csv(path)
+    d = d[d.n_over_C_ok.astype(bool) & (d.kind == "linear") & d.layer.str.startswith("blocks.")]
+    return dict(zip(d.layer, d["k_star_rmax_0.95"]))
+
+
+def section_a30(results: str):
+    """A30 (plan 9.19): ViT-S/16 and ViT-B/16, supervised public weights against default initialisations."""
+    root = os.path.join(results, "a30")
+    if not glob.glob(os.path.join(root, "*_layers.csv")):
+        return None
+    hdr("29. A30: the ruler on two transformer families (analysis-plan 9.19)")
+    print("  k*(0.95)/r_max, linear layers of the 12 blocks passing n/C >= 50, 6,400 images x 32 tokens; every weight")
+    print("  normalised with the statistics it was trained with, random networks with ImageNet's")
+    V, per_family = {}, {}
+    for fam, (weights, rand_glob) in A30_FAMILIES.items():
+        T = {w: _a30_profile(f) for w in weights if os.path.exists(f := os.path.join(root, f"{w}_layers.csv"))}
+        R = {os.path.basename(f)[:-11]: _a30_profile(f) for f in sorted(glob.glob(os.path.join(root, rand_glob + "_layers.csv")))}
+        if len(T) < 2 or not R:
+            print(f"    {fam}: {len(T)} weights, {len(R)} random networks measured -- not judged yet"); continue
+        layers = sorted(set.intersection(*[set(p) for p in list(T.values()) + list(R.values())]),
+                        key=lambda lay: (int(lay.split(".")[1]), lay))
+        vec = lambda p, sel: np.array([p[lay] for lay in sel])   # noqa: E731
+        groups = {"all": layers, **{r: [lay for lay in layers if _vit_role(lay) == r] for r in A30_ROLES}}
+        stat = {}
+        for g, sel in groups.items():
+            tr = [_rho(vec(t, sel), vec(r, sel)) for t in T.values() for r in R.values()]
+            tt = [_rho(vec(a, sel), vec(b, sel)) for a, b in itertools.combinations(T.values(), 2)]
+            rr = [_rho(vec(a, sel), vec(b, sel)) for a, b in itertools.combinations(R.values(), 2)]
+            stat[g] = dict(tr=float(np.median(tr)), tt=float(np.median(tt)), rr=float(np.median(rr)) if rr else float("nan"),
+                           tr_range=(min(tr), max(tr)))
+        levels = {w: float(np.median(vec(p, layers))) for w, p in T.items()}
+        r_level = float(np.median([np.median(vec(p, layers)) for p in R.values()]))
+        complete = len(T) == len(weights) and len(R) >= 3
+        print(f"    {fam}: {len(T)}/{len(weights)} weights, {len(R)} random networks, {len(layers)} layers"
+              f"{'' if complete else '   ** incomplete: verdicts provisional **'}")
+        print(f"      {'layers':16s} {'n':>3s} {'R-R':>6s} {'T-T':>6s} {'T-R':>6s}   T-R range")
+        for g, sel in groups.items():
+            st = stat[g]
+            print(f"      {g:16s} {len(sel):3d} {st['rr']:+6.2f} {st['tt']:+6.2f} {st['tr']:+6.2f}   {st['tr_range'][0]:+.2f}..{st['tr_range'][1]:+.2f}")
+        print(f"      level: random {r_level:.2f}; trained " + "  ".join(f"{w.split('.', 1)[1]} {v:.2f}" for w, v in levels.items()))
+        per_family[fam] = dict(
+            p51=stat["all"]["tr"] >= 0.5 and all(stat[r]["tr"] >= 0.8 for r in ("qkv", "attention proj.", "MLP fc1")),
+            p52=stat["all"]["tt"] >= 0.8,
+            p53=all(v >= r_level + 0.10 for v in levels.values()),
+            p54=stat["MLP fc2"]["tr"] == min(stat[r]["tr"] for r in A30_ROLES), complete=complete)
+    if len(per_family) == len(A30_FAMILIES) and all(f["complete"] for f in per_family.values()):
+        for k, key, text in (("P9.51", "p51", "ordering is the architecture's: T-R >= 0.5 over all layers, >= 0.8 within qkv, proj, fc1"),
+                             ("P9.52", "p52", "recipes share a profile: T-T >= 0.8"),
+                             ("P9.53", "p53", "every supervised weight gains 0.10 of level over the random networks"),
+                             ("P9.54", "p54", "fc2 has the lowest within-role T-R")):
+            V[k] = all(f[key] for f in per_family.values())
+            print(f"  {k} ({text}; both families) -> {'holds' if V[k] else 'fails'}  "
+                  f"[{', '.join(f'{fam} {chr(121) if f[key] else chr(110)}' for fam, f in per_family.items())}]")
+    old = os.path.join(results, "vit", "vit_base_patch16_224_layers.csv")
+    new = os.path.join(root, "vit_base_patch16_224.augreg_in21k_ft_in1k_layers.csv")
+    if os.path.exists(old) and os.path.exists(new):
+        a, b = _a30_profile(old), _a30_profile(new)
+        common = sorted(set(a) & set(b))
+        if len(common) >= 5:
+            rho = _rho([a[k] for k in common], [b[k] for k in common])
+            dl = abs(float(np.median([a[k] for k in common]) - np.median([b[k] for k in common])))
+            V["P9.55"] = rho >= 0.95 and dl <= 0.03
+            print(f"  P9.55 (ViT-B augreg in21k->in1k, its own normalisation against ImageNet's: rho >= 0.95, level within 0.03): "
+                  f"rho {rho:+.3f}, |level difference| {dl:.3f} -> {'holds' if V['P9.55'] else 'fails'}")
+    if all(k in V for k in ("P9.51", "P9.52", "P9.53")):
+        if V["P9.51"] and V["P9.52"] and V["P9.53"]:
+            print("  Registered consequence: transformers join the families that keep the ordering of their initialisation and gain a level.")
+        elif not V["P9.51"]:
+            print("  Registered consequence: the transformer is not placed with the order-keeping families; reported by role, kept in the supplement.")
+        elif not V["P9.52"]:
+            print("  Registered consequence: no profile shared across recipes (as MobileNet / EfficientNet); reported as measured.")
+        else:
+            print("  Registered consequence: none fits (P9.53 fails alone); reported as measured.")
+    return V
+
+
 def section_round3_ortho(results: str, latex: str | None = None) -> None:
     d = os.path.join(results, "round3_decompose")
     files = glob.glob(os.path.join(d, "a5_*_decompose.csv"))
@@ -2736,6 +2825,7 @@ def main(argv=None) -> int:
     section_a17(a.results)
     section_a29(a.results)
     section_a28(a.results)
+    section_a30(a.results)
     section_ablations(a.results, latex=a.latex_ablation)
     section_a18(a.results, latex=a.latex_a18)
     section_alignment(a.results)
