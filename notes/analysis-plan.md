@@ -728,6 +728,53 @@ conv 的可達秩；(b) λ_i(Σ_y) ≥ (1 − ρ_max) λ_i(Σ_x)，ρ_max 是流
   - P9.60 不成立 → 「殘差流保秩」的說法不成立或只在部分 stage 成立；S6 改寫成量到的樣子，A26／A27 的解讀重新檢查。
   - P9.62 不成立 → 先修量測，這一節的其他數字都不算。
 
+### 9.22 對齊與 Neural Feature Ansatz：量 patch 的梯度外積（A32；2026-09-29 寫，資料未見；預登記由我定）
+
+**為什麼做。** 09-29 的文獻查核（`notes/alignment-prior-art-2026-09-29.md`）查到 Beaglehole et al. 2023 的 Convolutional Neural Feature Ansatz：
+WᵀW ∝ 對該層輸入 patch 的平均梯度外積（AGOP），在 ImageNet 公開的 AlexNet／VGG／ResNet 每一層量到 Pearson 相關多數 > 0.9。
+我們的對齊（ρ_align：核的增益 s_i² 對輸入變異 v_iᵀΣ_patch v_i）刻畫的是同一個矩陣 WᵀW。審稿人會問：**對齊是不是 NFA 的影子？**
+
+**量之前就能寫下的代數（不是預測）。** 把 patch 當作獨立輸入（他們的式 (1)），∂G/∂h[i,j] ＝ (∂G/∂z[i,j])·W，所以
+patch-AGOP ＝ WᵀΓW，Γ ＝ Σ_{影像, 位置} (∂G/∂z)ᵀ(∂G/∂z) 是 **conv 輸出端**的梯度外積（C_out × C_out）。以 W ＝ USVᵀ：
+WᵀW ＝ V S² Vᵀ，WᵀΓW ＝ V S (UᵀΓU) S Vᵀ。兩個後果：(i) AGOP 與 WᵀW 永遠共用 W 的列空間，Γ ＝ I 時兩者**恆等**，
+所以逐元素相關有一個結構性的底；(ii) CNFA 精確成立 ⇔ UᵀΓU ∝ I（輸出端梯度在核的左奇異基底下是白的）。
+NFA 約束的是下游（Γ），對齊約束的是上游（Σ_patch）；給定 W，兩者邏輯上獨立。以下的量測問它們在實際網路上是否也獨立。
+
+- **模型**：torchvision 的 ImageNet 公開權重 `vgg16_bn`（13 個 conv）與 `resnet18`（20 個 dense conv，含 downsample），
+  以及各自的隨機初始化（seed 1）當對照。eval 模式（BN 用 running statistics）。
+- **影像**：§6 的 6,400 張驗證影像，224。
+- **每層量**：
+  - Σ_patch：輸入 patch 的置中共變異數，每張影像 48 個位置（與分解相同，`PatchProbe`）；n/d ≥ 50 才報告。
+  - Γ：G ＝ 1000 維 logits；每張影像一個 Rademacher 探針 v ∈ {±1}^1000，反傳純量 vᵀG，取 conv 輸出的梯度，**所有位置**的外積相加。
+    E[vvᵀ] ＝ I，所以這是全 Jacobian 的 Σ_k ∇G_k∇G_kᵀ 的無偏估計。
+  - W 的 SVD（保留到數值秩）：s_i、u_i、v_i；σ_i² ＝ v_iᵀΣ_patch v_i；γ_i ＝ u_iᵀΓu_i。
+- **統計量**（每層，再取各層中位數）：
+  - S1：Pearson(WᵀW, WᵀΓW)，逐元素，即 Beaglehole 的統計量；另報餘弦相似度（對正交基底變換不變）。
+  - S1-null：把 Γ 的通道隨機置換（PΓPᵀ，10 次）後的 S1——結構性的底。
+  - S2：ρ_align ＝ Spearman(s_i², σ_i²)（論文現用）。
+  - S3：Spearman(s_i², γ_i)，與 γ_i 的變異係數（CNFA 精確時 γ_i 為常數）。
+  - S4：偏相關（秩）：Spearman(s², σ² | γ) 與 Spearman(s², γ | σ²)。
+- **預測**：
+  - **P9.63**（CNFA 在我們的協定下重現）：訓練後 `vgg16_bn` 的 S1 各層中位數 ≥ 0.8，`resnet18` ≥ 0.6。
+  - **P9.64**（結構性的底很高）：兩個訓練後網路的 S1-null 各層中位數都 ≥ 0.6，且 S1 − S1-null 的中位數 ≤ 0.3。
+  - **P9.65**（CNFA 在奇異基底下有系統性偏離）：兩個訓練後網路的 S3 各層中位數都 ≤ −0.3（高增益方向上的輸出端梯度能量較低）。
+  - **P9.66**（對齊不是 NFA 的影子）：兩個訓練後網路，控制 γ 之後的偏相關 Spearman(s², σ² | γ) 各層中位數都 ≥ +0.7
+    （論文報的未控制值是 +0.9 上下）。
+- **判定與後果**：
+  - P9.66 成立 → 論文寫：「the alignment with the input's second-order statistics is not accounted for by the output-side gradient
+    structure of the neural feature ansatz; the two are distinct regularities of the same matrix, one tied to what follows the layer and one to
+    what precedes it, and ours needs neither labels nor gradients」，引 Beaglehole 2023／Radhakrishnan 2024、Maennel 2020。
+  - P9.66 不成立且偏相關中位數 < +0.3 → 對齊是 NFA 的影子；論文照實寫，把 ρ_align 定位為「不需梯度的 NFA 代理量」，`sec:decompose` 的結論句改寫。
+  - 介於其間 → 兩個數字都報，寫「部分由…解釋」。
+  - P9.64 成立 → 補充加一段：逐元素相關在 WᵀW 與 WᵀΓW 之間有結構性的底（兩者共用 W 的列空間），報數字；**措辭是觀察，不是對該文的批評**。
+  - P9.63 不成立 → 先檢查我們的 Γ 估計（探針數、eval 模式、G 的定義）與他們的差別，寫明差在哪；其餘預測照判。
+  - P9.65 只作描述。
+- **不做的**：一階最適條件 λW ＝ −E[∂L/∂W]（FACT）的檢驗。BN 使損失對 W 的尺度不變，訓練模式下 ∂L/∂W ⟂ W，該等式在 BN 網路上不成立；
+  這一點寫進論文的劃界句。
+- **逐方向的值存檔**（s_i²、σ_i²、γ_i、以及 Σ_patch 特徵基底下的增益 ‖Wq_j‖²）：供探索性檢查 Maennel 的 f(σ)「先升後降」在深層是否出現
+  （`notes/alignment-prior-art-2026-09-29.md` 的 L3）。標示探索性。
+- 程式 `scripts/measure_agop.py`（不改 `layerspec/`）、`tests/test_measure_agop.py`；Mac CPU，排在量測隊列最後，估 5–6 小時。
+
 ## 10. 第三輪結果（2026-09-09；`results/checkpoint_analysis.txt` §12–§13、`results/round3*/`）
 
 24 個 run（RunPod 3090，2026-09-08）全部跑完 100 epoch；判定依 §9 的規則，資料見過之前的規則一字未改。
