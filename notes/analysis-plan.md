@@ -634,6 +634,45 @@ A23（§10.10）留下兩個自己訓練的 ImageNet-1k ResNet-18 全寬權重�
   約 38 h、US$28。**P9.50**：T–R 中位隨深度單調下降，T–R(20) > T–R(36) > T–R(52)，且 ResNet-18 在「保序」、basic [6,6,6,6] 在「重排」
   （分區照 §9.17）。不單調 → 不寫深度句，三點照報。
 
+### 9.19 同一把尺量 transformer：ViT-S/16 與 ViT-B/16 兩個家族（A30；2026-09-29 寫；作者 09-29 定「做 B+」）
+
+B+ 框架要把 transformer 從補充的一段（一個 ViT-B 權重對一個隨機初始化，探索性）提到正文。線性層是輸入向量上的 1×1 卷積，
+r_max ＝ min(d_in, d_out)，token 當位置；恆等式 Σ_out ＝ WΣ_inWᵀ 照樣成立。
+
+**寫這一節時已知的**：`results/vit/` 的一對（ViT-B/16 augreg in21k→in1k 對 timm 預設初始化一個種子）：全體 48 層 T–R 0.65，qkv／proj／fc1 角色內
+0.94–0.99、fc2 0.46；水準 0.16→0.38。**那次量測用的是 ImageNet 的 mean/std，而該權重訓練時用 0.5/0.5**（timm `pretrained_cfg`；今天才發現），
+所以那一對要用正確的正規化重量，兩個數字並報。其餘權重都沒有量過。
+
+- **權重（全部 timm，224、patch 16）**：
+  - ViT-S/16（隱層 384、MLP 1536、12 block）：`vit_small_patch16_224.augreg_in1k`、`vit_small_patch16_224.augreg_in21k_ft_in1k`、
+    `deit_small_patch16_224.fb_in1k`、`deit3_small_patch16_224.fb_in1k`、`deit3_small_patch16_224.fb_in22k_ft_in1k`（5 個監督式）；
+    `vit_small_patch16_224.dino`（自監督，無分類頭；**探索性，不進判定**）。
+  - ViT-B/16（768／3072）：`vit_base_patch16_224.augreg_in1k`、`vit_base_patch16_224.augreg_in21k_ft_in1k`、
+    `vit_base_patch16_224.orig_in21k_ft_in1k`、`vit_base_patch16_224.sam_in1k`、`deit_base_patch16_224.fb_in1k`、`deit3_base_patch16_224.fb_in1k`
+    （6 個監督式）；`vit_base_patch16_224.dino`、`vit_base_patch16_224.mae`（探索性）。
+  - 隨機對照：每個家族 timm 預設初始化 3 個種子（`vit_small_patch16_224`、`vit_base_patch16_224`；trunc-normal 0.02）。DeiT-III 有 LayerScale
+    （初值 1e-4，殘差支路在初始化時幾乎關閉），另量 `deit3_small_patch16_224` 隨機 3 個種子，與 §10.15 的 γ＝0／γ＝1 對照同型，並報。
+- **協定**：§6 的 6,400 張驗證影像、幾何前處理不變（Resize 256＋CenterCrop 224）、每張影像 32 個 token；**正規化用各權重自己的
+  `pretrained_cfg` mean/std**（augreg／orig／sam 是 0.5/0.5，DeiT 是 ImageNet）；隨機對照用 ImageNet 的。統計量 k*(0.95)/r_max，
+  只算通過 n/C ≥ 50 的線性層（每個 block 四個角色：qkv、attention proj、MLP fc1、MLP fc2，共 48 層）；分類頭不報（n/C 不足）。
+  Mac、CPU、免費。程式 `scripts/measure_a30.py`（不改 `layerspec/`）。
+- **統計量**：與家族表（§12）相同——每家族 R–R、T–T、T–R（全部配對）的中位與範圍，全體 48 層與各角色內；水準 R→T；ρ_depth。
+- **預測**：
+  - **P9.51**（順序是架構的）：兩個家族都滿足——全體 48 層 T–R 中位 ≥ 0.5，且 qkv、proj、fc1 三個角色的角色內 T–R 中位都 ≥ 0.8。
+  - **P9.52**（配方共享剖面）：兩個家族監督式權重之間的 T–T 中位（全體 48 層）都 ≥ 0.8。
+  - **P9.53**（訓練加水準）：每一個監督式權重的水準中位都比其家族隨機對照的水準中位高 0.10 以上。
+  - **P9.54**（fc2 是例外）：兩個家族 fc2 的角色內 T–R 中位都是四個角色中最低的。
+  - **P9.55**（正規化不改結論）：ViT-B augreg in21k→in1k 用 0.5/0.5 重量後，與舊量測（ImageNet mean/std）的剖面相關 ≥ 0.95、
+    水準中位差 ≤ 0.03。
+- **判定與後果**：
+  - P9.51、P9.52、P9.53 在兩個家族都成立 → 正文寫「transformers join the families that keep the ordering of their initialisation and gain a
+    level」，家族表加兩列，題目可拿掉 convolutional（由作者定）；補充的單一權重段落改為引正文。
+  - P9.51 在任一家族不成立 → transformer 不歸入保序群，照報、分角色寫；題目維持 convolutional，transformer 留在補充。
+  - P9.52 不成立（配方之間剖面不同）→ 與 MobileNet／EfficientNet 同型（無跨配方共同剖面），照報。
+  - P9.55 不成立 → 舊的 ViT-B 數字撤回，並清查 CNN 公開權重中有無正規化不符的（`pretrained_cfg` 逐一比對），不符者重量。
+  - 自監督權重（DINO、MAE）只作探索性描述。
+- 統計：每家族 5–6 個權重 × 3 個隨機種子，描述為主；T–R 對 0 的檢定不做（規則 8 的配對檢定只用在同一組層的兩種讀法之間）。
+
 ## 10. 第三輪結果（2026-09-09；`results/checkpoint_analysis.txt` §12–§13、`results/round3*/`）
 
 24 個 run（RunPod 3090，2026-09-08）全部跑完 100 epoch；判定依 §9 的規則，資料見過之前的規則一字未改。
