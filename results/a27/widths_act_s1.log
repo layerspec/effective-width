@@ -1,0 +1,64 @@
+Traceback (most recent call last):
+  File "/workspace/effwidth/code/scripts/width_from_ruler.py", line 260, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/workspace/effwidth/code/scripts/width_from_ruler.py", line 211, in main
+    prof = layerspec.profile(model, loader, device=a.device, positions=a.positions,
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/effwidth/code/layerspec/api.py", line 197, in profile
+    probe = run_probe(model, loader, device=device, positions_per_image=positions,
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/utils/_contextlib.py", line 120, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/effwidth/code/layerspec/hooks.py", line 385, in run_probe
+    model(images.to(device, non_blocking=True))
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1879, in _call_impl
+    return inner()
+           ^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1827, in inner
+    result = forward_call(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torchvision/models/vgg.py", line 66, in forward
+    x = self.features(x)
+        ^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1784, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/container.py", line 244, in forward
+    input = module(input)
+            ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1773, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1879, in _call_impl
+    return inner()
+           ^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/torch/nn/modules/module.py", line 1840, in inner
+    hook_result = hook(self, args, result)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/effwidth/code/layerspec/hooks.py", line 233, in hook
+    self._consume(f"{_base}#{idx}", _name, _kind, idx,
+  File "/workspace/effwidth/code/layerspec/hooks.py", line 293, in _consume
+    self._maybe_checkpoint(rec)
+  File "/workspace/effwidth/code/layerspec/hooks.py", line 324, in _maybe_checkpoint
+    rec.acc.eigenvalues(), rec.C, rec.acc.n
+    ^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/effwidth/code/layerspec/accumulate.py", line 134, in eigenvalues
+    vals = np.linalg.eigvalsh(self.covariance)[::-1]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/numpy/linalg/_linalg.py", line 1333, in eigvalsh
+    w = gufunc(a, signature=signature)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/dist-packages/numpy/linalg/_linalg.py", line 110, in _raise_linalgerror_eigenvalues_nonconvergence
+    raise LinAlgError("Eigenvalues did not converge")
+numpy.linalg.LinAlgError: Eigenvalues did not converge

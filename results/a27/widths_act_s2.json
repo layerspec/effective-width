@@ -1,0 +1,212 @@
+{
+  "checkpoint": "../results/a27/vgg16_bn_in10_s2/final.pt",
+  "n_images": 6400,
+  "positions": 16,
+  "seed": 0,
+  "split": "train",
+  "min_width": 8,
+  "layers": [
+    {
+      "layer": "features.2",
+      "C": 64,
+      "r_max": 27.0,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 9,
+      "k_star_0.999": 28
+    },
+    {
+      "layer": "features.5",
+      "C": 64,
+      "r_max": 64.0,
+      "n_samples": 102400,
+      "n_over_C": 1600.0,
+      "ok": true,
+      "k_star_0.95": 19,
+      "k_star_0.999": 53
+    },
+    {
+      "layer": "features.9",
+      "C": 128,
+      "r_max": 128.0,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 33,
+      "k_star_0.999": 104
+    },
+    {
+      "layer": "features.12",
+      "C": 128,
+      "r_max": 128.0,
+      "n_samples": 102400,
+      "n_over_C": 800.0,
+      "ok": true,
+      "k_star_0.95": 56,
+      "k_star_0.999": 114
+    },
+    {
+      "layer": "features.16",
+      "C": 256,
+      "r_max": 256.0,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 121,
+      "k_star_0.999": 242
+    },
+    {
+      "layer": "features.19",
+      "C": 256,
+      "r_max": 256.0,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 111,
+      "k_star_0.999": 237
+    },
+    {
+      "layer": "features.22",
+      "C": 256,
+      "r_max": 256.0,
+      "n_samples": 102400,
+      "n_over_C": 400.0,
+      "ok": true,
+      "k_star_0.95": 79,
+      "k_star_0.999": 215
+    },
+    {
+      "layer": "features.26",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 147,
+      "k_star_0.999": 449
+    },
+    {
+      "layer": "features.29",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 143,
+      "k_star_0.999": 433
+    },
+    {
+      "layer": "features.32",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 135,
+      "k_star_0.999": 424
+    },
+    {
+      "layer": "features.36",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 181,
+      "k_star_0.999": 463
+    },
+    {
+      "layer": "features.39",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 142,
+      "k_star_0.999": 425
+    },
+    {
+      "layer": "features.42",
+      "C": 512,
+      "r_max": 512.0,
+      "n_samples": 102400,
+      "n_over_C": 200.0,
+      "ok": true,
+      "k_star_0.95": 93,
+      "k_star_0.999": 260
+    }
+  ],
+  "widths": {
+    "full": [
+      64,
+      64,
+      128,
+      128,
+      256,
+      256,
+      256,
+      512,
+      512,
+      512,
+      512,
+      512,
+      512
+    ],
+    "ruler": [
+      28,
+      53,
+      104,
+      114,
+      242,
+      237,
+      215,
+      449,
+      433,
+      424,
+      463,
+      425,
+      260
+    ],
+    "uniform": [
+      28,
+      53,
+      104,
+      114,
+      242,
+      237,
+      215,
+      449,
+      433,
+      424,
+      463,
+      425,
+      260
+    ],
+    "ruler95": [
+      9,
+      19,
+      33,
+      56,
+      121,
+      111,
+      79,
+      147,
+      143,
+      135,
+      181,
+      142,
+      93
+    ]
+  },
+  "params": {
+    "full": 134309962,
+    "ruler": 79216435,
+    "uniform": 79216435,
+    "ruler95": 36818036
+  },
+  "uniform_factor": NaN,
+  "dataset": "imagenet",
+  "num_classes": 10,
+  "tensor": "act"
+}

@@ -1,0 +1,13 @@
+=== vgg16_bn_in10_s0 start Tue Sep 29 15:52:08 UTC 2026 ===
+=== vgg16_bn_in10_s0 end Tue Sep 29 17:32:15 UTC 2026 ===
+=== ruler vgg16_bn_in10_s0 (6,400 training images of the task, after the ReLU) Tue Sep 29 17:32:15 UTC 2026 ===
+=== vgg16_bn_in10_s1 start Tue Sep 29 17:34:09 UTC 2026 ===
+=== vgg16_bn_in10_s1 end Tue Sep 29 19:12:09 UTC 2026 ===
+=== ruler vgg16_bn_in10_s1 (6,400 training images of the task, after the ReLU) Tue Sep 29 19:12:09 UTC 2026 ===
+ruler failed for seed 1, see ../results/a27/widths_act_s1.log
+=== vgg16_bn_in10_s2 start Tue Sep 29 19:12:19 UTC 2026 ===
+=== vgg16_bn_in10_s2 end Tue Sep 29 20:51:31 UTC 2026 ===
+=== ruler vgg16_bn_in10_s2 (6,400 training images of the task, after the ReLU) Tue Sep 29 20:51:31 UTC 2026 ===
+=== A27 done Tue Sep 29 20:53:20 UTC 2026 ===
+seed 0: top1 92.60  params kept 0.615  first5 [0.36, 0.56, 0.6, 0.57, 0.65]  last3 [0.81, 0.77, 0.58]
+seed 2: top1 93.80  params kept 0.590  first5 [0.44, 0.83, 0.81, 0.89, 0.95]  last3 [0.9, 0.83, 0.51]
