@@ -875,6 +875,62 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   P9.5 (gain vs accuracy change, 18 runs): Spearman rho = -0.07; accuracy change -0.46..+0.31 points  -> no monotone relation (|rho| < 0.5)
   Fraction of the predicted gain realised, median over runs: 0.50 (range 0.24..1.05)
 
+
+========================================================================
+26. A17 reduced: controlled block type on ImageNet-1k, one recipe (analysis-plan 9.4, D2)
+========================================================================
+  same recipe (SGD, lr 0.1 cosine, 90 epochs), same stage widths, 52 vs 53 conv; k*(0.95)/r_max on the
+  section-6 validation subset; R-R / T-T / T-R as in section 12 (all trained x random pairs)
+    arch       seeds     R-R    T-T    T-R    T-R range    level R->T  rho_depth R->T  settle    top1
+    basic6666      2   +0.92  +0.89  -0.11 -0.25..+0.00   0.27 -> 0.53   -0.88 -> +0.33      75   74.44
+               T-R same seed: -0.21 -0.02;  L = 52 dense conv
+               epoch   top1  level rho(depth) rho vs init rho vs final
+                   0   0.10  0.235      -0.88       +1.00        -0.11
+                   1  20.30  0.198      -0.40       +0.46        -0.12
+                   2  33.41  0.181      -0.57       +0.58        +0.02
+                   5  44.33  0.336      -0.09       +0.25        +0.61
+                  10  48.84  0.395      -0.01       +0.19        +0.76
+                  20  51.84  0.418      +0.01       +0.16        +0.80
+                  30  54.57  0.421      +0.01       +0.17        +0.82
+                  45  58.90  0.452      +0.06       +0.13        +0.88
+                  60  64.93  0.480      +0.15       +0.05        +0.93
+                  75  70.65  0.515      +0.26       -0.05        +0.99
+                  90  74.44  0.534      +0.33       -0.11        +1.00
+    resnet50       2   +0.96  +0.91  -0.26 -0.39..-0.12   0.22 -> 0.41   -0.73 -> +0.64      45   75.57
+               T-R same seed: -0.25 -0.26;  L = 53 dense conv
+               epoch   top1  level rho(depth) rho vs init rho vs final
+                   0   0.10  0.211      -0.73       +1.00        -0.26
+                   1  17.27  0.148      -0.00       +0.28        +0.23
+                   2  29.93  0.129      -0.10       +0.38        +0.27
+                   5  42.18  0.211      +0.36       +0.08        +0.84
+                  10  50.10  0.246      +0.43       -0.02        +0.89
+                  20  52.88  0.271      +0.49       -0.09        +0.93
+                  30  53.83  0.271      +0.53       -0.16        +0.93
+                  45  59.67  0.312      +0.53       -0.14        +0.95
+                  60  64.56  0.340      +0.55       -0.16        +0.97
+                  75  71.70  0.365      +0.62       -0.24        +0.99
+                  90  75.57  0.400      +0.64       -0.26        +1.00
+
+  H9.4a (bottleneck T-R below basic T-R on ImageNet): max bottleneck -0.12 vs min basic -0.25; Mann-Whitney one-sided p = 0.0571 (2 seeds: descriptive)  -> NOT supported
+  this-recipe ResNet-50 final profile vs the 6 public ResNet-50 recipes (T-T on shared layers): median +0.86, range +0.72..+0.95
+  H9.4b (reordering is the recipe's doing: this-recipe ResNet-50 same-seed T-R median >= 0.4 and T-T vs public < 0.5): T-R -0.26, T-T +0.86  -> NOT supported
+  Pre-registered outcome (plan 9.4): this recipe reorders both architectures on ImageNet; attribute to the dataset
+
+========================================================================
+27. A29: our own ImageNet-1k ResNet-18 weights, the shallow end of the depth axis (analysis-plan 9.18)
+========================================================================
+  A23 full-width weights (SGD, lr 0.1, steps at 30/60, 90 epochs); random networks rebuilt from the seed;
+  k*(0.95)/r_max on the section-6 validation subset, dense conv passing n/C >= 50
+    weights 2  layers 20  top-1 69.14 / 68.54
+    R-R +0.71   T-T +0.99
+    T-R (trained seed, random seed): (0,0) +0.62  (0,1) +0.73  (1,0) +0.64  (1,1) +0.75
+    level R -> T: 0.45 -> 0.53;  rho_depth R -> T: +0.12 -> +0.27
+    T-T with the 6 public ResNet-18 weights: median +0.93, range +0.73..+0.99
+  P9.48 (all 4 T-R >= +0.40 and median T-T with the public weights >= 0.7): min T-R +0.62, T-T +0.93  -> holds
+  P9.49 (median T-R above basic [6,6,6,6] of A17 by 0.5): +0.69 vs -0.11 (2 A17 seed(s)), gap +0.80  -> holds
+  Registered consequence: under plain SGD recipes on ImageNet-1k a basic network of 20 convolutions keeps the
+  order of its initialisation and one of 52 does not (recipes differ in the schedule; stated once).
+
 ========================================================================
 15. Ablations of the protocol on ResNet-50 V1 (A11-A15): k*(0.95)/r_max profile vs the reference run
 ========================================================================

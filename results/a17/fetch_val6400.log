@@ -1,0 +1,12 @@
+downloading data/validation-* from ILSVRC/imagenet-1k
+(if this 401s: accept the dataset terms in a browser, then run `hf auth login` -- note `huggingface-cli login` is deprecated and exits without logging in)
+Fetching 14 files:   0%|          | 0/14 [00:00<?, ?it/s]Fetching 14 files:   7%|▋         | 1/14 [00:06<01:22,  6.35s/it]Fetching 14 files:  14%|█▍        | 2/14 [00:08<00:48,  4.05s/it]Fetching 14 files:  21%|██▏       | 3/14 [00:11<00:35,  3.26s/it]Fetching 14 files:  29%|██▊       | 4/14 [00:12<00:25,  2.56s/it]Fetching 14 files:  36%|███▌      | 5/14 [00:16<00:27,  3.02s/it]Fetching 14 files:  43%|████▎     | 6/14 [00:17<00:17,  2.22s/it]Fetching 14 files:  50%|█████     | 7/14 [00:18<00:14,  2.10s/it]Fetching 14 files:  64%|██████▍   | 9/14 [00:20<00:06,  1.38s/it]Fetching 14 files:  71%|███████▏  | 10/14 [00:21<00:05,  1.33s/it]Fetching 14 files:  79%|███████▊  | 11/14 [00:22<00:04,  1.35s/it]Fetching 14 files:  86%|████████▌ | 12/14 [00:23<00:02,  1.29s/it]Fetching 14 files:  93%|█████████▎| 13/14 [00:29<00:02,  2.55s/it]Fetching 14 files: 100%|██████████| 14/14 [00:32<00:00,  2.61s/it]Fetching 14 files: 100%|██████████| 14/14 [00:32<00:00,  2.31s/it]
+  shards in /root/.cache/huggingface/hub/datasets--ILSVRC--imagenet-1k/snapshots/49e2ee26f3810fb5a7536bbf732a7b07389a47b5  (33s)
+  14 shards
+  5000 images
+
+wrote 6400 images to /workspace/imagenet_val_6400
+parquet shards left in the HF cache; `huggingface-cli delete-cache` to reclaim the space
+
+next:
+  python -m layerspec.run --data /workspace/imagenet_val_6400 --out results/

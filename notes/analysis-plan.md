@@ -527,6 +527,15 @@ ResNet-50 六個公開配方的重排（T–R −0.08）歸因於「資料集或
   conv-only 比值並列、只作描述）；P9.41 是前五個 conv **每一個** ≥ 0.9。未過 n/C ≥ 50 的層不報告，該種子該條不判。
   P9.39 成立而 P9.40 不成立時沒有登記的後果，兩個數字照報。
 
+- **補記（2026-09-30，替補種子尚未開跑）**：seed 1 在第 2 個 epoch 發散（train loss 16.15 → NaN，top-1 停在 10.0；
+  `results/a27/vgg16_bn_in10_s1/`），尺因權重為 NaN 而失敗（`widths_act_s1.log` 的 `Eigenvalues did not converge`）。這一跑照報為
+  「發散」，不進判定。作者 09-30 定補 seed 3（約 US$1.3）：同配方、同程式快照（pod `/workspace/effwidth/code`），排在 A28 之後、
+  P2m 之前（pod `chain_0930.sh`）。**發散的操作定義在事前定死**：`epochs.csv` 的 train_loss 出現 NaN；seed 3 若發散即中止、依序改
+  seed 4、5，配方不改；三個都發散則 A27 以兩種子結案、P9.40 記「未判」。判定讀 seeds 0、2 與第一個未發散的替補種子。
+  **寫這段補記時 seed 0／2 的尺已在 pod 的 log 摘要裡看到**（保留參數 0.615／0.590；末三層 0.81／0.77／0.58 與 0.90／0.83／0.51；
+  前五層 0.36–0.65 與 0.44–0.95），所以替補種子不可能改變 P9.39、P9.41 的判定（任何一個種子不符即不成立），它只補齊 P9.40 的
+  第三個種子與描述統計。
+
 ### 9.17 ImageNet 上 ResNet-50 重排的因素：類別數 × 解析度 × 影像數（A28；2026-09-29 寫，資料未見；作者 09-29 定「做」）
 
 A17（§10.14，seed 0 已判、seed 1 的 ResNet-50 在 epoch 75 同向、basic 未跑）排除了配方與 block 型別，歸因停在「資料集（在這個深度）」。
@@ -1064,20 +1073,38 @@ $k^*(\tau)/r_{\max}$ 與文獻現行的秩／維度估計量給出的**層排序
   A27 排在 pod 的 A17 之後（VGG-16 batch 256 與 R50 同卡 OOM，需獨佔）。
 - 十類 Imagenette 從頭訓 ResNet-18 top-1 92.4–93.8，符合預期。
 
-### 10.14 A17 縮減版：ImageNet-1k 同配方 basic [6,6,6,6] 對 ResNet-50（**seed 0 暫定**，2026-09-28 收；pod 4090；`results/a17/{basic6666,resnet50}_s0/`、`checkpoint_analysis.txt` §26；seed 1 對約 10/1 收）
+### 10.14 A17 縮減版：ImageNet-1k 同配方 basic [6,6,6,6] 對 ResNet-50（**兩種子定案，2026-09-30 判**；seed 0 對 09-28 收、seed 1 對 09-29 收；pod 4090；`results/a17/`、`checkpoint_analysis.py` §26）
 
-| 架構 | top-1 | 水準 R→T | ρ_depth R→T | 同種子 T–R | settle | 對六個公開 ResNet-50 配方 T–T |
-|---|---|---|---|---|---|---|
-| basic [6,6,6,6]（52 conv） | 74.47 | 0.32 → 0.53 | −0.86 → +0.42 | **−0.21** | 60 | — |
-| ResNet-50（53 conv） | 75.70 | 0.20 → 0.41 | −0.78 → +0.57 | **−0.25** | 45 | 中位 **+0.86**（0.79–0.95） |
+| 架構 | 種子 | top-1 | 水準 R→T | ρ_depth R→T | 同種子 T–R | T×R（對另一個種子的初始化） | settle |
+|---|---|---|---|---|---|---|---|
+| basic [6,6,6,6]（52 conv） | 0 | 74.47 | 0.32 → 0.53 | −0.86 → +0.42 | **−0.21** | −0.25 | 75 |
+| basic [6,6,6,6] | 1 | 74.41 | 0.15 → 0.54 | −0.91 → +0.23 | **−0.02** | +0.00 | 75 |
+| ResNet-50（53 conv） | 0 | 75.70 | 0.20 → 0.41 | −0.78 → +0.57 | **−0.25** | −0.12 | 45 |
+| ResNet-50 | 1 | 75.44 | 0.23 → 0.40 | −0.67 → +0.70 | **−0.26** | −0.39 | 45 |
 
-對照（同統計量）：CIFAR-10 同兩架構（§10、round 3）T–R +0.55／+0.50；公開 ImageNet basic 網（ResNet-18 20 conv、ResNet-34 36 conv）T–R +0.73／+0.61；公開 ResNet-50 −0.08。
+| 架構 | R–R | T–T | T–R 中位（4 對） | T–R 範圍 | 對六個公開 ResNet-50 配方 T–T |
+|---|---|---|---|---|---|
+| basic [6,6,6,6] | +0.92 | +0.89 | **−0.11** | −0.25…+0.00 | — |
+| ResNet-50 | +0.96 | +0.91 | **−0.26** | −0.39…−0.12 | 中位 **+0.86**（0.72–0.95，2 種子 × 6 配方） |
 
-- **H9.4a**：bottleneck −0.25 < basic −0.21，1 對 1 時字面成立，**差 0.04**——是 CIFAR 上同兩架構種子範圍（0.38–0.57）的十分之一，不是「block 效應」的量級；正式判定等 seed 1 的 4 對 4。
-- **H9.4b 不成立**：本配方（SGD、cosine、無增強技巧）的 ResNet-50 同種子 T–R −0.25（登記 ≥ 0.4），與六個公開配方的 T–T +0.86（登記 < 0.5）——**還比公開配方彼此的 T–T 0.84 高**。重排不是長 schedule／重增強／BCE 造成的；最簡配方就重排到同一個順序。
-- **實質讀法（暫定，等 seed 1）**：兩個 52／53 conv 的架構在 ImageNet 上都重排（−0.21／−0.25）、在 CIFAR-10 上都保序（+0.55／+0.50）；公開的淺 basic 網（20／36 conv）在 ImageNet 上保序。登記的第三種後果（「兩者皆不成立→資料集」）在方向上最接近，但 H9.4a 字面成立、且淺 basic 網保序，所以歸因只能寫到「**資料集在這個深度**」；配方排除、block 型別排除（0.04），深度 × 資料是剩下的候選，本篇未測。
-- **軌跡（探索性）**：兩架構的順序在 epoch 5 已與最終 ρ ≥ 0.69／0.83、epoch 10 ≥ 0.80／0.90，之後只有水準在升（0.33→0.53、0.21→0.41 到 epoch 90）；順序在前 5 個 epoch 定、水準跟著準確率走到底。與 CIFAR 的 settle（40–60）同型。
-- 論文措辭（seed 1 齊後才動）：`sec:learned` 的「data or recipe」改為「the data at this depth: under one plain recipe both block types reorder on ImageNet and neither does on CIFAR-10; the recipe is excluded (T–T 0.86 with the public recipes)」；主張表「訓練對剖面的作用依 block 類型」列補 A17。
+對照（同統計量）：CIFAR-10 同兩架構（§10、round 3）T–R +0.55／+0.50；公開 ImageNet basic 網（ResNet-18 20 conv、ResNet-34 36 conv）T–R +0.73／+0.61；
+公開 ResNet-50 −0.08；自己訓的 ImageNet ResNet-18（§10.15）+0.69。最終剖面的相鄰層階差中位 0.06–0.08（規則 9；T–R 是秩統計量，不受水準影響）。
+
+- **H9.4a 不成立**（4 對 4）：bottleneck 最大 −0.12 沒有低於 basic 最小 −0.25；Mann–Whitney 單尾 p = 0.057（只作描述：4 個 T×R 來自 2×2，不獨立）。
+  兩架構中位差 0.15，小於 basic 自己兩個種子的同種子 T–R 差 0.19（−0.21 對 −0.02）。09-28 seed 0 的「字面成立、差 0.04」在第二個種子消失。
+- **H9.4b 不成立**（兩種子）：本配方（SGD、cosine、無增強技巧）的 ResNet-50 同種子 T–R −0.25／−0.26（登記 ≥ 0.4），與六個公開配方的 T–T 中位 +0.86
+  （登記 < 0.5；公開配方彼此 0.84）。最簡配方就重排到公開配方的那個順序。
+- **登記的後果（plan §9.4，兩者皆不成立）**：「this recipe reorders both architectures on ImageNet; attribute to the dataset」。配方排除、block 型別排除。
+  與 §10.15 合看（P9.48、P9.49 成立）：同為 basic、同在 ImageNet-1k、同為普通 SGD，20 個 conv 保序（+0.69）、52 個 conv 不保序（−0.11），
+  所以歸因寫到「**資料集在這個深度**」；資料的哪個因素（類別數、解析度、影像數）由 A28（§9.17）分離，深度本身本篇未做受控實驗。
+- **軌跡（探索性，兩種子）**：對最終剖面的 ρ 在 epoch 5 為 0.69／0.54（basic）與 0.83／0.84（ResNet-50），epoch 10 為 0.80／0.73 與 0.90／0.89，
+  之後主要是水準在升（中位 0.34→0.53、0.21→0.40 到 epoch 90）。settle（ρ ≥ 0.95）是 75／75 與 45／45；**09-28 寫的 basic seed 0「settle 60」是進位錯**
+  （epoch 60 的 ρ 是 0.948），以程式輸出為準。
+- **探索性（未登記）：basic 網路的初始水準隨種子差一倍。** 同一批影像、γ＝1 初始化，seed 0／1 的初始中位 0.32／0.15；差在第 2–3 stage
+  （stage 3：0.25–0.33 對 0.09–0.16），stage 1 與 stage 4 相近，R–R 順序仍 +0.92。訓練後兩個種子的水準 0.53／0.54、T–T +0.89——
+  最終水準不繼承初始水準。ResNet-50 的兩個初始化 0.20／0.23。論文若報「未訓練 basic 深網的水準」必須帶種子範圍。
+- 論文措辭（**改稿要等框架敵意審稿過閘**）：`sec:learned` 的「data or recipe」改為「the data at this depth: under one plain recipe both block types
+  reorder on ImageNet and neither does on CIFAR-10; the recipe is excluded (T–T 0.86 with the public recipes)」；主張表「訓練對剖面的作用依 block 類型」列補 A17。
 
 ### 10.15 A29：自己訓的 ImageNet-1k ResNet-18（2026-09-29 量，Mac CPU 約 25 分鐘；`results/a29/`、`checkpoint_analysis.py` §27；plan §9.18）
 
@@ -1093,8 +1120,8 @@ $k^*(\tau)/r_{\max}$ 與文獻現行的秩／維度估計量給出的**層排序
 | ρ_depth R→T | +0.12 → +0.27 |
 
 - **P9.48 成立**：4 個 T–R 最小 +0.62（登記 ≥ +0.40），與公開權重 T–T 中位 +0.93（登記 ≥ 0.7）。
-- **P9.49 暫定**：T–R 中位 +0.69 對 A17 basic [6,6,6,6] seed 0 的 −0.21，差 +0.90（登記 ≥ 0.5）；A17 basic seed 1 齊後才判。
-- 依登記後果（P9.49 定案後才寫進論文）：「under plain SGD recipes on ImageNet-1k a basic network of 20 convolutions keeps the order of its
+- **P9.49 成立（2026-09-30，A17 basic 兩種子齊）**：T–R 中位 +0.69 對 A17 basic [6,6,6,6] 的 −0.11（4 個 T×R；同種子 −0.21／−0.02），差 **+0.80**（登記 ≥ 0.5）。09-29 暫定時只有 seed 0（−0.21，差 +0.90）。
+- 依登記後果（P9.49 已定案；寫進論文要等框架審稿過閘）：「under plain SGD recipes on ImageNet-1k a basic network of 20 convolutions keeps the order of its
   initialisation and one of 52 does not」，配方差（階梯對 cosine）寫一次。
 - **探索性（未登記，量測時才發現）：隨機對照的初始化方式不同。** A23／A17 的建構函式（torchvision 預設）每個 block 最後一個 BN 的 γ＝1；
   §12 公開家族的隨機對照用 timm 預設，γ＝0（zero-init residual，殘差支路在初始化時關閉）。同一架構 ResNet-18：
