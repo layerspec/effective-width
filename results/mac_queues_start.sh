@@ -8,4 +8,8 @@ for q in p2e p2f p2g p2h p2i p2j p2k p2l; do
   nohup caffeinate -i results/mac_queue_$q.sh >> results/mac_queue_$q.log 2>&1 &
   echo "started $q"
 done
+if pgrep -f "results/mac_measure_bplus\.sh" > /dev/null 2>&1; then echo "measure_bplus already running"; else
+  nohup caffeinate -i results/mac_measure_bplus.sh >> results/mac_measure_bplus.log 2>&1 &
+  echo "started measure_bplus"
+fi
 sleep 3; echo "queues alive: $(pgrep -f 'results/mac_queue_p2' | wc -l | tr -d ' ')"

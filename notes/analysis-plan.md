@@ -673,6 +673,36 @@ r_max ＝ min(d_in, d_out)，token 當位置；恆等式 Σ_out ＝ WΣ_inWᵀ �
   - 自監督權重（DINO、MAE）只作探索性描述。
 - 統計：每家族 5–6 個權重 × 3 個隨機種子，描述為主；T–R 對 0 的檢定不做（規則 8 的配對檢定只用在同一組層的兩種讀法之間）。
 
+### 9.20 量測本身的兩個對照：輸入正規化與隨機對照的初始化（2026-09-29 寫，資料未見；B+ 計畫 T6／T7；預登記由我定，作者 09-29 授權）
+
+**(A) 輸入正規化（T7）。** 09-29 逐一比對 45 個 timm 公開權重的 `pretrained_cfg`：40 個用 ImageNet 的 mean/std，**5 個不是**，而量測一律用了
+ImageNet 的——`mobilenetv3_large_100.ra4_e3600_r224_in1k`（0.5/0.5）、`mobilenetv3_large_100.miil_in21k_ft_in1k`（0/1）、
+`tf_mobilenetv3_large_100.in1k`（0.5/0.5）、`efficientnet_b0.ra4_e3600_r224_in1k`（0.5/0.5）、`tf_efficientnet_b0.ap_in1k`（0.5/0.5）。
+五個全在 MobileNetV3 與 EfficientNet-B0 兩個家族，也就是論文說「跨配方沒有共同剖面（T–T ≈ 0）、水準差 4 倍」的那兩個家族。
+torchvision 名稱的權重（resnet50、resnet18、vgg16_bn、convnext_tiny）都用 ImageNet 的，無誤。ViT-B 那一個在 §9.19 的 P9.55。
+
+- **設計**：五個權重用各自的 mean/std 重量，其餘選項與原量測相同（6,400 張、16 位置、seed 0、幾何前處理不變）；裝置改 CPU。
+  `scripts/measure_controls.py`（`--only renorm`）→ `results/bplus_controls/renorm/`。
+- **P9.56**：五個權重每一個都滿足——新舊剖面（k*(0.95)/r_max，兩次都過門檻的 dense conv）Spearman ≥ 0.95，且水準中位差 ≤ 0.03。
+- **P9.57**：用更正後的五個剖面重算，MobileNetV3 與 EfficientNet-B0 兩個家族的跨配方 T–T 中位仍 < 0.5（「無共同剖面」不是正規化造成的）。
+- **後果**：無論成立與否，論文與表一律改用更正後的數字。P9.56 成立 → Method 一句「每個權重用它訓練時的輸入統計量；用錯時剖面相關 ≥ …」。
+  P9.56 不成立 → 在偏離紀錄（§8）記一列，受影響的每個數字重算。**P9.57 不成立 → 「inverted residual 家族無跨配方共同剖面」撤回**，
+  改寫為更正後資料顯示的結果；主張表該列、摘要與 §I 若有引用一併改。
+
+**(B) 隨機對照的初始化（T6）。** §10.15 發現 timm 的 ResNet 建構函式把每個 block 最後一個 BN 的 γ 初始化為 0（殘差支路在初始化時關閉），
+torchvision 與 A17／A23 用 γ＝1。09-29 逐一建構檢查：**只有 ResNet 系五個家族**（ResNet-18／34／101、Wide-ResNet-50-2、ResNeXt-50）有 γ＝0 的 BN
+（8／16／33／16／16 個）；DenseNet、VGG、MobileNetV2／V3、EfficientNet 的 timm 建構沒有。公開 ResNet-50 的對照是 torchvision 建構（γ＝1），無此問題。
+
+- **已知**：ResNet-18 在兩種對照下 T–R 中位 +0.73（γ＝0）／+0.75（γ＝1，但那兩個 γ＝1 網路是 A23 的建構函式、種子 0／1）；水準 0.29–0.34 對 0.44–0.48；
+  R–R 0.97–0.98 對 0.71。其餘四個家族未量。
+- **設計**：五個家族各以 `timm.create_model(name, pretrained=False, zero_init_last=False)` 建 3 個種子（1、2、3），其餘與原隨機對照相同。
+  `scripts/measure_controls.py`（`--only gamma1`）→ `results/bplus_controls/gamma1/seed{1,2,3}/`。
+- **P9.58**：五個家族每一個，公開權重對 γ＝1 隨機對照的 T–R 中位與對 γ＝0 的相差 ≤ 0.10（順序的結論不隨初始化方式改變）。
+- **P9.59**：五個家族每一個，γ＝1 隨機對照的水準中位比 γ＝0 的高 0.05 以上，且 R–R 中位較低（ResNet-18 上已見，其餘四個是檢驗）。
+- **後果**：P9.58 成立 → 家族表的 ResNet 系列兩種對照並列（兩欄），Method 註明「untrained 指建構函式的預設初始化，ResNet 系另報 γ＝1」；
+  正文的結論不變。P9.58 在某家族不成立 → 該家族「保序」的陳述改為「在 γ＝… 的初始化下」，兩個數字都報，B+ 脊椎第二段（初始化可算）
+  加一句初始化方式是輸入之一。P9.59 只作描述，不承重。
+
 ## 10. 第三輪結果（2026-09-09；`results/checkpoint_analysis.txt` §12–§13、`results/round3*/`）
 
 24 個 run（RunPod 3090，2026-09-08）全部跑完 100 epoch；判定依 §9 的規則，資料見過之前的規則一字未改。
