@@ -91,7 +91,7 @@ P-v1 & 2026-09-23; ctrl:551--552 & P2k, CIFAR-10 ViT (dim 192, depth 6, hidden 7
 P-v2 & 2026-09-23; ctrl:553 & P2k: b three-seed mean $\ge$ ruler $- 0.3$, and every seed $>$ every uniform seed (3 vs 3). & --- & pending & n/a \\
 P-v3 & 2026-09-23; ctrl:554 & P2k: apriori and b differ by $\le 0.3$. & --- & pending & n/a \\
 P-v4 & 2026-09-23; ctrl:555 & P2k shape: whether the controller moves width in the same or the opposite direction to VGG; recorded only, not predicted. & --- & pending & n/a \\
-P-m1 & 2026-09-24; ctrl:583--584 & P2m, ImageNet-1k ResNet-18, pod not opened (commit 598e8dd: ``P2m not run''): f60 two-seed mean $\ge$ ufixed60 mean $+ 0.5$, and 2 vs 2 all-above-all; if f60 $\le$ ufixed60, written as a negative result. & --- & pending & n/a \\
+P-m1 & 2026-09-24; ctrl:583--584 & P2m, ImageNet-1k ResNet-18, approved 2026-09-29, not yet run: f60 two-seed mean $\ge$ ufixed60 mean $+ 0.5$, and 2 vs 2 all-above-all; if f60 $\le$ ufixed60, written as a negative result. & --- & pending & n/a \\
 P-m2 & 2026-09-24; ctrl:585 & P2m: f60 mean $\ge$ full width 68.84 $- 1.0$. & --- & pending & n/a \\
 P-m3 & 2026-09-24; ctrl:586 & P2m shape: the two mids of stage 1 $\le 0.5$ of full width, the two mids of stage 4 $\ge 0.7$. & --- & pending & n/a \\
 P-m4 & 2026-09-24; ctrl:587 & P2m: per-site relative difference between the two seeds $\le 10\%$. & --- & pending & n/a \\
@@ -110,5 +110,13 @@ P9.38 & 2026-09-26; plan 9.15 & A26: parameters kept by the ruler $< 0.85$. & $0
 P9.39 & 2026-09-27; plan 9.16 & A27, VGG-16 (BN) on the same task and recipe, three seeds: the last three convolutions read $k^*(0.999)/C < 0.7$ after the ReLU, 3/3. & -- & pending & n/a \\
 P9.40 & 2026-09-27; plan 9.16 & A27: parameters kept $< 0.85$. & -- & pending & n/a \\
 P9.41 & 2026-09-27; plan 9.16 & A27: the first five convolutions read $\ge 0.9$. & -- & pending & n/a \\
+P9.42 & 2026-09-29; plan 9.17 & A28, ResNet-50 under the A17 recipe, two seeds per cell. ImageNet-1k at $64$ pixels reorders (both same-seed T--R $\le +0.10$) and its final profile has median T--T $\ge 0.6$ with the $224$-pixel one. & -- & pending & n/a \\
+P9.43 & 2026-09-29; plan 9.17 & A28: on a hundred ImageNet classes at $224$ pixels both same-seed T--R exceed the larger of the two thousand-class values by $0.20$, and the final $\rho_{\rm depth}$ is below both. & -- & pending & n/a \\
+P9.44 & 2026-09-29; plan 9.17 & A28: the class effect has one sign at both resolutions (median T--R, hundred classes above thousand, at $224$ and at $64$). & -- & pending & n/a \\
+P9.45 & 2026-09-29; plan 9.17 & A28: a hundred classes at $224$ pixels do not reach the order-preserving zone (at least one seed below $+0.40$). & -- & pending & n/a \\
+P9.46 & 2026-09-29; plan 9.17 & A28: optimisation length is not the factor; the hundred-class $64$-pixel network trained ten times longer has same-seed T--R within $0.15$ of the $90$-epoch one, seed by seed, in the same zone. & -- & pending & n/a \\
+P9.47 & 2026-09-29; plan 9.17 & A28: image count is not the factor; a thousand classes at $130$ images each reorder. & -- & pending & n/a \\
+P9.48 & 2026-09-29; plan 9.18 & A29, our two ImageNet-1k ResNet-18 weights (step schedule): all four T--R $\ge +0.40$ and median T--T with the six public ResNet-18 weights $\ge 0.7$. & -- & pending & n/a \\
+P9.49 & 2026-09-29; plan 9.18 & A29: median T--R above that of the basic $[6,6,6,6]$ network of A17 by $0.5$. & -- & pending & n/a \\
 \bottomrule
 \end{longtable}
