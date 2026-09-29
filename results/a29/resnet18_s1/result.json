@@ -1,0 +1,14 @@
+{
+  "arch": "resnet18",
+  "seed": 1,
+  "epochs": 90,
+  "final_top1": 68.54,
+  "weights": "../results/a18_imagenet_pt/resnet18_full_s1/final.pt",
+  "init": "rebuilt from torch.manual_seed(seed); not the saved initialisation of the A23 run",
+  "measure": {
+    "data": "../data/imagenet_val_6400",
+    "size": 224,
+    "positions": 16,
+    "limit": null
+  }
+}

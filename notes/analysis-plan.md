@@ -930,6 +930,35 @@ $k^*(\tau)/r_{\max}$ 與文獻現行的秩／維度估計量給出的**層排序
 - **軌跡（探索性）**：兩架構的順序在 epoch 5 已與最終 ρ ≥ 0.69／0.83、epoch 10 ≥ 0.80／0.90，之後只有水準在升（0.33→0.53、0.21→0.41 到 epoch 90）；順序在前 5 個 epoch 定、水準跟著準確率走到底。與 CIFAR 的 settle（40–60）同型。
 - 論文措辭（seed 1 齊後才動）：`sec:learned` 的「data or recipe」改為「the data at this depth: under one plain recipe both block types reorder on ImageNet and neither does on CIFAR-10; the recipe is excluded (T–T 0.86 with the public recipes)」；主張表「訓練對剖面的作用依 block 類型」列補 A17。
 
+### 10.15 A29：自己訓的 ImageNet-1k ResNet-18（2026-09-29 量，Mac CPU 約 25 分鐘；`results/a29/`、`checkpoint_analysis.py` §27；plan §9.18）
+
+判定程式（commit 99e4be8）在量測跑完之前提交。A23 兩個全寬權重（top-1 69.14／68.54）、兩個由種子重建的隨機網路、§6 協定、20 個 conv 全部過門檻。
+
+| | 值 |
+|---|---|
+| T–R（訓練種子, 隨機種子） | (0,0) +0.62、(0,1) +0.73、(1,0) +0.64、(1,1) +0.75；中位 **+0.69** |
+| T–T（兩個權重之間） | +0.99 |
+| R–R（兩個重建的隨機網路之間） | **+0.71** |
+| 與六組公開 ResNet-18 權重的 T–T | 中位 **+0.93**（0.73–0.99） |
+| 水準 R→T | 0.45 → 0.53 |
+| ρ_depth R→T | +0.12 → +0.27 |
+
+- **P9.48 成立**：4 個 T–R 最小 +0.62（登記 ≥ +0.40），與公開權重 T–T 中位 +0.93（登記 ≥ 0.7）。
+- **P9.49 暫定**：T–R 中位 +0.69 對 A17 basic [6,6,6,6] seed 0 的 −0.21，差 +0.90（登記 ≥ 0.5）；A17 basic seed 1 齊後才判。
+- 依登記後果（P9.49 定案後才寫進論文）：「under plain SGD recipes on ImageNet-1k a basic network of 20 convolutions keeps the order of its
+  initialisation and one of 52 does not」，配方差（階梯對 cosine）寫一次。
+- **探索性（未登記，量測時才發現）：隨機對照的初始化方式不同。** A23／A17 的建構函式（torchvision 預設）每個 block 最後一個 BN 的 γ＝1；
+  §12 公開家族的隨機對照用 timm 預設，γ＝0（zero-init residual，殘差支路在初始化時關閉）。同一架構 ResNet-18：
+
+  | 隨機對照 | 水準 | R–R | 公開權重的 T–R 中位 | 我們權重的 T–R |
+  |---|---|---|---|---|
+  | γ＝0（timm，3 個種子） | 0.29–0.34 | 0.97–0.98 | +0.73 | +0.59–0.69 |
+  | γ＝1（torchvision，2 個種子） | 0.44–0.48 | 0.71 | +0.75 | +0.62–0.75 |
+
+  兩種對照互相的相關 0.75–0.83。**結論不受影響**（T–R 在兩種對照下都是 0.6–0.75），但三件事要寫進論文：(a) 「未訓練剖面」要註明初始化方式；
+  (b) γ＝1 時隨機剖面的種子間順序只有 0.71（γ＝0 時 0.98），所以 ResNet-18 在 γ＝1 下 T–R 的天花板較低；(c) A17 的兩個架構用 γ＝1，
+  公開 ResNet-50 的隨機對照要查是哪一種（`local6400/seed*/resnet50_random`），T–R −0.08 對 −0.25 的差可能有一部分來自這裡。(c) 待查，免費。
+
 ### 9.7 用尺定寬度再重訓，第二個資料集（2026-09-10 寫，資料未見；A18 的可重複性）
 
 §10.4 的 P9.6 只在一個架構、一個資料集、一個預算上成立。作者決定在 CIFAR-100 上重做，
