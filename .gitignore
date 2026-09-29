@@ -59,3 +59,6 @@ results/bootstrap/*/pooled_n_*.npy
 results/bootstrap/*/proj.npz
 results/bootstrap/*/*M2_*.npy
 results/bootstrap_queue.log
+
+# literature PDFs read for prior-art checks (copyrighted; not tracked)
+refs/a30/

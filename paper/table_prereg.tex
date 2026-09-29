@@ -125,5 +125,6 @@ P9.59 & 2026-09-29; plan 9.20 & Same families: the level of the random network i
 P9.60 & 2026-09-29; plan 9.21 & Trained ResNet-18/34/50 ($\times 2$ recipes), blocks without a downsample: $k^*(0.95)$ of the sum is at least that of the stream in $\ge 90\%$ of blocks. & $6/42$ (sum before the ReLU against stream after it); after the ReLU on both sides $37/42$, descriptive. & fails & yes \\
 P9.61 & 2026-09-29; plan 9.21 & The worst-direction floor is loose ($\rho_{\max} \ge 0.9$ in more than half of the blocks) while the stream keeps at least half of its eigenvalue at its own width in $\ge 90\%$ of blocks. & $\rho_{\max} \ge 0.9$ in $55/56$; retention $\ge 0.5$ in $56/56$ (minimum $1.11$). & holds & yes \\
 P9.62 & 2026-09-29; plan 9.21 & Both floors hold in every block (a violation is a measurement error). & $56/56$. & holds & n/a \\
+P9.67 & 2026-09-30; plan 9.19 & Validation gate for transformers: $k^*(0.90)/r_{\max}$ at the outputs of the twelve qkv and twelve fc1 layers of DeiT-B against the values read from Fig.~1 of Yu and Wu (2023), same weights; Pearson $r \ge 0.95$ and median absolute difference $\le 0.05$. Registered before any A30 result was read. & -- & pending & n/a \\
 \bottomrule
 \end{longtable}

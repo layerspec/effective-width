@@ -18,6 +18,9 @@
 | **Harun et al. 2024**（已在 refs.bib） | **64 個 DNN、512 個實驗：解析度（32／64／128／224）、類別數、每類樣本數、增強、深度、stem 對 tunnel effect 的影響**；類別數與解析度都減少深層壓縮；成對 Wilcoxon＋SHAP 排序 | **A28 的三個因素他們都動過**，只是量的是線性探針的 tunnel（數值秩在附錄）。(i) 他們拆類別數與影像數的做法：**固定總影像數、改類別數**（10×1000、50×200、100×100），比我們的 K1000-N130 更乾淨；(ii) 他們發現低解析度加長 tunnel——**我的 P9.42（解析度不恢復順序）依文獻可能不成立**；(iii) 增強是第二大因素，我們的 A28 沒有動它 | ☑ plan §9.17 補記（今天，A28 開跑前）；☐ A31 劑量反應採用「固定總影像數」設計 |
 | Masarczyk 2023（已在 refs.bib） | tunnel 隨類別數變；**去掉 skip 的 ResNet 出現 tunnel** | A27（plain 對殘差）有先例：他們用線性探針，我們用 τ＝0.999 的尺；要引並劃界 | ☐ 改稿時引；A27 判定時對照 |
 | Trockman, Willmott & Kolter 2023 | 卷積濾波器共變異數的結構，用來做初始化 | 與 Maennel 的建構同一路；先驗起點臂的相關工作 | ☐ 讀原文後決定是否引 |
+| **Yu & Wu 2023**（AAAI；09-30 讀，未引） | DeiT-B 每個 block 的 QKV／FC1 輸出共變異數、90% 能量的維度比例（隨深度 0.06→0.6）；AFM＝PCA 截尾摺入、2,000 張無標籤影像、不微調，砍 20% 參數 −0.09 | **transformer 的驗證關卡**：同權重、同統計量，A30 已量；分母依推論是 min(m, n)＝r_max | ☑ 登記 P9.67（plan §9.19 補記，A30 結果未讀）；☐ 改稿：(ii) 的 transformer 段寫成「運算子是 Yu & Wu 的」 |
+| **Garg, Koguchi, Verma & Ulbricht 2024**（arXiv 2407.04797；09-30 讀，未引） | 逐層 utilized rank＝P_S Wᵀ P_T 的秩 ÷ min(m, d)；ImageNet ViT-B/16 MLU 35%、ResNet-50 60%；VGG-16 CIFAR-10 對 CIFAR-100 參數比 0.18 對 0.61；拆層後微調 | (i) **r_max 型分母已有人用**，承重主張第一列要改寫；(ii) 「ImageNet 沒有閒置寬度」只在 τ＝0.999、不重訓下成立；(iii) 輸入／輸出兩端的寬度分開報，我們的分解已有原料 | ☐ 改稿：r_max、(ii)、(iv) 三處引用並劃界；☐ 探索性：用 A32 的 Γ 算任務相依寬度，與 MLU 對照 |
+| Tian, Xu & Li 2026；Park 2023；Skean 2025 | 最後一層：每張影像低秩、資料集不低秩；訓練目標決定譜（MAE 最後一層 235/768、DINO 624/768） | A30 的 DINO／MAE 探索性權重對 Tian 表 1 核一次；劃界句「我們量的是跨影像的通道共變異數，不是序列內 token 的秩」 | ☐ A30 判定時核；☐ 改稿時寫劃界句 |
 
 ## 還沒查、開工前要先查的
 
@@ -26,5 +29,5 @@
 | Th8（ReLU 這一步） | 原訂要證 | arXiv 2507.07625；Louart–Liao–Couillet 2018；Pennington–Worah 2017（已引） |
 | S2 初始化剖面可算 | B+ 脊椎第二段 | conv 的 mean-field／NNGP 有限寬度修正；Everett 2026 |
 | S3 訓練是否重排順序 | B+ 脊椎第三段、A28／A31 | Harun 2024 全文與附錄的秩分析；intermediate neural collapse；class count 與特徵秩 |
-| transformer 的剖面（A30） | 要進正文 | ViT 逐層有效秩的既有量測（Feng 2022 表、RankMe、Everett） |
+| ~~transformer 的剖面（A30）~~ | **09-30 已查**：`notes/a30-prior-art-2026-09-30.md` | 投稿前再查一次（搜尋不是窮盡的） |
 | 梯度加權的寬度 | 上表的新想法 | Fisher／AGOP 加權的 PCA、task-relevant dimension、活性子空間（active subspaces） |
