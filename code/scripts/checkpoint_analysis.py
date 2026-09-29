@@ -1463,6 +1463,138 @@ def section_a29(results: str):
     return verdicts
 
 
+A28_CELLS = ("k100_224", "k1000_64", "k100_64", "k100_64_long", "k1000_n130_224")
+A28_REORDER, A28_PRESERVE = 0.10, 0.40
+
+
+def a28_zone(tr_same) -> str:
+    """plan 9.17: 'reorders' when every same-seed T-R is <= +0.10, 'preserves' when every one is >= +0.40."""
+    if not len(tr_same):
+        return "n/a"
+    if max(tr_same) <= A28_REORDER:
+        return "reorders"
+    if min(tr_same) >= A28_PRESERVE:
+        return "preserves"
+    return "intermediate"
+
+
+def _a28_runs(results: str, cell: str) -> dict:
+    out = {}
+    for d in sorted(glob.glob(os.path.join(results, "a28", f"{cell}_s[0-9]*"))):
+        if not os.path.exists(os.path.join(d, "result.json")) or not os.path.exists(os.path.join(d, "trajectory_layers.csv")):
+            continue
+        epochs, P, acc, layers = _load_trajectory(os.path.join(d, "trajectory_layers.csv"))
+        r = dict(init=P[epochs[0]], final=P[epochs[-1]], acc=acc[epochs[-1]], layers=layers,
+                 settle=next((e for e in epochs if _rho(P[epochs[-1]], P[e]) >= 0.95), None), sec=None)
+        f = os.path.join(d, "secondary_layers.csv")
+        if os.path.exists(f):
+            e2, P2, _, l2 = _load_trajectory(f)
+            if len(e2) == 2:
+                r["sec"] = dict(init=P2[e2[0]], final=P2[e2[-1]], layers=l2)
+        out[os.path.basename(d).rsplit("_s", 1)[1]] = r
+    return out
+
+
+def _shared_rho(layers_a, a, layers_b, b) -> float:
+    ib = {lay: i for i, lay in enumerate(layers_b)}
+    common = [(i, ib[lay]) for i, lay in enumerate(layers_a) if lay in ib]
+    if len(common) < 5:
+        return float("nan")
+    return _rho(np.asarray(a)[[i for i, _ in common]], np.asarray(b)[[j for _, j in common]])
+
+
+def section_a28(results: str):
+    """A28 (plan 9.17): ResNet-50 under the A17 recipe, one factor of the dataset changed per cell.  Same-seed T-R
+    decides the zone of a cell; 'T-R' in P9.44 is the median over every trained x random pair, as in section 26."""
+    cells = {c: _a28_runs(results, c) for c in A28_CELLS}
+    if not any(cells.values()):
+        return None
+    base = _a17_profiles(results, "resnet50")
+    hdr("28. A28: what in ImageNet reorders ResNet-50 (analysis-plan 9.17)")
+    print("  ResNet-50, the A17 recipe; k*(0.95)/r_max on held-out images of each cell's own task (primary) and on the")
+    print(f"  section-6 subset (secondary); zones by same-seed T-R: reorders <= {A28_REORDER:+.2f}, preserves >= {A28_PRESERVE:+.2f}")
+    S = {}
+    if base:
+        S["k1000_224"] = dict(same=[_rho(v["init"], v["final"]) for v in base.values()],
+                              all=[_rho(v["final"], w["init"]) for v in base.values() for w in base.values()],
+                              depth=[v["rho_depth_final"] for v in base.values()], n=len(base))
+        b = S["k1000_224"]
+        print(f"    {'k1000_224 (A17)':16s} seeds {b['n']}  same-seed T-R {' '.join(f'{x:+.2f}' for x in b['same'])}  "
+              f"median T-R {np.median(b['all']):+.2f}  rho_depth {' '.join(f'{x:+.2f}' for x in b['depth'])}  {a28_zone(b['same'])}")
+    for c, runs in cells.items():
+        if not runs:
+            print(f"    {c:16s} (no finished runs)"); continue
+        same = [_rho(v["init"], v["final"]) for v in runs.values()]
+        allp = [_rho(v["final"], w["init"]) for v in runs.values() for w in runs.values()]
+        tt = [_rho(a, b) for a, b in itertools.combinations([v["final"] for v in runs.values()], 2)]
+        depth = [_rho(np.arange(len(v["final"])), v["final"]) for v in runs.values()]
+        sec = [v["sec"] for v in runs.values() if v["sec"] is not None]
+        sec_same = [_rho(x["init"], x["final"]) for x in sec]
+        on_std = sec if sec else ([dict(init=v["init"], final=v["final"], layers=v["layers"]) for v in runs.values()]
+                                  if c == "k1000_n130_224" else [])
+        tt_base = [_shared_rho(x["layers"], x["final"], v["layers"], v["final"]) for x in on_std for v in base.values()]
+        rr_base = [_shared_rho(x["layers"], x["init"], v["layers"], v["init"]) for x in on_std for v in base.values()]
+        S[c] = dict(same=same, all=allp, depth=depth, n=len(runs), zone=a28_zone(same), sec_zone=a28_zone(sec_same) if sec else None,
+                    tt_base=[x for x in tt_base if not np.isnan(x)], seeds=sorted(runs), by_seed=dict(zip(runs, same)))
+        print(f"    {c:16s} seeds {len(runs)}  same-seed T-R {' '.join(f'{x:+.2f}' for x in same)}  median T-R {np.median(allp):+.2f}  "
+              f"T-T {' '.join(f'{x:+.2f}' for x in tt) or 'n/a'}  rho_depth {' '.join(f'{x:+.2f}' for x in depth)}  "
+              f"settle {' '.join(str(v['settle']) for v in runs.values())}  top-1 {' '.join(f'{v['acc']:.2f}' for v in runs.values())}  "
+              f"layers {len(next(iter(runs.values()))['layers'])}  -> {S[c]['zone']}")
+        if sec:
+            print(f"    {'':16s} section-6 subset: same-seed T-R {' '.join(f'{x:+.2f}' for x in sec_same)} -> {S[c]['sec_zone']}"
+                  f"{'  ** ZONES DIFFER: both reported, no attribution for this cell **' if S[c]['sec_zone'] != S[c]['zone'] else ''}")
+        if S[c]["tt_base"]:
+            print(f"    {'':16s} with the A17 profiles on the section-6 subset: final T-T median {np.median(S[c]['tt_base']):+.2f}"
+                  + (f", initial R-R median {np.nanmedian(rr_base):+.2f}" if rr_base else ""))
+
+    def full(c):
+        return c in S and S[c]["n"] >= 2
+    V = {}
+    if full("k1000_64") and S["k1000_64"]["tt_base"]:
+        V["P9.42"] = S["k1000_64"]["zone"] == "reorders" and float(np.median(S["k1000_64"]["tt_base"])) >= 0.6
+    if full("k100_224") and full("k1000_224"):
+        V["P9.43"] = (min(S["k100_224"]["same"]) > max(S["k1000_224"]["same"]) + 0.20
+                      and max(S["k100_224"]["depth"]) < min(S["k1000_224"]["depth"]))
+    if all(full(c) for c in ("k100_224", "k1000_224", "k100_64", "k1000_64")):
+        V["P9.44"] = (np.median(S["k100_224"]["all"]) > np.median(S["k1000_224"]["all"])
+                      and np.median(S["k100_64"]["all"]) > np.median(S["k1000_64"]["all"]))
+    if full("k100_224"):
+        V["P9.45"] = S["k100_224"]["zone"] != "preserves"
+    if full("k100_64") and full("k100_64_long"):
+        a, b = S["k100_64"]["by_seed"], S["k100_64_long"]["by_seed"]
+        common = sorted(set(a) & set(b))
+        if len(common) >= 2:
+            V["P9.46"] = all(abs(a[k] - b[k]) <= 0.15 for k in common) and S["k100_64"]["zone"] == S["k100_64_long"]["zone"]
+    if full("k1000_n130_224"):
+        V["P9.47"] = S["k1000_n130_224"]["zone"] == "reorders"
+    text = {"P9.42": "a thousand classes at 64 pixels reorder, final T-T with A17 >= 0.6",
+            "P9.43": "a hundred classes at 224: same-seed T-R above A17's by 0.20, final rho_depth below A17's",
+            "P9.44": "class effect of one sign at both resolutions (median T-R)",
+            "P9.45": "a hundred classes at 224 do not reach the preserving zone",
+            "P9.46": "ten times longer: same-seed T-R within 0.15, same zone",
+            "P9.47": "130 images per class, a thousand classes: reorders"}
+    print()
+    for k, t in text.items():
+        print(f"  {k} ({t}) -> {('holds' if V[k] else 'fails') if k in V else 'not judged yet'}")
+    cons = []
+    if all(V.get(k) for k in ("P9.42", "P9.43", "P9.44", "P9.47")):
+        cons.append("the number of classes: a thousand reorder the profile and a hundred move it back toward the order at "
+                    "initialisation; image count and input size do not"
+                    + ("" if V.get("P9.46", True) else " (optimisation length also matters, P9.46 fails)"))
+    if full("k1000_64") and S["k1000_64"]["zone"] == "preserves":
+        cons.append("input resolution is a factor (a thousand classes at 64 pixels keep the order)"
+                    + ("; with the class effect, two effect sizes and no single attribution" if V.get("P9.43") else ""))
+    if all(full(c) and S[c]["zone"] == "reorders" for c in ("k100_224", "k1000_64", "k1000_n130_224")) and V.get("P9.43") is False:
+        cons.append("neither a hundred classes, nor 64 pixels, nor 130 images per class restores the order; attribution stays "
+                    "with ImageNet's data at this depth")
+    if full("k1000_n130_224") and S["k1000_n130_224"]["zone"] != "reorders":
+        cons.append("the hundred-class effect cannot be given to the class count (image count / steps move it too): 'a smaller task'")
+    if len(V) == len(text):
+        for c in cons or ["no registered single attribution; the effect sizes are reported as measured"]:
+            print(f"  Registered consequence: {c}")
+    return V
+
+
 def section_round3_ortho(results: str, latex: str | None = None) -> None:
     d = os.path.join(results, "round3_decompose")
     files = glob.glob(os.path.join(d, "a5_*_decompose.csv"))
@@ -2603,6 +2735,7 @@ def main(argv=None) -> int:
     section_round3_ortho(a.results, latex=a.latex_ortho)
     section_a17(a.results)
     section_a29(a.results)
+    section_a28(a.results)
     section_ablations(a.results, latex=a.latex_ablation)
     section_a18(a.results, latex=a.latex_a18)
     section_alignment(a.results)
