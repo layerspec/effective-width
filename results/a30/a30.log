@@ -1,0 +1,323 @@
+=== vit_small_patch16_224.augreg_in1k start 2026-09-29 10:01:05 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_small_patch16_224.augreg_in1k end: 48 linear layers pass, 711 s ===
+=== vit_small_patch16_224.augreg_in21k_ft_in1k start 2026-09-29 10:12:58 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_small_patch16_224.augreg_in21k_ft_in1k end: 48 linear layers pass, 618 s ===
+=== deit_small_patch16_224.fb_in1k start 2026-09-29 10:23:16 ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== deit_small_patch16_224.fb_in1k end: 48 linear layers pass, 704 s ===
+=== deit3_small_patch16_224.fb_in1k start 2026-09-29 10:35:00 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== deit3_small_patch16_224.fb_in1k end: 48 linear layers pass, 627 s ===
+=== deit3_small_patch16_224.fb_in22k_ft_in1k start 2026-09-29 10:45:27 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== deit3_small_patch16_224.fb_in22k_ft_in1k end: 48 linear layers pass, 731 s ===
+=== vit_small_patch16_224.dino start 2026-09-29 10:57:38 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_small_patch16_224.dino end: 48 linear layers pass, 707 s ===
+=== vit_small_patch16_224_random_s1 start 2026-09-29 11:09:25 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_small_patch16_224_random_s1 end: 48 linear layers pass, 608 s ===
+=== vit_small_patch16_224_random_s2 start 2026-09-29 11:19:32 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_small_patch16_224_random_s2 end: 48 linear layers pass, 888 s ===
+=== vit_small_patch16_224_random_s3 start 2026-09-29 11:34:21 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_small_patch16_224_random_s3 end: 48 linear layers pass, 733 s ===
+=== deit3_small_patch16_224_random_s1 start 2026-09-29 11:46:34 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== deit3_small_patch16_224_random_s1 end: 48 linear layers pass, 816 s ===
+=== deit3_small_patch16_224_random_s2 start 2026-09-29 12:00:10 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== deit3_small_patch16_224_random_s2 end: 48 linear layers pass, 588 s ===
+=== deit3_small_patch16_224_random_s3 start 2026-09-29 12:09:58 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== deit3_small_patch16_224_random_s3 end: 48 linear layers pass, 451 s ===
+=== vit_base_patch16_224.augreg_in1k start 2026-09-29 12:17:29 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_base_patch16_224.augreg_in1k end: 48 linear layers pass, 2592 s ===
+=== vit_base_patch16_224.augreg_in21k_ft_in1k start 2026-09-29 13:00:41 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_base_patch16_224.augreg_in21k_ft_in1k end: 48 linear layers pass, 2677 s ===
+=== vit_base_patch16_224.orig_in21k_ft_in1k start 2026-09-29 13:45:18 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_base_patch16_224.orig_in21k_ft_in1k end: 48 linear layers pass, 3185 s ===
+=== vit_base_patch16_224.sam_in1k start 2026-09-29 14:38:23 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_base_patch16_224.sam_in1k end: 48 linear layers pass, 2425 s ===
+=== deit_base_patch16_224.fb_in1k start 2026-09-29 15:18:48 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== deit_base_patch16_224.fb_in1k end: 48 linear layers pass, 2136 s ===
+=== deit3_base_patch16_224.fb_in1k start 2026-09-29 15:54:24 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== deit3_base_patch16_224.fb_in1k end: 48 linear layers pass, 2293 s ===
+=== vit_base_patch16_224.dino start 2026-09-29 16:32:37 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_base_patch16_224.dino end: 48 linear layers pass, 2250 s ===
+=== vit_base_patch16_224.mae start 2026-09-29 17:10:06 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_base_patch16_224.mae end: 48 linear layers pass, 2375 s ===
+=== vit_base_patch16_224_random_s1 start 2026-09-29 17:49:41 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_base_patch16_224_random_s1 end: 48 linear layers pass, 1522 s ===
+=== vit_base_patch16_224_random_s2 start 2026-09-29 18:15:04 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_base_patch16_224_random_s2 end: 48 linear layers pass, 1909 s ===
+=== vit_base_patch16_224_random_s3 start 2026-09-29 18:46:53 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+=== vit_base_patch16_224_random_s3 end: 48 linear layers pass, 2259 s ===

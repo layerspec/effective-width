@@ -931,6 +931,76 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   Registered consequence: under plain SGD recipes on ImageNet-1k a basic network of 20 convolutions keeps the
   order of its initialisation and one of 52 does not (recipes differ in the schedule; stated once).
 
+
+========================================================================
+29. A30: the ruler on two transformer families (analysis-plan 9.19)
+========================================================================
+  k*(0.95)/r_max, linear layers of the 12 blocks passing n/C >= 50, 6,400 images x 32 tokens; every weight
+  normalised with the statistics it was trained with, random networks with ImageNet's
+    ViT-S/16: 5/5 weights, 3 random networks, 48 layers
+      layers             n    R-R    T-T    T-R   T-R range
+      all               48  +0.97  +0.90  +0.69   +0.58..+0.77
+      qkv               12  +0.84  +0.97  +0.89   +0.82..+0.96
+      attention proj.   12  +0.86  +0.96  +0.89   +0.80..+0.98
+      MLP fc1           12  +0.91  +0.97  +0.94   +0.88..+0.98
+      MLP fc2           12  +0.42  +0.68  +0.41   +0.22..+0.69
+      level: random 0.16; trained augreg_in1k 0.43  augreg_in21k_ft_in1k 0.53  fb_in1k 0.55  fb_in1k 0.52  fb_in22k_ft_in1k 0.58
+    ViT-B/16: 6/6 weights, 3 random networks, 48 layers
+      layers             n    R-R    T-T    T-R   T-R range
+      all               48  +0.98  +0.89  +0.61   +0.38..+0.70
+      qkv               12  +0.97  +0.99  +0.98   +0.92..+1.00
+      attention proj.   12  +0.72  +0.96  +0.83   +0.71..+0.88
+      MLP fc1           12  +0.93  +0.97  +0.96   +0.93..+0.99
+      MLP fc2           12  +0.72  +0.65  +0.49   -0.05..+0.75
+      level: random 0.15; trained augreg_in1k 0.32  augreg_in21k_ft_in1k 0.40  orig_in21k_ft_in1k 0.44  sam_in1k 0.33  fb_in1k 0.35  fb_in1k 0.48
+  P9.51 (ordering is the architecture's: T-R >= 0.5 over all layers, >= 0.8 within qkv, proj, fc1; both families) -> holds  [ViT-S/16 y, ViT-B/16 y]
+  P9.52 (recipes share a profile: T-T >= 0.8; both families) -> holds  [ViT-S/16 y, ViT-B/16 y]
+  P9.53 (every supervised weight gains 0.10 of level over the random networks; both families) -> holds  [ViT-S/16 y, ViT-B/16 y]
+  P9.54 (fc2 has the lowest within-role T-R; both families) -> holds  [ViT-S/16 y, ViT-B/16 y]
+  P9.55 (ViT-B augreg in21k->in1k, its own normalisation against ImageNet's: rho >= 0.95, level within 0.03): rho +0.991, |level difference| 0.026 -> holds
+  Registered consequence: transformers join the families that keep the ordering of their initialisation and gain a level.
+
+  P9.67, validation gate for transformers: DeiT-B (deit_base_patch16_224.fb_in1k), k*(0.90)/r_max at the qkv and fc1
+  outputs against Yu & Wu (2023), Fig. 1 (read from the figure; 50,000 images and all tokens there, 6,400 x 32 here)
+    qkv  ours   0.056 0.046 0.066 0.061 0.103 0.147 0.168 0.190 0.236 0.323 0.436 0.456
+         theirs 0.085 0.060 0.090 0.080 0.140 0.195 0.225 0.255 0.320 0.430 0.585 0.615
+    fc1  ours   0.126 0.072 0.141 0.215 0.240 0.228 0.228 0.234 0.301 0.411 0.469 0.594
+         theirs 0.135 0.070 0.145 0.220 0.240 0.230 0.230 0.235 0.300 0.415 0.475 0.600
+    Pearson r = 0.965, median |difference| = 0.012, mean signed difference (ours - theirs) = -0.035, largest |difference| = 0.159
+  P9.67 (r >= 0.95 and median |difference| <= 0.05) -> holds
+runs 23 common gate-passing layers 48
+
+-- exploratory (not judged): DeiT-III random networks (LayerScale 1e-4) against the default ViT-S random networks
+   level deit3 random [0.096, 0.099, 0.099]  vit_small random [0.159, 0.156, 0.156]
+   R-R within deit3 random 0.83  deit3 random x vit_small random 0.86
+    deit3_small_patch16_224.fb_in1k T-R vs deit3 random 0.31  vs vit_small random 0.59
+    deit3_small_patch16_224.fb_in22k_ft_in1k T-R vs deit3 random 0.52  vs vit_small random 0.76
+   qkv              deit3 random level 0.098  vit_small random 0.154
+   attention proj.  deit3 random level 0.008  vit_small random 0.013
+   MLP fc1          deit3 random level 0.099  vit_small random 0.160
+   MLP fc2          deit3 random level 0.188  vit_small random 0.229
+
+-- exploratory (not judged): self-supervised weights
+   vit_small_patch16_224.dino       level 0.49  T-T with supervised +0.93  T-R +0.69  qkv 0.32  proj. 0.40  fc1 0.49  fc2 0.66
+   vit_base_patch16_224.dino        level 0.42  T-T with supervised +0.89  T-R +0.62  qkv 0.29  proj. 0.37  fc1 0.40  fc2 0.53
+   vit_base_patch16_224.mae         level 0.35  T-T with supervised +0.72  T-R +0.84  qkv 0.31  proj. 0.25  fc1 0.49  fc2 0.59
+
+-- per role level, random -> trained (median over weights), and adjacent-block step of the trained profile (rule 9)
+   ViT-S/16 qkv              0.154 -> 0.448 (range 0.38-0.52)   adjacent-block step 0.057
+   ViT-S/16 attention proj.  0.013 -> 0.449 (range 0.31-0.46)   adjacent-block step 0.047
+   ViT-S/16 MLP fc1          0.160 -> 0.523 (range 0.45-0.54)   adjacent-block step 0.036
+   ViT-S/16 MLP fc2          0.229 -> 0.652 (range 0.54-0.72)   adjacent-block step 0.044
+   ViT-B/16 qkv              0.154 -> 0.266 (range 0.20-0.38)   adjacent-block step 0.049
+   ViT-B/16 attention proj.  0.014 -> 0.338 (range 0.32-0.47)   adjacent-block step 0.044
+   ViT-B/16 MLP fc1          0.154 -> 0.362 (range 0.27-0.42)   adjacent-block step 0.042
+   ViT-B/16 MLP fc2          0.240 -> 0.528 (range 0.44-0.64)   adjacent-block step 0.070
+
+-- P9.67 detail per role
+   qkv: Pearson r 1.000  median |diff| 0.052  max |diff| 0.159  ratio ours/theirs median 0.746 (range 0.659-0.765)
+        C 2304 r_max 768 n/C 88.88888888888889
+   fc1: Pearson r 1.000  median |diff| 0.003  max |diff| 0.009  ratio ours/theirs median 0.991 (range 0.936-1.023)
+        C 3072 r_max 768 n/C 66.66666666666667
+
 ========================================================================
 15. Ablations of the protocol on ResNet-50 V1 (A11-A15): k*(0.95)/r_max profile vs the reference run
 ========================================================================
