@@ -1389,6 +1389,47 @@ def section_a17(results: str) -> None:
         print(f"  Pre-registered outcome (plan 9.4): {verdict}")
 
 
+# Yu & Wu (AAAI 2023), Fig. 1: fraction of dimensions for 90% of the energy of the output features of the QKV and FC1
+# layers of DeiT-B, blocks 1..12, read from the figure at 300 dpi (+-0.02); registered in plan 9.19 (addendum of
+# 2026-09-30) before any A30 result was read.  Their denominator is 768 = min(m, n) (the ratios exceed 1/3 and 1/4).
+YU_WU_2023_FIG1 = {
+    "qkv": (0.085, 0.06, 0.09, 0.08, 0.14, 0.195, 0.225, 0.255, 0.32, 0.43, 0.585, 0.615),
+    "fc1": (0.135, 0.07, 0.145, 0.22, 0.24, 0.23, 0.23, 0.235, 0.30, 0.415, 0.475, 0.60),
+}
+
+
+def section_a30_gate(results: str):
+    """P9.67: our k*(0.90)/r_max on DeiT-B against Yu & Wu's Fig. 1, same weights; Pearson r >= 0.95, median |diff| <= 0.05."""
+    f = os.path.join(results, "a30", "deit_base_patch16_224.fb_in1k_layers.csv")
+    if not os.path.exists(f):
+        return None
+    d = pd.read_csv(f)
+    d = d[(d.kind == "linear") & d.layer.str.startswith("blocks.")]
+    ours, theirs, rows = [], [], []
+    for role, ref in YU_WU_2023_FIG1.items():
+        for b, y in enumerate(ref):
+            r = d[d.layer == f"blocks.{b}." + ("attn.qkv" if role == "qkv" else "mlp.fc1")]
+            if len(r) != 1 or not bool(r.n_over_C_ok.iloc[0]):
+                continue
+            x = float(r["k_star_0.9"].iloc[0]) / float(r.r_max.iloc[0])
+            ours.append(x); theirs.append(y); rows.append((role, b + 1, x, y))
+    print("\n  P9.67, validation gate for transformers: DeiT-B (deit_base_patch16_224.fb_in1k), k*(0.90)/r_max at the qkv and fc1")
+    print("  outputs against Yu & Wu (2023), Fig. 1 (read from the figure; 50,000 images and all tokens there, 6,400 x 32 here)")
+    if len(ours) < 24:
+        print(f"    only {len(ours)} of 24 points pass the gate or are present -- not judged"); return None
+    ours, theirs = np.array(ours), np.array(theirs)
+    for role in YU_WU_2023_FIG1:
+        sel = [r for r in rows if r[0] == role]
+        print(f"    {role:4s} ours   " + " ".join(f"{r[2]:.3f}" for r in sel))
+        print(f"    {'':4s} theirs " + " ".join(f"{r[3]:.3f}" for r in sel))
+    r = float(np.corrcoef(ours, theirs)[0, 1]); mad = float(np.median(np.abs(ours - theirs)))
+    ok = r >= 0.95 and mad <= 0.05
+    print(f"    Pearson r = {r:.3f}, median |difference| = {mad:.3f}, mean signed difference (ours - theirs) = {float(np.mean(ours - theirs)):+.3f}, "
+          f"largest |difference| = {float(np.max(np.abs(ours - theirs))):.3f}")
+    print(f"  P9.67 (r >= 0.95 and median |difference| <= 0.05) -> {'holds' if ok else 'fails'}")
+    return ok
+
+
 def _public_profiles(results: str, pattern: str) -> dict:
     """{weights: {layer: k*(0.95)/r_max}} of public checkpoints (dense conv, gate passed)."""
     out = {}
@@ -2826,6 +2867,7 @@ def main(argv=None) -> int:
     section_a29(a.results)
     section_a28(a.results)
     section_a30(a.results)
+    section_a30_gate(a.results)
     section_ablations(a.results, latex=a.latex_ablation)
     section_a18(a.results, latex=a.latex_a18)
     section_alignment(a.results)

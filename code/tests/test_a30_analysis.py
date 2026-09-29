@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from scripts.checkpoint_analysis import A30_FAMILIES, section_a30   # noqa: E402
+from scripts.checkpoint_analysis import A30_FAMILIES, YU_WU_2023_FIG1, section_a30, section_a30_gate   # noqa: E402
 
 ROLES = ("attn.qkv", "attn.proj", "mlp.fc1", "mlp.fc2")
 
@@ -64,3 +64,25 @@ def test_incomplete_family_is_not_judged(tmp_path, capsys):
     out = capsys.readouterr().out
     assert v == {} and "incomplete" in out and "Registered consequence" not in out
     assert section_a30(str(tmp_path / "none")) is None
+
+
+def _write_gate(res, shift=0.0, scramble=False):
+    rng = np.random.default_rng(2)
+    rows = []
+    for b in range(12):
+        for role, name in (("qkv", "attn.qkv"), ("fc1", "mlp.fc1")):
+            ref = list(YU_WU_2023_FIG1[role])
+            y = (rng.permutation(ref)[b] if scramble else ref[b]) + shift
+            rows.append({"layer": f"blocks.{b}.{name}", "kind": "linear", "C": 2304 if role == "qkv" else 3072, "r_max": 768,
+                         "n_over_C_ok": True, "k_star_0.9": round(768 * y)})
+    os.makedirs(os.path.join(res, "a30"), exist_ok=True)
+    pd.DataFrame(rows).to_csv(os.path.join(res, "a30", "deit_base_patch16_224.fb_in1k_layers.csv"), index=False)
+
+
+def test_gate_passes_on_their_values_and_fails_on_a_shift_or_a_scramble(tmp_path):
+    a, b, c = (str(tmp_path / x) for x in "abc")
+    _write_gate(a); _write_gate(b, shift=0.08); _write_gate(c, scramble=True)
+    assert section_a30_gate(a) is True
+    assert section_a30_gate(b) is False        # right order, level off by 0.08
+    assert section_a30_gate(c) is False        # right level, wrong order
+    assert section_a30_gate(str(tmp_path / "none")) is None
