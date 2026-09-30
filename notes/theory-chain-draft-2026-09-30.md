@@ -86,7 +86,7 @@ and if the class means of the features entering layer l have small total within-
 rank-≤K matrices is at most M_{l,j}·TCV_{K,j}/λ (Zangrando et al., TMLR 2026, Theorem 3.5). In the deep unconstrained-features model
 the global optimum is not deep neural collapse but a strongly-regular-graph solution whose intermediate features and weights have rank Θ(√K) before the ReLU and K after it, for K ≥ 6 with L ≥ 4 layers or K ≥ 10 with L = 3, with a loss ratio O(K^{(3−L)/(2(L+1))}) (Súkeník, Lampert and Mondelli 2024, Theorem 5 and Definition 4), of rank at most q_K ≤ 2 for large depth (Garrod and Keating 2025, Theorems 2–3),
 and deep neural collapse persists as a positive-semidefinite critical point whose share of the landscape grows with width
-(Garrod and Keating, Theorem 5); the same optimality carries to regularised ResNets and transformers (Súkeník et al. 2025). Depth alone
+(Garrod and Keating, Theorem 5); and for deep regularised ResNets and transformers the end-to-end problem reduces, as L → ∞ with λ independent of L, to a generalised UFM whose global optima exhibit approximate neural collapse in the *last* layer, tightening with depth (Súkeník, Lampert and Mondelli 2025, Theorem 4.3 and Corollary 4.5; unique training samples, inner dimension ≥ 4). Depth alone
 biases toward low rank: at any global minimum of the L2-regularised loss some hidden representation has s₂/s₁ = O(L^{−1/4}), and the limiting representation cost per layer lies between the Jacobian rank and the bottleneck rank of the function (Jacot 2023, Proposition 4 and Theorem 1; fully connected, homogeneous activations), and the collapse happens in the terminal phase of training (Papyan, Han and Donoho 2020).
 Every one of these results predicts a late-layer rank *at or below K*.
 
