@@ -84,3 +84,17 @@ Yaras 2023（深線性 GD 的低維動力）；Kubaty 2025（已引）；Hui, Be
   - **Kunin et al., ICLR 2021**（2012.04728）：架構對稱性 → 梯度與 Hessian 的幾何約束與守恆律；有限學習率破壞守恆律。
   這四篇給 B6 的前半（正交性）與「訓練到達的是衰減—旋轉平衡」；B6 的後半（因此 DNC 的 rank-K 界沒有駐點可套）是我們接上的一句。**Zangrando 2024 全文無 BN。**
 
+
+## 補入（09-30 下午；Crossref 核 Súkeník 條目時冒出，讀主文定理）：Garrod & Keating, NeurIPS 2025（`garrod2025persistence`，38: 9791–9847；arXiv 2410.23169；`refs/L2/`）
+
+- **陳述**：深線性 CE-UFM（最後 L 層攤成變數、L2 正則）：定理 1——K ≥ 4, L ≥ 3 時 DNC 不是全域最優；定理 2——L 夠大時任何秩高於「最小可分秩」q_K 的結構都不最優
+  （q_K ≤ 2！）；定理 3——λ ＝ o(1/L) 時全域最優的正規化輸出至多 q_K 個奇異值不隨 L 指數衰減；定理 4／5——λ 小時 DNC 仍是 Hessian 半正定的臨界點，且其解空間維度
+  與低秩解的比 R(d) 隨寬度 d 單調升、趨向 (K−1)/r > 1 → **寬度越大 DNC 越常見**（圖 2 實證）；定理 7——ReLU-UFM 同樣不最優（K ≥ 10, L ≥ 5）。
+  全網實驴：ResNet-20 ＋ FC 頭（MNIST／CIFAR-10），標準 wd 下輸出低秩（奇異值 > 1e-6 只有 3–4 個）、類均值不成 simplex。
+- **與我們的關係**：(a) 環 3 的理論現在一致說「塌縮層的秩 ≤ K，通常更低（→ q_K ≤ 2）」，而**寬度只影響落在 DNC（秩 K−1）或更低秩**——沒有任何 UFM 結果預測秩 ≫ K。
+  我們量到 CIFAR-10 後段 τ 寬度 20–50 通道（K＝10）、ResNet-18 十類 ImageNet 讀滿 0.95·512：**κ ≫ K 在 UFM 理論裡沒有位置**，B6（BN 讓駐點恆等式失效）仍是唯一候選解釋；
+  另一個候選是「對象不同」——UFM 說的是攤平／池化表徵與權重，我們量位置取樣的通道共變異數（§10.20 兩把尺），Garrod 的 3–4 個奇異值也是在 logits 量的。
+  (b) 他們的「寬度 → DNC 更常見」是**環 3 裡第一個寬度相依的陳述**，寫論文時要引：它預測寬層塌到 K−1、窄層塌到更低，都在 K 以下——與我們的 A24 單調性
+  （尺保留參數 0.88→0.99 隨 K 升）方向一致但量級不同。(c) 他們也承認「在真實網路我們模型預測不最優處仍見 DNC」——UFM 對真實網路的預測力有限，論文可引此句劃界。
+- **給論文**：環 3 段引 Zangrando（定量界）、Súkeník 2024／2025（不最優、ResNet／transformer）、Garrod & Keating（地景、寬度）三組，然後一句：
+  「none of these predicts a cap above K; Proposition B6 shows why the bound does not apply in batch-normalised layers, and A35 measures how far the weights are from rank K」。
