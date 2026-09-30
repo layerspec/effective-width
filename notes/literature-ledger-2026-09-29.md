@@ -24,6 +24,8 @@
 | **Masarczyk 2023 × Harun 2024，逐條對照我們的實驗**（09-30；`notes/s3-prior-art-2026-09-30.md`） | 類別數、影像數、寬度、解析度、深度、去掉 skip 對壓縮的影響，方向全部已報（探針與數值秩，CIFAR 與 ImageNet-100）；深層的秩在 75 步內塌縮；公開 ImageNet-1k 權重只有 ResNet-50 有 tunnel | (i) **兩把尺並列**：他們的數值秩對我們的 k*(0.999)，解決「75 步」對「要優化夠久」的衝突；(ii) 重排發生在深度的哪一段；(iii) 文獻的空格：少類別 × 224²；(iv) 文獻留下的問題：ResNet 不論有無 skip 秩都高於 VGG | ☐ (i) 先寫預登記再量（Mac，約半小時）；☐ (ii) 現有資料、探索性；☐ 改稿：(iv) 的開頭先引這兩篇 |
 | **ImageNet ResNet-18 在 1.0–1.2 GFLOPs 的寬度方法**（09-30，P2m 開跑前；`notes/p2m-prior-art-2026-09-30.md`）：CHEX、DMCP、TAS、BCNet、Network Adjustment | 同一點上 CHEX 一次訓練 69.6、DMCP 69.2；均勻縮窄 68.8（1.2G）／67.1（0.9G），學出來的寬度贏均勻 2.5–2.8 點；形狀是把 FLOPs 給後段 | **成本項與訊號項要分開**：P2m 的兩臂設計贏了也無法歸因；CIFAR 的 FLOPs 守恆結果也要問同一題 | ☐ 作者定 P2m：取消／照跑／加歸因臂；☐ P2g 現有資料算「只看成本」的寬度對控制器寬度 |
 | **Th8 ReLU 步的譜律**（09-30；`notes/th8-prior-art-2026-09-30.md`）：Louart–Liao–Couillet 2018、Fan–Wang 2020、Adamczak 2025、Schröder 2023、Cranston 2026 | Fan–Wang：多層 CK 譜＝MP 映射∘（線性縫合＋白噪聲），**假設樣本近似正交**；LLC：X 任意的確定性等價（解不動點） | 09-27 三個閉式失敗的原因就是 3.2(c)：相鄰位置的 patch 相關。可做：用 LLC 定理 1 在相關 patch 上驗一次適用範圍；把量到的 ReLU 步當黑盒接在 S6 後面得到可算的整條剖面 | ☑ 查完；☐ 改稿：脊椎第二段引兩篇並寫明假設在卷積 patch 上不成立；☐（選配）LLC 不動點驗證 |
+| **Nguyen, Raghu & Kornblith 2021**（ICLR；09-30 晚，P-l2 開跑前） | 寬／深 ResNet 的 block structure：一段層只傳遞主導主成分，容量大於資料集時出現 | P-l2「加寬出現閒置」的先行觀察；可用他們的「容量／資料集大小」作 κ 的解釋變數 | ☐ P-l2 判定時引；☐ L5 補一列 |
+| **開跑前對照表**（`prerun-literature-check-2026-09-30.md`） | A28／A27／A29b／A31／A33／P-l2／A32／Zangrando 核算逐項對過 | 沒有一項統計量與格子都被做過；方向都已知 | ☑ |
 
 ## 還沒查、開工前要先查的
 
