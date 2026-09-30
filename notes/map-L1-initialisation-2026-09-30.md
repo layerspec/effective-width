@@ -40,15 +40,36 @@
 - 待讀原文。已知結論：純注意力的 token 表徵秩隨深度雙指數塌縮；skip 與 MLP 阻止；訊號傳播理論給初始化的可訓練圖。**對象是序列內 token 的秩**，
   與我們的通道共變異數不同（A30 的 attention proj 在初始化只剩 1–3% 的維度，是這個現象在通道側的樣子）。
 
-## 2. 待讀（這條線走到前沿）
+### Yang, Pennington, Rao, Sohl-Dickstein & Schoenholz, ICLR 2019（1902.08129）
+- **對象**：全連接＋BN、寬度→∞；追蹤**批次內**的 B×B 共變異數 Σ^l。
+- **結果**：不動點 Σ*＝q*[(1−c*)I ＋ c* 11ᵀ]（BSB1）——譜是一個尖峰（q*(1＋(B−1)c*)）加 B−1 個相等的本體（q*(1−c*)）；BN 使網路落在混沌相，
+  c* 嚴格 < 1，所以本體不消失；代價是梯度隨深度指數爆炸（無 skip 時深 BN 網路不可訓）。Gegenbauer 展開給 q*、c* 的閉式（定理 3.4）。
+- **與我們的關係**：**初始化譜的形狀有理論**——尖峰＋平坦本體。這正好解釋 A34 B 部分看到的「前 25 步數值秩由 0.11 升到 0.72」：初始化時
+  尖峰吃掉頭部，最初幾步把尖峰抹平、本體抬起。與 Daneshmand 的 PR ≥ Ω(√d) 是同一個圖像的兩個側面。**沒有的**：卷積、有限寬度、非 BN 的殘差。
 
-- Yang, Pennington, Rao, Sohl-Dickstein & Schoenholz, ICLR 2019「A mean field theory of batch normalization」——BN 網路的訊號傳播與梯度爆炸。
-- Hanin & Rolnick 2018／Hanin & Nica 2020——有限寬度修正（我們的網路寬度 64–2048，不是無限）。
-- Pennington, Schoenholz & Ganguli 2017（動力等距）；Saxe 2014（深線性的學習動力，L3 也用）。
-- Everett 2026（transformer 前饋 block 的秩保持）；Martens et al. 2021（deep kernel shaping）；Roberts–Yaida–Hanin 2021 全書的第 4–5 章（有限寬度的四點函數）。
-- 卷積特有的：Novak et al. 2019（CNN-GP）、Garriga-Alonso 2019——無限通道極限下卷積網的核，含位置結構。
+### Hanin & Rolnick, NeurIPS 2018（1803.01719）
+- 有限寬度：全連接 ReLU 網路激活長度的變異數沿深度累積 ∝ Σ 1/width_l；殘差網路只要支路尺度對就沒有這個失效。
+- **與我們的關係**：有限寬度修正的第一項是 1/寬度的和；我們的網路寬 64–2048、深 13–53 層，Σ 1/C 約 0.1–0.5，不可忽略——
+  初始化剖面的種子間變異（basic6666 兩個種子初始水準差一倍，§10.14）該從這裡看。
 
-## 3. 這條線回答了什麼、留下什麼（暫定，讀完前沿再改）
+### Novak et al., ICLR 2019（1810.05148）；Garriga-Alonso et al. 2019；Martens et al. 2021（DKS，2110.01765）
+- CNN 在通道數→∞時是高斯過程，核含空間結構（有無池化不同；無池化時與局部連接網等價）；Monte Carlo 估核。DKS 把 Poole 的 Q/C 圖形式化並用來
+  「塑形」初始化核，使無 skip、無正規化的深網可訓。
+- **與我們的關係**：無限通道極限下的核就是我們層內律 S6 的極限；Monte Carlo 估核與我們的取樣律是同一種做法。DKS 說明「初始化時的核形狀可設計」——
+  這是「初始化剖面由（架構，初始化）決定」的工程面。
+
+### Dong et al. 2021、Noci et al. 2022、Giorlandino & Goldt 2026、Everett 2026
+- token 方向的秩塌縮（雙指數）、skip／MLP 的阻止、初始化的可訓練圖、前饋 block 的秩保持與支路／捷徑比值。**對象是序列內 token 的秩**；
+  A30 的 attention proj 初始化只剩 1–3% 維度是它在通道側的影子。Everett 的「比值是旋鈕」與我們的 γ＝0／γ＝1、LayerScale 對照同一件事。
+
+## 2. 待讀（第二輪；第一輪 09-30 讀了 12 篇的原文或定理段）
+
+- Pennington, Schoenholz & Ganguli 2017（動力等距，1711.04735，已下載未讀）；Saxe 2014（L3 一起讀）。
+- Roberts–Yaida–Hanin 2021 第 4–5 章（有限寬度四點函數：譜形狀的 1/寬度修正）；Hanin & Nica 2020（NTK 的有限寬深修正）。
+- Everett 2026、Noci 2022、Dong 2021 的原文定理段（只讀了摘要與結論）。
+- 2025–2026 的新作：以「rank at initialization」「spectrum of random CNN features」「finite-width covariance spectrum」再搜一次。
+
+## 3. 這條線回答了什麼、留下什麼（第一輪後；第二輪讀完再改）
 
 - **已回答**：隨機深網的表徵為什麼隨深度失去維度（有序相、隨機矩陣乘積）；BN 為什麼擋住（PR ≥ Ω(√d)）；位置之間的相關如何傳遞（Xiao）；
   ReLU 步在獨立樣本下的譜律（Fan–Wang）。
@@ -57,6 +78,8 @@
 
 ## 4. 給我們的（第二欄）
 
+0. **A34 B 部分的解釋**：初始化譜＝尖峰＋本體（Yang BSB1、Daneshmand），前 25 步抹平尖峰 → 數值秩上升；之後任務壓尾端 → 兩把尺同向下降。
+   這一句可以寫成理論陳述再由既有資料驗證（頭部特徵值佔比 top_share 在第 0／25 步的變化，`early.csv` 已存）。
 1. **驗證 Daneshmand 的下界**：現有隨機網路的譜算 PR 對 √C——不是新實驗，是既有資料對既有定理。
 2. **用 Xiao 的位置共變異數遞推重試 ReLU 步**，取代 Fan–Wang 的獨立樣本版本（若要繼續 S2 的「可算」）。
 3. 論文脊椎第二段的寫法：「初始化的剖面由架構決定」在文獻裡對應「隨機網路的訊號傳播由 (架構, 初始化) 決定」；要引 Poole／Schoenholz／Xiao／Daneshmand，
