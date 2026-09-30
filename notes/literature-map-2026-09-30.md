@@ -13,7 +13,7 @@
 |---|---|---|---|---|
 | **L1 初始化時的譜與秩** | 隨機權重的網路，各層輸出共變異數的譜由什麼決定？（脊椎第二段「初始化時是架構」） | Saxe 2014、Poole 2016、Schoenholz 2017、Pennington–Worah 2017、Daneshmand 2020、Dong 2021、Noci 2022、Fan–Wang 2020、Louart–Liao–Couillet 2018、Everett 2026、Giorlandino–Goldt 2026 | 有限寬度、相依樣本（卷積 patch）、BN／LayerNorm、殘差尺度（γ＝0／LayerScale）對譜的影響；初始化方式作為輸入 | ◐ 第一輪 09-30 讀完 12 篇（`map-L1-initialisation-2026-09-30.md`）；第二輪待補 |
 | **L2 訓練中的低秩** | 訓練把哪些層的秩壓低、由什麼決定（類別數、深度、資料、優化）？（脊椎第三段） | Papyan 2020、Rangamani 2023、Masarczyk 2023、Harun 2024、Feng 2022、Galanti 2022、Súkeník 2023／2024、Zangrando 2024、Huh 2023、Wang 2025（JMLR）、He & Su 2023 | 中間層 collapse 的理論邊界；tunnel 的因素分離；秩與類別數的定量關係；訓練早期的動力學 | ◐ 第一輪 09-30 讀完 13 篇（`map-L2-training-low-rank-2026-09-30.md`）；第二輪待補定理段 |
-| **L3 對齊與特徵學習** | 訓練後的核與輸入二階統計如何對齊？這決定寬度嗎？ | Maennel 2020、Beaglehole 2023、Radhakrishnan 2024、Boix-Adserà 2025、Saxe 深線性、Ziyin、Atanasov | 對齊的時間過程；對齊對譜的後果；卷積層的 patch-AGOP | ☐（`alignment-prior-art-2026-09-29.md` 是起點） |
+| **L3 對齊與特徵學習** | 訓練後的核與輸入二階統計如何對齊？這決定寬度嗎？ | Maennel 2020、Beaglehole 2023、Radhakrishnan 2024、Boix-Adserà 2025、Saxe 深線性、Ziyin、Atanasov | 對齊的時間過程；對齊對譜的後果；卷積層的 patch-AGOP | ◐ 第一輪 09-30 讀完 9 篇（`map-L3-alignment-2026-09-30.md`）；重排沒有理論，但 L1＋L2＋L3 可組裝出一條解釋鏈 |
 | **L4 表徵維度的量法** | 各種「維度」量的是什麼、樣本偏差多大、彼此如何換算？ | Ansuini 2019、Roy–Vetterli 2007、Garrido 2023（RankMe）、Agrawal 2022（α-ReQ）、Elmoznino–Bonner 2024、Shawe-Taylor 2005、Blanchard 2007、Reiß–Wahl 2020、Koltchinskii–Lounici 2017、Skean 2025 | 數值秩對 τ 寬度（A34 的問題）；門檻的理論；跨量法的換算 | ☐（`th2-th5-prior-art` 與 A34 是起點） |
 | **L5 寬度的選擇與壓縮** | 寬度怎麼被選、學、剪；學出來的寬度長什麼樣？ | Garg 2019／2024、Yu & Wu 2023、Chee 2022、CHEX、DMCP、BCNet、Network Adjustment、Width Transfer、Yuan 2023、NORTH\*、Liu 2019 | 逐層寬度的規律（後段寬）、成本項對訊號項、無標籤判準 | ☐（`related-work-boundary-2026-09-22.md`、`p2m-prior-art-2026-09-30.md` 是起點） |
 | **L6 殘差與 skip** | 殘差流對譜與秩做了什麼？ | Dong 2021、Li & Papyan 2023、Zhang & Jiang 2024、Everett 2026、Haggi-Mani & Rish 2026、Daneshmand 2020 | 加法處的譜（我們的 §10.17）；skip 對訓練後寬度的作用；BN 與 skip 的分工 | ☐（`th9-prior-art-2026-09-29.md` 是起點） |
@@ -30,3 +30,4 @@
 |---|---|
 | 09-30 | 建檔；L1 第一輪：Poole、Schoenholz、Xiao、Daneshmand、Yang、Hanin–Rolnick、Novak、Martens、Fan–Wang、LLC、Dong、Noci／Giorlandino–Goldt（摘要）。結論：隨機深網失去維度、BN 擋住（PR ≥ Ω(√d)）、位置相關的傳遞、初始化譜＝尖峰＋本體都有理論；洞是有限寬度＋卷積＋BN＋ReLU 同時在場時譜的形狀 |
 | 09-30 | L2 第一輪：Jacot 2023、Timor 2023、Galanti、Súkeník／Zangrando、Wang JMLR、He & Su、Papyan、Rangamani、Parker、Masarczyk／Harun、Feng。結論：低秩的三個旋鈕（深度、wd、類別數）有理論；哪些層塌、剖面形狀、對初始化順序的關係、資料因素沒有理論。我們每個 S3 實驗可以對到一條陳述（A24／A31→DNC、A25→TPT、A29b→Jacot），重排（T–R<0）沒有 |
+| 09-30 | L3 第一輪：Saxe、Maennel、Beaglehole、FACT、Atanasov（silent alignment）、Ba、Wang 2023（本體不變／尖峰／重尾）、Martin–Mahoney、Kunin。結論：對齊已知、譜的三種變化已知（兩層）；重排沒有理論；**候選的組裝解釋**：初始化尖峰＋本體（L1）→ 早期對齊去尖峰、水準升（L3）→ 後期 DNC 壓後段（L2）→ 塌縮段長（深、少類）時順序反轉。三條可用既有資料驗證的陳述寫在 L3 §3 |
