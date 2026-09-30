@@ -120,7 +120,7 @@ measure but not yet derive.
 
 ### III-D. Net effect on the layer order: reversal is the assembled consequence of III-A and III-C, not a separate phenomenon
 
-At initialisation the profile falls with depth (III-A) [check: A17 initial ρ_depth −0.6 to −0.9]. Training raises every layer's level
+At initialisation the profile falls with depth (III-A): ρ(depth, k*) at epoch 0 is −0.46 to −0.91 in the five trajectory families (VGG-16, basic52, bottleneck on CIFAR-10; basic6666 and ResNet-50 on ImageNet, two seeds each) [B1′ table]. Training raises every layer's level
 (III-B) and then caps the late layers at κ(K, resolution, …) (III-C). If κ lies below the final level of the early layers, the order is
 preserved (CIFAR-10, K = 10: late third 0.03 → 0.04, early third 0.42 → 0.31; T–R +0.40 to +0.89); if the late layers are uncapped they
 rise from the narrowest to the widest and the order reverses (ImageNet, K = 1000: late third 0.07 → 0.56, early third 0.48 → 0.44;
