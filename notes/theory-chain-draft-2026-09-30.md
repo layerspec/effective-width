@@ -22,7 +22,7 @@ degree to which that hypothesis holds for convolutional networks.
 
 **Known.** For i.i.d. Gaussian weights the pre-activation of layer l+1 at a set of positions is, conditional on layer l, Gaussian with a
 position covariance obtained by convolving the post-activation covariance of layer l with the kernel's spatial support
-(Xiao et al. 2018, eq. [check]; the fully connected case is Poole et al. 2016 and Schoenholz et al. 2017). The map from Σ_l to Σ_{l+1}
+(Xiao et al. 2018, eq. (2.7), Σ^{l+1} = A ⋆ C(Σ^l), Lemma A.1 for c → ∞; the fully connected case is Poole et al. 2016 and Schoenholz et al. 2017). The map from Σ_l to Σ_{l+1}
 therefore factorises into a *linear* step, whose spectrum is given exactly at finite width by the Silverstein (1995) law for
 W̃ Σ W̃ᵀ with W̃ Gaussian (our Proposition S6), and a *non-linear* step (the activation), for which the mean-field literature gives the
 infinite-width covariance map (the C-map of Poole et al.) and the linear-width literature gives a random-matrix law under
@@ -45,9 +45,9 @@ normalised network (Gram → identity) is not what the position-sampled covarian
 between −0.3 and +0.8 across ten families, none monotone to full width].
 
 **What we verify.** (1) The profile at initialisation is computable from the architecture and the image covariance alone: on six
-families the analytic (Prop. S6) and Monte-Carlo profiles agree in order (ρ ≥ 0.95) and level (median +0.046) [check: A7, §10.x].
+families the surrogate built from the image spectrum alone reproduces the measured profile in order (ρ 0.95–1.00, at or above the random–random ceiling) and level (median difference +0.046) [A7, feasibility note; seed 1].
 (2) The image statistics enter only through the first-layer patch Gram (Prop. S7), and they matter: replacing the ImageNet spectrum
-by the CIFAR-10 spectrum at the same resolution moves the level by 0.06–0.24 [check: A7]. (3) *Exploratory (seed 1):* the effect of the
+by the CIFAR-10 spectrum at the same resolution lowers the level by 0.06–0.24 and, in VGG-16 and ResNet-50, the order to ρ 0.67/0.74 against ceilings of 0.79/0.94 [A7, P-a1 6/6]. (3) *Exploratory (seed 1):* the effect of the
 image spectrum decays with depth in plain and dense families (relative difference in the last third 0.00–0.24) but not in ResNet-18/50
 (0.4–0.65 in every third) — the "input forgetting" of Joudaki et al. and the slowing of it by residual connections predicted by
 Joudaki and Hofmann (2024, Prop. 2: κ_res = (1−r²)κ + r²ρ). (4) The initialisation scale is an input, not a nuisance: zero-initialising
@@ -75,7 +75,7 @@ convergence with weight decay (Boix-Adserà 2025) — none holds for a standard-
 conv–BN layer the first-order condition of FACT cannot hold at all (Prop. B6 below).
 
 **What we verify.** The gain of each kernel aligns with the principal directions of its input covariance (ρ_align ≈ +0.9) and does so by
-epoch 7–15, before the profile and the representation settle [check: §10.x, trajectories]; the numerical rank of the late layers rises
+epoch 7–15 in 9/9 runs, before the profile settles (epoch 15–100) [§10.7: P9.11 registered sign fails, reverse holds 7/9; 19 ImageNet weights median +0.91, six ResNet-50 recipes +0.86 to +0.95; inverted-residual families +0.11 to +0.61]; the numerical rank of the late layers rises
 from 0.11 to 0.72 of C within the first 25 steps [check: A34 part b]. The alignment is only partly a shadow of the neural feature ansatz:
 the gain follows the output-side gradient energy first (Spearman +0.98/+0.95) and, holding that fixed, the input variance second
 (+0.55/+0.45) [A32, §10.21]. The counterfactual holds: forcing exact isometry of the kernel (ONI, T = 20) moves the profile by the
