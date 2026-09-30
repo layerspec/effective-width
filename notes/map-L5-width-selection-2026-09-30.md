@@ -22,3 +22,21 @@
 ## 3. 給我們的
 - (ii) 摺入與 (iv) 閒置寬度的措辭約束已記在 `a30-prior-art` §4 與 `pending-text-corrections`。
 - 「寬度 ≠ 秩」這一句是 L5 給脊椎的：可調撥的寬度由秩決定（我們），該留的寬度由成本決定（他們）。
+
+## 4. 09-30 引用圖掃描補入（Ansuini 的 457 篇被引；讀原文）
+
+**Chen, Bu & Yan, NeurIPS 2024,「Unveiling the Matthew Effect Across Channels: Assessing Layer Width Sufficiency via Weight Norm Variance」**（37: 60040–60060；PDF `refs/scan0930/matthew_neurips2024.pdf`）
+- **陳述**：每層各通道的權重範數 ‖w_i^l‖·‖w_i^{l+1}‖ 的**跨通道變異數**在訓練中的走勢分兩型：IS（升到飽和＝層夠寬、有很多相似通道）與 DS（升後降＝層太窄、通道近正交）；
+  三階段（初期 cos(∇, W) ≈ 0 變異不動 → 中期急升 → 後期分型）。VGG-16／ResNet-18 CIFAR-10：**前幾層與後幾層 IS、中段 DS** → 提出「流線型」寬度：中段加、後段砍
+  （VGG-16 [64,96,128,160,256,256,320,512,384,384,320,256,256]，參數 61.5%、FLOPs 104%，CIFAR-10 91.02→93.41、CIFAR-100 66.17→68.63、TinyImageNet 49.8→54.4，10 種子）。
+- **與我們的關係**：(a) **同一個結論、不同的尺**：他們用權重範數變異數說 VGG-16 後段太寬，我們用共變異數 τ 寬度讀出後段閒置（P1 摺入 67% 參數不掉分）——
+  兩把互不相干的尺在同一網路指同一處，是收斂證據，也是要引並劃界的前作（L5「無標籤判準」列要加一行）。(b) 他們的尺**只能訓練到收斂後才判**（自己在結論寫的限制），
+  我們的尺在訓練中就讀（控制器段的差異化）。(c) 他們自己把中段 DS 連到 Ansuini 的 ID 駝峰（「中段 ID 高 → 通道正交」），是 L4 那條「ID 對寬度」的猜想，無理論。
+  (d) 他們的 baseline 弱（VGG-16 CIFAR-10 91.02 對我們 93.83、lr 每 40 epoch ×0.1、wd 1e-4），「+2.4」不能直接對我們的數字。(e) **§4.1 的 cos ≤ 0.0003** 是 B6 的前作觀察（見 plan §9.25 補記）。
+  (f) ResNet-50 他們把後 8 個 block 的 3×3 從 512 砍到 192–256 而不掉分（CIFAR-100）——與 A26／P2i「殘差網路在 τ=0.999 讀滿」不矛盾（他們的是 CIFAR 上的 ResNet-50，通道 2048；我們是 ResNet-20 通道 64）但要在文中說清楚「讀滿 ≠ 不能砍」。
+- **給論文**：Related Work 的 L5 段加一句；`sec:a18`（摺入）對照一行；B6 段引 0.0003；控制器段的「訓練中可讀」差異化。
+
+其他掃到、下載未讀（`refs/scan0930/`）：Mudarisov–Burtsev–State 2026（2608.02064，transformer FFN 逐層寬度配置，幾何量）；Dees–Agarwala–Lowman 2022（2201.11813，autoencoder 特徵值訓練前後）；
+「Structured Initialization for Vision Transformers」NeurIPS 2025（2505.19985，A33 的相關）；「The Residual Stream's Effective Depth」2026（2609.31098，L6）；
+「Causal Dimensionality of Transformer Representations … Layer Structure」2026（2605.08740）；「Flatness is Necessary, Neural Collapse is Not」NeurIPS 2025（2509.17738）；
+Bridging mean field and finite width with BN（2205.13076；**L1 的第 1′ 環，先讀**）。
