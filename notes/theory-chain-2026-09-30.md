@@ -63,6 +63,7 @@ W_l* ＝ −∇L₀/λ（式 8）；全文無 batch normalisation。所以 B6 �
 ⟨∇_W L₀, W⟩ ＝ 0 對 W 單獨成立（不必寫成 (W, b) 聯合縫放）；wd 下 b 只會衰減到 0。(b) **BN 的 ε**：y ＝ γ(u−μ)/√(σ²＋ε)＋β，對 u → cu 微分在 c＝1：
 dy/dc ＝ (y−β)·ε/(σ²＋ε)，故 ⟨∇_W L₀, W⟩ ＝ Σ_ch [ε/(σ²_ch＋ε)]·⟨∂L₀/∂y_ch, y_ch−β_ch⟩——ε＝0 時恰為零，ε＝1e-5 時是 O(ε/σ²_min) 的小量。
 命題陳述：「ε＝0 時精確；ε>0 時 |⟨∇L₀,W⟩| ≤ (ε/σ²_min)·‖∂L₀/∂y‖·‖y−β‖」。A35 冒煙的 |cos| ≤ 0.002 與 float32＋256 張的取樣噪聲一致。
+`tests/test_prop_b6.py`（float64、conv 有 bias、ε＝1e-12／1e-5／1e-2／1）：⟨∇W,W⟩ 與公式差 < 1e-9·‖∇W‖‖W‖、∇_b ＝ 0 到 1e-16、ε→0 時內積 < 1e-10 相對——**公式精確**。
 論文寫法：「Theorem 3.5 of Zangrando et al. assumes (4); in a conv–BN layer (4)
 has only the solution W_l = 0 (Proposition B6), and the measured ratio ‖∇L₀‖/‖λW‖ of 16–28 at the end of training shows the trained weights are nowhere near it.」
 
