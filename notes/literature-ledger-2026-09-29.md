@@ -23,12 +23,13 @@
 | Tian, Xu & Li 2026；Park 2023；Skean 2025 | 最後一層：每張影像低秩、資料集不低秩；訓練目標決定譜（MAE 最後一層 235/768、DINO 624/768） | A30 的 DINO／MAE 探索性權重對 Tian 表 1 核一次；劃界句「我們量的是跨影像的通道共變異數，不是序列內 token 的秩」 | ☐ A30 判定時核；☐ 改稿時寫劃界句 |
 | **Masarczyk 2023 × Harun 2024，逐條對照我們的實驗**（09-30；`notes/s3-prior-art-2026-09-30.md`） | 類別數、影像數、寬度、解析度、深度、去掉 skip 對壓縮的影響，方向全部已報（探針與數值秩，CIFAR 與 ImageNet-100）；深層的秩在 75 步內塌縮；公開 ImageNet-1k 權重只有 ResNet-50 有 tunnel | (i) **兩把尺並列**：他們的數值秩對我們的 k*(0.999)，解決「75 步」對「要優化夠久」的衝突；(ii) 重排發生在深度的哪一段；(iii) 文獻的空格：少類別 × 224²；(iv) 文獻留下的問題：ResNet 不論有無 skip 秩都高於 VGG | ☐ (i) 先寫預登記再量（Mac，約半小時）；☐ (ii) 現有資料、探索性；☐ 改稿：(iv) 的開頭先引這兩篇 |
 | **ImageNet ResNet-18 在 1.0–1.2 GFLOPs 的寬度方法**（09-30，P2m 開跑前；`notes/p2m-prior-art-2026-09-30.md`）：CHEX、DMCP、TAS、BCNet、Network Adjustment | 同一點上 CHEX 一次訓練 69.6、DMCP 69.2；均勻縮窄 68.8（1.2G）／67.1（0.9G），學出來的寬度贏均勻 2.5–2.8 點；形狀是把 FLOPs 給後段 | **成本項與訊號項要分開**：P2m 的兩臂設計贏了也無法歸因；CIFAR 的 FLOPs 守恆結果也要問同一題 | ☐ 作者定 P2m：取消／照跑／加歸因臂；☐ P2g 現有資料算「只看成本」的寬度對控制器寬度 |
+| **Th8 ReLU 步的譜律**（09-30；`notes/th8-prior-art-2026-09-30.md`）：Louart–Liao–Couillet 2018、Fan–Wang 2020、Adamczak 2025、Schröder 2023、Cranston 2026 | Fan–Wang：多層 CK 譜＝MP 映射∘（線性縫合＋白噪聲），**假設樣本近似正交**；LLC：X 任意的確定性等價（解不動點） | 09-27 三個閉式失敗的原因就是 3.2(c)：相鄰位置的 patch 相關。可做：用 LLC 定理 1 在相關 patch 上驗一次適用範圍；把量到的 ReLU 步當黑盒接在 S6 後面得到可算的整條剖面 | ☑ 查完；☐ 改稿：脊椎第二段引兩篇並寫明假設在卷積 patch 上不成立；☐（選配）LLC 不動點驗證 |
 
 ## 還沒查、開工前要先查的
 
 | 主題 | 為什麼 | 先查什麼 |
 |---|---|---|
-| Th8（ReLU 這一步） | 原訂要證 | arXiv 2507.07625；Louart–Liao–Couillet 2018；Pennington–Worah 2017（已引） |
+| ~~Th8（ReLU 這一步）~~ | **09-30 已查**：已知（Fan–Wang 2020、Louart–Liao–Couillet 2018），假設在卷積 patch 上不成立 | `notes/th8-prior-art-2026-09-30.md` |
 | S2 初始化剖面可算 | B+ 脊椎第二段 | conv 的 mean-field／NNGP 有限寬度修正；Everett 2026 |
 | ~~S3 訓練是否重排順序~~ | **09-30 已查**：`notes/s3-prior-art-2026-09-30.md` | 投稿前再查一次 2026 年的 arXiv |
 | ~~transformer 的剖面（A30）~~ | **09-30 已查**：`notes/a30-prior-art-2026-09-30.md` | 投稿前再查一次（搜尋不是窮盡的） |
