@@ -40,3 +40,14 @@
 「Structured Initialization for Vision Transformers」NeurIPS 2025（2505.19985，A33 的相關）；「The Residual Stream's Effective Depth」2026（2609.31098，L6）；
 「Causal Dimensionality of Transformer Representations … Layer Structure」2026（2605.08740）；「Flatness is Necessary, Neural Collapse is Not」NeurIPS 2025（2509.17738）；
 Bridging mean field and finite width with BN（2205.13076；**L1 的第 1′ 環，先讀**）。
+
+## 5. 09-30 14:30 補入：LLM 那邊「寬度不該是超參數」的 2026 線（掃描 Ansuini 被引時經 Mudarisov 拉出；讀原文主節）
+
+| 文獻 | 陳述 | 與我們的關係 |
+|---|---|---|
+| **Bayat, Behrouz & Courville 2026「Tapered Language Models」**（arXiv 2606.23670，preprint；`refs/scan0930/`） | 440M decoder-only：同參數量把 MLP 寬度**前寬後窄**（三段 A）困惑度 16.28→15.96、**後寬**（B）17.29、中寬 16.61；三種平滑遞減時程（linear／cosine／sigmoid）在 3 個規模 × 4 個架構族（Transformer、Gated Attention、Hope、Titans）一致改善；機制：ρ_l ＝ cos(MLP 輸出, 殘差流) 隨深度上升（後層只是加強既有方向，寫入的新資訊少） | (a) **與 CNN 壓縮文獻的「後段留寬」方向相反**——LLM 殘差流的後層是「精修」，CNN 的後層是分類前的特徵；我們 L5 §2 說的「寬度 ≠ 秩」在這裡有個現成對照：他們的寬度判準是「新資訊寫入量」，不是秩。(b) 他們的 ρ_l 與我們環 5 的「支路對殘差流的相對譜」是同一個對象的不同投影（A30 的 transformer 剖面可直接算 ρ_l）。(c) 他們**沒有訓練前的預測**，寬度形狀仍是手選家族；這是 (i)「訓練前可算」的空格在 LLM 端的樣子。 |
+| **Mudarisov, Burtsev & State 2026**（arXiv 2608.02064） | 從**參考模型一次前向**的幾何量（correspondence shift、Gromov–Wasserstein 失真、H₁ 持續同調）定每層 FFN 寬度；「layerwise approximation surrogate」給固定預算的精確最佳化；7 個預訓練 LM 上 normalized work 前重；128M／256M／440M 配對訓練：幾何時程勝均勻與 cosine taper，anti-topological 對照比均勻差 | **與我們的尺是同型**：用激活的量定寬度、固定預算最佳化（我們的注水）、再訓練驢證；差別：他們的量是點雲幾何（非譜）、對象是 LLM FFN、無隨機對照（沒問「未訓練的參考模型讀出什麼」）。**要引並劃界**（(iii) 一次訓練到位那段）。他們也需要一個已訓練的參考模型——與 Chen 2024「要到收斂才能判」同一個限制，我們的尺在初始化與訓練中都能讀。 |
+
+**給題目的訊號**：「寬度不該是超參數」在 2026 已是 LLM 社群的活題（TLM、Mudarisov、Baroian & Notebomer「Crown, frame, reverse」），都是**實證＋手選或幾何量**，
+沒有一個從初始化的譜或訓練理論推出寬度剖面。我們的 (i)（訓練前可算）＋(ii)（零重訓摺入）＋殘差網路的 CNN 證據，剛好補在他們留下的位置；但要小心
+**方向相反**這件事（LLM 前寬、CNN 後寬）不是矛盾而是兩種對象（殘差流精修 vs 池化前特徵），論文得講清楚，不然審稿人會拿 TLM 來打「後段閒置」。
