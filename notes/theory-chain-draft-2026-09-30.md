@@ -88,7 +88,7 @@ the global optimum is not deep neural collapse but a strongly-regular-graph solu
 and deep neural collapse persists as a positive-semidefinite critical point whose share of the landscape grows with width
 (Garrod and Keating, Theorem 5); and for deep regularised ResNets and transformers the end-to-end problem reduces, as L → ∞ with λ independent of L, to a generalised UFM whose global optima exhibit approximate neural collapse in the *last* layer, tightening with depth (Súkeník, Lampert and Mondelli 2025, Theorem 4.3 and Corollary 4.5; unique training samples, inner dimension ≥ 4). Depth alone
 biases toward low rank: at any global minimum of the L2-regularised loss some hidden representation has s₂/s₁ = O(L^{−1/4}), and the limiting representation cost per layer lies between the Jacobian rank and the bottleneck rank of the function (Jacot 2023, Proposition 4 and Theorem 1; fully connected, homogeneous activations), and the collapse happens in the terminal phase of training (Papyan, Han and Donoho 2020).
-Every one of these results predicts a late-layer rank *at or below K*.
+Every one of these results predicts a late-layer rank *at or below K*; note that the intermediate-layer statements are for the deep UFM (fully connected surrogate layers), and the only result for residual architectures speaks of the last layer.
 
 **What we measure is above K by a factor 2–50.** The late-layer τ-width on CIFAR-10 is 20–50 channels for K = 10 [check: A18/A24], the
 numerical rank (eigenvalues above 10⁻³λ₁) 68–138 channels [A34], and a ten-class ImageNet ResNet-18 reads 0.95 of its 512 channels
