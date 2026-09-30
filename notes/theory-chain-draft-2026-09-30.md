@@ -84,8 +84,7 @@ amount the decomposition predicts (|out − pred| 0.021–0.031, realised fracti
 **Known.** With weight decay, every stationary point of the regularised loss satisfies λW_l = −∇_{W_l}L₀ (eq. (4) of Zangrando et al.),
 and if the class means of the features entering layer l have small total within-class variation TCV_K, the distance of W_l to the set of
 rank-≤K matrices is at most M_{l,j}·TCV_{K,j}/λ (Zangrando et al., TMLR 2026, Theorem 3.5). In the deep unconstrained-features model
-the global optimum is not deep neural collapse but a solution of rank below K−1 when the network is deep and the class count large
-(Súkeník, Lampert and Mondelli 2024, Theorem 5), of rank at most q_K ≤ 2 for large depth (Garrod and Keating 2025, Theorems 2–3),
+the global optimum is not deep neural collapse but a strongly-regular-graph solution whose intermediate features and weights have rank Θ(√K) before the ReLU and K after it, for K ≥ 6 with L ≥ 4 layers or K ≥ 10 with L = 3, with a loss ratio O(K^{(3−L)/(2(L+1))}) (Súkeník, Lampert and Mondelli 2024, Theorem 5 and Definition 4), of rank at most q_K ≤ 2 for large depth (Garrod and Keating 2025, Theorems 2–3),
 and deep neural collapse persists as a positive-semidefinite critical point whose share of the landscape grows with width
 (Garrod and Keating, Theorem 5); the same optimality carries to regularised ResNets and transformers (Súkeník et al. 2025). Depth alone
 biases toward low rank (Jacot 2023), and the collapse happens in the terminal phase of training (Papyan, Han and Donoho 2020).
