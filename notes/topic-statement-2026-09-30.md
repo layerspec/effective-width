@@ -51,5 +51,10 @@ A30（同一條鏈在 transformer 上）。**放不進鏈的**：控制器、摺
 ## 還沒做、決定題目前要做的
 
 1. 第二輪：鏈上每一環的定理讀到第一級（目前 Yang、Daneshmand、Zangrando、Súkeník、Jacot、Ba、Wang、Atanasov 到第二級；Xiao、Poole 到第二級）。
-2. Semantic Scholar 引用圖掃一次（Ansuini、Masarczyk、Feng、Daneshmand 的被引），確認空格。
+2. ~~Semantic Scholar 引用圖掃一次（Ansuini、Masarczyk、Feng、Daneshmand 的被引），確認空格。~~ **09-30 下午已掃**（Ansuini 457、Feng 64、Recanatesi 86、
+   Daneshmand、Chen、Yu&Wu、Joudaki、Garg、Everett、Bayat 的被引；`results/lit_scan_citations_0930.json`）：**空格仍在**。最接近的：Chen–Bu–Yan NeurIPS 2024
+   （逐層「寬度夠不夠」的權重範數判準，實證、要到收斂才判）、Bayat 2026 TLM 與 Mudarisov 2026（LLM 逐層 MLP 寬度配置，實證／幾何量、無初始化預測）、
+   Garg 2024（utilized rank）、Everett 2026（transformer 初始化 Jacobian 秩）——沒有一篇問「逐層寬度由什麼決定、能否訓練前算」。
+   理論端新增：Joudaki 2023×2＋Joudaki–Hofmann 2024（環 1′：BN 等距、忘掉輸入、殘差減慢）、Garrod–Keating 2025（環 3：最優秩 ≤ 2、DNC 隨寬度更常見；
+   **沒有理論預測 κ ≫ K**）。題目陳述不變；「為什麼現在沒有人答」表的 L2、L5、L6 列各加一句（見各地圖）。
 3. 三條組裝解釋的驢證（`map-L3` §3；既有資料）——若不成立，第 4 環要改寫。
