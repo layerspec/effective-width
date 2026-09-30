@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from scripts.checkpoint_analysis import section_a17   # noqa: E402
+from scripts.checkpoint_analysis import section_a17, section_a29b   # noqa: E402
 
 
 def _traj(path, layers, profiles_by_epoch, acc=70.0):
@@ -47,3 +47,32 @@ def test_section_a17_verdicts(tmp_path, capsys):
     assert "H9.4a" in out and "SUPPORTED" in out.split("H9.4a")[1].split("\n")[0]        # bottleneck T-R below basic
     assert "H9.4b" in out and "NOT supported" in out.split("H9.4b")[1].split("\n")[0]   # this-recipe ResNet-50 T-R < 0.4
     assert "public ResNet-50" in out                                                    # T-T against the section-6 recipes
+
+
+def test_section_a29b_verdicts(tmp_path, capsys):
+    res = str(tmp_path); rng = np.random.default_rng(1)
+    def fam(arch, root, L, tr):
+        layers = [f"layer{i}.conv" for i in range(L)]
+        init = np.linspace(0.2, 0.6, L)
+        for s in (0, 1):
+            final = (init[::-1] if tr == 0 else (1 - tr) * rng.permutation(init) + tr * init) + 0.2   # tr = 0: reversed
+            _traj(os.path.join(res, root, f"{arch}_s{s}", "trajectory_layers.csv"), layers,
+                  {0: init + rng.normal(0, 0.005, L), 90: final + rng.normal(0, 0.005, L)})
+        return layers, init
+    L18, init18 = fam("resnet18", "a29b", 20, 0.95)          # keeps its order
+    fam("resnet34", "a29b", 36, 0.5)
+    fam("basic6666", "a17", 52, 0.0)                         # reorders
+    os.makedirs(os.path.join(res, "local6400", "archs", "trained"))
+    _public(os.path.join(res, "local6400", "archs", "trained", "timm_resnet18.tv_in1k_layers.csv"), L18, init18 + 0.2)
+    assert section_a29b(res) is True
+    out = capsys.readouterr().out
+    assert "P9.50" in out and "holds" in out.split("P9.50")[1] and "median" in out and "20" in out
+    # the depth sentence is not written when the middle point breaks the order
+    res2 = str(tmp_path / "b"); rng = np.random.default_rng(2)
+    def fam2(arch, root, L, tr):
+        layers = [f"layer{i}.conv" for i in range(L)]; init = np.linspace(0.2, 0.6, L)
+        for s in (0, 1):
+            final = (init[::-1] if tr == 0 else (1 - tr) * rng.permutation(init) + tr * init) + 0.2
+            _traj(os.path.join(res2, root, f"{arch}_s{s}", "trajectory_layers.csv"), layers, {0: init, 90: final})
+    fam2("resnet18", "a29b", 20, 0.95); fam2("resnet34", "a29b", 36, 0.0); fam2("basic6666", "a17", 52, 0.5)
+    assert section_a29b(res2) is False

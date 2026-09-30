@@ -4,6 +4,8 @@ same depth pattern and the same conv count (52 vs 53):
 
     basic6666  torchvision ResNet(BasicBlock, [6, 6, 6, 6])   -- basic blocks
     resnet50   torchvision resnet50 = ResNet(Bottleneck, [3, 4, 6, 3])
+    resnet18   torchvision ResNet(BasicBlock, [2, 2, 2, 2])   -- A29b (plan 9.18), the depth axis: 20 conv
+    resnet34   torchvision ResNet(BasicBlock, [3, 4, 6, 3])   -- A29b: 36 conv (basic6666 has 52)
 
 Recipe (plan 9.4, fixed before any data): SGD momentum 0.9, batch 256, lr 0.1 cosine to 0 over
 90 epochs (per epoch), weight decay 1e-4 on all parameters, RandomResizedCrop(224) + flip, eval
@@ -36,7 +38,7 @@ import torch.nn.functional as F
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.train_imagenet_r18 import loaders, evaluate          # noqa: E402
 
-ARCHS = ("basic6666", "resnet50")
+ARCHS = ("basic6666", "resnet50", "resnet18", "resnet34")
 DEFAULT_SCHEDULE = [0, 1, 2, 5, 10, 20, 30, 45, 60, 75, 90]
 
 
@@ -47,6 +49,10 @@ def build(arch: str, num_classes: int = 1000):
         return torchvision.models.ResNet(BasicBlock, [6, 6, 6, 6], num_classes=num_classes)
     if arch == "resnet50":
         return torchvision.models.ResNet(Bottleneck, [3, 4, 6, 3], num_classes=num_classes)
+    if arch == "resnet18":
+        return torchvision.models.ResNet(BasicBlock, [2, 2, 2, 2], num_classes=num_classes)
+    if arch == "resnet34":
+        return torchvision.models.ResNet(BasicBlock, [3, 4, 6, 3], num_classes=num_classes)
     raise ValueError(f"unknown arch {arch!r}; choose from {ARCHS}")
 
 

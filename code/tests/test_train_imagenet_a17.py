@@ -37,6 +37,10 @@ def test_builders_have_the_registered_conv_counts_and_imagenet_stem():
     for m in (b, r):
         assert m.conv1.kernel_size == (7, 7) and m.conv1.stride == (2, 2) and m.fc.out_features == 1000
     assert build("basic6666", 3).fc.out_features == 3
+    r18, r34 = build("resnet18", 1000), build("resnet34", 1000)          # A29b (plan 9.18): the depth axis 20 / 36 / 52
+    assert n(r18) == 20 and n(r34) == 36
+    assert [len(getattr(r34, f"layer{i}")) for i in (1, 2, 3, 4)] == [3, 4, 6, 3]
+    assert all(float(m.bn2.weight.min()) == 1.0 for m in r18.layer1)      # torchvision default: last BN weight at one (gamma = 1)
 
 
 def test_smoke_trains_measures_and_resumes(tmp_path):

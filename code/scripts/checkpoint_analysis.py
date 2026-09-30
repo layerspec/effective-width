@@ -1289,11 +1289,11 @@ def _run_acc(results: str, run: str) -> float:
     return acc[epochs[-1]]
 
 
-def _a17_profiles(results: str, arch: str):
-    """{seed: dict(init, final, acc, layers, epochs, P, accs, settle, rho_depth_*)} for results/a17/<arch>_s<seed>/;
+def _a17_profiles(results: str, arch: str, root: str = "a17"):
+    """{seed: dict(init, final, acc, layers, epochs, P, accs, settle, rho_depth_*)} for results/<root>/<arch>_s<seed>/;
     a run counts as finished when result.json exists (its last measured epoch is the final profile)."""
     out = {}
-    for path in sorted(glob.glob(os.path.join(results, "a17", f"{arch}_s*", "trajectory_layers.csv"))):
+    for path in sorted(glob.glob(os.path.join(results, root, f"{arch}_s*", "trajectory_layers.csv"))):
         d = os.path.dirname(path)
         if not os.path.exists(os.path.join(d, "result.json")):
             continue
@@ -1428,6 +1428,59 @@ def section_a30_gate(results: str):
           f"largest |difference| = {float(np.max(np.abs(ours - theirs))):.3f}")
     print(f"  P9.67 (r >= 0.95 and median |difference| <= 0.05) -> {'holds' if ok else 'fails'}")
     return ok
+
+
+A29B_DEPTH = (("resnet18", "a29b", 20, "timm_resnet18.*_layers.csv"), ("resnet34", "a29b", 36, "timm_resnet34.*_layers.csv"),
+              ("basic6666", "a17", 52, None))
+
+
+def section_a29b(results: str):
+    """A29b (plan 9.18, P9.50): the depth axis under one recipe and one initialisation -- ResNet-18 (20 conv) and
+    ResNet-34 (36) trained with the A17 recipe, against A17's basic [6,6,6,6] (52).  Same-seed T-R (k*(0.95)/r_max,
+    the section-6 subset), zones as in plan 9.17: reorders <= +0.10, preserves >= +0.40."""
+    groups = {arch: _a17_profiles(results, arch, root) for arch, root, _, _ in A29B_DEPTH}
+    if not any(groups[a] for a in ("resnet18", "resnet34")):
+        return None
+    hdr("30. A29b: the depth axis under one recipe -- 20 / 36 / 52 basic convolutions on ImageNet-1k (analysis-plan 9.18)")
+    print("  A17 recipe (SGD, lr 0.1 cosine, 90 epochs, wd 1e-4), torchvision initialisation (last BN weight at one);")
+    print("  T-R = Spearman between the final and the initial k*(0.95)/r_max profile of the same seed; all pairs as well")
+    print(f"    {'arch':10s} {'conv':>4s} {'seeds':>5s}  {'T-R same seed':>16s} {'T-R all pairs':>14s} {'T-T':>6s} {'level R->T':>12s} {'top1':>6s}  zone   T-T vs public tv/a-recipes")
+    med, zone = {}, {}
+    for arch, root, depth, pub_glob in A29B_DEPTH:
+        runs = groups[arch]
+        if not runs:
+            print(f"    {arch:10s} {depth:4d}     0  (no finished runs)"); continue
+        same = [_rho(v["init"], v["final"]) for v in runs.values()]
+        inits = [v["init"] for v in runs.values()]; finals = [v["final"] for v in runs.values()]
+        allp = [_rho(a, b) for a in finals for b in inits]
+        tt = [_rho(a, b) for a, b in itertools.combinations(finals, 2)]
+        m = float(np.median(same)); med[arch] = m
+        zone[arch] = "reorders" if m <= 0.10 else "preserves" if m >= 0.40 else "between"
+        pub = ""
+        if pub_glob:
+            P = _public_profiles(results, os.path.join("local6400", "archs", "trained", pub_glob))
+            layers = next(iter(runs.values()))["layers"]
+            vals = []
+            for v in runs.values():
+                for name, prof in P.items():
+                    common = [i for i, lay in enumerate(layers) if lay in prof]
+                    if len(common) >= 5:
+                        vals.append(_rho(v["final"][common], np.array([prof[layers[i]] for i in common])))
+            pub = f"median {np.median(vals):+.2f} over {len(vals)} pairs" if vals else "n/a"
+        print(f"    {arch:10s} {depth:4d} {len(runs):5d}  {' '.join(f'{x:+.2f}' for x in same):>16s} {np.median(allp):+14.2f} "
+              f"{(np.median(tt) if tt else float('nan')):+6.2f} {np.median(np.concatenate(inits)):5.2f} -> {np.median(np.concatenate(finals)):4.2f} "
+              f"{np.mean([v['acc'] for v in runs.values()]):6.2f}  {zone[arch]:9s} {pub}")
+    V = None
+    if all(arch in med for arch, _, _, _ in A29B_DEPTH) and all(len(groups[a]) >= 2 for a in ("resnet18", "resnet34")):
+        mono = med["resnet18"] > med["resnet34"] > med["basic6666"]
+        V = bool(mono and zone["resnet18"] == "preserves" and zone["basic6666"] == "reorders")
+        print(f"  P9.50 (same-seed T-R median falls with depth, 20 > 36 > 52; ResNet-18 preserves, basic [6,6,6,6] reorders) -> "
+              f"{'holds' if V else 'fails'}  ({med['resnet18']:+.2f} > {med['resnet34']:+.2f} > {med['basic6666']:+.2f}: "
+              f"{'monotone' if mono else 'not monotone'}; zones {zone['resnet18']} / {zone['resnet34']} / {zone['basic6666']})")
+        print("  Registered consequence: " + ("under one recipe and one initialisation the order of the initialisation survives training "
+              "in a network of 20 basic convolutions and not in one of 52; depth is written as the axis." if V else
+              "no depth sentence; the three points are reported as measured."))
+    return V
 
 
 def _public_profiles(results: str, pattern: str) -> dict:
@@ -2865,6 +2918,7 @@ def main(argv=None) -> int:
     section_round3_ortho(a.results, latex=a.latex_ortho)
     section_a17(a.results)
     section_a29(a.results)
+    section_a29b(a.results)
     section_a28(a.results)
     section_a30(a.results)
     section_a30_gate(a.results)
