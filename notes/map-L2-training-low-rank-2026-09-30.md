@@ -72,4 +72,9 @@ Yaras 2023（深線性 GD 的低維動力）；Kubaty 2025（已引）；Hui, Be
 - **Jacot 2023，定理 1**：對有界域上的分段線性函數 f，Rank_J(f) ≤ R_∞(f; σ_a) ≤ Rank_BN(f)——深度→∞的（重標度）表示成本夾在 Jacobian 秩與瓶頸秩之間；
   命題 4：L2 正則的全域極小在大深度下參數範數／L 接近這個秩；定理 2：深度太大時全域極小近似秩 1（低估），存在隨資料量增長的深度區間恢復真秩。
   **對象**：函數的秩（全網），不是逐層譜；全連接、齊次非線性。
+- **引用圖掃描（Masarczyk 2023 的 39 篇被引，09-30 晚）**新增兩篇：
+  - **arXiv 2505.15239「Neural Collapse is Globally Optimal in Deep Regularized ResNets and Transformers」（2025）**：把 DNC 的全域最優性推到**含 LayerNorm 的殘差網路與 transformer**，
+    資料相依，深度越大近似越緊；並把大深度的 ResNet／transformer 端到端訓練化約為等價的 UFM。**這是鏈第 3 環在殘差與 transformer 上的理論支撐**（A30、§10.17 用得到）；要讀定理與假設。
+  - **arXiv 2607.27854「Simplifying Neural Networks During Training」（2026）**：以 NC 的代理量（Inverse Fisher Criterion）在訓練中找抽取／分類的分界與可簡化的時點，
+    把後段換成輕分類頭。與控制器同屬「訓練中依表徵統計改結構」，對象是深度不是寬度；L5 的相關工作、控制器段落要引。
 

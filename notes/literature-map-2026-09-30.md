@@ -56,7 +56,7 @@
 - 「hunchback／hourglass」ID 剖面在 LLM 上的近作（Yusupov 2025、SISSA 論文 2025）：都是實證，明寫「existing studies are exclusively empirical—they describe
   geometric properties but do not explain why these properties arise」——**這句話就是我們題目的空格，別人替我們寫了**。
 - **結論（暫定）**：「逐層譜寬度剖面由什麼決定」沒有理論工作，實證只有單一剖面或單一統計量；跨訓練前後的逐層順序相關、多配方一致性、初始化方式的角色
-  仍未見。三次查詢不是窮盡；投稿前用 Semantic Scholar 的引用圖再掃一次（Ansuini、Masarczyk、Feng、Daneshmand 的被引）。
+  仍未見。三次查詢不是窮盡；Masarczyk 的 39 篇被引已掃（09-30 晚：新增 2505.15239 DNC 推到 ResNet／transformer、2607.27854 訓練中簡化網路），Ansuini、Feng、Daneshmand 的被引待掃（API 限流）。
 
 ## 進度
 
