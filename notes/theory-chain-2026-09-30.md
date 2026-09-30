@@ -70,6 +70,8 @@ Weyl 只給特徵值下界；τ 寬度是相對量，可證：k*(τ)(Σ_x＋Σ_f
 ### B4 有限寬度、相依位置下 ReLU 步的譜律（真的洞；一篇數學論文的份量）
 Xiao 假設跨位置聯合高斯；有限寬度的修正是 Roberts–Yaida–Hanin 的四點函數（MLP 有、CNN 要推）；相依樣本的非線性 RMT 是開放問題（Cranston 2026 剛開始）。
 **判斷**：不在這篇做，除非第二輪讀完發現 RYH 的 CNN 版已有人推、只差套用。列為第二篇。
+**09-30 下午查核**：RYH 全書（`refs/L1/2106.10165.txt`）卷積只出現在 §2 註腳 6（式 2.8 寫下卷積的遞推、說明權重綁定），四點函數的有限寬度修正全是 MLP；
+arXiv／S2 以「finite width convolutional random matrix」「random features dependent samples」等查無對應結果（S2 今天限流，未窮盡）。B4 仍是洞，寫進論文的 Limitations 一句。
 
 ### B5 相依樣本下 τ 寬度的樣本門檻（L4 的洞）
 Blanchard／Kong–Valiant 假設獨立樣本；我們每張影像 16 個位置。有效樣本數的界可能可從位置相關的譜（Xiao）寫出。中等難度，價值在量測協定的正當性。
