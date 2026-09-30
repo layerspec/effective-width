@@ -94,9 +94,8 @@ Every one of these results predicts a late-layer rank *at or below K*.
 numerical rank (eigenvalues above 10⁻³λ₁) 68–138 channels [A34], and a ten-class ImageNet ResNet-18 reads 0.95 of its 512 channels
 [A26]. Two explanations are available and we test the first.
 
-**Proposition B6 (no stationary point to bound).** Let layer l be a convolution followed by batch normalisation in training mode, so that
-L₀(cW_l) = L₀(W_l) for all c > 0. Then ⟨∇_{W_l}L₀, W_l⟩ = 0, and the only solution of λW_l = −∇_{W_l}L₀ with λ > 0 is W_l = 0.
-*Proof.* Differentiate L₀(cW_l) at c = 1; take the inner product of the stationarity equation with W_l. ∎
+**Proposition B6 (no stationary point to bound).** Let layer l be a convolution (with or without bias) followed by batch normalisation in training mode with ε = 0. Then L₀(cW_l) = L₀(W_l) for all c > 0 (the per-channel batch mean removes the bias exactly, the batch standard deviation removes the scale), hence ⟨∇_{W_l}L₀, W_l⟩ = 0, and the only solution of λW_l = −∇_{W_l}L₀ with λ > 0 is W_l = 0. For ε > 0, ⟨∇_{W_l}L₀, W_l⟩ = Σ_c [ε/(σ_c² + ε)] ⟨∂L₀/∂y_c, y_c − β_c⟩, which is O(ε/σ²_min).
+*Proof.* Differentiate L₀(cW_l) at c = 1 (for ε > 0, dy_c/dc = (y_c − β_c) ε/(σ_c² + ε)); take the inner product of the stationarity equation with W_l. ∎
 *Corollary B6′.* A stationary *direction* of the weight, (∇L₀ + λW) ∥ W, requires ∇L₀ = 0 exactly.
 The scale invariance is classical (van Laarhoven 2017; Li and Arora 2020, Lemma 1.3; Zhang, Wang and Xu 2019; Kunin et al. 2021) and the
 resulting zero cosine was observed at initialisation by Chen, Bu and Yan (2024: |cos| ≤ 3·10⁻⁴ over all channels of VGG16_bn) and

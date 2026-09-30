@@ -57,7 +57,13 @@ Boix-Adserà 2025 用同一事實說 FACT 在 BN 網路不成立。**我們加�
 **09-30 下午核原文（TMLR 版 `refs/s3/2402.03991.txt`）**：定理 3.5 的唯一假設就是「Θ* 是 L_λ 的駐點」，證明第一步即 (4) λW_l* ＝ −∇_{W_l}L₀(Θ*)、
 W_l* ＝ −∇L₀/λ（式 8）；全文無 batch normalisation。所以 B6 打的正是 (4)。**推論 B6′（也初等）**：在縫放不變層上，權重*方向*的駐點條件是
 (∇L₀ ＋ λW) ∥ W；因 ∇L₀ ⟂ W，這等價於 ∇L₀ ＝ 0——即「方向穩定」需要該層的 L₀ 梯度**精確為零**，SGD 下不會發生（A35 冒煙：‖∇L₀‖ 是 ‖λW‖ 的 16–28 倍）。
-訓練到達的是 Li & Arora 的角度更新平衡（‖W‖² 的定態由 η、λ、梯度雜訊決定），不是 (4)。論文寫法：「Theorem 3.5 of Zangrando et al. assumes (4); in a conv–BN layer (4)
+訓練到達的是 Li & Arora 的角度更新平衡（‖W‖² 的定態由 η、λ、梯度雜訊決定），不是 (4)。
+**兩個實作細節（09-30 下午核，寫進命題的假設）**：(a) **conv 的 bias**：torchvision／我們的 VGG-16_BN conv 有 bias（`build_vgg16_bn_cifar` 核過 `bias=True`）。
+訓練模式 BN 先減每通道批次均值，而 bias 是每通道常數（含 zero-padding 的位置），所以 BN(Wx＋b) ＝ BN(Wx) **精確**成立 → L₀ 不依賴 b，∇_b L₀ ＝ 0，
+⟨∇_W L₀, W⟩ ＝ 0 對 W 單獨成立（不必寫成 (W, b) 聯合縫放）；wd 下 b 只會衰減到 0。(b) **BN 的 ε**：y ＝ γ(u−μ)/√(σ²＋ε)＋β，對 u → cu 微分在 c＝1：
+dy/dc ＝ (y−β)·ε/(σ²＋ε)，故 ⟨∇_W L₀, W⟩ ＝ Σ_ch [ε/(σ²_ch＋ε)]·⟨∂L₀/∂y_ch, y_ch−β_ch⟩——ε＝0 時恰為零，ε＝1e-5 時是 O(ε/σ²_min) 的小量。
+命題陳述：「ε＝0 時精確；ε>0 時 |⟨∇L₀,W⟩| ≤ (ε/σ²_min)·‖∂L₀/∂y‖·‖y−β‖」。A35 冒煙的 |cos| ≤ 0.002 與 float32＋256 張的取樣噪聲一致。
+論文寫法：「Theorem 3.5 of Zangrando et al. assumes (4); in a conv–BN layer (4)
 has only the solution W_l = 0 (Proposition B6), and the measured ratio ‖∇L₀‖/‖λW‖ of 16–28 at the end of training shows the trained weights are nowhere near it.」
 
 ### B2 τ 寬度在加法處的下界（環 5 的補強；小）
