@@ -54,6 +54,11 @@ Boix-Adserà 2025 用同一事實說 FACT 在 BN 網路不成立。**我們加�
 並用 21 個 checkpoint 量 cos 與駐點殘差（P9.76）與權重的 rank-K 尾能量（P9.77）。**這是第 3 軸現在最實在的一步**：小、對、且解釋一個量到的反常。
 **限制**：只對 conv-BN 層；VGG-16_BN 的 13 層全是；ResNet 的 conv1／conv2 是，downsample 是；transformer 的 Linear 接 LayerNorm 在前不在後，不適用。
 後續可證的：在「衰減—旋轉平衡」下權重秩由什麼決定（Li & Arora 的有效步長）——那是 B4 級的問題，不在這篇。
+**09-30 下午核原文（TMLR 版 `refs/s3/2402.03991.txt`）**：定理 3.5 的唯一假設就是「Θ* 是 L_λ 的駐點」，證明第一步即 (4) λW_l* ＝ −∇_{W_l}L₀(Θ*)、
+W_l* ＝ −∇L₀/λ（式 8）；全文無 batch normalisation。所以 B6 打的正是 (4)。**推論 B6′（也初等）**：在縫放不變層上，權重*方向*的駐點條件是
+(∇L₀ ＋ λW) ∥ W；因 ∇L₀ ⟂ W，這等價於 ∇L₀ ＝ 0——即「方向穩定」需要該層的 L₀ 梯度**精確為零**，SGD 下不會發生（A35 冒煙：‖∇L₀‖ 是 ‖λW‖ 的 16–28 倍）。
+訓練到達的是 Li & Arora 的角度更新平衡（‖W‖² 的定態由 η、λ、梯度雜訊決定），不是 (4)。論文寫法：「Theorem 3.5 of Zangrando et al. assumes (4); in a conv–BN layer (4)
+has only the solution W_l = 0 (Proposition B6), and the measured ratio ‖∇L₀‖/‖λW‖ of 16–28 at the end of training shows the trained weights are nowhere near it.」
 
 ### B2 τ 寬度在加法處的下界（環 5 的補強；小）### B2 τ 寬度在加法處的下界（環 5 的補強；小）
 Weyl 只給特徵值下界；τ 寬度是相對量，可證：k*(τ)(Σ_x＋Σ_f) ≥ k*(τ′)(Σ_x)，τ′＝1−(1−τ)(1＋tr Σ_f／tr Σ_x)。初等，但把「絕對譜不減、τ 寬度可減」寫成一條可引的不等式，
