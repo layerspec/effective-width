@@ -1,0 +1,9 @@
+=== 80-pixel copy to /workspace/imagenet80 Tue Sep 29 20:56:22 UTC 2026 ===
+train 1281167 val 50000
+=== k100_224_s0 start Tue Sep 29 20:58:55 UTC 2026 ===
+=== k100_224_s0 end Tue Sep 29 22:51:30 UTC 2026 ===
+=== k100_224_s1 start Tue Sep 29 22:51:30 UTC 2026 ===
+=== k100_224_s1 end Wed Sep 30 00:44:34 UTC 2026 ===
+=== k1000_n130_224_s0 start Wed Sep 30 00:44:34 UTC 2026 ===
+=== k1000_n130_224_s0 end Wed Sep 30 03:16:57 UTC 2026 ===
+=== k1000_n130_224_s1 start Wed Sep 30 03:16:57 UTC 2026 ===

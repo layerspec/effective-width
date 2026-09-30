@@ -1,0 +1,2 @@
+train: 294 shards, 1281167 images written to /workspace/imagenet80/train
+val: 14 shards, 0 images written to /workspace/imagenet80/val

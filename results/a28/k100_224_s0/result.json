@@ -1,0 +1,45 @@
+{
+  "arch": "resnet50",
+  "params": 23712932,
+  "macs_224": 4087341056,
+  "seed": 0,
+  "epochs": 90,
+  "crop": 224,
+  "recipe": {
+    "optimizer": "SGD",
+    "momentum": 0.9,
+    "lr": 0.1,
+    "schedule": "cosine",
+    "eta_min": 0.0,
+    "wd": 0.0001,
+    "batch_size": 256,
+    "aug": "RandomResizedCrop224+flip",
+    "eval": "Resize256+CenterCrop224",
+    "amp": true
+  },
+  "measure": {
+    "data": "a28:holdout",
+    "size": 224,
+    "positions": 16,
+    "schedule": [
+      0,
+      1,
+      2,
+      5,
+      10,
+      20,
+      30,
+      45,
+      60,
+      75,
+      90
+    ],
+    "limit": null
+  },
+  "final_top1": 81.7,
+  "final_top5": 94.54,
+  "best_top1": 81.8,
+  "best_epoch": 87,
+  "train_hours": 1.5297042711575826,
+  "img_per_s_median": 1681.2152506650941
+}
