@@ -38,6 +38,9 @@ Table I、池化計數 687/703、對齊的 ρ_align、分解表都不含這五�
 - 零重訓摺入：transformer 段的運算子是 Yu & Wu 2023 的；CNN 段是 Chee 2022 的（已寫）。
 - 「ImageNet 沒有閒置寬度」一律加判準（τ＝0.999、不重訓），引 Garg 2024。
 - 對齊：補引 Maennel 2020、Beaglehole 2023／Radhakrishnan 2024、Boix-Adserà 2025。
+  **A32 已判（plan §10.21）**：核增益首先跟著輸出端梯度能量（Spearman +0.95／+0.98），控制它之後對輸入變異的對齊剩 +0.45／+0.55——
+  `sec:decompose` 結論句、§I 貢獻第 3 條、摘要「whose gain aligns with its input's variance」改為「partly accounted for by the output-side gradient
+  structure of the neural feature ansatz」；補充加 CNFA 逐元素相關的結構性底（置換 Γ 不變、隨機網路 0.8）。
 - (iv) 閒置寬度（`notes/s3-prior-art-2026-09-30.md` §5）：開頭先引 Masarczyk 2023 與 Harun 2024——類別數、影像數、寬度、解析度的方向都已報；
   我們的是寬度方向的數字、固定 τ、劑量反應、少類別 × 224² 這個空格。**「要優化夠久才出現」在兩把尺並列的量測做完前不得照現在的樣子寫**
   （Masarczyk：深層的秩在 75 步內塌縮）。**A34 已判（plan §10.20）**：在通道共變異數上兩把尺同向、都隨步數收縮，塌到類別數不重現；A25 的句子改為
