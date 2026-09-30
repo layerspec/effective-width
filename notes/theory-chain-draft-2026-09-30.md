@@ -100,8 +100,7 @@ numerical rank (eigenvalues above 10⁻³λ₁) 68–138 channels [A34], and a t
 The scale invariance is classical (van Laarhoven 2017; Li and Arora 2020, Lemma 1.3; Zhang, Wang and Xu 2019; Kunin et al. 2021) and the
 resulting zero cosine was observed at initialisation by Chen, Bu and Yan (2024: |cos| ≤ 3·10⁻⁴ over all channels of VGG16_bn) and
 attributed to high dimension; what B6 adds is that it is exact, holds along the whole trajectory, and removes the hypothesis of
-Theorem 3.5 for every conv–BN layer. Training then reaches the balance between weight decay and gradient rotation (the effective-step-size
-equilibrium of Li and Arora), in which the norm, not the rank, of W is set by λ.
+Theorem 3.5 for every conv–BN layer. Training then reaches the balance between weight decay and gradient rotation: for a scale-invariant layer under SGD with weight decay the squared norm converges linearly to √(Lη/(2λ)) and the angular update to √(2ηλ) (Wan et al. 2021, Theorem 1; Li and Arora 2020) — the norm, not the rank, of W is set by λ.
 
 **What we verify [A35, pending].** On 21 CIFAR checkpoints (VGG-16_BN, K = 10/13/20/50/100, three seeds each): the training-mode cosine
 per conv–BN layer, the stationarity residual ‖λW + ∇L₀‖/‖λW‖ (a smoke run gives 16–28: the trained weights are far from (4)), the rank-K

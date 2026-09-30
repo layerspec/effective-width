@@ -64,6 +64,9 @@ W_l* ＝ −∇L₀/λ（式 8）；全文無 batch normalisation。所以 B6 �
 dy/dc ＝ (y−β)·ε/(σ²＋ε)，故 ⟨∇_W L₀, W⟩ ＝ Σ_ch [ε/(σ²_ch＋ε)]·⟨∂L₀/∂y_ch, y_ch−β_ch⟩——ε＝0 時恰為零，ε＝1e-5 時是 O(ε/σ²_min) 的小量。
 命題陳述：「ε＝0 時精確；ε>0 時 |⟨∇L₀,W⟩| ≤ (ε/σ²_min)·‖∂L₀/∂y‖·‖y−β‖」。A35 冒煙的 |cos| ≤ 0.002 與 float32＋256 張的取樣噪聲一致。
 `tests/test_prop_b6.py`（float64、conv 有 bias、ε＝1e-12／1e-5／1e-2／1）：⟨∇W,W⟩ 與公式差 < 1e-9·‖∇W‖‖W‖、∇_b ＝ 0 到 1e-16、ε→0 時內積 < 1e-10 相對——**公式精確**。
+**B6 之後訓練到達哪裡（引）**：Wan, Zhu, Zhang & Sun, NeurIPS 2021（`wan2021spherical`，`refs/L2bn/2006.08419.pdf`）定理 1：縫放不變層在 SGD＋wd 下
+‖w_t‖² 以線性速率收斂到 w*² ＝ √(Lη/(2λ))（L ＝ E‖g·‖w‖²‖²，假設 λη ≪ 1、梯度能量有界且有下界），角度更新收斂到 √(2ηλ)（式 5）——
+即 **範數由 (η, λ, 梯度能量) 定、方向持續旋轉**，這就是 B6 後「訓練到達的是衰減—旋轉平衡、不是 (4)」的精確引用；van Laarhoven 2017 假設平衡已達，Wan 證明它會達。
 論文寫法：「Theorem 3.5 of Zangrando et al. assumes (4); in a conv–BN layer (4)
 has only the solution W_l = 0 (Proposition B6), and the measured ratio ‖∇L₀‖/‖λW‖ of 16–28 at the end of training shows the trained weights are nowhere near it.」
 
