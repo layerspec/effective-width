@@ -166,6 +166,8 @@ A24／A25 是它的兩個旋鈕；論文 III-C 改寫。**若不成立**（κ �
 Σc_s² 的質量：10%／50%／90%／99% 在 epoch 65.5／76.9／86.0／91.7（線性權重 58／75／88）——**終態權重幾乎全由 epoch 60–90 的梯度張成**，
 epoch 10 的係數只有 epoch 70 的 10⁻³。這是**引理 B7.1（精確、初等）**：對 SGD／momentum／Nesterov＋wd（不含 Adam），
   col(W_T − a_T W_0) ⊆ span{δ_{s,i,p} : s ∈ supp(c)} ⇒ rank(Σ_out) ≤ dim span{δ}＋1（a_T W_0 那一項）。
+**引理 B7.1 已對 PyTorch 的優化器逐位驢證**（`tests/test_lemma_b7_memory_window.py`，15:05）：真實 conv–BN 小網路、時變 lr 與 momentum、Nesterov 與古典 momentum 兩種，
+記錄每步的 g_s 後用脈衝響應重建 W_T，與優化器算出的 W_T 相對誤差 < 1e-10；c_s ≥ 0 全部、0 < a_T < 1；常數 lr 下半質量窗 ≈ ln2·(1−μ)/(ηλ)。
 **它給的是秩的包含，不是 τ 寬度的不等式**：Σ_out ＝ Σ_{s,s′} c_s c_{s′} G_s Σ_patch G_{s′}ᵀ，τ 寬度還要看 W 怎麼加權各個 δ 方向——這一步是**假說 B7.2**
 （「κ 跟窗內 Γ 的主要質量走」），用量測驢證（P-b7.2／b7.3；冒煙方向見上）。**第二階段（免費、既有 checkpoint）**：A18 尺寬臂三種子有 epoch 60／70／80／90 的
 checkpoint（`results/a18_pt/vgg16_bn_ruler*_s*/epoch_0{60,70,80,90}.pt`），可直接量窗內的 Γ_s 並用 c_s 加權成 Γ_win——P-b7.1 的代數上界因此**不必新訓練**就能檢
