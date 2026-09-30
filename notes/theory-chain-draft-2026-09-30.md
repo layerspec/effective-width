@@ -34,11 +34,9 @@ leave open). The scale of the initialisation enters the same recursion (γ of th
 Kunin et al. 2021 for the dynamics it induces).
 
 **Hypotheses and how far they hold.** (i) *Infinite channels.* We measure at C = 64–2048; the layer-local law (Prop. S6) is exact at
-finite C for the linear step, and on 535 layers of 11 families its median deviation from the measured k* is ≤ 2 channels, with 94–100 %
-of layers within 0.05 r_max [check: Table S19]. (ii) *Gaussian pre-activations across positions.* Violated: the marginals have
+finite C for the linear step, and on 535 dense convolutions of 11 families its median deviation from the measured k* is ≤ 2 channels (≤ 0.016 r_max) at both thresholds, 94–100 % of the layers of each family within 0.05 r_max, rank correlation ≥ 0.974 [supp. Tables S18–S19]. (ii) *Gaussian pre-activations across positions.* Violated: the marginals have
 excess kurtosis, and the copula diagnostic shows that at τ = 0.999 the ReLU step is determined by the Gaussian copula together with
-the *full* per-channel marginals (13/13 VGG layers within 0.03), but not by any finite set of cumulants (errors 0.03–0.12)
-[check: feasibility note C.1–C.3]. (iii) *Independent samples.* The theorems of Fan–Wang, Louart et al. and both Joudaki papers
+the *full* per-channel marginals (13/13 ReLUs of VGG-16 within 0.03), but not by marginals matched to four cumulants (misses by 0.03–0.08), and at τ = 0.95 the deep layers need the pairwise dependence as well; the closed forms (arc-cosine recursion, Gaussian equivalence, linear term) over- or under-shoot by 0.05–0.2 [supp. law paragraph; feasibility note C.1–C.3]. (iii) *Independent samples.* The theorems of Fan–Wang, Louart et al. and both Joudaki papers
 take the n samples independent; ours are positions of the same image, and neighbouring patches are the "duplicated samples" that
 Joudaki et al. 2023 explicitly exclude. This is the hypothesis that fails most, and it is why the predicted *widening* with depth of a
 normalised network (Gram → identity) is not what the position-sampled covariance shows [exploratory, seed 1: ρ(depth, k*₀.₉₅/r_max)
