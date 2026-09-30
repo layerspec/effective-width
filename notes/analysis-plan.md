@@ -909,6 +909,44 @@ A30 的探索性結果（§10.19：DeiT-III 對 LayerScale 初始化 T–R +0.31
   在第 25 步兩把尺都塌到 C 的 1–4%（loss 3.0–4.5，高於 ln 10）；我們的配方（lr 0.004）在第 25 步兩把尺都上升到 0.6–0.98。
   預測 P9.72–P9.75 已於冒煙前提交（commit 40ae436），一字未改。
 
+### 9.25 塌縮理論的前提在 BN 網路上成立到哪裡：Zangrando 界的核算（A35；2026-09-30 寫，資料未見；預登記由我定；作者 09-30「先寫陳述跟預登記」）
+
+**它驢證的陳述（先寫）。** 鏈第 3 環的定量部分是 Zangrando et al. 2024 定理 3.5：在 L2 正則損失 L_λ＝L₀＋(λ/2)Σ‖W_l‖² 的**駐點**，
+dist(W_l, rank ≤ K) ≤ M_{l,j}·TCV_{K,j}/λ。它的機制是駐點恆等式 λW_l ＝ −∇_{W_l}L₀，加上「前層特徵類內變異小 → 梯度近似秩 K」。
+**命題 B6（初等，寫在 `theory-chain` §B）**：若卷積層 l 之後緊接 batch normalisation（訓練模式，批次統計量），則 L₀ 對 W_l 的縫放不變性給
+⟨∇_{W_l}L₀, W_l⟩ ＝ 0；於是 L_λ 沒有 W_l ≠ 0 的駐點（內積兩邊得 λ‖W_l‖² ＝ 0），定理 3.5 的前提在每個 conv-BN 層上**不可能成立**。
+訓練實際到達的是 weight decay 的收縮與梯度的旋轉之間的平衡（van Laarhoven 2017；Li & Arora 2020；Zhang, Wang & Xu 2019），權重的秩由這個動力決定，
+不由 λ 直接界住。**後果**：DNC 類理論預測塌縮層的秩 ≈ K，在 BN 網路上沒有定量的力；後段寬度的上限 κ（§10.20、B1′）遠高於 K 是預期的。
+文獻查核：Zangrando 2024 全文無 batch normalisation 字樣；Boix-Adserà 2025 明寫 FACT 的一階條件在 BN 網路上因梯度 ⟂ 權重而不成立（`alignment-prior-art` 已記）。
+Li & Arora、van Laarhoven、Zhang–Wang–Xu 三篇要在量測前讀原文並核 bib（尚未做）。
+
+**已看過的資料**：A24／A25／A18 的 τ 寬度；§10.20 的數值秩；A32 的梯度 Gram。**沒有的**：任何一個網路的 ⟨∇L₀, W⟩、λW＋∇L₀ 的殘差、
+權重到 rank-K 的距離、逐層的類內變異比例。
+
+- **對象**：既有 checkpoint（CIFAR-10 VGG-16_BN 全寬 3 種子；A24 的 K＝13／20／50／100 各 3 種子；A25 e780 3 種子；共 21 個），λ＝5e-4（§9.1 配方）。
+  每個 conv-BN 層 l 算：
+  (a) 駐點殘差 r_l ＝ ‖λW_l ＋ ∇_{W_l}L₀‖_F ／ ‖λW_l‖_F，∇ 用該任務 6,400 張訓練影像（plain transform）的平均梯度，**訓練模式的 BN**（批次 128，統計量在批內）；
+  另報 eval 模式的值（運行統計量，縫放不變性不精確成立）。
+  (b) cos_l ＝ ⟨∇_{W_l}L₀, W_l⟩／(‖∇‖‖W‖)，訓練模式（命題 B6 預測 ≈ 0）與 eval 模式。
+  (c) 權重的 rank-K 尾能量 t_{K,l} ＝ Σ_{i>K} σ_i²(W_l) ／ Σ_i σ_i²(W_l)，K＝該任務的類別數；W_l 攤成 C_out × d。
+  (d) ReLU 後池化特徵的類內變異比例 WCV_l ＝ TCV_{K,l}／總變異（K 群取真實標籤；6,400 張）。
+  Mac CPU，每個 checkpoint 約 6 分鐘，共約 2 小時；`scripts/measure_stationarity.py`（新，包裝 `layerspec`，不改既有程式）、`--judge` 判定、測試。
+- **預測**：
+  - **P9.76**（命題 B6 的量測面）：訓練模式下每個 conv-BN 層 |cos_l| ≤ 0.05（21 個 checkpoint × 13 層全部），且 r_l ≥ 0.9（梯度對 λW 幾乎沒有抵銷）。
+    eval 模式下 |cos_l| 可以較大（只作描述）。
+  - **P9.77**（DNC 的定量預測在 BN 網路上不成立）：CIFAR-10 全寬三種子，後三個 conv 的 t_{10,l} ≥ 0.3（權重遠非秩 10）；A25 e780（39,000 步）亦 ≥ 0.2。
+  - **P9.78**（類內變異沿深度下降但不塌）：WCV_l 隨深度單調不增（Spearman(深度, WCV) ≤ −0.8，每個 checkpoint），最後一個 conv 的 WCV ≥ 0.2（CIFAR-10 全寬三種子）；
+    A25 e780 的最後一層 WCV 低於 100 epoch 臂（步數壓類內變異，配 §10.20 的兩把尺同縮）。
+  - **P9.79**（描述）：21 個 checkpoint 最後一個 conv 的 k*(0.999)/C 對 WCV_last 的 Spearman；以及對 K 的偏相關。不設門檻。
+- **判定與後果**：
+  - P9.76 成立 → 命題 B6 進理論鏈第 3 環（一段＋一個初等證明）：「the rank-K bound of deep neural collapse has no stationary point to bite on in a
+    batch-normalised network; the late-layer cap is set by the decay–rotation balance」，並引三篇 BN 縫放不變性的文獻；κ ≫ K 得到解釋。
+  - P9.76 不成立（cos 不小）→ 我對 BN 訓練模式縫放不變性的推導有錯或實作有 bias／affine 項的疏漏，先修再判其餘。
+  - P9.77 成立 → 論文寫「the weights of the late layers are far from rank K」，DNC 只作為方向的理論；不成立 → 塌縮層權重確實近秩 K，κ ≫ K 要另找原因
+    （τ＝0.999 對尾端敏感、增強、ReLU 後 vs 前）。
+  - P9.78 只約束寫法：NC1 在中間層的程度用數字寫。
+- 統計：21 個 checkpoint、逐層條件；描述為主，不做檢定。**不開新訓練。**
+
 ## 10. 第三輪結果（2026-09-09；`results/checkpoint_analysis.txt` §12–§13、`results/round3*/`）
 
 24 個 run（RunPod 3090，2026-09-08）全部跑完 100 epoch；判定依 §9 的規則，資料見過之前的規則一字未改。
