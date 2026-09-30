@@ -38,6 +38,9 @@ Table I、池化計數 687/703、對齊的 ρ_align、分解表都不含這五�
 - 零重訓摺入：transformer 段的運算子是 Yu & Wu 2023 的；CNN 段是 Chee 2022 的（已寫）。
 - 「ImageNet 沒有閒置寬度」一律加判準（τ＝0.999、不重訓），引 Garg 2024。
 - 對齊：補引 Maennel 2020、Beaglehole 2023／Radhakrishnan 2024、Boix-Adserà 2025。
+- (iv) 閒置寬度（`notes/s3-prior-art-2026-09-30.md` §5）：開頭先引 Masarczyk 2023 與 Harun 2024——類別數、影像數、寬度、解析度的方向都已報；
+  我們的是寬度方向的數字、固定 τ、劑量反應、少類別 × 224² 這個空格。**「要優化夠久才出現」在兩把尺並列的量測做完前不得照現在的樣子寫**
+  （Masarczyk：深層的秩在 75 步內塌縮）。A28 不寫「發現類別數／解析度是因素」。Discussion 加未解問題：ResNet 不論有無 skip，秩都高於 VGG。
 
 ## D. 其他今天判定帶來的
 

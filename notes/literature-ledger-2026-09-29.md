@@ -21,6 +21,7 @@
 | **Yu & Wu 2023**（AAAI；09-30 讀，未引） | DeiT-B 每個 block 的 QKV／FC1 輸出共變異數、90% 能量的維度比例（隨深度 0.06→0.6）；AFM＝PCA 截尾摺入、2,000 張無標籤影像、不微調，砍 20% 參數 −0.09 | **transformer 的驗證關卡**：同權重、同統計量，A30 已量；分母依推論是 min(m, n)＝r_max | ☑ 登記 P9.67（plan §9.19 補記，A30 結果未讀）；☐ 改稿：(ii) 的 transformer 段寫成「運算子是 Yu & Wu 的」 |
 | **Garg, Koguchi, Verma & Ulbricht 2024**（arXiv 2407.04797；09-30 讀，未引） | 逐層 utilized rank＝P_S Wᵀ P_T 的秩 ÷ min(m, d)；ImageNet ViT-B/16 MLU 35%、ResNet-50 60%；VGG-16 CIFAR-10 對 CIFAR-100 參數比 0.18 對 0.61；拆層後微調 | (i) **r_max 型分母已有人用**，承重主張第一列要改寫；(ii) 「ImageNet 沒有閒置寬度」只在 τ＝0.999、不重訓下成立；(iii) 輸入／輸出兩端的寬度分開報，我們的分解已有原料 | ☐ 改稿：r_max、(ii)、(iv) 三處引用並劃界；☐ 探索性：用 A32 的 Γ 算任務相依寬度，與 MLU 對照 |
 | Tian, Xu & Li 2026；Park 2023；Skean 2025 | 最後一層：每張影像低秩、資料集不低秩；訓練目標決定譜（MAE 最後一層 235/768、DINO 624/768） | A30 的 DINO／MAE 探索性權重對 Tian 表 1 核一次；劃界句「我們量的是跨影像的通道共變異數，不是序列內 token 的秩」 | ☐ A30 判定時核；☐ 改稿時寫劃界句 |
+| **Masarczyk 2023 × Harun 2024，逐條對照我們的實驗**（09-30；`notes/s3-prior-art-2026-09-30.md`） | 類別數、影像數、寬度、解析度、深度、去掉 skip 對壓縮的影響，方向全部已報（探針與數值秩，CIFAR 與 ImageNet-100）；深層的秩在 75 步內塌縮；公開 ImageNet-1k 權重只有 ResNet-50 有 tunnel | (i) **兩把尺並列**：他們的數值秩對我們的 k*(0.999)，解決「75 步」對「要優化夠久」的衝突；(ii) 重排發生在深度的哪一段；(iii) 文獻的空格：少類別 × 224²；(iv) 文獻留下的問題：ResNet 不論有無 skip 秩都高於 VGG | ☐ (i) 先寫預登記再量（Mac，約半小時）；☐ (ii) 現有資料、探索性；☐ 改稿：(iv) 的開頭先引這兩篇 |
 
 ## 還沒查、開工前要先查的
 
@@ -28,6 +29,6 @@
 |---|---|---|
 | Th8（ReLU 這一步） | 原訂要證 | arXiv 2507.07625；Louart–Liao–Couillet 2018；Pennington–Worah 2017（已引） |
 | S2 初始化剖面可算 | B+ 脊椎第二段 | conv 的 mean-field／NNGP 有限寬度修正；Everett 2026 |
-| S3 訓練是否重排順序 | B+ 脊椎第三段、A28／A31 | Harun 2024 全文與附錄的秩分析；intermediate neural collapse；class count 與特徵秩 |
+| ~~S3 訓練是否重排順序~~ | **09-30 已查**：`notes/s3-prior-art-2026-09-30.md` | 投稿前再查一次 2026 年的 arXiv |
 | ~~transformer 的剖面（A30）~~ | **09-30 已查**：`notes/a30-prior-art-2026-09-30.md` | 投稿前再查一次（搜尋不是窮盡的） |
 | 梯度加權的寬度 | 上表的新想法 | Fisher／AGOP 加權的 PCA、task-relevant dimension、活性子空間（active subspaces） |
