@@ -53,6 +53,27 @@ def test_judge_verdicts_on_synthetic_rows(tmp_path, capsys):
     v = G.judge(a)
     assert v["P-b7.3"] is True
     assert "P-b7.2" in v and "Spearman" in capsys.readouterr().out
+    assert "P-b7.5" not in v                                            # no prediction columns / spectra in this table
+
+
+def test_judge_p_b7_5_and_6_on_synthetic_spectra(tmp_path):
+    rows = []
+    rng = np.random.default_rng(0)
+    for arm, (_, _, _, K) in G.ARMS.items():
+        for s in (0, 1, 2):
+            hard = 0.02 * K
+            eg = np.sort(rng.exponential(1.0, 512) * np.linspace(3, 0.01, 512))[::-1]
+            np.savez(tmp_path / f"{arm}_s{s}_spectra.npz", **{"f12::grad": eg, "last::pred": eg * 1.1, "el2n": np.zeros(3)})
+            for i in range(13):
+                row = {"arm": arm, "seed": s, "index": i, "layer": f"f{i}", "C": 512, "K": K, "n": 1,
+                       "k0.95_out": 40, "k0.95_grad": int(20 * K ** 0.5), "k0.999_out": 60, "k0.999_grad": 300}
+                if i == 12:
+                    row.update({"k0.95_pred": int(20 * K ** 0.5) + 1, "k0.999_pred": 200, "el2n_frac_gt_0.1": hard, "el2n_mean": hard,
+                                "mask_on": 0.3, "mask_distinct": 1000})
+                rows.append(row)
+    pd.DataFrame(rows).to_csv(tmp_path / "gradgram.csv", index=False)
+    v = G.judge(type("A", (), dict(out=str(tmp_path)))())
+    assert v["P-b7.5"] is True and v["P-b7.6"] is True
 
 
 def test_extras_give_el2n_masks_and_a_prediction_gram_for_the_last_layer():

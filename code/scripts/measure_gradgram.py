@@ -200,6 +200,26 @@ def judge(a) -> dict:
         V["P-b7.3"] = bool(a_ < b_)
         print(f"  P-b7.3: late k0.999(Gamma) median 39,000 steps {a_:.0f} vs 5,000 steps {b_:.0f} -> {'holds' if V['P-b7.3'] else 'fails'}")
     print(f"  P-b7.2 -> {'holds' if V.get('P-b7.2') else 'fails'}")
+    # P-b7.5 / P-b7.6: the forward-only prediction of the last layer's gradient Gram, and the hard-example knob
+    lastrow = d[d.groupby(["arm", "seed"])["index"].transform("max") == d["index"]]
+    if "k0.95_pred" in lastrow and lastrow["k0.95_pred"].notna().any():
+        rhos, ratios = [], []
+        for _, r in lastrow.iterrows():
+            f = os.path.join(a.out, f"{r.arm}_s{int(r.seed)}_spectra.npz")
+            if not os.path.exists(f):
+                continue
+            z = np.load(f)
+            eg, ep = z[f"{r.layer}::grad"], z["last::pred"]
+            rhos.append(spearmanr(eg, ep).correlation); ratios.append(r["k0.95_pred"] / max(r["k0.95_grad"], 1))
+        rhos, ratios = np.array(rhos), np.array(ratios)
+        ok = (rhos >= 0.95) & (ratios >= 0.67) & (ratios <= 1.5)
+        V["P-b7.5"] = bool(ok.sum() >= 19 and len(ok) >= 21)
+        print(f"  P-b7.5 (forward prediction reproduces the head of Gamma at the last layer: rho >= 0.95 and k*(0.95) ratio in [0.67, 1.5] in >= 19/21): "
+              f"{ok.sum()}/{len(ok)}; rho median {np.median(rhos):+.3f}, ratio median {np.median(ratios):.2f} -> {'holds' if V['P-b7.5'] else 'fails'}")
+        rho6 = spearmanr(lastrow["k0.95_grad"] / lastrow.C, lastrow["el2n_frac_gt_0.1"]).correlation
+        V["P-b7.6"] = bool(rho6 >= 0.7)
+        print(f"  P-b7.6 (last-layer Gamma width follows the fraction of images with EL2N > 0.1: Spearman >= +0.7 over {len(lastrow)} checkpoints): "
+              f"{rho6:+.2f} -> {'holds' if V['P-b7.6'] else 'fails'}; Spearman with K {spearmanr(lastrow['k0.95_grad'] / lastrow.C, lastrow.K).correlation:+.2f}")
     return V
 
 
