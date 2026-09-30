@@ -1,0 +1,103 @@
+arch resnet18  params 11,689,512  MACs@224 1.814 G  classes 1000  train batches/epoch 5004  device cuda  crop 224  schedule [0, 1, 2, 5, 10, 20, 30, 45, 60, 75, 90]
+  [measure] epoch   0  top1  0.10  20 conv layers  k*(.95)/C median 0.436  (17s)
+    ep 1 it 0/5004 loss 7.064 27 img/s
+    ep 1 it 500/5004 loss 6.059 2000 img/s
+    ep 1 it 1000/5004 loss 5.633 2170 img/s
+    ep 1 it 1500/5004 loss 5.267 2283 img/s
+    ep 1 it 2000/5004 loss 5.117 2367 img/s
+    ep 1 it 2500/5004 loss 4.809 2423 img/s
+    ep 1 it 3000/5004 loss 4.508 2458 img/s
+    ep 1 it 3500/5004 loss 4.460 2486 img/s
+    ep 1 it 4000/5004 loss 4.184 2503 img/s
+    ep 1 it 4500/5004 loss 4.289 2517 img/s
+    ep 1 it 5000/5004 loss 3.933 2527 img/s
+  epoch   1/90  lr 0.1000  loss 4.921  top1 19.63  top5 41.68  (507s, 2526 img/s)
+  [measure] epoch   1  top1 19.63  20 conv layers  k*(.95)/C median 0.219  (12s)
+    ep 2 it 0/5004 loss 3.542 263 img/s
+    ep 2 it 500/5004 loss 3.500 2618 img/s
+    ep 2 it 1000/5004 loss 3.488 2646 img/s
+    ep 2 it 1500/5004 loss 3.623 2661 img/s
+    ep 2 it 2000/5004 loss 3.411 2653 img/s
+    ep 2 it 2500/5004 loss 3.543 2655 img/s
+    ep 2 it 3000/5004 loss 3.185 2659 img/s
+    ep 2 it 3500/5004 loss 3.471 2665 img/s
+    ep 2 it 4000/5004 loss 3.260 2665 img/s
+    ep 2 it 4500/5004 loss 3.133 2670 img/s
+    ep 2 it 5000/5004 loss 3.304 2669 img/s
+  epoch   2/90  lr 0.1000  loss 3.525  top1 33.12  top5 59.17  (480s, 2667 img/s)
+  [measure] epoch   2  top1 33.12  20 conv layers  k*(.95)/C median 0.264  (13s)
+    ep 3 it 0/5004 loss 3.138 279 img/s
+    ep 3 it 500/5004 loss 3.200 2619 img/s
+    ep 3 it 1000/5004 loss 3.373 2638 img/s
+    ep 3 it 1500/5004 loss 3.155 2635 img/s
+    ep 3 it 2000/5004 loss 3.237 2651 img/s
+    ep 3 it 2500/5004 loss 2.940 2658 img/s
+    ep 3 it 3000/5004 loss 3.085 2660 img/s
+    ep 3 it 3500/5004 loss 3.115 2666 img/s
+    ep 3 it 4000/5004 loss 2.951 2670 img/s
+    ep 3 it 4500/5004 loss 3.070 2674 img/s
+    ep 3 it 5000/5004 loss 2.946 2673 img/s
+  epoch   3/90  lr 0.0999  loss 3.114  top1 37.03  top5 63.79  (479s, 2673 img/s)
+    ep 4 it 0/5004 loss 3.058 263 img/s
+    ep 4 it 500/5004 loss 3.052 2648 img/s
+    ep 4 it 1000/5004 loss 3.119 2662 img/s
+    ep 4 it 1500/5004 loss 2.936 2645 img/s
+    ep 4 it 2000/5004 loss 2.988 2659 img/s
+    ep 4 it 2500/5004 loss 3.016 2666 img/s
+    ep 4 it 3000/5004 loss 3.146 2676 img/s
+    ep 4 it 3500/5004 loss 2.974 2677 img/s
+    ep 4 it 4000/5004 loss 2.594 2672 img/s
+    ep 4 it 4500/5004 loss 2.637 2677 img/s
+    ep 4 it 5000/5004 loss 2.930 2680 img/s
+  epoch   4/90  lr 0.0997  loss 2.925  top1 38.86  top5 65.62  (478s, 2681 img/s)
+    ep 5 it 0/5004 loss 2.728 258 img/s
+    ep 5 it 500/5004 loss 2.789 2651 img/s
+    ep 5 it 1000/5004 loss 2.800 2692 img/s
+    ep 5 it 1500/5004 loss 2.876 2694 img/s
+    ep 5 it 2000/5004 loss 2.713 2700 img/s
+    ep 5 it 2500/5004 loss 2.827 2705 img/s
+    ep 5 it 3000/5004 loss 2.898 2705 img/s
+    ep 5 it 3500/5004 loss 2.931 2709 img/s
+    ep 5 it 4000/5004 loss 2.786 2712 img/s
+    ep 5 it 4500/5004 loss 2.746 2713 img/s
+    ep 5 it 5000/5004 loss 2.853 2716 img/s
+  epoch   5/90  lr 0.0995  loss 2.813  top1 43.18  top5 69.59  (472s, 2717 img/s)
+  [measure] epoch   5  top1 43.18  20 conv layers  k*(.95)/C median 0.328  (12s)
+    ep 6 it 0/5004 loss 2.958 227 img/s
+    ep 6 it 500/5004 loss 2.529 2610 img/s
+    ep 6 it 1000/5004 loss 2.850 2604 img/s
+    ep 6 it 1500/5004 loss 3.121 2643 img/s
+    ep 6 it 2000/5004 loss 2.678 2649 img/s
+    ep 6 it 2500/5004 loss 2.806 2658 img/s
+    ep 6 it 3000/5004 loss 2.623 2655 img/s
+    ep 6 it 3500/5004 loss 2.878 2648 img/s
+    ep 6 it 4000/5004 loss 2.770 2639 img/s
+    ep 6 it 4500/5004 loss 2.860 2641 img/s
+    ep 6 it 5000/5004 loss 2.698 2644 img/s
+  epoch   6/90  lr 0.0992  loss 2.742  top1 44.22  top5 70.83  (484s, 2645 img/s)
+    ep 7 it 0/5004 loss 2.670 205 img/s
+    ep 7 it 500/5004 loss 2.660 2643 img/s
+    ep 7 it 1000/5004 loss 2.665 2664 img/s
+    ep 7 it 1500/5004 loss 2.949 2654 img/s
+    ep 7 it 2000/5004 loss 2.788 2662 img/s
+    ep 7 it 2500/5004 loss 2.425 2670 img/s
+    ep 7 it 3000/5004 loss 2.566 2673 img/s
+    ep 7 it 3500/5004 loss 2.602 2678 img/s
+    ep 7 it 4000/5004 loss 2.435 2684 img/s
+    ep 7 it 4500/5004 loss 2.663 2686 img/s
+    ep 7 it 5000/5004 loss 2.815 2682 img/s
+  epoch   7/90  lr 0.0989  loss 2.691  top1 44.13  top5 70.36  (478s, 2683 img/s)
+    ep 8 it 0/5004 loss 2.537 271 img/s
+    ep 8 it 500/5004 loss 2.769 2653 img/s
+    ep 8 it 1000/5004 loss 2.733 2677 img/s
+    ep 8 it 1500/5004 loss 3.018 2684 img/s
+    ep 8 it 2000/5004 loss 2.674 2680 img/s
+    ep 8 it 2500/5004 loss 2.497 2688 img/s
+    ep 8 it 3000/5004 loss 2.754 2688 img/s
+    ep 8 it 3500/5004 loss 2.642 2690 img/s
+    ep 8 it 4000/5004 loss 2.772 2689 img/s
+    ep 8 it 4500/5004 loss 2.664 2687 img/s
+    ep 8 it 5000/5004 loss 2.734 2685 img/s
+  epoch   8/90  lr 0.0985  loss 2.653  top1 46.68  top5 73.13  (477s, 2686 img/s)
+    ep 9 it 0/5004 loss 2.710 260 img/s
+    ep 9 it 500/5004 loss 2.437 2650 img/s

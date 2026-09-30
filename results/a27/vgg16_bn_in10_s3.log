@@ -1,0 +1,602 @@
+widths [64, 64, 128, 128, 256, 256, 256, 512, 512, 512, 512, 512, 512]  params 134,309,962  MACs@224 15.466 G  classes 10  train batches/epoch 50  device cuda  crop 224
+    ep 1 it 0/50 loss 2.545 10 img/s
+  epoch   1/300  lr 0.1000  loss 7.377  top1  8.60  top5 52.00  (42s, 305 img/s)
+    ep 2 it 0/50 loss 2.404 273 img/s
+  epoch   2/300  lr 0.1000  loss 2.489  top1 10.00  top5 52.80  (16s, 779 img/s)
+    ep 3 it 0/50 loss 2.297 278 img/s
+  epoch   3/300  lr 0.1000  loss 2.302  top1 10.20  top5 52.40  (16s, 783 img/s)
+    ep 4 it 0/50 loss 2.301 275 img/s
+  epoch   4/300  lr 0.1000  loss 2.299  top1 12.40  top5 55.60  (16s, 786 img/s)
+    ep 5 it 0/50 loss 2.299 275 img/s
+  epoch   5/300  lr 0.1000  loss 2.294  top1 17.00  top5 60.00  (16s, 786 img/s)
+    ep 6 it 0/50 loss 2.285 281 img/s
+  epoch   6/300  lr 0.1000  loss 2.282  top1 20.40  top5 62.60  (16s, 783 img/s)
+    ep 7 it 0/50 loss 2.253 282 img/s
+  epoch   7/300  lr 0.1000  loss 2.252  top1 22.40  top5 72.20  (16s, 787 img/s)
+    ep 8 it 0/50 loss 2.198 278 img/s
+  epoch   8/300  lr 0.1000  loss 2.199  top1 25.80  top5 75.80  (16s, 786 img/s)
+    ep 9 it 0/50 loss 2.196 281 img/s
+  epoch   9/300  lr 0.1000  loss 2.172  top1 31.60  top5 79.40  (16s, 786 img/s)
+    ep 10 it 0/50 loss 2.100 271 img/s
+  epoch  10/300  lr 0.1000  loss 2.132  top1 29.40  top5 77.60  (16s, 785 img/s)
+    ep 11 it 0/50 loss 2.067 273 img/s
+  epoch  11/300  lr 0.1000  loss 2.117  top1 26.80  top5 75.40  (16s, 781 img/s)
+    ep 12 it 0/50 loss 2.120 245 img/s
+  epoch  12/300  lr 0.1000  loss 2.102  top1 31.60  top5 76.80  (16s, 780 img/s)
+    ep 13 it 0/50 loss 2.011 253 img/s
+  epoch  13/300  lr 0.1000  loss 2.071  top1 33.80  top5 80.80  (16s, 781 img/s)
+    ep 14 it 0/50 loss 2.071 275 img/s
+  epoch  14/300  lr 0.1000  loss 2.033  top1 31.60  top5 73.80  (16s, 785 img/s)
+    ep 15 it 0/50 loss 1.999 245 img/s
+  epoch  15/300  lr 0.1000  loss 2.004  top1 38.80  top5 85.40  (16s, 780 img/s)
+    ep 16 it 0/50 loss 2.011 285 img/s
+  epoch  16/300  lr 0.1000  loss 1.987  top1 42.80  top5 85.00  (16s, 787 img/s)
+    ep 17 it 0/50 loss 1.957 278 img/s
+  epoch  17/300  lr 0.1000  loss 1.944  top1 44.80  top5 88.00  (16s, 782 img/s)
+    ep 18 it 0/50 loss 2.023 282 img/s
+  epoch  18/300  lr 0.1000  loss 1.930  top1 43.20  top5 86.60  (16s, 779 img/s)
+    ep 19 it 0/50 loss 1.924 248 img/s
+  epoch  19/300  lr 0.1000  loss 1.878  top1 38.60  top5 83.60  (16s, 780 img/s)
+    ep 20 it 0/50 loss 1.831 242 img/s
+  epoch  20/300  lr 0.1000  loss 1.850  top1 44.60  top5 90.80  (16s, 779 img/s)
+    ep 21 it 0/50 loss 1.796 258 img/s
+  epoch  21/300  lr 0.1000  loss 1.805  top1 46.20  top5 88.00  (16s, 782 img/s)
+    ep 22 it 0/50 loss 1.727 274 img/s
+  epoch  22/300  lr 0.1000  loss 1.783  top1 46.40  top5 87.40  (16s, 785 img/s)
+    ep 23 it 0/50 loss 1.807 283 img/s
+  epoch  23/300  lr 0.1000  loss 1.766  top1 51.00  top5 90.20  (16s, 786 img/s)
+    ep 24 it 0/50 loss 1.829 262 img/s
+  epoch  24/300  lr 0.1000  loss 1.703  top1 44.40  top5 87.00  (16s, 783 img/s)
+    ep 25 it 0/50 loss 1.664 214 img/s
+  epoch  25/300  lr 0.1000  loss 1.692  top1 53.40  top5 91.20  (17s, 773 img/s)
+    ep 26 it 0/50 loss 1.620 265 img/s
+  epoch  26/300  lr 0.1000  loss 1.655  top1 46.00  top5 84.60  (16s, 783 img/s)
+    ep 27 it 0/50 loss 1.501 279 img/s
+  epoch  27/300  lr 0.1000  loss 1.610  top1 52.80  top5 92.00  (16s, 786 img/s)
+    ep 28 it 0/50 loss 1.619 259 img/s
+  epoch  28/300  lr 0.1000  loss 1.594  top1 52.20  top5 90.20  (16s, 781 img/s)
+    ep 29 it 0/50 loss 1.591 256 img/s
+  epoch  29/300  lr 0.1000  loss 1.580  top1 61.40  top5 93.40  (16s, 781 img/s)
+    ep 30 it 0/50 loss 1.630 243 img/s
+  epoch  30/300  lr 0.1000  loss 1.553  top1 52.60  top5 91.00  (16s, 779 img/s)
+    ep 31 it 0/50 loss 1.464 279 img/s
+  epoch  31/300  lr 0.1000  loss 1.535  top1 60.80  top5 94.20  (16s, 785 img/s)
+    ep 32 it 0/50 loss 1.311 271 img/s
+  epoch  32/300  lr 0.1000  loss 1.512  top1 59.60  top5 92.80  (16s, 784 img/s)
+    ep 33 it 0/50 loss 1.426 280 img/s
+  epoch  33/300  lr 0.1000  loss 1.456  top1 62.40  top5 94.00  (16s, 786 img/s)
+    ep 34 it 0/50 loss 1.455 278 img/s
+  epoch  34/300  lr 0.1000  loss 1.458  top1 61.00  top5 94.20  (16s, 785 img/s)
+    ep 35 it 0/50 loss 1.405 276 img/s
+  epoch  35/300  lr 0.1000  loss 1.396  top1 62.00  top5 94.00  (16s, 785 img/s)
+    ep 36 it 0/50 loss 1.396 231 img/s
+  epoch  36/300  lr 0.1000  loss 1.387  top1 53.20  top5 93.40  (16s, 777 img/s)
+    ep 37 it 0/50 loss 1.261 276 img/s
+  epoch  37/300  lr 0.1000  loss 1.370  top1 66.80  top5 95.20  (16s, 781 img/s)
+    ep 38 it 0/50 loss 1.379 261 img/s
+  epoch  38/300  lr 0.1000  loss 1.315  top1 63.80  top5 95.00  (16s, 782 img/s)
+    ep 39 it 0/50 loss 1.370 263 img/s
+  epoch  39/300  lr 0.1000  loss 1.319  top1 64.00  top5 93.40  (16s, 783 img/s)
+    ep 40 it 0/50 loss 1.341 260 img/s
+  epoch  40/300  lr 0.1000  loss 1.301  top1 65.20  top5 95.00  (16s, 782 img/s)
+    ep 41 it 0/50 loss 1.345 229 img/s
+  epoch  41/300  lr 0.1000  loss 1.261  top1 66.20  top5 94.60  (16s, 776 img/s)
+    ep 42 it 0/50 loss 1.263 229 img/s
+  epoch  42/300  lr 0.1000  loss 1.235  top1 66.20  top5 94.20  (16s, 776 img/s)
+    ep 43 it 0/50 loss 1.127 261 img/s
+  epoch  43/300  lr 0.1000  loss 1.204  top1 74.20  top5 95.60  (16s, 782 img/s)
+    ep 44 it 0/50 loss 1.107 277 img/s
+  epoch  44/300  lr 0.1000  loss 1.159  top1 71.60  top5 94.40  (16s, 785 img/s)
+    ep 45 it 0/50 loss 1.102 262 img/s
+  epoch  45/300  lr 0.1000  loss 1.146  top1 73.00  top5 96.60  (16s, 783 img/s)
+    ep 46 it 0/50 loss 1.141 276 img/s
+  epoch  46/300  lr 0.1000  loss 1.131  top1 73.80  top5 96.00  (16s, 785 img/s)
+    ep 47 it 0/50 loss 0.999 261 img/s
+  epoch  47/300  lr 0.1000  loss 1.086  top1 72.60  top5 97.00  (16s, 782 img/s)
+    ep 48 it 0/50 loss 1.180 282 img/s
+  epoch  48/300  lr 0.1000  loss 1.076  top1 66.40  top5 93.80  (16s, 785 img/s)
+    ep 49 it 0/50 loss 1.046 275 img/s
+  epoch  49/300  lr 0.1000  loss 1.084  top1 75.80  top5 97.00  (16s, 785 img/s)
+    ep 50 it 0/50 loss 1.074 280 img/s
+  epoch  50/300  lr 0.1000  loss 1.049  top1 75.80  top5 97.20  (16s, 785 img/s)
+    ep 51 it 0/50 loss 0.997 222 img/s
+  epoch  51/300  lr 0.1000  loss 1.019  top1 72.40  top5 96.20  (17s, 774 img/s)
+    ep 52 it 0/50 loss 0.974 234 img/s
+  epoch  52/300  lr 0.1000  loss 0.993  top1 72.40  top5 97.60  (16s, 777 img/s)
+    ep 53 it 0/50 loss 1.018 280 img/s
+  epoch  53/300  lr 0.1000  loss 0.974  top1 81.40  top5 97.20  (16s, 785 img/s)
+    ep 54 it 0/50 loss 0.870 276 img/s
+  epoch  54/300  lr 0.1000  loss 0.958  top1 73.80  top5 97.00  (16s, 784 img/s)
+    ep 55 it 0/50 loss 0.904 278 img/s
+  epoch  55/300  lr 0.1000  loss 0.932  top1 78.00  top5 97.20  (16s, 785 img/s)
+    ep 56 it 0/50 loss 0.925 274 img/s
+  epoch  56/300  lr 0.1000  loss 0.931  top1 78.80  top5 97.40  (16s, 784 img/s)
+    ep 57 it 0/50 loss 0.856 264 img/s
+  epoch  57/300  lr 0.1000  loss 0.919  top1 79.20  top5 97.80  (16s, 783 img/s)
+    ep 58 it 0/50 loss 0.871 279 img/s
+  epoch  58/300  lr 0.1000  loss 0.879  top1 80.40  top5 97.80  (16s, 785 img/s)
+    ep 59 it 0/50 loss 0.906 262 img/s
+  epoch  59/300  lr 0.1000  loss 0.883  top1 76.20  top5 96.20  (16s, 782 img/s)
+    ep 60 it 0/50 loss 0.811 260 img/s
+  epoch  60/300  lr 0.1000  loss 0.850  top1 79.40  top5 97.80  (16s, 782 img/s)
+    ep 61 it 0/50 loss 0.928 223 img/s
+  epoch  61/300  lr 0.1000  loss 0.850  top1 73.60  top5 97.00  (17s, 774 img/s)
+    ep 62 it 0/50 loss 0.911 266 img/s
+  epoch  62/300  lr 0.1000  loss 0.830  top1 71.20  top5 97.20  (16s, 783 img/s)
+    ep 63 it 0/50 loss 0.883 221 img/s
+  epoch  63/300  lr 0.1000  loss 0.826  top1 70.20  top5 96.80  (17s, 773 img/s)
+    ep 64 it 0/50 loss 0.880 259 img/s
+  epoch  64/300  lr 0.1000  loss 0.810  top1 74.60  top5 96.00  (16s, 782 img/s)
+    ep 65 it 0/50 loss 0.668 228 img/s
+  epoch  65/300  lr 0.1000  loss 0.785  top1 78.60  top5 98.60  (17s, 775 img/s)
+    ep 66 it 0/50 loss 0.740 258 img/s
+  epoch  66/300  lr 0.1000  loss 0.771  top1 75.20  top5 97.80  (16s, 782 img/s)
+    ep 67 it 0/50 loss 0.747 274 img/s
+  epoch  67/300  lr 0.1000  loss 0.773  top1 71.00  top5 95.20  (16s, 784 img/s)
+    ep 68 it 0/50 loss 0.759 241 img/s
+  epoch  68/300  lr 0.1000  loss 0.756  top1 83.80  top5 97.60  (16s, 778 img/s)
+    ep 69 it 0/50 loss 0.742 262 img/s
+  epoch  69/300  lr 0.1000  loss 0.736  top1 83.40  top5 98.00  (16s, 782 img/s)
+    ep 70 it 0/50 loss 0.745 280 img/s
+  epoch  70/300  lr 0.1000  loss 0.756  top1 84.60  top5 97.80  (16s, 786 img/s)
+    ep 71 it 0/50 loss 0.760 260 img/s
+  epoch  71/300  lr 0.1000  loss 0.708  top1 82.80  top5 97.60  (16s, 782 img/s)
+    ep 72 it 0/50 loss 0.677 245 img/s
+  epoch  72/300  lr 0.1000  loss 0.724  top1 82.40  top5 98.20  (16s, 779 img/s)
+    ep 73 it 0/50 loss 0.713 258 img/s
+  epoch  73/300  lr 0.1000  loss 0.681  top1 82.60  top5 98.40  (16s, 782 img/s)
+    ep 74 it 0/50 loss 0.813 282 img/s
+  epoch  74/300  lr 0.1000  loss 0.713  top1 84.80  top5 97.20  (16s, 785 img/s)
+    ep 75 it 0/50 loss 0.755 281 img/s
+  epoch  75/300  lr 0.1000  loss 0.691  top1 77.80  top5 96.80  (16s, 785 img/s)
+    ep 76 it 0/50 loss 0.586 246 img/s
+  epoch  76/300  lr 0.1000  loss 0.678  top1 86.60  top5 98.20  (16s, 779 img/s)
+    ep 77 it 0/50 loss 0.576 264 img/s
+  epoch  77/300  lr 0.1000  loss 0.662  top1 80.60  top5 98.20  (16s, 782 img/s)
+    ep 78 it 0/50 loss 0.634 224 img/s
+  epoch  78/300  lr 0.1000  loss 0.655  top1 84.20  top5 98.40  (17s, 774 img/s)
+    ep 79 it 0/50 loss 0.697 276 img/s
+  epoch  79/300  lr 0.1000  loss 0.655  top1 79.80  top5 96.80  (16s, 784 img/s)
+    ep 80 it 0/50 loss 0.679 281 img/s
+  epoch  80/300  lr 0.1000  loss 0.638  top1 81.40  top5 97.80  (16s, 785 img/s)
+    ep 81 it 0/50 loss 0.671 246 img/s
+  epoch  81/300  lr 0.1000  loss 0.626  top1 82.00  top5 97.40  (16s, 779 img/s)
+    ep 82 it 0/50 loss 0.728 246 img/s
+  epoch  82/300  lr 0.1000  loss 0.624  top1 85.20  top5 97.80  (16s, 779 img/s)
+    ep 83 it 0/50 loss 0.617 274 img/s
+  epoch  83/300  lr 0.1000  loss 0.626  top1 87.40  top5 97.80  (16s, 781 img/s)
+    ep 84 it 0/50 loss 0.640 230 img/s
+  epoch  84/300  lr 0.1000  loss 0.622  top1 81.40  top5 97.00  (16s, 776 img/s)
+    ep 85 it 0/50 loss 0.660 262 img/s
+  epoch  85/300  lr 0.1000  loss 0.611  top1 83.00  top5 97.40  (16s, 779 img/s)
+    ep 86 it 0/50 loss 0.615 257 img/s
+  epoch  86/300  lr 0.1000  loss 0.602  top1 83.00  top5 98.20  (16s, 779 img/s)
+    ep 87 it 0/50 loss 0.472 273 img/s
+  epoch  87/300  lr 0.1000  loss 0.566  top1 87.40  top5 98.20  (16s, 784 img/s)
+    ep 88 it 0/50 loss 0.630 262 img/s
+  epoch  88/300  lr 0.1000  loss 0.575  top1 80.60  top5 97.20  (16s, 782 img/s)
+    ep 89 it 0/50 loss 0.605 278 img/s
+  epoch  89/300  lr 0.1000  loss 0.562  top1 87.80  top5 98.00  (16s, 785 img/s)
+    ep 90 it 0/50 loss 0.430 260 img/s
+  epoch  90/300  lr 0.1000  loss 0.586  top1 86.20  top5 98.00  (16s, 782 img/s)
+    ep 91 it 0/50 loss 0.655 262 img/s
+  epoch  91/300  lr 0.1000  loss 0.566  top1 85.80  top5 98.00  (16s, 782 img/s)
+    ep 92 it 0/50 loss 0.586 264 img/s
+  epoch  92/300  lr 0.1000  loss 0.568  top1 88.00  top5 99.00  (16s, 782 img/s)
+    ep 93 it 0/50 loss 0.523 279 img/s
+  epoch  93/300  lr 0.1000  loss 0.549  top1 84.80  top5 98.20  (16s, 785 img/s)
+    ep 94 it 0/50 loss 0.642 232 img/s
+  epoch  94/300  lr 0.1000  loss 0.560  top1 82.40  top5 98.20  (16s, 777 img/s)
+    ep 95 it 0/50 loss 0.450 277 img/s
+  epoch  95/300  lr 0.1000  loss 0.535  top1 86.40  top5 98.00  (16s, 785 img/s)
+    ep 96 it 0/50 loss 0.504 217 img/s
+  epoch  96/300  lr 0.1000  loss 0.527  top1 89.80  top5 98.00  (17s, 772 img/s)
+    ep 97 it 0/50 loss 0.459 222 img/s
+  epoch  97/300  lr 0.1000  loss 0.525  top1 84.20  top5 97.80  (17s, 774 img/s)
+    ep 98 it 0/50 loss 0.509 283 img/s
+  epoch  98/300  lr 0.1000  loss 0.538  top1 88.00  top5 98.40  (16s, 785 img/s)
+    ep 99 it 0/50 loss 0.454 282 img/s
+  epoch  99/300  lr 0.1000  loss 0.521  top1 88.40  top5 98.00  (16s, 785 img/s)
+    ep 100 it 0/50 loss 0.555 211 img/s
+  epoch 100/300  lr 0.1000  loss 0.505  top1 87.20  top5 98.60  (17s, 771 img/s)
+    ep 101 it 0/50 loss 0.543 248 img/s
+  epoch 101/300  lr 0.0100  loss 0.452  top1 91.20  top5 98.40  (16s, 780 img/s)
+    ep 102 it 0/50 loss 0.435 283 img/s
+  epoch 102/300  lr 0.0100  loss 0.412  top1 91.40  top5 98.60  (16s, 786 img/s)
+    ep 103 it 0/50 loss 0.529 276 img/s
+  epoch 103/300  lr 0.0100  loss 0.399  top1 91.80  top5 98.40  (16s, 784 img/s)
+    ep 104 it 0/50 loss 0.337 243 img/s
+  epoch 104/300  lr 0.0100  loss 0.392  top1 92.00  top5 98.40  (16s, 779 img/s)
+    ep 105 it 0/50 loss 0.399 274 img/s
+  epoch 105/300  lr 0.0100  loss 0.389  top1 92.20  top5 98.60  (16s, 784 img/s)
+    ep 106 it 0/50 loss 0.422 279 img/s
+  epoch 106/300  lr 0.0100  loss 0.380  top1 91.60  top5 98.40  (16s, 785 img/s)
+    ep 107 it 0/50 loss 0.473 284 img/s
+  epoch 107/300  lr 0.0100  loss 0.388  top1 92.60  top5 98.40  (16s, 786 img/s)
+    ep 108 it 0/50 loss 0.402 261 img/s
+  epoch 108/300  lr 0.0100  loss 0.379  top1 92.20  top5 98.40  (16s, 782 img/s)
+    ep 109 it 0/50 loss 0.386 278 img/s
+  epoch 109/300  lr 0.0100  loss 0.375  top1 92.20  top5 98.60  (16s, 785 img/s)
+    ep 110 it 0/50 loss 0.349 282 img/s
+  epoch 110/300  lr 0.0100  loss 0.383  top1 92.60  top5 98.20  (16s, 785 img/s)
+    ep 111 it 0/50 loss 0.444 277 img/s
+  epoch 111/300  lr 0.0100  loss 0.365  top1 92.00  top5 98.20  (16s, 784 img/s)
+    ep 112 it 0/50 loss 0.341 259 img/s
+  epoch 112/300  lr 0.0100  loss 0.366  top1 92.40  top5 98.20  (16s, 782 img/s)
+    ep 113 it 0/50 loss 0.400 230 img/s
+  epoch 113/300  lr 0.0100  loss 0.364  top1 92.00  top5 98.20  (17s, 776 img/s)
+    ep 114 it 0/50 loss 0.340 279 img/s
+  epoch 114/300  lr 0.0100  loss 0.372  top1 91.40  top5 98.20  (16s, 784 img/s)
+    ep 115 it 0/50 loss 0.387 278 img/s
+  epoch 115/300  lr 0.0100  loss 0.367  top1 91.80  top5 98.40  (16s, 785 img/s)
+    ep 116 it 0/50 loss 0.492 246 img/s
+  epoch 116/300  lr 0.0100  loss 0.368  top1 92.60  top5 98.20  (16s, 779 img/s)
+    ep 117 it 0/50 loss 0.481 261 img/s
+  epoch 117/300  lr 0.0100  loss 0.346  top1 92.00  top5 98.20  (16s, 782 img/s)
+    ep 118 it 0/50 loss 0.244 280 img/s
+  epoch 118/300  lr 0.0100  loss 0.357  top1 92.40  top5 98.40  (16s, 785 img/s)
+    ep 119 it 0/50 loss 0.504 239 img/s
+  epoch 119/300  lr 0.0100  loss 0.349  top1 92.20  top5 98.40  (16s, 778 img/s)
+    ep 120 it 0/50 loss 0.360 244 img/s
+  epoch 120/300  lr 0.0100  loss 0.351  top1 92.00  top5 98.40  (16s, 779 img/s)
+    ep 121 it 0/50 loss 0.343 278 img/s
+  epoch 121/300  lr 0.0100  loss 0.344  top1 92.20  top5 98.40  (16s, 785 img/s)
+    ep 122 it 0/50 loss 0.344 246 img/s
+  epoch 122/300  lr 0.0100  loss 0.357  top1 91.80  top5 98.60  (16s, 779 img/s)
+    ep 123 it 0/50 loss 0.420 246 img/s
+  epoch 123/300  lr 0.0100  loss 0.341  top1 93.00  top5 98.20  (16s, 779 img/s)
+    ep 124 it 0/50 loss 0.289 277 img/s
+  epoch 124/300  lr 0.0100  loss 0.344  top1 92.60  top5 98.60  (16s, 784 img/s)
+    ep 125 it 0/50 loss 0.308 278 img/s
+  epoch 125/300  lr 0.0100  loss 0.337  top1 93.20  top5 98.60  (16s, 785 img/s)
+    ep 126 it 0/50 loss 0.424 207 img/s
+  epoch 126/300  lr 0.0100  loss 0.331  top1 92.00  top5 98.60  (17s, 770 img/s)
+    ep 127 it 0/50 loss 0.330 259 img/s
+  epoch 127/300  lr 0.0100  loss 0.339  top1 92.60  top5 98.40  (16s, 781 img/s)
+    ep 128 it 0/50 loss 0.350 260 img/s
+  epoch 128/300  lr 0.0100  loss 0.344  top1 92.60  top5 98.40  (16s, 782 img/s)
+    ep 129 it 0/50 loss 0.398 263 img/s
+  epoch 129/300  lr 0.0100  loss 0.347  top1 92.40  top5 98.40  (16s, 782 img/s)
+    ep 130 it 0/50 loss 0.279 284 img/s
+  epoch 130/300  lr 0.0100  loss 0.340  top1 92.60  top5 98.60  (16s, 786 img/s)
+    ep 131 it 0/50 loss 0.378 277 img/s
+  epoch 131/300  lr 0.0100  loss 0.344  top1 92.40  top5 98.60  (16s, 784 img/s)
+    ep 132 it 0/50 loss 0.258 259 img/s
+  epoch 132/300  lr 0.0100  loss 0.341  top1 92.80  top5 98.40  (16s, 781 img/s)
+    ep 133 it 0/50 loss 0.480 272 img/s
+  epoch 133/300  lr 0.0100  loss 0.332  top1 92.40  top5 98.40  (16s, 783 img/s)
+    ep 134 it 0/50 loss 0.383 279 img/s
+  epoch 134/300  lr 0.0100  loss 0.332  top1 92.40  top5 98.40  (16s, 785 img/s)
+    ep 135 it 0/50 loss 0.440 279 img/s
+  epoch 135/300  lr 0.0100  loss 0.333  top1 93.00  top5 98.40  (16s, 785 img/s)
+    ep 136 it 0/50 loss 0.268 280 img/s
+  epoch 136/300  lr 0.0100  loss 0.321  top1 92.60  top5 98.40  (16s, 785 img/s)
+    ep 137 it 0/50 loss 0.279 282 img/s
+  epoch 137/300  lr 0.0100  loss 0.325  top1 92.80  top5 98.40  (16s, 786 img/s)
+    ep 138 it 0/50 loss 0.375 278 img/s
+  epoch 138/300  lr 0.0100  loss 0.331  top1 92.20  top5 98.60  (16s, 785 img/s)
+    ep 139 it 0/50 loss 0.397 279 img/s
+  epoch 139/300  lr 0.0100  loss 0.328  top1 92.40  top5 98.60  (16s, 785 img/s)
+    ep 140 it 0/50 loss 0.290 245 img/s
+  epoch 140/300  lr 0.0100  loss 0.325  top1 91.60  top5 98.80  (16s, 779 img/s)
+    ep 141 it 0/50 loss 0.391 265 img/s
+  epoch 141/300  lr 0.0100  loss 0.323  top1 93.20  top5 98.20  (16s, 782 img/s)
+    ep 142 it 0/50 loss 0.324 245 img/s
+  epoch 142/300  lr 0.0100  loss 0.314  top1 92.40  top5 98.60  (16s, 779 img/s)
+    ep 143 it 0/50 loss 0.295 232 img/s
+  epoch 143/300  lr 0.0100  loss 0.308  top1 92.80  top5 98.20  (16s, 776 img/s)
+    ep 144 it 0/50 loss 0.311 243 img/s
+  epoch 144/300  lr 0.0100  loss 0.323  top1 93.60  top5 98.60  (16s, 779 img/s)
+    ep 145 it 0/50 loss 0.361 274 img/s
+  epoch 145/300  lr 0.0100  loss 0.330  top1 93.20  top5 98.60  (16s, 784 img/s)
+    ep 146 it 0/50 loss 0.338 261 img/s
+  epoch 146/300  lr 0.0100  loss 0.316  top1 93.40  top5 98.40  (16s, 782 img/s)
+    ep 147 it 0/50 loss 0.325 278 img/s
+  epoch 147/300  lr 0.0100  loss 0.322  top1 93.00  top5 98.20  (16s, 785 img/s)
+    ep 148 it 0/50 loss 0.307 276 img/s
+  epoch 148/300  lr 0.0100  loss 0.323  top1 92.60  top5 98.60  (16s, 784 img/s)
+    ep 149 it 0/50 loss 0.291 278 img/s
+  epoch 149/300  lr 0.0100  loss 0.306  top1 92.00  top5 98.60  (16s, 785 img/s)
+    ep 150 it 0/50 loss 0.228 278 img/s
+  epoch 150/300  lr 0.0100  loss 0.315  top1 92.20  top5 98.40  (16s, 784 img/s)
+    ep 151 it 0/50 loss 0.316 259 img/s
+  epoch 151/300  lr 0.0100  loss 0.310  top1 93.20  top5 98.60  (16s, 781 img/s)
+    ep 152 it 0/50 loss 0.334 261 img/s
+  epoch 152/300  lr 0.0100  loss 0.310  top1 93.40  top5 98.40  (16s, 782 img/s)
+    ep 153 it 0/50 loss 0.272 286 img/s
+  epoch 153/300  lr 0.0100  loss 0.304  top1 93.00  top5 98.60  (16s, 786 img/s)
+    ep 154 it 0/50 loss 0.293 286 img/s
+  epoch 154/300  lr 0.0100  loss 0.306  top1 93.00  top5 98.80  (16s, 786 img/s)
+    ep 155 it 0/50 loss 0.343 278 img/s
+  epoch 155/300  lr 0.0100  loss 0.313  top1 92.60  top5 98.60  (16s, 785 img/s)
+    ep 156 it 0/50 loss 0.403 285 img/s
+  epoch 156/300  lr 0.0100  loss 0.313  top1 93.20  top5 98.20  (16s, 786 img/s)
+    ep 157 it 0/50 loss 0.242 277 img/s
+  epoch 157/300  lr 0.0100  loss 0.305  top1 93.60  top5 98.60  (16s, 785 img/s)
+    ep 158 it 0/50 loss 0.342 279 img/s
+  epoch 158/300  lr 0.0100  loss 0.308  top1 93.80  top5 99.00  (16s, 781 img/s)
+    ep 159 it 0/50 loss 0.288 276 img/s
+  epoch 159/300  lr 0.0100  loss 0.305  top1 92.80  top5 98.80  (16s, 784 img/s)
+    ep 160 it 0/50 loss 0.313 248 img/s
+  epoch 160/300  lr 0.0100  loss 0.304  top1 93.00  top5 98.40  (16s, 779 img/s)
+    ep 161 it 0/50 loss 0.229 279 img/s
+  epoch 161/300  lr 0.0100  loss 0.298  top1 93.00  top5 98.60  (16s, 785 img/s)
+    ep 162 it 0/50 loss 0.285 281 img/s
+  epoch 162/300  lr 0.0100  loss 0.308  top1 92.60  top5 98.60  (16s, 785 img/s)
+    ep 163 it 0/50 loss 0.269 279 img/s
+  epoch 163/300  lr 0.0100  loss 0.294  top1 93.40  top5 98.20  (16s, 785 img/s)
+    ep 164 it 0/50 loss 0.310 259 img/s
+  epoch 164/300  lr 0.0100  loss 0.288  top1 93.00  top5 98.40  (16s, 782 img/s)
+    ep 165 it 0/50 loss 0.321 262 img/s
+  epoch 165/300  lr 0.0100  loss 0.308  top1 92.80  top5 98.40  (16s, 782 img/s)
+    ep 166 it 0/50 loss 0.355 282 img/s
+  epoch 166/300  lr 0.0100  loss 0.300  top1 92.40  top5 98.60  (16s, 785 img/s)
+    ep 167 it 0/50 loss 0.312 245 img/s
+  epoch 167/300  lr 0.0100  loss 0.292  top1 92.80  top5 98.60  (16s, 778 img/s)
+    ep 168 it 0/50 loss 0.319 276 img/s
+  epoch 168/300  lr 0.0100  loss 0.294  top1 93.40  top5 98.40  (16s, 785 img/s)
+    ep 169 it 0/50 loss 0.269 279 img/s
+  epoch 169/300  lr 0.0100  loss 0.285  top1 93.00  top5 98.40  (16s, 785 img/s)
+    ep 170 it 0/50 loss 0.302 263 img/s
+  epoch 170/300  lr 0.0100  loss 0.289  top1 93.60  top5 98.60  (16s, 782 img/s)
+    ep 171 it 0/50 loss 0.355 278 img/s
+  epoch 171/300  lr 0.0100  loss 0.293  top1 93.60  top5 98.60  (16s, 785 img/s)
+    ep 172 it 0/50 loss 0.233 276 img/s
+  epoch 172/300  lr 0.0100  loss 0.298  top1 93.20  top5 98.60  (16s, 784 img/s)
+    ep 173 it 0/50 loss 0.239 257 img/s
+  epoch 173/300  lr 0.0100  loss 0.293  top1 92.80  top5 98.60  (16s, 781 img/s)
+    ep 174 it 0/50 loss 0.372 219 img/s
+  epoch 174/300  lr 0.0100  loss 0.297  top1 92.80  top5 98.40  (17s, 773 img/s)
+    ep 175 it 0/50 loss 0.246 260 img/s
+  epoch 175/300  lr 0.0100  loss 0.294  top1 93.80  top5 98.20  (16s, 782 img/s)
+    ep 176 it 0/50 loss 0.248 278 img/s
+  epoch 176/300  lr 0.0100  loss 0.283  top1 93.80  top5 98.40  (16s, 785 img/s)
+    ep 177 it 0/50 loss 0.295 218 img/s
+  epoch 177/300  lr 0.0100  loss 0.283  top1 93.40  top5 98.40  (17s, 773 img/s)
+    ep 178 it 0/50 loss 0.279 191 img/s
+  epoch 178/300  lr 0.0100  loss 0.275  top1 94.00  top5 98.40  (17s, 765 img/s)
+    ep 179 it 0/50 loss 0.295 220 img/s
+  epoch 179/300  lr 0.0100  loss 0.287  top1 94.00  top5 98.20  (17s, 773 img/s)
+    ep 180 it 0/50 loss 0.292 257 img/s
+  epoch 180/300  lr 0.0100  loss 0.291  top1 93.20  top5 98.60  (16s, 781 img/s)
+    ep 181 it 0/50 loss 0.294 221 img/s
+  epoch 181/300  lr 0.0100  loss 0.285  top1 92.80  top5 98.20  (17s, 773 img/s)
+    ep 182 it 0/50 loss 0.341 258 img/s
+  epoch 182/300  lr 0.0100  loss 0.273  top1 93.20  top5 98.60  (16s, 781 img/s)
+    ep 183 it 0/50 loss 0.262 278 img/s
+  epoch 183/300  lr 0.0100  loss 0.289  top1 93.80  top5 98.60  (16s, 785 img/s)
+    ep 184 it 0/50 loss 0.183 278 img/s
+  epoch 184/300  lr 0.0100  loss 0.282  top1 93.80  top5 98.40  (16s, 784 img/s)
+    ep 185 it 0/50 loss 0.230 279 img/s
+  epoch 185/300  lr 0.0100  loss 0.284  top1 93.00  top5 98.60  (16s, 785 img/s)
+    ep 186 it 0/50 loss 0.240 276 img/s
+  epoch 186/300  lr 0.0100  loss 0.277  top1 93.20  top5 98.60  (16s, 782 img/s)
+    ep 187 it 0/50 loss 0.303 277 img/s
+  epoch 187/300  lr 0.0100  loss 0.276  top1 92.80  top5 98.80  (16s, 785 img/s)
+    ep 188 it 0/50 loss 0.246 277 img/s
+  epoch 188/300  lr 0.0100  loss 0.281  top1 93.40  top5 98.40  (16s, 784 img/s)
+    ep 189 it 0/50 loss 0.260 263 img/s
+  epoch 189/300  lr 0.0100  loss 0.282  top1 93.80  top5 98.60  (16s, 782 img/s)
+    ep 190 it 0/50 loss 0.283 276 img/s
+  epoch 190/300  lr 0.0100  loss 0.273  top1 93.20  top5 98.60  (16s, 784 img/s)
+    ep 191 it 0/50 loss 0.226 266 img/s
+  epoch 191/300  lr 0.0100  loss 0.273  top1 93.00  top5 98.80  (16s, 782 img/s)
+    ep 192 it 0/50 loss 0.327 284 img/s
+  epoch 192/300  lr 0.0100  loss 0.271  top1 93.20  top5 98.40  (16s, 785 img/s)
+    ep 193 it 0/50 loss 0.310 279 img/s
+  epoch 193/300  lr 0.0100  loss 0.263  top1 93.00  top5 99.00  (16s, 783 img/s)
+    ep 194 it 0/50 loss 0.356 275 img/s
+  epoch 194/300  lr 0.0100  loss 0.274  top1 92.40  top5 98.20  (16s, 784 img/s)
+    ep 195 it 0/50 loss 0.229 180 img/s
+  epoch 195/300  lr 0.0100  loss 0.261  top1 93.40  top5 98.60  (17s, 761 img/s)
+    ep 196 it 0/50 loss 0.326 257 img/s
+  epoch 196/300  lr 0.0100  loss 0.265  top1 93.80  top5 98.40  (17s, 773 img/s)
+    ep 197 it 0/50 loss 0.167 249 img/s
+  epoch 197/300  lr 0.0100  loss 0.265  top1 93.60  top5 98.40  (16s, 780 img/s)
+    ep 198 it 0/50 loss 0.212 252 img/s
+  epoch 198/300  lr 0.0100  loss 0.264  top1 93.00  top5 98.40  (16s, 780 img/s)
+    ep 199 it 0/50 loss 0.315 278 img/s
+  epoch 199/300  lr 0.0100  loss 0.261  top1 93.00  top5 99.00  (16s, 785 img/s)
+    ep 200 it 0/50 loss 0.273 263 img/s
+  epoch 200/300  lr 0.0100  loss 0.256  top1 93.40  top5 98.40  (16s, 782 img/s)
+    ep 201 it 0/50 loss 0.248 283 img/s
+  epoch 201/300  lr 0.0010  loss 0.258  top1 93.80  top5 98.40  (16s, 786 img/s)
+    ep 202 it 0/50 loss 0.338 278 img/s
+  epoch 202/300  lr 0.0010  loss 0.263  top1 94.00  top5 98.40  (16s, 781 img/s)
+    ep 203 it 0/50 loss 0.193 263 img/s
+  epoch 203/300  lr 0.0010  loss 0.252  top1 93.80  top5 98.60  (16s, 782 img/s)
+    ep 204 it 0/50 loss 0.204 283 img/s
+  epoch 204/300  lr 0.0010  loss 0.239  top1 93.80  top5 98.60  (16s, 785 img/s)
+    ep 205 it 0/50 loss 0.280 273 img/s
+  epoch 205/300  lr 0.0010  loss 0.246  top1 93.80  top5 98.60  (16s, 784 img/s)
+    ep 206 it 0/50 loss 0.247 279 img/s
+  epoch 206/300  lr 0.0010  loss 0.227  top1 93.60  top5 98.60  (16s, 785 img/s)
+    ep 207 it 0/50 loss 0.237 276 img/s
+  epoch 207/300  lr 0.0010  loss 0.246  top1 94.20  top5 98.60  (16s, 784 img/s)
+    ep 208 it 0/50 loss 0.283 279 img/s
+  epoch 208/300  lr 0.0010  loss 0.246  top1 93.60  top5 98.40  (16s, 785 img/s)
+    ep 209 it 0/50 loss 0.192 279 img/s
+  epoch 209/300  lr 0.0010  loss 0.236  top1 93.60  top5 98.80  (16s, 785 img/s)
+    ep 210 it 0/50 loss 0.213 279 img/s
+  epoch 210/300  lr 0.0010  loss 0.249  top1 94.00  top5 98.80  (16s, 785 img/s)
+    ep 211 it 0/50 loss 0.223 279 img/s
+  epoch 211/300  lr 0.0010  loss 0.234  top1 93.80  top5 98.80  (16s, 785 img/s)
+    ep 212 it 0/50 loss 0.278 263 img/s
+  epoch 212/300  lr 0.0010  loss 0.247  top1 93.80  top5 98.60  (16s, 782 img/s)
+    ep 213 it 0/50 loss 0.307 261 img/s
+  epoch 213/300  lr 0.0010  loss 0.240  top1 94.00  top5 98.80  (16s, 782 img/s)
+    ep 214 it 0/50 loss 0.235 232 img/s
+  epoch 214/300  lr 0.0010  loss 0.248  top1 93.40  top5 98.60  (17s, 776 img/s)
+    ep 215 it 0/50 loss 0.232 260 img/s
+  epoch 215/300  lr 0.0010  loss 0.244  top1 93.40  top5 98.80  (16s, 781 img/s)
+    ep 216 it 0/50 loss 0.200 219 img/s
+  epoch 216/300  lr 0.0010  loss 0.249  top1 93.00  top5 98.80  (17s, 773 img/s)
+    ep 217 it 0/50 loss 0.264 209 img/s
+  epoch 217/300  lr 0.0010  loss 0.244  top1 93.60  top5 98.60  (17s, 770 img/s)
+    ep 218 it 0/50 loss 0.262 279 img/s
+  epoch 218/300  lr 0.0010  loss 0.240  top1 93.80  top5 98.60  (16s, 785 img/s)
+    ep 219 it 0/50 loss 0.147 262 img/s
+  epoch 219/300  lr 0.0010  loss 0.243  top1 93.60  top5 98.80  (16s, 782 img/s)
+    ep 220 it 0/50 loss 0.245 279 img/s
+  epoch 220/300  lr 0.0010  loss 0.233  top1 94.40  top5 98.60  (16s, 785 img/s)
+    ep 221 it 0/50 loss 0.247 236 img/s
+  epoch 221/300  lr 0.0010  loss 0.239  top1 94.00  top5 98.60  (16s, 777 img/s)
+    ep 222 it 0/50 loss 0.225 280 img/s
+  epoch 222/300  lr 0.0010  loss 0.245  top1 93.60  top5 98.40  (16s, 785 img/s)
+    ep 223 it 0/50 loss 0.184 233 img/s
+  epoch 223/300  lr 0.0010  loss 0.242  top1 93.60  top5 98.80  (16s, 776 img/s)
+    ep 224 it 0/50 loss 0.318 246 img/s
+  epoch 224/300  lr 0.0010  loss 0.240  top1 94.00  top5 98.80  (16s, 778 img/s)
+    ep 225 it 0/50 loss 0.236 276 img/s
+  epoch 225/300  lr 0.0010  loss 0.244  top1 94.00  top5 98.60  (16s, 784 img/s)
+    ep 226 it 0/50 loss 0.243 276 img/s
+  epoch 226/300  lr 0.0010  loss 0.252  top1 93.60  top5 98.60  (16s, 784 img/s)
+    ep 227 it 0/50 loss 0.195 231 img/s
+  epoch 227/300  lr 0.0010  loss 0.234  top1 94.00  top5 98.60  (17s, 776 img/s)
+    ep 228 it 0/50 loss 0.235 246 img/s
+  epoch 228/300  lr 0.0010  loss 0.239  top1 93.80  top5 98.60  (16s, 779 img/s)
+    ep 229 it 0/50 loss 0.214 261 img/s
+  epoch 229/300  lr 0.0010  loss 0.253  top1 94.00  top5 98.40  (16s, 782 img/s)
+    ep 230 it 0/50 loss 0.219 233 img/s
+  epoch 230/300  lr 0.0010  loss 0.239  top1 93.60  top5 98.80  (16s, 776 img/s)
+    ep 231 it 0/50 loss 0.140 281 img/s
+  epoch 231/300  lr 0.0010  loss 0.233  top1 93.60  top5 98.80  (16s, 785 img/s)
+    ep 232 it 0/50 loss 0.308 284 img/s
+  epoch 232/300  lr 0.0010  loss 0.242  top1 93.60  top5 98.60  (16s, 786 img/s)
+    ep 233 it 0/50 loss 0.236 263 img/s
+  epoch 233/300  lr 0.0010  loss 0.238  top1 93.40  top5 98.60  (16s, 782 img/s)
+    ep 234 it 0/50 loss 0.212 261 img/s
+  epoch 234/300  lr 0.0010  loss 0.238  top1 94.00  top5 98.60  (16s, 782 img/s)
+    ep 235 it 0/50 loss 0.193 278 img/s
+  epoch 235/300  lr 0.0010  loss 0.231  top1 93.60  top5 98.60  (16s, 784 img/s)
+    ep 236 it 0/50 loss 0.283 277 img/s
+  epoch 236/300  lr 0.0010  loss 0.245  top1 94.20  top5 98.40  (16s, 784 img/s)
+    ep 237 it 0/50 loss 0.278 279 img/s
+  epoch 237/300  lr 0.0010  loss 0.238  top1 94.20  top5 98.60  (16s, 785 img/s)
+    ep 238 it 0/50 loss 0.278 275 img/s
+  epoch 238/300  lr 0.0010  loss 0.234  top1 93.80  top5 98.60  (16s, 784 img/s)
+    ep 239 it 0/50 loss 0.312 247 img/s
+  epoch 239/300  lr 0.0010  loss 0.240  top1 93.20  top5 98.60  (16s, 779 img/s)
+    ep 240 it 0/50 loss 0.240 276 img/s
+  epoch 240/300  lr 0.0010  loss 0.234  top1 93.40  top5 98.80  (16s, 785 img/s)
+    ep 241 it 0/50 loss 0.190 276 img/s
+  epoch 241/300  lr 0.0010  loss 0.236  top1 93.60  top5 98.60  (16s, 784 img/s)
+    ep 242 it 0/50 loss 0.190 276 img/s
+  epoch 242/300  lr 0.0010  loss 0.243  top1 93.60  top5 98.60  (16s, 784 img/s)
+    ep 243 it 0/50 loss 0.186 281 img/s
+  epoch 243/300  lr 0.0010  loss 0.231  top1 93.40  top5 98.80  (16s, 785 img/s)
+    ep 244 it 0/50 loss 0.224 259 img/s
+  epoch 244/300  lr 0.0010  loss 0.237  top1 93.20  top5 98.60  (16s, 781 img/s)
+    ep 245 it 0/50 loss 0.281 283 img/s
+  epoch 245/300  lr 0.0010  loss 0.245  top1 93.60  top5 98.60  (16s, 779 img/s)
+    ep 246 it 0/50 loss 0.252 264 img/s
+  epoch 246/300  lr 0.0010  loss 0.241  top1 93.20  top5 98.80  (16s, 782 img/s)
+    ep 247 it 0/50 loss 0.238 273 img/s
+  epoch 247/300  lr 0.0010  loss 0.242  top1 93.60  top5 98.60  (16s, 784 img/s)
+    ep 248 it 0/50 loss 0.173 258 img/s
+  epoch 248/300  lr 0.0010  loss 0.231  top1 93.40  top5 98.80  (16s, 781 img/s)
+    ep 249 it 0/50 loss 0.243 271 img/s
+  epoch 249/300  lr 0.0010  loss 0.234  top1 93.60  top5 98.80  (16s, 783 img/s)
+    ep 250 it 0/50 loss 0.302 264 img/s
+  epoch 250/300  lr 0.0010  loss 0.238  top1 94.00  top5 98.80  (16s, 782 img/s)
+    ep 251 it 0/50 loss 0.159 274 img/s
+  epoch 251/300  lr 0.0010  loss 0.225  top1 94.20  top5 98.80  (16s, 784 img/s)
+    ep 252 it 0/50 loss 0.210 233 img/s
+  epoch 252/300  lr 0.0010  loss 0.236  top1 93.60  top5 98.80  (16s, 776 img/s)
+    ep 253 it 0/50 loss 0.300 281 img/s
+  epoch 253/300  lr 0.0010  loss 0.235  top1 93.60  top5 98.80  (16s, 785 img/s)
+    ep 254 it 0/50 loss 0.249 230 img/s
+  epoch 254/300  lr 0.0010  loss 0.233  top1 93.40  top5 98.80  (17s, 776 img/s)
+    ep 255 it 0/50 loss 0.169 271 img/s
+  epoch 255/300  lr 0.0010  loss 0.229  top1 93.60  top5 98.80  (16s, 783 img/s)
+    ep 256 it 0/50 loss 0.291 243 img/s
+  epoch 256/300  lr 0.0010  loss 0.242  top1 93.60  top5 98.80  (16s, 778 img/s)
+    ep 257 it 0/50 loss 0.219 263 img/s
+  epoch 257/300  lr 0.0010  loss 0.237  top1 94.20  top5 98.80  (16s, 782 img/s)
+    ep 258 it 0/50 loss 0.222 243 img/s
+  epoch 258/300  lr 0.0010  loss 0.233  top1 93.60  top5 98.80  (16s, 778 img/s)
+    ep 259 it 0/50 loss 0.173 279 img/s
+  epoch 259/300  lr 0.0010  loss 0.233  top1 93.60  top5 98.80  (16s, 782 img/s)
+    ep 260 it 0/50 loss 0.280 244 img/s
+  epoch 260/300  lr 0.0010  loss 0.239  top1 93.60  top5 98.80  (16s, 778 img/s)
+    ep 261 it 0/50 loss 0.283 259 img/s
+  epoch 261/300  lr 0.0010  loss 0.232  top1 93.60  top5 98.80  (16s, 778 img/s)
+    ep 262 it 0/50 loss 0.289 247 img/s
+  epoch 262/300  lr 0.0010  loss 0.245  top1 93.40  top5 98.60  (16s, 779 img/s)
+    ep 263 it 0/50 loss 0.193 247 img/s
+  epoch 263/300  lr 0.0010  loss 0.228  top1 93.80  top5 98.80  (16s, 779 img/s)
+    ep 264 it 0/50 loss 0.300 245 img/s
+  epoch 264/300  lr 0.0010  loss 0.231  top1 93.60  top5 98.60  (16s, 778 img/s)
+    ep 265 it 0/50 loss 0.220 246 img/s
+  epoch 265/300  lr 0.0010  loss 0.232  top1 93.60  top5 98.80  (16s, 779 img/s)
+    ep 266 it 0/50 loss 0.199 277 img/s
+  epoch 266/300  lr 0.0010  loss 0.222  top1 93.80  top5 98.80  (16s, 784 img/s)
+    ep 267 it 0/50 loss 0.235 280 img/s
+  epoch 267/300  lr 0.0010  loss 0.232  top1 93.80  top5 98.60  (16s, 785 img/s)
+    ep 268 it 0/50 loss 0.268 278 img/s
+  epoch 268/300  lr 0.0010  loss 0.230  top1 93.80  top5 98.80  (16s, 785 img/s)
+    ep 269 it 0/50 loss 0.313 277 img/s
+  epoch 269/300  lr 0.0010  loss 0.244  top1 93.40  top5 98.60  (16s, 784 img/s)
+    ep 270 it 0/50 loss 0.261 281 img/s
+  epoch 270/300  lr 0.0010  loss 0.233  top1 93.80  top5 98.80  (16s, 785 img/s)
+    ep 271 it 0/50 loss 0.140 229 img/s
+  epoch 271/300  lr 0.0010  loss 0.233  top1 94.20  top5 98.60  (17s, 775 img/s)
+    ep 272 it 0/50 loss 0.177 258 img/s
+  epoch 272/300  lr 0.0010  loss 0.235  top1 94.00  top5 98.80  (16s, 781 img/s)
+    ep 273 it 0/50 loss 0.207 210 img/s
+  epoch 273/300  lr 0.0010  loss 0.229  top1 94.20  top5 98.80  (17s, 770 img/s)
+    ep 274 it 0/50 loss 0.264 243 img/s
+  epoch 274/300  lr 0.0010  loss 0.233  top1 93.80  top5 98.80  (16s, 778 img/s)
+    ep 275 it 0/50 loss 0.281 274 img/s
+  epoch 275/300  lr 0.0010  loss 0.243  top1 93.60  top5 98.60  (16s, 784 img/s)
+    ep 276 it 0/50 loss 0.299 247 img/s
+  epoch 276/300  lr 0.0010  loss 0.233  top1 93.60  top5 98.80  (16s, 779 img/s)
+    ep 277 it 0/50 loss 0.247 277 img/s
+  epoch 277/300  lr 0.0010  loss 0.222  top1 93.60  top5 98.80  (16s, 785 img/s)
+    ep 278 it 0/50 loss 0.277 264 img/s
+  epoch 278/300  lr 0.0010  loss 0.223  top1 93.80  top5 98.80  (16s, 783 img/s)
+    ep 279 it 0/50 loss 0.196 274 img/s
+  epoch 279/300  lr 0.0010  loss 0.232  top1 93.80  top5 98.60  (16s, 784 img/s)
+    ep 280 it 0/50 loss 0.267 274 img/s
+  epoch 280/300  lr 0.0010  loss 0.225  top1 93.80  top5 98.80  (16s, 784 img/s)
+    ep 281 it 0/50 loss 0.292 275 img/s
+  epoch 281/300  lr 0.0010  loss 0.235  top1 93.60  top5 98.60  (16s, 784 img/s)
+    ep 282 it 0/50 loss 0.184 274 img/s
+  epoch 282/300  lr 0.0010  loss 0.228  top1 93.40  top5 98.60  (16s, 784 img/s)
+    ep 283 it 0/50 loss 0.247 279 img/s
+  epoch 283/300  lr 0.0010  loss 0.236  top1 93.80  top5 98.60  (16s, 785 img/s)
+    ep 284 it 0/50 loss 0.160 232 img/s
+  epoch 284/300  lr 0.0010  loss 0.235  top1 94.00  top5 98.60  (17s, 776 img/s)
+    ep 285 it 0/50 loss 0.248 272 img/s
+  epoch 285/300  lr 0.0010  loss 0.234  top1 94.00  top5 98.60  (16s, 783 img/s)
+    ep 286 it 0/50 loss 0.218 278 img/s
+  epoch 286/300  lr 0.0010  loss 0.233  top1 94.00  top5 98.60  (16s, 782 img/s)
+    ep 287 it 0/50 loss 0.202 267 img/s
+  epoch 287/300  lr 0.0010  loss 0.236  top1 93.60  top5 98.60  (16s, 782 img/s)
+    ep 288 it 0/50 loss 0.175 264 img/s
+  epoch 288/300  lr 0.0010  loss 0.229  top1 93.60  top5 98.80  (16s, 782 img/s)
+    ep 289 it 0/50 loss 0.216 248 img/s
+  epoch 289/300  lr 0.0010  loss 0.224  top1 93.80  top5 98.80  (16s, 779 img/s)
+    ep 290 it 0/50 loss 0.168 277 img/s
+  epoch 290/300  lr 0.0010  loss 0.225  top1 93.60  top5 98.60  (16s, 784 img/s)
+    ep 291 it 0/50 loss 0.278 280 img/s
+  epoch 291/300  lr 0.0010  loss 0.226  top1 94.40  top5 98.60  (16s, 785 img/s)
+    ep 292 it 0/50 loss 0.271 282 img/s
+  epoch 292/300  lr 0.0010  loss 0.227  top1 94.00  top5 98.80  (16s, 785 img/s)
+    ep 293 it 0/50 loss 0.261 244 img/s
+  epoch 293/300  lr 0.0010  loss 0.232  top1 93.80  top5 98.80  (16s, 778 img/s)
+    ep 294 it 0/50 loss 0.144 236 img/s
+  epoch 294/300  lr 0.0010  loss 0.238  top1 93.80  top5 98.80  (16s, 776 img/s)
+    ep 295 it 0/50 loss 0.174 236 img/s
+  epoch 295/300  lr 0.0010  loss 0.226  top1 93.40  top5 98.80  (16s, 777 img/s)
+    ep 296 it 0/50 loss 0.258 248 img/s
+  epoch 296/300  lr 0.0010  loss 0.233  top1 93.60  top5 98.80  (16s, 779 img/s)
+    ep 297 it 0/50 loss 0.311 248 img/s
+  epoch 297/300  lr 0.0010  loss 0.228  top1 93.60  top5 98.60  (16s, 779 img/s)
+    ep 298 it 0/50 loss 0.260 272 img/s
+  epoch 298/300  lr 0.0010  loss 0.223  top1 93.80  top5 98.60  (16s, 783 img/s)
+    ep 299 it 0/50 loss 0.302 264 img/s
+  epoch 299/300  lr 0.0010  loss 0.241  top1 94.00  top5 98.80  (16s, 782 img/s)
+    ep 300 it 0/50 loss 0.244 248 img/s
+  epoch 300/300  lr 0.0010  loss 0.228  top1 93.80  top5 98.60  (16s, 779 img/s)
+done {"final_top1": 93.8, "final_top5": 98.6, "params": 134309962, "train_hours": 1.3716778154505624}

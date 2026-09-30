@@ -1,0 +1,6 @@
+{"model": "resnet50_random", "inputs": "cifar10matched", "seed": 1, "n_dense": 53, "median_k95_rmax": 0.18359375, "elapsed_sec": 290.5}
+{"model": "timm:resnet18.tv_in1k_random", "inputs": "cifar10matched", "seed": 1, "n_dense": 20, "median_k95_rmax": 0.1328125, "elapsed_sec": 60.6}
+{"model": "timm:vgg16_bn.tv_in1k_random", "inputs": "cifar10matched", "seed": 1, "n_dense": 13, "median_k95_rmax": 0.185546875, "elapsed_sec": 328.1}
+{"model": "timm:densenet121.tv_in1k_random", "inputs": "cifar10matched", "seed": 1, "n_dense": 120, "median_k95_rmax": 0.34375, "elapsed_sec": 244.2}
+{"model": "timm:mobilenetv2_100.ra_in1k_random", "inputs": "cifar10matched", "seed": 1, "n_dense": 35, "median_k95_rmax": 0.565625, "elapsed_sec": 81.4}
+{"model": "timm:efficientnet_b0.ra_in1k_random", "inputs": "cifar10matched", "seed": 1, "n_dense": 33, "median_k95_rmax": 0.45, "elapsed_sec": 169.9}

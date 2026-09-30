@@ -1,0 +1,14 @@
+{
+  "cell": "k1000_64",
+  "classes": null,
+  "per_class": false,
+  "crop": 64,
+  "epochs": 90,
+  "measure": "val",
+  "n_measure": 25600,
+  "seed": 1,
+  "n_measure_images": 25600,
+  "lists": null,
+  "data": "/workspace/imagenet80",
+  "standard": "/workspace/imagenet_val_6400"
+}

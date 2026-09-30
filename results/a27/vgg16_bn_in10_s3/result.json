@@ -1,0 +1,61 @@
+{
+  "arch": "vgg16_bn",
+  "widths": [
+    64,
+    64,
+    128,
+    128,
+    256,
+    256,
+    256,
+    512,
+    512,
+    512,
+    512,
+    512,
+    512
+  ],
+  "params": 134309962,
+  "macs_224": 15466209280,
+  "seed": 3,
+  "epochs": 300,
+  "crop": 224,
+  "full_params": 134309962,
+  "params_fraction": 1.0,
+  "class_ids": [
+    0,
+    217,
+    482,
+    491,
+    497,
+    566,
+    569,
+    571,
+    574,
+    701
+  ],
+  "num_classes": 10,
+  "n_train": 12894,
+  "recipe": {
+    "optimizer": "SGD",
+    "momentum": 0.9,
+    "lr": 0.1,
+    "wd": 0.0001,
+    "batch_size": 256,
+    "milestones": [
+      100,
+      200
+    ],
+    "gamma": 0.1,
+    "aug": "RandomResizedCrop224+flip",
+    "eval": "Resize256+CenterCrop224",
+    "amp": true
+  },
+  "realloc": null,
+  "final_top1": 93.8,
+  "final_top5": 98.6,
+  "best_top1": 94.4,
+  "best_epoch": 220,
+  "train_hours": 1.3716778154505624,
+  "img_per_s_median": 782.4052261962937
+}
