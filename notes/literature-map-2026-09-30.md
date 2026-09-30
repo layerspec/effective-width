@@ -15,14 +15,36 @@
 | **L2 訓練中的低秩** | 訓練把哪些層的秩壓低、由什麼決定（類別數、深度、資料、優化）？（脊椎第三段） | Papyan 2020、Rangamani 2023、Masarczyk 2023、Harun 2024、Feng 2022、Galanti 2022、Súkeník 2023／2024、Zangrando 2024、Huh 2023、Wang 2025（JMLR）、He & Su 2023 | 中間層 collapse 的理論邊界；tunnel 的因素分離；秩與類別數的定量關係；訓練早期的動力學 | ◐ 第一輪 09-30 讀完 13 篇（`map-L2-training-low-rank-2026-09-30.md`）；第二輪待補定理段 |
 | **L3 對齊與特徵學習** | 訓練後的核與輸入二階統計如何對齊？這決定寬度嗎？ | Maennel 2020、Beaglehole 2023、Radhakrishnan 2024、Boix-Adserà 2025、Saxe 深線性、Ziyin、Atanasov | 對齊的時間過程；對齊對譜的後果；卷積層的 patch-AGOP | ◐ 第一輪 09-30 讀完 9 篇（`map-L3-alignment-2026-09-30.md`）；重排沒有理論，但 L1＋L2＋L3 可組裝出一條解釋鏈 |
 | **L4 表徵維度的量法** | 各種「維度」量的是什麼、樣本偏差多大、彼此如何換算？ | Ansuini 2019、Roy–Vetterli 2007、Garrido 2023（RankMe）、Agrawal 2022（α-ReQ）、Elmoznino–Bonner 2024、Shawe-Taylor 2005、Blanchard 2007、Reiß–Wahl 2020、Koltchinskii–Lounici 2017、Skean 2025 | 數值秩對 τ 寬度（A34 的問題）；門檻的理論；跨量法的換算 | ◐ 第一輪 09-30（`map-L4-measures-2026-09-30.md`；Table S1 已覆蓋量法本身，本輪補 Kong–Valiant 少樣本估譜、冪律譜上兩把尺的閉式） |
-| **L5 寬度的選擇與壓縮** | 寬度怎麼被選、學、剪；學出來的寬度長什麼樣？ | Garg 2019／2024、Yu & Wu 2023、Chee 2022、CHEX、DMCP、BCNet、Network Adjustment、Width Transfer、Yuan 2023、NORTH\*、Liu 2019 | 逐層寬度的規律（後段寬）、成本項對訊號項、無標籤判準 | ☐（`related-work-boundary-2026-09-22.md`、`p2m-prior-art-2026-09-30.md` 是起點） |
-| **L6 殘差與 skip** | 殘差流對譜與秩做了什麼？ | Dong 2021、Li & Papyan 2023、Zhang & Jiang 2024、Everett 2026、Haggi-Mani & Rish 2026、Daneshmand 2020 | 加法處的譜（我們的 §10.17）；skip 對訓練後寬度的作用；BN 與 skip 的分工 | ☐（`th9-prior-art-2026-09-29.md` 是起點） |
+| **L5 寬度的選擇與壓縮** | 寬度怎麼被選、學、剪；學出來的寬度長什麼樣？ | Garg 2019／2024、Yu & Wu 2023、Chee 2022、CHEX、DMCP、BCNet、Network Adjustment、Width Transfer、Yuan 2023、NORTH\*、Liu 2019 | 逐層寬度的規律（後段寬）、成本項對訊號項、無標籤判準 | ◐ 第一輪 09-30（`map-L5-width-selection-2026-09-30.md`）：已知很多，留下「無標籤尺對有標籤判準的差」、「成本項對訊號項」、「寬度 ≠ 秩」 |
+| **L6 殘差與 skip** | 殘差流對譜與秩做了什麼？ | Dong 2021、Li & Papyan 2023、Zhang & Jiang 2024、Everett 2026、Haggi-Mani & Rish 2026、Daneshmand 2020 | 加法處的譜（我們的 §10.17）；skip 對訓練後寬度的作用；BN 與 skip 的分工 | ◐ 第一輪 09-30（`map-L6-residual-2026-09-30.md`）：初始化的殘差理論（Yang–Schoenholz、Daneshmand）與訓練後的 Residual Alignment 已知；加法處的譜、skip 對訓練後寬度的作用沒有 |
 
 ## 交叉的問題（地圖畫完才能答）
 
 1. 六條線都留下的問題是哪一個？——那是題目。
 2. 哪些定理能接成一條鏈（初始化的譜 → ReLU 步 → 訓練改變什麼 → 殘差的下界）？每一環的假設在卷積網路上成立到哪裡？
 3. 我們的每個實驗驗證的是鏈上哪一環？放不進去的實驗要問為什麼還在。
+
+### 第一輪後的暫定回答（09-30 晚；第二輪讀完再改）
+
+**1. 六條線都留下的問題：** 「一個訓練好的網路，**逐層**的表徵寬度（譜的形狀）由什麼決定、怎麼算」。
+- L1 給初始化（架構＋初始化方式決定，理論只有一個相關係數或一個下界，沒有逐層譜的形狀）；
+- L2 給訓練後低秩的三個旋鈕（深度、wd、類別數）與時間（TPT），但只說「塌縮層」，不說哪些層、多少；
+- L3 給對齊與譜的三種變化，但沒有逐層順序；
+- L4 給量法，但沒有量法之間的換算；
+- L5 給寬度的選法，但把寬度當成本問題，不問它由什麼決定；
+- L6 給殘差保幾何的理論，但沒有加法處的譜。
+每一條線都在自己的量上停在「全網一個數」或「最後一層」，**逐層剖面這個對象是空的**。這是題目該站的地方。
+
+**2. 能接成鏈的定理（每環附假設；卷積上成立到哪裡是我們的量測）：**
+初始化譜＝尖峰＋本體（Yang 2019；BN、無限寬）→ PR ≥ Ω(√C)（Daneshmand；線性、BN）→ 層內律 S6（Silverstein；給定 Σ_patch）→ ReLU 步（Fan–Wang／LLC；獨立樣本，**卷積 patch 不滿足**）
+→ 早期對齊去尖峰（Atanasov；小初始化）→ 後期 DNC 壓塌縮層到 ≈ K（Súkeník／Zangrando；UFM、wd）＋深度偏好（Jacot；L→∞）→ 殘差加法處的下界（Weyl／Ky Fan；任何共變異數）。
+**重排＝這條鏈的組裝後果**（L3 §3），不需要新定理，但每一環的「在卷積網路上成立到哪裡」都要用我們的資料驗證——那就是實驗的角色。
+
+**3. 實驗對到鏈上的位置：** 44 權重與家族表→初始化譜與 R–R（環 1–2）；層內律 535 層（環 3）；copula 診斷（環 4）；ρ_align 時間過程（環 5）；A24／A25／A31（環 6 類別數與 TPT）；A17／A28／A29b（環 6 深度）；A33（環 1 初始化方式）；§10.17（環 7）。
+**放不進去的**：控制器（P2 系列）、零重訓摺入的準確率數字、A20 的表徵診斷——這些是 L5 的應用，論文各留一段或移到補充。
+
+**4. 前三軸現在的估計**：文獻 3（六線第一輪完成，第二輪與 bib 未做）；題目 3.5（有了「逐層剖面由什麼決定、怎麼算」這句，但要用第二輪確認沒人做）；
+理論 2.5（鏈的每一環都是別人的定理；「組裝」還沒寫成嚴謹的陳述）。
 
 ## 進度
 
@@ -32,3 +54,4 @@
 | 09-30 | L2 第一輪：Jacot 2023、Timor 2023、Galanti、Súkeník／Zangrando、Wang JMLR、He & Su、Papyan、Rangamani、Parker、Masarczyk／Harun、Feng。結論：低秩的三個旋鈕（深度、wd、類別數）有理論；哪些層塌、剖面形狀、對初始化順序的關係、資料因素沒有理論。我們每個 S3 實驗可以對到一條陳述（A24／A31→DNC、A25→TPT、A29b→Jacot），重排（T–R<0）沒有 |
 | 09-30 | L3 第一輪：Saxe、Maennel、Beaglehole、FACT、Atanasov（silent alignment）、Ba、Wang 2023（本體不變／尖峰／重尾）、Martin–Mahoney、Kunin。結論：對齊已知、譜的三種變化已知（兩層）；重排沒有理論；**候選的組裝解釋**：初始化尖峰＋本體（L1）→ 早期對齊去尖峰、水準升（L3）→ 後期 DNC 壓後段（L2）→ 塌縮段長（深、少類）時順序反轉。三條可用既有資料驗證的陳述寫在 L3 §3 |
 | 09-30 | L4 第一輪：Table S1 的 20 篇＋Kong–Valiant 2017、Ghosh 2022、RankMe、Recanatesi。結論：量法與偏差已知；門檻可由少樣本估譜取代（Kong–Valiant）；純冪律譜上數值秩讀頭部、τ 寬度讀滿——A34 的 0.2 對 0.5 說明真實譜非純冪律。留下：量法換算、位置相依樣本的估計理論 |
+| 09-30 | L5、L6 第一輪由既有筆記整理（Liu 2019、Veit、Balduzzi、Yang–Schoenholz 新讀）。六條線第一輪完成，見 §「交叉的問題」的暫定回答 |
