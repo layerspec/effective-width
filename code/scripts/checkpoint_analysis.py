@@ -1572,9 +1572,9 @@ def a28_zone(tr_same) -> str:
     return "intermediate"
 
 
-def _a28_runs(results: str, cell: str) -> dict:
+def _a28_runs(results: str, cell: str, root: str = "a28") -> dict:
     out = {}
-    for d in sorted(glob.glob(os.path.join(results, "a28", f"{cell}_s[0-9]*"))):
+    for d in sorted(glob.glob(os.path.join(results, root, f"{cell}_s[0-9]*"))):
         if not os.path.exists(os.path.join(d, "result.json")) or not os.path.exists(os.path.join(d, "trajectory_layers.csv")):
             continue
         epochs, P, acc, layers = _load_trajectory(os.path.join(d, "trajectory_layers.csv"))
@@ -1685,6 +1685,102 @@ def section_a28(results: str):
         cons.append("the hundred-class effect cannot be given to the class count (image count / steps move it too): 'a smaller task'")
     if len(V) == len(text):
         for c in cons or ["no registered single attribution; the effect sizes are reported as measured"]:
+            print(f"  Registered consequence: {c}")
+    return V
+
+
+A31_CELLS = {"k10": 10, "k20": 20, "k50": 50, "k100": 100}
+
+
+def section_a31(results: str):
+    """A31 (plan 9.26): the class count alone -- ResNet-50, A17 recipe, ImageNet images at 224 pixels, 1,000 training
+    images per class, 37,000 steps, K = 10 / 20 / 50 / 100, two seeds.  Primary measurement on the section-6 subset
+    (the same images as A17 and as A28's secondary set); zones as in plan 9.17."""
+    cells = {c: _a28_runs(results, c, root="a31") for c in A31_CELLS}
+    if not any(cells.values()):
+        return None
+    base = _a17_profiles(results, "resnet50")
+    a28 = [x["sec"] for x in _a28_runs(results, "k100_224").values() if x["sec"] is not None]
+    hdr("31. A31: the class count alone, ImageNet images at 224 pixels, 1,000 images per class, 37,000 steps (analysis-plan 9.26)")
+    print("  ResNet-50, the A17 recipe; k*(0.95)/r_max on the section-6 subset (primary; the same images as A17) and on the")
+    print(f"  cell's own held-out images (secondary); zones by same-seed T-R: reorders <= {A28_REORDER:+.2f}, preserves >= {A28_PRESERVE:+.2f}")
+    S, rows = {}, []
+    for c, runs in cells.items():
+        K = A31_CELLS[c]
+        if not runs:
+            print(f"    {c:6s} K {K:4d}  (no finished runs)"); continue
+        same = [_rho(v["init"], v["final"]) for v in runs.values()]
+        tr_base = [x for v in runs.values() for b in base.values()
+                   if not np.isnan(x := _shared_rho(v["layers"], v["final"], b["layers"], b["init"]))]
+        allp = [_rho(v["final"], w["init"]) for v in runs.values() for w in runs.values()] + tr_base
+        tt = [_rho(a, b) for a, b in itertools.combinations([v["final"] for v in runs.values()], 2)]
+        depth = [_rho(np.arange(len(v["final"])), v["final"]) for v in runs.values()]
+        level = [float(np.median(v["final"])) for v in runs.values()]
+        level0 = [float(np.median(v["init"])) for v in runs.values()]
+        tt_base = [x for v in runs.values() for b in base.values() if not np.isnan(x := _shared_rho(v["layers"], v["final"], b["layers"], b["final"]))]
+        tt_a28 = [x for v in runs.values() for y in a28 if not np.isnan(x := _shared_rho(v["layers"], v["final"], y["layers"], y["final"]))]
+        sec = [v["sec"] for v in runs.values() if v["sec"] is not None]
+        sec_same = [_rho(x["init"], x["final"]) for x in sec]
+        S[c] = dict(K=K, same=same, all=allp, zone=a28_zone(same), sec_zone=a28_zone(sec_same) if sec else None,
+                    tt_base=tt_base, tt_a28=tt_a28, level=level, n=len(runs), depth=depth)
+        rows += [(K, s_, lv) for s_, lv in zip(same, level)]
+        print(f"    {c:6s} K {K:4d}  seeds {len(runs)}  same-seed T-R {' '.join(f'{x:+.2f}' for x in same)}  median T-R {np.median(allp):+.2f}  "
+              f"T-T {' '.join(f'{x:+.2f}' for x in tt) or 'n/a'}  rho_depth {' '.join(f'{x:+.2f}' for x in depth)}  "
+              f"level {' '.join(f'{x:.2f}' for x in level0)} -> {' '.join(f'{x:.2f}' for x in level)}  "
+              f"settle {' '.join(str(v['settle']) for v in runs.values())}  top-1 {' '.join(f'{v['acc']:.2f}' for v in runs.values())}  "
+              f"layers {len(next(iter(runs.values()))['layers'])}  -> {S[c]['zone']}")
+        if sec:
+            print(f"    {'':6s} own held-out images ({', '.join(str(len(x['layers'])) for x in sec)} gate-passing layers): same-seed T-R "
+                  f"{' '.join(f'{x:+.2f}' for x in sec_same)} -> {S[c]['sec_zone']}"
+                  f"{'  ** ZONES DIFFER: both reported, no attribution for this cell **' if S[c]['sec_zone'] != S[c]['zone'] else ''}")
+        if tt_base or tt_a28:
+            print(f"    {'':6s} final T-T with A17 (thousand classes) median {np.median(tt_base):+.2f}" if tt_base else "", end="")
+            print(f"; with A28's hundred-class cell {np.median(tt_a28):+.2f}" if tt_a28 else "")
+
+    def full(c):
+        return c in S and S[c]["n"] >= 2
+    V, meta = {}, {}
+    if all(full(c) for c in A31_CELLS):
+        Ks, trs, lvs = zip(*rows)
+        meta["rho_K_TR"] = spearmanr(Ks, trs).correlation
+        meta["rho_K_level"] = spearmanr(Ks, lvs).correlation
+        med = [float(np.median(S[c]["same"])) for c in A31_CELLS]
+        meta["medians"] = med
+        V["P9.80"] = bool(meta["rho_K_TR"] <= -0.7 and all(med[i + 1] <= med[i] + 0.05 for i in range(len(med) - 1)))
+        V["P9.83"] = bool(meta["rho_K_level"] >= 0.7)
+        V["P9.84"] = any(S[c]["zone"] == "intermediate" for c in ("k20", "k50"))
+    if full("k10"):
+        V["P9.81"] = S["k10"]["zone"] == "preserves"
+    if full("k100") and S["k100"]["tt_a28"]:
+        V["P9.82"] = bool(S["k100"]["zone"] == "reorders" and float(np.median(S["k100"]["tt_a28"])) >= 0.8)
+    text = {"P9.80": "dose-response: Spearman(K, same-seed T-R) <= -0.7 over the eight runs and cell medians non-increasing in K",
+            "P9.81": "ten classes keep the order (both same-seed T-R >= +0.40)",
+            "P9.82": "a hundred classes reorder and repeat A28's hundred-class cell (T-T >= 0.8)",
+            "P9.83": "the level rises with K: Spearman(K, median level) >= +0.7",
+            "P9.84": "the transition is gradual: K = 20 or 50 in neither zone"}
+    print()
+    if meta:
+        print(f"  Spearman(K, same-seed T-R) {meta['rho_K_TR']:+.2f}; cell medians {' '.join(f'{x:+.2f}' for x in meta['medians'])}; "
+              f"Spearman(K, level) {meta['rho_K_level']:+.2f}")
+    for k, t in text.items():
+        print(f"  {k} ({t}) -> {('holds' if V[k] else 'fails') if k in V else 'not judged yet'}")
+    if len(V) == len(text):
+        cons = []
+        if V["P9.81"] and V["P9.82"]:
+            cons.append("the class count of the task at a fixed optimisation length: on ImageNet images at 224 pixels ten classes keep "
+                        "the order of initialisation and a hundred lose it"
+                        + ("" if V["P9.84"] else " (a step between two cells, not a gradual transition)"))
+        if not V["P9.81"] and S["k10"]["zone"] == "reorders":
+            cons.append("ten classes reorder too: the class count is excluded; attribution stays with the data at this depth "
+                        "(image statistics, the stem, 1,000 against 5,000 images per class remain)")
+        if not V["P9.81"] and S["k10"]["zone"] == "intermediate":
+            cons.append(f"the class count moves the order partway (K = 10 against 100: {np.median(S['k10']['same']) - np.median(S['k100']['same']):+.2f}); "
+                        "something else finishes it -- no single attribution")
+        if not V["P9.82"]:
+            cons.append("A28's hundred-class cell is not repeated at 1,000 images per class and 37,000 steps; images per class listed as a factor")
+        if not V["P9.80"]:
+            cons.append("the response is not monotone in K; the four effect sizes and seed ranges are reported as measured")
+        for c in cons:
             print(f"  Registered consequence: {c}")
     return V
 
@@ -2920,6 +3016,7 @@ def main(argv=None) -> int:
     section_a29(a.results)
     section_a29b(a.results)
     section_a28(a.results)
+    section_a31(a.results)
     section_a30(a.results)
     section_a30_gate(a.results)
     section_ablations(a.results, latex=a.latex_ablation)
