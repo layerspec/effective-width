@@ -67,6 +67,10 @@ dy/dc ＝ (y−β)·ε/(σ²＋ε)，故 ⟨∇_W L₀, W⟩ ＝ Σ_ch [ε/(σ²
 **B6 之後訓練到達哪裡（引）**：Wan, Zhu, Zhang & Sun, NeurIPS 2021（`wan2021spherical`，`refs/L2bn/2006.08419.pdf`）定理 1：縫放不變層在 SGD＋wd 下
 ‖w_t‖² 以線性速率收斂到 w*² ＝ √(Lη/(2λ))（L ＝ E‖g·‖w‖²‖²，假設 λη ≪ 1、梯度能量有界且有下界），角度更新收斂到 √(2ηλ)（式 5）——
 即 **範數由 (η, λ, 梯度能量) 定、方向持續旋轉**，這就是 B6 後「訓練到達的是衰減—旋轉平衡、不是 (4)」的精確引用；van Laarhoven 2017 假設平衡已達，Wan 證明它會達。
+**已知部分的精確劃界（09-30 核原文）**：Li & Arora 引理 1.3——L(θ)＝L(cθ) ⇒ ⟨∇L, θ⟩＝0（一般縫放不變）；Kunin 2021 §「Batch normalization」——
+w 與 b **聯合**縫放不變、⟨∂L/∂w, w⟩＋⟨∂L/∂b, b⟩＝0（引 Ioffe & Szegedy、van Laarhoven）；兩者都不含 ε。**B6 多出的三件**：(i) 批次均值消掉 b ⇒ ∂L/∂b ≡ 0 ⇒ 對 W 單獨成立；
+(ii) ε 的精確修正式（數值驢證）；(iii) 接到 Zangrando 的 (4)——這一步才是命題的內容。論文措辭：「the scale invariance is classical [Li–Arora Lemma 1.3; Kunin et al.];
+what we add is the bias-free form, the ε term, and the consequence for the stationarity hypothesis of the collapse bound」。
 論文寫法：「Theorem 3.5 of Zangrando et al. assumes (4); in a conv–BN layer (4)
 has only the solution W_l = 0 (Proposition B6), and the measured ratio ‖∇L₀‖/‖λW‖ of 16–28 at the end of training shows the trained weights are nowhere near it.」
 
