@@ -806,6 +806,61 @@ NFA 約束的是下游（Γ），對齊約束的是上游（Σ_patch）；給定
   （`notes/alignment-prior-art-2026-09-29.md` 的 L3）。標示探索性。
 - 程式 `scripts/measure_agop.py`（不改 `layerspec/`）、`tests/test_measure_agop.py`；Mac CPU，排在量測隊列最後，估 5–6 小時。
 
+### 9.23 初始化方式當成量測的一個軸（A33；2026-09-30 寫，新量測的資料未見；作者 09-30 定「兩種隨機對照都排進去量」；預登記由我定）
+
+**為什麼做。** 兩個獨立的結果指向同一件事：P9.58 不成立（§10.16(B)：ResNet 系四個家族的 T–R 隨 γ＝0／γ＝1 改變 0.17–0.79），
+A30 的探索性結果（§10.19：DeiT-III 對 LayerScale 初始化 T–R +0.31／+0.52，對預設初始化 +0.59／+0.76）。「訓練後的順序與初始化的順序相關多少」
+這個數字取決於拿哪一種未訓練網路當對照，而公開權重各自從不同的初始化訓練出來。這一節把每個家族缺的對照補齊，並問：
+**該用「忠實的」對照（該權重實際的起點）嗎？它與權重有沒有特別的一致？**
+
+**出處（2026-09-30 對原始碼核過；「忠實」的依據）**
+
+| 權重的配方 | 初始化 | 依據 |
+|---|---|---|
+| torchvision：`tv_in1k`、`tv2_in1k`、第一輪的 `resnet50` | 每個 block 最後一個 BN 的 γ＝1 | `references/classification/train.py` 用 `get_model(...)`、無任何 zero-init 參數；本機 torchvision 0.29 `zero_init_residual` 預設 False |
+| timm：`a1`／`a2`／`a3`、`ra`、`racm` | γ＝0 | timm `train.py` 的 `create_model(...)` 不傳 `zero_init_last`；本機 timm 1.0.29 預設 True。**個別權重是否用 `--model-kwargs` 覆蓋無法查證，視為預設** |
+| `gluon_in1k`、`fb_ssl_*` | 未查證 | 不進 P9.69 |
+| Google ViT：`augreg_*`、`orig_*`、`sam_*` | Xavier-uniform 權重、MLP bias N(0, 1e-6)、分類頭為零 | `vit_jax/models_vit.py`；timm 的 `weight_init="jax"` 是同一個 |
+| DeiT：`deit_*.fb_in1k` | trunc-normal 0.02（timm 預設） | 未重新查原始碼，依 timm 的註解「original timm impl」 |
+| DeiT-III：`deit3_*` | trunc-normal 0.02＋LayerScale **1e-4** | `facebookresearch/deit` 的 `models_v2.py`（`init_scale=1e-4`） |
+
+**更正（寫這一節時發現）**：§9.19 寫 DeiT-III 的 LayerScale 初值是 1e-4，但 A30 量的隨機對照用 timm 的建構函式，**timm 的預設是 1e-6**（本機核過）。
+§10.19 的「DeiT-III 對自己的初始化」指的是 1e-6 的對照；兩者是否等價是 P9.70(a)。
+
+**已經看過的資料**：P9.58 的五家族表（全體公開權重的中位，未依配方分組）；A30 全部（含 deit3_small 1e-6 隨機對照的水準 0.10、T–R）；
+公開 ResNet-50 對 γ＝1 的 T–R −0.08。**沒有算過的**：任何依配方分組的 T–R；ResNet-50 對 γ＝0；JAX 初始化的任何量測；deit3_base 的隨機對照。
+
+- **設計**（`scripts/measure_init_axis.py`，包裝，不改 `layerspec/` 與既有量測程式；Mac CPU、各 3 個種子 1–3、隨機對照用 ImageNet 的輸入統計量）：
+
+  | 對照 | 架構 | 協定 | 輸出 |
+  |---|---|---|---|
+  | γ＝0 | ResNet-50（timm `resnet50`、`zero_init_last=True`） | §6：6,400 張、16 位置 | `results/init_axis/gamma0/seed{k}/` |
+  | LayerScale 1e-4 | `deit3_small_patch16_224`、`deit3_base_patch16_224`（`init_values=1e-4`） | A30：6,400 張、32 token | `results/init_axis/layerscale/` |
+  | JAX | `vit_small_patch16_224`、`vit_base_patch16_224`（`weight_init="jax"`） | A30 | `results/init_axis/jax/` |
+
+  15 跑，估 7–8 小時；排在 A32 的 AGOP 量測之後（`results/mac_measure_bplus3.sh`）。DenseNet、VGG、MobileNet、EfficientNet 的建構沒有第二種初始化
+  （§9.20 已查），不量。判定 `scripts/init_axis_judge.py`（`tests/test_init_axis_judge.py`），在資料之前提交。
+- **預測**：
+  - **P9.68**：六個公開 ResNet-50 權重對 γ＝0 對照的 T–R 中位 ≥ +0.12（比對 γ＝1 的 −0.08 高 0.20 以上）。依據：同為 bottleneck 的 ResNet-101 與
+    Wide-ResNet-50-2 由 γ＝1 換到 γ＝0 上升 0.79 與 0.57；ResNeXt-50 反向（−0.17），所以不是必然。
+  - **P9.69**（決定數字的是對照，不是「忠實」）：六個 ResNet 家族每一個都把公開權重分成 torchvision 配方（從 γ＝1 訓練）與 timm 配方（從 γ＝0 訓練）兩組，
+    算各組的位移 T–R(γ＝0) − T–R(γ＝1)；**兩組位移同號的家族 ≥ 5/6**。兩組位移的差並報。
+  - **P9.70**：(a) LayerScale 1e-4 的隨機對照與 A30 量的 1e-6 等價（deit3_small：兩組之間 ρ ≥ 0.98、水準中位差 ≤ 0.01）——支路在兩個值下都等於關閉；
+    (b) 每個 DeiT-III 權重（ViT-S 兩個、ViT-B 一個）對 LayerScale 對照的全體 T–R 比對預設對照的低 0.15 以上。
+  - **P9.71**：(a) JAX 初始化的隨機對照水準比預設的低 0.03 以上，兩家族皆然——Xavier-uniform 的權重標準差是 0.03–0.05、預設是 0.02，
+    支路對流的比例較大，類比 ResNet 的 γ＝1（支路打開、深層水準較低）；(b) **P9.51 在忠實對照下仍成立**：每個權重對它自己那種初始化的對照，
+    全體 T–R 中位 ≥ 0.5、qkv／proj／fc1 角色內 ≥ 0.8，兩家族皆然。（預期 DeiT-III 那一小組低於 0.5，家族中位仍過。）
+- **判定與後果**：
+  - P9.69 成立 → 論文寫「T–R 是（訓練後剖面，對照）這一對的性質；忠實的對照與它的權重沒有特別的一致」，家族表每種初始化一欄，
+    B+ 脊椎第二段（初始化可算）的輸入加上初始化方式，第三段（訓練改變什麼）一律說明對照。
+  - P9.69 不成立（各組與自己的起點較一致）→ 以忠實對照的 T–R 為主要數字，另一種並列；`tv_in1k` 權重的主要數字全部改用 γ＝1
+    （ResNet-34 +0.13、ResNet-101 −0.59、Wide −0.24），「basic 保序」只剩 ResNet-18。
+  - P9.68 不成立 → ResNet-50 在兩種對照下都重排，A17／A28 的「重排」不依賴對照；成立 → A17 的 T–R（對 γ＝1，−0.25）要補量對 γ＝0 的值
+    （A17 的初始化已存，建一個 γ＝0 的同種子網路即可，免費），A28 的分區同樣並報。
+  - P9.70(a) 不成立 → DeiT-III 的數字改用 1e-4 的對照，§10.19 的探索性一項更正。
+  - P9.71(b) 不成立 → transformer 的「保序」只在預設初始化的對照下成立，照報；題目是否拿掉 convolutional 的條件重新檢查（作者 09-30：等框架審稿再定）。
+- 統計：每家族 3–6 個權重 × 3 個種子，描述為主；配方分組後每組 1–3 個權重，只報號與大小。
+
 ## 10. 第三輪結果（2026-09-09；`results/checkpoint_analysis.txt` §12–§13、`results/round3*/`）
 
 24 個 run（RunPod 3090，2026-09-08）全部跑完 100 epoch；判定依 §9 的規則，資料見過之前的規則一字未改。
@@ -1292,7 +1347,7 @@ k*(0.95)/r_max，12 個 block 的 48 個線性層全部過 n/C ≥ 50；各權�
 
 **探索性（登記時就標為不進判定）**
 
-- **DeiT-III 的初始化（LayerScale 1e-4）**：隨機對照水準 0.10（預設初始化 0.16），兩種隨機對照互相 ρ 0.86。DeiT-III 兩個權重對**自己的**初始化
+- **DeiT-III 的初始化（LayerScale；A30 量的是 timm 建構的預設 1e-6，DeiT-III 原始碼是 1e-4——§9.23 更正、P9.70(a) 檢驗）**：隨機對照水準 0.10（預設初始化 0.16），兩種隨機對照互相 ρ 0.86。DeiT-III 兩個權重對**自己的**初始化
   T–R 只有 **+0.31／+0.52**，對預設初始化 +0.59／+0.76。與 §10.16(B) 的 γ＝0／γ＝1 同型：**T–R 取決於拿哪一種未訓練網路當對照**；
   P9.51 的判定照登記用的是預設初始化。
 - **attention proj 在初始化幾乎是一維的**：隨機對照 0.013–0.014（384 維裡約 5 維、768 維裡約 11 維）。初始化時注意力接近均勻平均，
