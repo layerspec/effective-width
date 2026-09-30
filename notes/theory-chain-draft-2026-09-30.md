@@ -123,7 +123,7 @@ At initialisation the profile falls with depth (III-A): ρ(depth, k*) at epoch 0
 (III-B) and then caps the late layers at κ(K, resolution, …) (III-C). If κ lies below the final level of the early layers, the order is
 preserved (CIFAR-10, K = 10: late third 0.03 → 0.04, early third 0.42 → 0.31; T–R +0.40 to +0.89); if the late layers are uncapped they
 rise from the narrowest to the widest and the order is lost or reversed (ImageNet, K = 1000: late third 0.07 → 0.56, early third 0.48 → 0.44;
-T–R −0.25/−0.26 in ResNet-50 and −0.21/−0.02 in a 52-layer basic-block network of the same recipe, two seeds each — the second basic seed is near zero, not reversed) [A17, round 3]. The recipe is excluded
+T–R −0.25/−0.26 in ResNet-50 and −0.21/−0.02 in a 52-layer basic-block network of the same recipe, two seeds each — the second basic seed is near zero, not reversed) [A17, round 3; against each network's own initialisation, γ = 1 in the last BN of every block — against zero-γ references the same ResNet-50 weights give T–R +0.41/+0.33, so the statement is about the reference pair, plan §10.22]. The recipe is excluded
 (this recipe against six public ResNet-50 recipes: T–T +0.86) and the block type is excluded (neither basic nor bottleneck preserves the order on
 ImageNet, and both preserve it on CIFAR-10 at +0.4 to +0.56; H9.4a fails); what remains is the dataset at this depth [A17; A28 pending decides between class count,
 image count and resolution]. No theorem in the literature states the layer order; none is needed beyond III-A and III-C, and the one
