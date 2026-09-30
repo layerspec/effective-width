@@ -53,3 +53,20 @@ def test_judge_verdicts_on_synthetic_rows(tmp_path, capsys):
     v = G.judge(a)
     assert v["P-b7.3"] is True
     assert "P-b7.2" in v and "Spearman" in capsys.readouterr().out
+
+
+def test_extras_give_el2n_masks_and_a_prediction_gram_for_the_last_layer():
+    torch.manual_seed(0)
+    model = build_vgg16_bn_cifar(5, "small")
+    extras = {}
+    sig, gam = G.gradient_grams(model, _loader(n=40), "cpu", extras=extras)
+    assert len(extras["el2n"]) == 40 and all(0 <= v <= 2 ** 0.5 + 1e-9 for v in extras["el2n"])
+    assert 0 < extras["mask_on"] / extras["n_pos"] < 1 and 1 <= len(extras["masks"]) <= 40 * G.POSITIONS
+    P = extras["pred"].moment()
+    assert P.shape == (512, 512) and torch.allclose(P, P.T)
+    # a network whose last BN has gamma = 0 predicts a zero Gram (no gradient reaches the convolution output)
+    with torch.no_grad():
+        [m for m in model.modules() if isinstance(m, nn.BatchNorm2d)][-1].weight.zero_()
+    extras2 = {}
+    G.gradient_grams(model, _loader(n=40), "cpu", extras=extras2)
+    assert extras2["pred"].moment().abs().max() == 0

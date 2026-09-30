@@ -1,6 +1,6 @@
 """B7 (theory-chain note, 2026-09-30): is the late-layer cap kappa the width of the position-resolved output gradients?
 For every convolution of the 21 CIFAR checkpoints of A35 (VGG-16_BN; CIFAR-10 full, the class-count arms of A24, the long
-arm of A25), on 3,200 of the task's own training images and 16 random positions per image (n/C = 100 at C = 512):
+arm of A25), on 6,400 of the task's own training images and 16 random positions per image:
 
   Sigma_out  channel covariance of the convolution output at the sampled positions (the object of the paper)
   Gamma      second-moment matrix of the loss gradient with respect to the convolution output at the same positions,
@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from scripts.measure_stationarity import ARMS, SEEDS, labelled_loader, conv_layers, _done   # noqa: E402
 
 POSITIONS = 16
-N_IMAGES = 3200          # 3,200 x 16 positions = 51,200 samples: n/C = 100 at C = 512 (gate n/C >= 50); 6,400 would take ~66 min per checkpoint
+N_IMAGES = 6400          # the paper's subset size (6,400 x 16 positions; n/C = 200 at C = 512); about 5 min per checkpoint on the Mac CPU
 TAUS = (0.95, 0.999)
 
 
@@ -65,12 +65,27 @@ def _sample(t: torch.Tensor, gen: torch.Generator, k: int = POSITIONS) -> torch.
     return flat.gather(2, pos.unsqueeze(1).expand(B, C, k)).permute(0, 2, 1).reshape(B * k, C)
 
 
-def gradient_grams(model, loader, device: str, seed: int = 0) -> tuple[dict[str, torch.Tensor], dict[str, torch.Tensor]]:
-    """Per convolution: (Sigma_out, Gamma) accumulated over the loader, BN in training mode, CE loss."""
+def gradient_grams(model, loader, device: str, seed: int = 0, extras: dict | None = None) -> tuple[dict[str, torch.Tensor], dict[str, torch.Tensor]]:
+    """Per convolution: (Sigma_out, Gamma) accumulated over the loader, BN in training mode, CE loss.
+    If `extras` is a dict it receives, for B7.4 (theory-chain note): "el2n" (per-image ||softmax - onehot||), "mask_on"
+    (fraction of active ReLU units at the sampled positions of the last convolution), "mask_distinct" (distinct 0/1 masks
+    among those positions) and "pred" (the Gram of the EL2N-weighted, mask-projected classifier rows at the last
+    convolution, with the per-channel BN scale gamma/sqrt(running_var + eps) -- the forward-only prediction of Gamma)."""
     model.train(True)
     layers = conv_layers(model)
     out_acc = {n: None for n, _ in layers}; grad_acc = {n: None for n, _ in layers}
     state = {}
+    last_name, last_conv = layers[-1]
+    bn_after = None
+    mods = list(model.modules())
+    for i, m in enumerate(mods):
+        if m is last_conv and i + 1 < len(mods) and isinstance(mods[i + 1], nn.BatchNorm2d):
+            bn_after = mods[i + 1]
+    classifier = [m for m in model.modules() if isinstance(m, nn.Linear)][-1]
+    if extras is not None:
+        extras.update(el2n=[], mask_on=0.0, masks=set(), pred=None, n_pos=0)
+        if bn_after is not None:
+            bn_after.register_forward_hook(lambda m, i, o: state.__setitem__("last_pre", o.detach()))
 
     def fwd_hook(name):
         def f(m, inp, out):
@@ -81,7 +96,8 @@ def gradient_grams(model, loader, device: str, seed: int = 0) -> tuple[dict[str,
     gen = torch.Generator().manual_seed(seed)
     for x, y in loader:
         model.zero_grad(set_to_none=True)
-        loss = F.cross_entropy(model(x.to(device)), y.to(device))
+        logits = model(x.to(device)); state["logits"] = logits.detach().double()
+        loss = F.cross_entropy(logits, y.to(device))
         loss.backward()
         for n, m in layers:
             a = state[n].detach().cpu(); g = state[n + "::grad"].cpu()
@@ -90,6 +106,18 @@ def gradient_grams(model, loader, device: str, seed: int = 0) -> tuple[dict[str,
             if out_acc[n] is None:
                 out_acc[n] = _Second(a.shape[1]); grad_acc[n] = _Second(a.shape[1])
             out_acc[n].add(va); grad_acc[n].add(vg)
+            if extras is not None and n == last_name and "last_pre" in state:
+                gen.set_state(st); D = (_sample(state["last_pre"].cpu(), gen) > 0).double()        # (B*k, C) masks at the same positions
+                logits = state["logits"]; e = (torch.softmax(logits, 1) - F.one_hot(y, logits.shape[1]).double()).cpu()   # (B, K)
+                extras["el2n"].extend(e.norm(dim=1).tolist())
+                extras["mask_on"] += D.sum().item(); extras["n_pos"] += D.numel()
+                extras["masks"].update(tuple(r) for r in D.bool().tolist())
+                scale = (bn_after.weight.detach().double() / torch.sqrt(bn_after.running_var.detach().double() + bn_after.eps)).cpu()
+                u = (e.double() @ classifier.weight.detach().double().cpu()) * scale         # (B, C): W_c^T e_i, scaled per channel
+                V = (D.reshape(len(y), -1, D.shape[1]) * u.unsqueeze(1)).reshape(-1, D.shape[1])   # D_{i,p} * u_i
+                if extras["pred"] is None:
+                    extras["pred"] = _Second(D.shape[1])
+                extras["pred"].add(V)
         state.clear()
     for h in handles:
         h.remove()
@@ -104,14 +132,25 @@ def measure_checkpoint(ckpt: str, dataset: str, kw: dict, n_classes: int, data: 
     model.load_state_dict(sd["model"] if isinstance(sd, dict) and "model" in sd else sd)
     model.to(device)
     loader, K = labelled_loader(data, dataset, kw.get("classes"), kw.get("per_class"), n_images=N_IMAGES)
-    sig, gam = gradient_grams(model, loader, device)
+    extras = {}
+    sig, gam = gradient_grams(model, loader, device, extras=extras)
     rows, spectra = [], {}
+    if extras.get("pred") is not None:
+        ep = np.clip(np.linalg.eigvalsh(extras["pred"].moment().numpy())[::-1], 0, None)
+        el2n = np.array(extras["el2n"])
+        spectra["last::pred"] = ep; spectra["el2n"] = el2n
+        spectra["mask_stats"] = np.array([extras["mask_on"] / max(extras["n_pos"], 1), len(extras["masks"]), extras["n_pos"]])
     for i, (n, m) in enumerate(conv_layers(model)):
         es = np.clip(np.linalg.eigvalsh(sig[n].numpy())[::-1], 0, None); eg = np.clip(np.linalg.eigvalsh(gam[n].numpy())[::-1], 0, None)
         C = int(m.out_channels)
         row = dict(index=i, layer=n, C=C, K=K, n=loader.dataset.__len__() * POSITIONS)
         for tau in TAUS:
             row[f"k{tau}_out"] = k_star(es, tau); row[f"k{tau}_grad"] = k_star(eg, tau)
+        if i == len(conv_layers(model)) - 1 and "last::pred" in spectra:
+            for tau in TAUS:
+                row[f"k{tau}_pred"] = k_star(spectra["last::pred"], tau)
+            row["el2n_frac_gt_0.1"] = float((spectra["el2n"] > 0.1).mean()); row["el2n_mean"] = float(spectra["el2n"].mean())
+            row["mask_on"] = float(spectra["mask_stats"][0]); row["mask_distinct"] = int(spectra["mask_stats"][1])
         rows.append(row); spectra[n + "::out"] = es; spectra[n + "::grad"] = eg
     return pd.DataFrame(rows), spectra
 
