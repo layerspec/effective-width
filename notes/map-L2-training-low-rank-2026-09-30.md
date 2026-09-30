@@ -59,3 +59,17 @@
 
 Súkeník 2023／2024 與 Zangrando 的定理段（只讀了摘要）；Jacot 2022「Feature learning in L2-regularized DNNs: attraction/repulsion and sparsity」；
 Yaras 2023（深線性 GD 的低維動力）；Kubaty 2025（已引）；Hui, Belkin & Nakkiran 2022（NC 的限制）；2025–2026「intermediate neural collapse」「rank of hidden layers depth」新作。
+
+## 5. 第二輪補讀（09-30 晚；定理與假設）
+
+- **Zangrando 2024，定理 3.5**：Θ* 是 L2 正則損失 L_λ 的駐點，則對每層 l 與 K ≤ N：dist(W_l*, {rank ≤ K}) ≤ min_{j<l} M_{l,j}(Θ*)·TCV_{K,j} / λ——
+  **前面某一層的 K 群類內變異（TCV）小，就迫使後面的權重矩陣接近秩 K**；常數 M 是損失對 (z_j, y) 的二階導的上界；λ 越大界越緊。
+  對象是權重，不是激活；但權重秩 ≤ K 蘊含該層輸出的秩 ≤ K（加上偏置）。**這是「類別數進入寬度」的定量鏈：TCV → 權重秩 → 輸出寬度。**
+  定理 4.2：在受限表示成本下 DNC1（所有中間層 TCV＝0）是全域最優（前饋與殘差都成立）。
+- **Súkeník, Mondelli & Lampert 2023，定理 3**（L-DUFM、K＝2）：DNC1 在所有層、DNC2 於 l ≥ 2／3、DNC3 於 l ≥ 2 是最優解。
+  **Súkeník 2024，定理 5**：K ≥ 6 且 L ≥ 4（或 K ≥ 10、L＝3）、各層寬 ≥ K 時，**一個低秩（symmetric rank-G）解的損失低於 DNC 解**——
+  多層正則化的最優中間層秩**低於 K−1**。定理 6：最後一層仍 DNC1。**修正 §1 的表述**：塌縮層的秩是「≤ K，深且多類時更低」，不是「≈ K」。
+- **Jacot 2023，定理 1**：對有界域上的分段線性函數 f，Rank_J(f) ≤ R_∞(f; σ_a) ≤ Rank_BN(f)——深度→∞的（重標度）表示成本夾在 Jacobian 秩與瓶頸秩之間；
+  命題 4：L2 正則的全域極小在大深度下參數範數／L 接近這個秩；定理 2：深度太大時全域極小近似秩 1（低估），存在隨資料量增長的深度區間恢復真秩。
+  **對象**：函數的秩（全網），不是逐層譜；全連接、齊次非線性。
+
