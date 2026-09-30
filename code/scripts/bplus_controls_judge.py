@@ -46,7 +46,8 @@ def aligned(profiles: list) -> list:
 
 
 def old_path(results: str, weight: str):
-    for d in ("local6400/archs/trained", "local6400/trained"):
+    # the first measurement (ImageNet statistics) was moved aside when the corrected one replaced it, 2026-09-30
+    for d in ("local6400/archs/superseded_wrong_norm", "local6400/archs/trained", "local6400/trained"):
         f = os.path.join(results, d, f"timm_{weight}_layers.csv")
         if os.path.exists(f):
             return f
@@ -71,7 +72,8 @@ def renorm(results: str) -> dict:
         ok = []
         for fam, pat in RENORM_FAMILIES.items():
             files = sorted(glob.glob(os.path.join(results, "local6400", "archs", "trained", pat)))
-            before = aligned([profile(f) for f in files])
+            before = aligned([profile(old_path(results, os.path.basename(f)[5:-11]) if os.path.basename(f)[5:-11] in new else f)
+                              for f in files])
             after = aligned([profile(new.get(os.path.basename(f)[5:-11], f)) for f in files])
             tt = lambda P: float(np.median([rho(x, y) for x, y in itertools.combinations(P, 2)]))   # noqa: E731
             n_new = sum(os.path.basename(f)[5:-11] in new for f in files)

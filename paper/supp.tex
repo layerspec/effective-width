@@ -702,7 +702,7 @@ rests on, whether it was pre-registered, and where the numbers are.
   Bottleneck families learn their ordering, as a gradient & T--R $-0.08$, $0.20$, $0.33$, $0.46$; within-stage $0.27$--$0.66$; ResNet-101 above ResNet-50 & expl. & Table~\ref{tab:families} \\
   Block type is the cause & H9.1 \emph{not supported}: basic T--R $0.55$ vs bottleneck $0.50$, $p = 0.2$; level and depth trend of ImageNet ResNet-50 also absent & pre-reg. (round 3) & Table~\ref{tab:sround3} \\
   An inverted-residual network under one recipe has a profile & H9.2 supported: MobileNetV2 seeds T--T $0.99$--$1.00$ vs R--R $0.68$ & pre-reg. (round 3) & Table~\ref{tab:sround3} \\
-  Inverted-residual checkpoints agree weakly or not at all & T--T $-0.18$ (4 ckpts), $0.40$ (5 same-dataset ckpts) & expl. & Table~\ref{tab:families} \\
+  Inverted-residual checkpoints share a profile across recipes & T--T $+0.88$ (4 ckpts), $+0.93$ (5 ckpts), each weight measured with its own input statistics; an earlier reading ($-0.18$, $0.40$) used ImageNet's statistics for five of them and is withdrawn (P9.56, P9.57) & pre-reg. (fails as registered) & Table~\ref{tab:families} \\
   The profile settles before accuracy does (CIFAR-10) & VGG-16 epoch 40 ($\rho$ vs final $0.98$, accuracy $84 \to 94\%$, one seed); basic/bottleneck/MobileNetV2 epochs 60/40/40 at $84$--$88\%$, three seeds & expl. & Fig.~S5, Table~\ref{tab:sround3} \\
   $k^*(0.999)$ bounds the width used (conventional recipes) & 6/8 checkpoints unchanged (McNemar); RSB recipes lose $1.7$ & expl. & Table~\ref{tab:sprojection} \\
   $\Sigma_{\rm out} = W \Sigma_{\rm patch} W^{\top}$ holds in the data & recomputed vs measured within $0.008$, five checkpoints & check & Sec.~\ref{sec:decompose} \\
