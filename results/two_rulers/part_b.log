@@ -1,0 +1,48 @@
+=== training 73820 paused Wed Sep 30 09:03:34 CST 2026 ===
+    ours seed 0 step     0  loss nan  last three nr/C [0.137, 0.105, 0.115]  k*(0.999)/C [0.814, 0.832, 0.818]
+/Users/ccli/Downloads/effective-width-claude/code/scripts/two_rulers.py:154: UserWarning: Converting a tensor with requires_grad=True to a scalar may lead to unexpected behavior.
+Consider using tensor.detach() first. (Triggered internally at /Users/runner/work/pytorch/pytorch/torch/csrc/autograd/generated/python_variable_methods.cpp:821.)
+  step += 1; loss_v = float(loss)
+    ours seed 0 step    25  loss 1.812  last three nr/C [0.844, 0.84, 0.791]  k*(0.999)/C [0.986, 0.984, 0.982]
+    ours seed 0 step    75  loss 1.739  last three nr/C [0.35, 0.254, 0.193]  k*(0.999)/C [0.967, 0.947, 0.93]
+    ours seed 0 step   200  loss 1.251  last three nr/C [0.348, 0.229, 0.146]  k*(0.999)/C [0.965, 0.941, 0.908]
+    ours seed 0 step   390  loss 1.135  last three nr/C [0.447, 0.309, 0.186]  k*(0.999)/C [0.971, 0.951, 0.926]
+    ours seed 0 step  1950  loss 0.631  last three nr/C [0.617, 0.322, 0.158]  k*(0.999)/C [0.969, 0.938, 0.867]
+=== ours seed 0 end (818 s) ===
+    ours seed 1 step     0  loss nan  last three nr/C [0.143, 0.129, 0.119]  k*(0.999)/C [0.814, 0.848, 0.811]
+    ours seed 1 step    25  loss 1.936  last three nr/C [0.721, 0.734, 0.705]  k*(0.999)/C [0.98, 0.98, 0.979]
+    ours seed 1 step    75  loss 1.609  last three nr/C [0.363, 0.328, 0.24]  k*(0.999)/C [0.967, 0.953, 0.939]
+    ours seed 1 step   200  loss 1.471  last three nr/C [0.354, 0.23, 0.146]  k*(0.999)/C [0.963, 0.941, 0.91]
+    ours seed 1 step   390  loss 1.388  last three nr/C [0.395, 0.273, 0.156]  k*(0.999)/C [0.965, 0.945, 0.914]
+    ours seed 1 step  1950  loss 0.796  last three nr/C [0.551, 0.268, 0.125]  k*(0.999)/C [0.969, 0.93, 0.842]
+=== ours seed 1 end (792 s) ===
+    ours seed 2 step     0  loss nan  last three nr/C [0.125, 0.102, 0.086]  k*(0.999)/C [0.818, 0.818, 0.816]
+    ours seed 2 step    25  loss 1.930  last three nr/C [0.615, 0.617, 0.576]  k*(0.999)/C [0.979, 0.977, 0.975]
+    ours seed 2 step    75  loss 1.641  last three nr/C [0.412, 0.361, 0.256]  k*(0.999)/C [0.971, 0.957, 0.939]
+    ours seed 2 step   200  loss 1.468  last three nr/C [0.348, 0.248, 0.148]  k*(0.999)/C [0.963, 0.943, 0.908]
+    ours seed 2 step   390  loss 1.104  last three nr/C [0.387, 0.285, 0.172]  k*(0.999)/C [0.965, 0.947, 0.916]
+    ours seed 2 step  1950  loss 0.505  last three nr/C [0.551, 0.281, 0.121]  k*(0.999)/C [0.967, 0.932, 0.85]
+=== ours seed 2 end (688 s) ===
+    theirs seed 0 step     0  loss nan  last three nr/C [0.137, 0.105, 0.115]  k*(0.999)/C [0.814, 0.832, 0.818]
+    theirs seed 0 step    25  loss 4.530  last three nr/C [0.021, 0.016, 0.008]  k*(0.999)/C [0.039, 0.021, 0.01]
+    theirs seed 0 step    75  loss 2.438  last three nr/C [0.029, 0.016, 0.008]  k*(0.999)/C [0.061, 0.029, 0.01]
+    theirs seed 0 step   200  loss 2.312  last three nr/C [0.012, 0.008, 0.008]  k*(0.999)/C [0.021, 0.01, 0.008]
+    theirs seed 0 step   390  loss 2.307  last three nr/C [0.012, 0.008, 0.01]  k*(0.999)/C [0.021, 0.01, 0.01]
+    theirs seed 0 step  1950  loss 1.679  last three nr/C [0.031, 0.031, 0.035]  k*(0.999)/C [0.086, 0.061, 0.043]
+=== theirs seed 0 end (657 s) ===
+    theirs seed 1 step     0  loss nan  last three nr/C [0.143, 0.129, 0.119]  k*(0.999)/C [0.814, 0.848, 0.811]
+    theirs seed 1 step    25  loss 3.009  last three nr/C [0.018, 0.016, 0.008]  k*(0.999)/C [0.031, 0.016, 0.01]
+    theirs seed 1 step    75  loss 2.335  last three nr/C [0.01, 0.008, 0.008]  k*(0.999)/C [0.018, 0.008, 0.008]
+    theirs seed 1 step   200  loss 2.286  last three nr/C [0.01, 0.008, 0.01]  k*(0.999)/C [0.018, 0.008, 0.01]
+    theirs seed 1 step   390  loss 2.266  last three nr/C [0.008, 0.008, 0.012]  k*(0.999)/C [0.016, 0.008, 0.012]
+    theirs seed 1 step  1950  loss 1.536  last three nr/C [0.049, 0.043, 0.061]  k*(0.999)/C [0.17, 0.111, 0.119]
+=== theirs seed 1 end (652 s) ===
+    theirs seed 2 step     0  loss nan  last three nr/C [0.125, 0.102, 0.086]  k*(0.999)/C [0.818, 0.818, 0.816]
+    theirs seed 2 step    25  loss 2.967  last three nr/C [0.008, 0.008, 0.008]  k*(0.999)/C [0.008, 0.008, 0.008]
+    theirs seed 2 step    75  loss 2.352  last three nr/C [0.014, 0.008, 0.01]  k*(0.999)/C [0.02, 0.012, 0.01]
+    theirs seed 2 step   200  loss 2.294  last three nr/C [0.014, 0.008, 0.01]  k*(0.999)/C [0.02, 0.012, 0.01]
+    theirs seed 2 step   390  loss 2.307  last three nr/C [0.014, 0.008, 0.01]  k*(0.999)/C [0.02, 0.012, 0.012]
+    theirs seed 2 step  1950  loss 2.273  last three nr/C [0.012, 0.008, 0.008]  k*(0.999)/C [0.021, 0.012, 0.008]
+=== theirs seed 2 end (650 s) ===
+=== part b returned 0 Wed Sep 30 10:14:40 CST 2026 ===
+=== training 73820 resumed Wed Sep 30 10:14:40 CST 2026 ===
