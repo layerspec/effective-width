@@ -135,12 +135,11 @@ open quantity is κ.
 Σ_y ⪰ (1−ρ)(Σ_x + Σ_f) — classical; the mechanism that residual connections keep rank at initialisation is Dong et al. (2021) for
 attention and Joudaki–Hofmann (2024, Prop. 2) for the kernel map; after training the branches are low-rank (Li and Papyan 2023).
 
-**Proposition B2 (τ-width at the addition).** k*_τ(Σ_x + Σ_f) ≥ k*_{τ′}(Σ_x) with τ′ = 1 − (1−τ)(1 + tr Σ_f / tr Σ_x). *Elementary;
-supplement.* The absolute spectrum cannot fall, the relative one can.
+**Proposition B2 (τ-width at the addition) — status 09-30 afternoon: proved only for an uncorrelated branch; with the (1±ρ) correction it is vacuous on all 56 measured blocks (ρ_max ≈ 0.95), so it stays out of the paper until a cross-term version is checked.** What can be said without it: the absolute spectrum cannot fall (Weyl), the relative width can, and in ResNets it does (below).
 
 **What we verify [§10.17].** In 56 blocks of four ImageNet ResNets every eigenvalue of the stream at its own width is *larger* after the
 addition (retention ≥ 1.11, median 1.36–5.77), both lower bounds hold in every block, and yet the τ = 0.95 width before the ReLU is
-narrower than the stream's in 36 of 42 non-downsampling blocks — exactly the gap between Weyl and Prop. B2. The block output after
+narrower than the stream's in 36 of 42 non-downsampling blocks — the gap between an absolute and a relative statement. The block output after
 the ReLU exceeds the conv3 upper bound r_max in 161/161 bottlenecks [round 2], so the r_max bound is a statement about convolution
 outputs, not about the stream.
 
@@ -148,7 +147,7 @@ outputs, not about the stream.
 
 ## What this section does and does not claim (for the framework review)
 
-- Claims: each link is a published theorem or a measured fact; the assembly (III-D) is ours; Propositions B6 and B2 are ours and small;
+- Claims: each link is a published theorem or a measured fact; the assembly (III-D) is ours; Proposition B6 is ours and small (B2 withdrawn pending a cross-term version);
   the measured *degree of hypothesis failure* per link is ours and is the part reviewers cannot find elsewhere.
 - Does not claim: a derivation of κ; a finite-width, correlated-position law for the ReLU step (open; B4); that the order reversal is a
   theorem (it is a consequence under the stated conditions, verified on two ImageNet architectures and one CIFAR family).
