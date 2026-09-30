@@ -60,6 +60,7 @@ def block_metrics(joint_cov: np.ndarray, z_cov: np.ndarray, r: int) -> dict:
     ex, ef, ey, ez = (np.clip(np.sort(np.linalg.eigvalsh(s))[::-1], 0, None) for s in (sx, sf, sy, z_cov))
     cc = canonical_correlations(sx, sf, sxf)
     rho = float(cc.max()) if len(cc) else 0.0
+    cs = np.sort(np.linalg.svd(sxf, compute_uv=False))[::-1]          # singular values of the cross-covariance
     es = np.clip(np.sort(np.linalg.eigvalsh(sx + sf))[::-1], 0, None)
     shifted = np.concatenate([ex[r:], np.zeros(min(r, C))])[:C]
     kx = k_star(ex, 0.95)
@@ -73,7 +74,21 @@ def block_metrics(joint_cov: np.ndarray, z_cov: np.ndarray, r: int) -> dict:
             "floor_a_min": float(np.min(ey - shifted) / ex[0]),                 # >= 0 up to rounding
             "floor_b_min": float(np.min(ey - (1 - rho) * es) / ex[0]),           # >= 0 up to rounding
             "retention_at_k": float(ratio[-1]), "retention_min": float(ratio.min()),
-            "floor_b_at_k": float(1 - rho)}, {"x": ex, "f": ef, "y": ey, "z": ez, "cc": cc}
+            "floor_b_at_k": float(1 - rho),
+            "b2_lb95": tau_width_lower_bound(ex, ef, cs, ey.sum(), 0.95),
+            "b2_lb999": tau_width_lower_bound(ex, ef, cs, ey.sum(), 0.999)}, {"x": ex, "f": ef, "y": ey, "z": ez, "cc": cc, "cs": cs}
+
+
+def tau_width_lower_bound(ex: np.ndarray, ef: np.ndarray, cs: np.ndarray, tr_y: float, tau: float) -> int:
+    """Proposition B2 (cross-term form): k*_tau(Sigma_y) >= the smallest k with
+    sum_{i<=k} lambda_i(Sigma_x) + sum_{i<=k} lambda_i(Sigma_f) + 2 sum_{i<=k} sigma_i(Sigma_xf) >= tau * tr(Sigma_y).
+    Ky Fan: the k largest eigenvalues of Sigma_x + Sigma_f + C + C^T sum to at most that left-hand side, so every smaller k
+    holds less than tau of the variance of y.  Returns a lower bound on k*_tau(Sigma_y) (1 when the bound is vacuous)."""
+    C = len(ex)
+    k = np.arange(1, C + 1)
+    lhs = np.cumsum(ex) + np.cumsum(np.concatenate([ef, np.zeros(C - len(ef))])[:C]) + 2 * np.cumsum(np.concatenate([cs, np.zeros(C)])[:C])
+    hit = np.nonzero(lhs >= tau * tr_y)[0]
+    return int(k[hit[0]]) if len(hit) else C
 
 
 def residual_blocks(model):

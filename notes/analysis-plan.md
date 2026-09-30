@@ -766,6 +766,15 @@ conv 的可達秩；(b) λ_i(Σ_y) ≥ (1 − ρ_max) λ_i(Σ_x)，ρ_max 是流
   - P9.60 不成立 → 「殘差流保秩」的說法不成立或只在部分 stage 成立；S6 改寫成量到的樣子，A26／A27 的解讀重新檢查。
   - P9.62 不成立 → 先修量測，這一節的其他數字都不算。
 
+- **補記（2026-09-30 下午，資料未見；B2 的交叉項版本）**：`theory-chain` §B2 的 τ 寬度下界在 (1±ρ) 形式下於 56 個 block 全部空（ρ_max ≈ 0.95），
+  改用交叉項本身：Ky Fan 給 Σ_{i≤k} λ_i(Σ_y) ≤ Σ_{i≤k} λ_i(Σ_x) ＋ Σ_{i≤k} λ_i(Σ_f) ＋ 2 Σ_{i≤k} σ_i(Σ_xf)，故 k*_τ(Σ_y) ≥ k_lb(τ) :＝ 使右式 ≥ τ·tr Σ_y 的最小 k。
+  `measure_residual.py` 的 `block_metrics` 加 `b2_lb95`／`b2_lb999` 與譜檔 `cs`（交叉共變異數奇異值）；既有的 `results/residual/` 沒存交叉項，要重量（同 6 組權重、
+  同 6,400 張、Mac CPU 約 1.9 h，輸出到 **`results/residual_b2/`**，舊目錄不動；`results/mac_measure_bplus5.sh` 排在 A35 之後）。**不是新實驗**：同對象、多存一個量。
+  - **P9.62b（有效性，代數）**：每個 block 的 b2_lb95 ≤ k95_y、b2_lb999 ≤ k999_y；違反＝程式錯。
+  - **P9.62c（是否有內容，描述性門檻）**：τ＝0.95 時 b2_lb95 ≥ 0.5·k95_y 的 block 佔多數（> 50%）。成立 → B2 以交叉項形式進補充（命題 S8）並在 III-E 用一句
+    「the energy accounting alone forces at least k_lb of the sum's width」；不成立 → B2 不進論文，III-E 只留 Weyl 的事實陳述（草稿已是這個版本）。
+  - 另報：k95_y − b2_lb95 的中位（沒被能量帳解釋的部分）、與 ρ_max 的 Spearman。
+
 ### 9.22 對齊與 Neural Feature Ansatz：量 patch 的梯度外積（A32；2026-09-29 寫，資料未見；預登記由我定）
 
 **為什麼做。** 09-29 的文獻查核（`notes/alignment-prior-art-2026-09-29.md`）查到 Beaglehole et al. 2023 的 Convolutional Neural Feature Ansatz：

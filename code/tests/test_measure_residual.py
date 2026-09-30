@@ -58,7 +58,7 @@ def test_taps_on_a_random_resnet(tmp_path):
     assert rows.downsample.tolist() == [False, False, True, False, True, False, True, False]
     assert (rows.n == 6 * 8).all() and not rows.ok.any()                       # 48 samples: nothing passes the gate
     assert rows.floor_a_min.min() >= -1e-6 and rows.floor_b_min.min() >= -1e-6   # algebraic, whatever the sample size
-    assert set(k.split("::")[1] for k in spectra) == {"x", "f", "y", "z", "cc"}
+    assert set(k.split("::")[1] for k in spectra) == {"x", "f", "y", "z", "cc", "cs"}
 
 
 def _blocks(path, n, k_y, rho, ret, floor=0.0):
@@ -78,3 +78,21 @@ def test_verdicts(tmp_path, capsys):
     assert not v["P9.60"] and v["P9.61"] and not v["P9.62"]
     assert "FAILS" in capsys.readouterr().out
     assert judge(str(tmp_path / "none")) == {}
+
+
+def test_b2_cross_term_lower_bound_is_valid_and_tight_for_an_independent_branch():
+    from scripts.measure_residual import tau_width_lower_bound, k_star
+    rng = np.random.default_rng(1)
+    C, n = 24, 6000
+    x = rng.standard_normal((n, C)) * np.linspace(3.0, 0.2, C)
+    for branch in (rng.standard_normal((n, C)) * 0.7,                       # independent
+                   -0.6 * x + 0.3 * rng.standard_normal((n, C)),              # anti-correlated
+                   np.roll(x, 3, axis=1) * 0.8):                              # correlated through a permutation
+        m, s = block_metrics(*_joint(x, branch), C)
+        for tau, key in ((0.95, "b2_lb95"), (0.999, "b2_lb999")):
+            assert m[key] <= k_star(s["y"], tau)                              # a lower bound on the measured width
+            assert m[key] >= 1
+    # vacuous case handled: a zero cross term with a tiny branch gives the uncorrelated bound
+    m, s = block_metrics(*_joint(x, np.zeros_like(x) + 1e-6 * rng.standard_normal((n, C))), C)
+    assert m["b2_lb95"] == k_star(s["x"], 0.95) or abs(m["b2_lb95"] - k_star(s["x"], 0.95)) <= 1
+    assert tau_width_lower_bound(np.array([1.0, 1.0]), np.array([0.0, 0.0]), np.array([0.0, 0.0]), 2.0, 0.5) == 1
