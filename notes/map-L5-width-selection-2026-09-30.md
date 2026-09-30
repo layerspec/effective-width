@@ -51,3 +51,12 @@ Bridging mean field and finite width with BN（2205.13076；**L1 的第 1′ 環
 **給題目的訊號**：「寬度不該是超參數」在 2026 已是 LLM 社群的活題（TLM、Mudarisov、Baroian & Notebomer「Crown, frame, reverse」），都是**實證＋手選或幾何量**，
 沒有一個從初始化的譜或訓練理論推出寬度剖面。我們的 (i)（訓練前可算）＋(ii)（零重訓摺入）＋殘差網路的 CNN 證據，剛好補在他們留下的位置；但要小心
 **方向相反**這件事（LLM 前寬、CNN 後寬）不是矛盾而是兩種對象（殘差流精修 vs 池化前特徵），論文得講清楚，不然審稿人會拿 TLM 來打「後段閒置」。
+
+## 6. 09-30 補入（Yu & Wu 的被引）：Zhang & Saab, ACHA 82 (2026) 101837「Theoretical Guarantees for Low-Rank Compression of Deep Neural Networks」（`zhang2026lowRankGuarantees`；讀 §1.3 三個定理）
+
+- **陳述**：資料相依的訓練後低秩壓縮 M̂ ＝ argmin_{rank ≤ r} ‖XW − X̃Z‖_F（X 原激活、X̃ 壓縮網路的激活）：定理 1.1——若 XW ＝ X̃M ＋ 噪聲（M 秩 r、次高斯噪聲 σ²、
+  偏差 ε），則 MSE ≲ r(d₁＋d₂)σ²/(d₁d₂) ＋ ε，解由 SVD 給出；定理 1.2——M 只近似低秩時（核範數約束）誤差 √ 速率；定理 1.3——加 ReLU 與高斯噪聲，多一個 log 因子。
+  作者自稱是「資料相依訓練後低秩壓縮的第一個形式化保證」。
+- **對我們**：(ii) 零重訓摺入（CSSP 選通道＋最小平方摺入下一層）就是這個問題的一個實例（Z 的秩 ＝ 尺讀出的 k*，ε ＝ 被丟掉的 (1−τ) 變異）——**摺入的準確率不掉有定理可引**，
+  且定理把誤差寫成「丟掉的變異 ＋ 秩×維度的噪聲項」，正好對應我們 τ＝0.999 的選擇與「多類任務無餘裕」（ε 不小）。他們的框架是 MLP／線性層、資料相依但**不問 r 該是多少**——
+  r 由什麼決定正是我們的問題。**給論文**：(ii) 段引一句劃界：「the recovery guarantee of Zhang and Saab takes r as given; the ruler supplies it」。
