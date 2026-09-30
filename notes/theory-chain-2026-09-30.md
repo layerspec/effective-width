@@ -168,6 +168,8 @@ epoch 10 的係數只有 epoch 70 的 10⁻³。這是**引理 B7.1（精確、�
   col(W_T − a_T W_0) ⊆ span{δ_{s,i,p} : s ∈ supp(c)} ⇒ rank(Σ_out) ≤ dim span{δ}＋1（a_T W_0 那一項）。
 **引理 B7.1 已對 PyTorch 的優化器逐位驢證**（`tests/test_lemma_b7_memory_window.py`，15:05）：真實 conv–BN 小網路、時變 lr 與 momentum、Nesterov 與古典 momentum 兩種，
 記錄每步的 g_s 後用脈衝響應重建 W_T，與優化器算出的 W_T 相對誤差 < 1e-10；c_s ≥ 0 全部、0 < a_T < 1；常數 lr 下半質量窗 ≈ ln2·(1−μ)/(ηλ)。
+**B7.2′（15:55，proofs 筆記）**：Σ_out ＝ Δ̃ M Δ̃ᵀ、Γ_win ＝ Δ̃ Δ̃ᵀ（M ＝ 窗內 patch 的 Σ_patch-Gram）⇒ k*_{τ m₋/m₊}(Γ_win) ≤ k*_τ(Σ_out) ≤ k*_{1−(1−τ)m₋/m₊}(Γ_win)——
+兩者共用輸出端的基，τ 寬度的差全在 cond(M)。P-b7.2 不成立時原因只能是 M。
 **它給的是秩的包含，不是 τ 寬度的不等式**：Σ_out ＝ Σ_{s,s′} c_s c_{s′} G_s Σ_patch G_{s′}ᵀ，τ 寬度還要看 W 怎麼加權各個 δ 方向——這一步是**假說 B7.2**
 （「κ 跟窗內 Γ 的主要質量走」），用量測驢證（P-b7.2／b7.3；冒煙方向見上）。**第二階段（免費、既有 checkpoint）**：A18 尺寬臂三種子有 epoch 60／70／80／90 的
 checkpoint（`results/a18_pt/vgg16_bn_ruler*_s*/epoch_0{60,70,80,90}.pt`），可直接量窗內的 Γ_s 並用 c_s 加權成 Γ_win——P-b7.1 的代數上界因此**不必新訓練**就能檢
