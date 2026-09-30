@@ -28,4 +28,8 @@ if pgrep -f "results/mac_measure_bplus5\.sh" > /dev/null 2>&1; then echo "measur
   nohup caffeinate -i results/mac_measure_bplus5.sh >> results/mac_measure_bplus5.log 2>&1 &
   echo "started measure_bplus5"
 fi
+if pgrep -f "results/mac_measure_bplus6\.sh" > /dev/null 2>&1; then echo "measure_bplus6 already running"; else
+  nohup caffeinate -i results/mac_measure_bplus6.sh >> results/mac_measure_bplus6.log 2>&1 &
+  echo "started measure_bplus6"
+fi
 sleep 3; echo "queues alive: $(pgrep -f 'results/mac_queue_p2' | wc -l | tr -d ' ')"
