@@ -39,6 +39,7 @@
 | **Dees, Agarwala & Lowman 2022**（2201.11813；讀摘要） | autoencoder Jacobian 特徵值分佈：初始化與訓練 >100 epoch 定性不同，但早期幾個 epoch 就已接近訓練完的分佈；與隨機矩陣乘積理論比較 | 環 2「早期就定型」的又一個（不同對象：Jacobian、MNIST autoencoder）實證；不引入正文 | — |
 | **Wan, Zhu, Zhang & Sun, NeurIPS 2021**（`wan2021spherical`；讀定理 1） | 縫放不變層＋SGD＋wd：‖w‖² 線性收斂到 √(Lη/(2λ))、角度更新收斂到 √(2ηλ)，並給出達到平衡的充分條件 | B6 之後「訓練到達哪裡」的精確引用；κ 的第一個定量線索：範數由 (η, λ, 梯度能量) 定 | ☑ 已進理論鏈與草稿 |
 | **Galanti, Siegel, Gupte & Poggio 2024 v7**（2206.05794；09-30 讀定理與結論） | 展開 SGD＋wd 的遞推：權重＝記憶窗內 n·B 個秩 ≤ m_l 的梯度（引理 3.2、定理 3.3，不假設駐點）；batch 小／lr 高／wd 大 → 秩低（ResNet-18 CIFAR-10，無 momentum、階梯 lr） | **B7.1 的機制是他們的**；他們的界對卷積是空的（m_l＝patch 數），列空間包含把它變成有內容的；他們列的未來工作（momentum、中間層 NC）＝B7 的兩件事 | ☑ 已進 B7；☐ 改稿 III-C 引並劃界 |
+| **Paul, Ganguli & Dziugaite, NeurIPS 2021**（`paul2021dataDiet`）＋ **Toneva et al., ICLR 2019**（`toneva2019forgetting`；讀摘要） | EL2N ＝ ‖softmax−onehot‖ 幾個 epoch 後就能挑出重要樣本、砍半 CIFAR-10 不掉分；遺忘事件集中在少數樣本 | **B7 的 τ 寬度旋鈕**：Γ 的集中權重就是 EL2N；κ ＝ 窗內仍有 EL2N 的樣本 × 遮罩多樣性——A24／A25 的兩個方向都由它讀出，且前向可算 | ☐ gradgram 判後登記 P-b7.5 |
 
 ## 還沒查、開工前要先查的
 
