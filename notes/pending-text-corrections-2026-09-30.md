@@ -51,3 +51,19 @@ Table I、池化計數 687/703、對齊的 ρ_align、分解表都不含這五�
 - 控制器：P-l1 不成立 → 「shrink-only water-filling」，放運算子降為技術細節；P-v2 不成立 → ViT 上不得寫控制器優於均勻。
 - 「殘差流保秩」：只對絕對譜成立（P9.60 不成立、P9.61 成立）；A27 → plain 對殘差的二分法撤回。
 - A17：`sec:learned` 的「data or recipe」改「the data at this depth」，配方與 block 型別排除。
+
+## E. 10-01 判定帶來的（A28、A27 三種子、A35、B7）
+
+- **A28（plan §10.23）**：`sec:learned` 的歸因句維持「the data at this depth」（登記第三支）。加一句效應量：一百類、64 像素、每類 130 張各自都不把
+  ResNet-50 的順序拉回（同種子 T–R −0.09…−0.29，與 224 像素千類剖面 T–T 0.84–0.90）；**步數會**——一百類 × 64 像素在 37,000 步是中間區（+0.02），
+  366,000 步重排（−0.32）。開頭先引 Harun 2024／Masarczyk 2023（方向已知），不寫「發現因素」；Limitations 加「增強未動」。
+- **A27 三種子（plan §10.18）**：`sec:why` 的 "the terminal collapse is the task's" 刪。改寫為「on ten-class ImageNet the $\tau = 0.999$ ruler keeps
+  0.52–0.62 of VGG-16's parameters (three seeds; 0.67 on CIFAR-10) and 0.95–0.97 of ResNet-18's; VGG-16's idle width is not confined to its last three
+  convolutions (0.44–0.90)」，不附機制；種子間逐層差到 0.3，不寫逐層細節（規則 10）。
+- **A35（plan §10.24）**：第 3 環加 B6 一段：conv–BN 層在訓練模式下 ⟨∇L₀, W⟩ ＝ 0（量到 |cos| ≤ 0.04、梯度是 λW 的 1.3–13 倍），rank-K 界沒有駐點可咬；
+  引 Chen–Bu–Yan 2024（初始化 0.0003）並劃界，引 van Laarhoven 2017／Li & Arora 2020／Zhang–Wang–Xu 2019（**bib 未核**）。
+  Results 一句「late weights far from rank K (tail 0.4–0.6)」；Discussion 一句「NC1 of the pooled features is nearly complete at the last convolution
+  (within-class fraction 0.07 on CIFAR-10, 0.41 at 100 classes) while the position-sampled τ-width and the weight spectrum are not」。
+- **B7（theory-chain 判定段）**：κ 跟輸出端梯度 Gram 的寬度走（後三層 Spearman +0.86）、Γ 隨步數縮（108 對 310）、頭部順序可前向算（ρ 1.00）
+  但數目在全訓練 CIFAR-10 高估 1.6–2.1 倍 → 只寫順序；難樣本數與 K 分不開（偏相關 +0.58）→ "consistent with, not separated from, the class count"。
+

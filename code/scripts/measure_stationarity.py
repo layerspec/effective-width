@@ -214,8 +214,8 @@ def judge(a) -> dict:
         es = os.path.join(a.results, "two_rulers", "end_state.csv")
         if os.path.exists(es):
             e = pd.read_csv(es); e = e[e["index"] == e["index"].max()]
-            last = d[d["index"] == d["index"].max()].merge(e[["arm", "seed", "k999", "C"]], on=["arm", "seed"])
-            last["k999_C"] = last.k999 / last.C
+            last = d[d["index"] == d["index"].max()].merge(e[["arm", "seed", "k999", "C"]].rename(columns={"C": "C_es"}), on=["arm", "seed"])
+            last["k999_C"] = last.k999 / last.C_es
             r1 = spearmanr(last.k999_C, last.wcv).correlation; rk = spearmanr(last.k999_C, last.K).correlation; rkw = spearmanr(last.wcv, last.K).correlation
             partial = (r1 - rk * rkw) / np.sqrt(max(1 - rk ** 2, 1e-12) * max(1 - rkw ** 2, 1e-12))
             print(f"  P9.79 (descriptive, last conv, {len(last)} checkpoints): Spearman(k999/C, wcv) {r1:+.2f}; (k999/C, K) {rk:+.2f}; partial (k999/C, wcv | K) {partial:+.2f}")
