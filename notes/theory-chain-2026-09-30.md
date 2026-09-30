@@ -131,7 +131,8 @@ A32 在 ImageNet VGG 已量到輸出端梯度能量在權重自己的 512 個方
 **這就是記憶窗論證，B7.1 的機制是他們的**。他們沒有的：(a) 對卷積他們的界是空的——m_l ＝ patch 數（VGG 32×32 影像每層數百到上千）× B × n ≫ C；
 我們把「計數秩 1 項」換成**列空間 ⊆ span{輸出端梯度 δ}**，界變成 dim span{δ}（≤ C），對卷積有內容；(b) 量的是權重的數值秩，不是激活共變異數的 τ 寬度、不是 κ 對 K；
 (c) 常數 lr、無 momentum——我們算了實際 one-cycle＋Nesterov 的精確脈衝響應（窗在 epoch 58–88）；(d) 沒有把窗與終端相的時序放在一起（κ ≫ K 的解釋）；(e) 沒有 Γ 的量測。
-**論文措辭**：「Lemma B7.1 sharpens Lemma 3.2 of Galanti et al. for convolutions: the column space, not the count of rank-one terms」；P-b7.4（λ 掃描）的方向是他們已報的，
+**他們自己列的未來工作（結論段）**：「how other factors, such as momentum, affect the rank」與「Neural Collapse in intermediate layers」——正是 B7 做的兩件（精確脈衝響應含 momentum；窗與塌縮的時序）。
+**論文措辭**：「Lemma B7.1 sharpens Lemma 3.2 of Galanti et al. for convolutions: the column space, not the count of rank-one terms; we then answer two questions they leave open」；P-b7.4（λ 掃描）的方向是他們已報的，
 在我們這裡是對**激活寬度**的驢證，不是發現。B6 的更正見上（Galanti 不被 B6 打到）。
 
 **已排除的替代解釋（09-30 14:05，既有 checkpoint）**：「κ ≫ K 只是沒衰減完的隨機初始化」——CIFAR-10 VGG-16 三種子終態對 W_0 的投影係數
