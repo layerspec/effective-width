@@ -102,3 +102,9 @@ Yaras 2023（深線性 GD 的低維動力）；Kubaty 2025（已引）；Hui, Be
 ## 第二輪補入（10-01；`literature-round2-2026-10-01.md` §A–B、`b7-prior-art-2026-10-01.md` §2）
 - Zhao–Cheng–Masarczyk–Lucchi ICLR 2026（優化器決定 NC：AdamW 不到、SGD／Adam 到、momentum 加速）；Jacot 2024（寬網路＋wd＋末端線性層證 NC）；Wang–Gai–Zhang 2024（ResNet 中間層 PFC）；Rupa 2026（NC 起點＝特徵範數門檻）；Garrod 2026（深度本身給 NC）；Beaglehole 2024（AGOP ⇒ DNC）。
 - 給第 3 環的三句：塌縮陳述寫明優化器；定理的對象是末端線性層（池化後），不是位置解析的 conv 輸出；B6 排除的是 L2 駐點的量化界，不是塌縮。
+
+## 第二輪最後一級（10-01；Súkeník, Lampert & Mondelli, NeurIPS 2025, `refs/L2/2505.15239`）
+- **定理 4.3**：架構 L-RN1／L-Tx1（每個 block 一個線性層），transformer 內維 ≥ 2V＋2、ResNet 內維 ≥ 4，λ 與層數 L 無關；L → ∞ 時端到端問題的全域極小集與對應的 generalized UFM（同損失、等價關係＝相同樣本）的全域極小集的最大距離 → 0。
+  **推論 4.5**：加 Assumption 4.4（訓練樣本唯一）＋ CE 或 MSE ⇒ 全域極小的**最後一層**表徵近似 NC，隨 L 變緊；速率 Õ(L^{−1/2})（CE）。定理 4.6／推論 4.7 是兩線性層版。
+- **對第 3 環的用法**（草稿 III-C 已這樣寫）：這是唯一針對殘差／transformer 架構的塌縮定理，但 (i) 說的是最後一層、(ii) 是全域極小、(iii) 單層 MLP block、λ 固定、L → ∞。我們量的是中間層、SGD 到達的點、有 BN 的卷積 block。劃界句：「the only collapse theorem for residual architectures speaks of the last layer at the global optimum as L → ∞」。
+
