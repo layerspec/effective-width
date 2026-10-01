@@ -1,0 +1,3 @@
+arch resnet18  params 11,689,512  MACs@224 1.814 G  classes 1000  train batches/epoch 5004  device cuda  crop 224  schedule [0, 1, 2, 5, 10, 20, 30, 45, 60, 75, 90]
+  [measure] epoch   0  top1  0.10  20 conv layers  k*(.95)/C median 0.447  (16s)
+    ep 1 it 0/5004 loss 7.055 24 img/s

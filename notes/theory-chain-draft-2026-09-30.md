@@ -45,10 +45,11 @@ between −0.3 and +0.8 across ten families, none monotone to full width].
 **What we verify.** (1) The profile at initialisation is computable from the architecture and the image covariance alone: on six
 families the surrogate built from the image spectrum alone reproduces the measured profile in order (ρ 0.95–1.00, at or above the random–random ceiling) and level (median difference +0.046) [A7, feasibility note; seed 1].
 (2) The image statistics enter only through the first-layer patch Gram (Prop. S7), and they matter: replacing the ImageNet spectrum
-by the CIFAR-10 spectrum at the same resolution lowers the level by 0.06–0.24 and, in VGG-16 and ResNet-50, the order to ρ 0.67/0.74 against ceilings of 0.79/0.94 [A7, P-a1 6/6]. (3) *Exploratory (seed 1):* the effect of the
-image spectrum decays with depth in plain and dense families (relative difference in the last third 0.00–0.24) but not in ResNet-18/50
-(0.4–0.65 in every third) — the "input forgetting" of Joudaki et al. and the slowing of it by residual connections predicted by
-Joudaki and Hofmann (2024, Prop. 2: κ_res = (1−r²)κ + r²ρ). (4) The initialisation scale is an input, not a nuisance: zero-initialising
+by the CIFAR-10 spectrum at the same resolution lowers the level by 0.06–0.24 and, in VGG-16 and ResNet-50, the order to ρ 0.67/0.74 against ceilings of 0.79/0.94 [A7, P-a1 6/6]. (3) *Exploratory (three seeds; P9.85 holds, P9.86 fails, plan §10.25):* the effect of the
+image spectrum decays with depth in the plain, dense and inverted-residual families (relative difference in the last third 0.01–0.26 at τ = 0.95,
+≤ 0.01 at τ = 0.999, 9/9 runs) — the "input forgetting" of Joudaki et al. It does not decay in ResNet-18 (0.52–0.60 in the last third)
+and does decay in ResNet-50 (0.16–0.21): the slowing by residual connections predicted by Joudaki and Hofmann (2024, Prop. 2:
+κ_res = (1−r²)κ + r²ρ) is seen in one of the two residual families, so it is reported, not claimed as a property of identity shortcuts. (4) The initialisation scale is an input, not a nuisance: zero-initialising
 the last BN of each block (timm) versus γ = 1 (torchvision) changes the random reference level from 0.29–0.34 to 0.44–0.48 in
 ResNet-18 and the random–random agreement from 0.98 to 0.71, while the trained-vs-random rank correlation is unchanged
 [check: §10.16; A33 pending for ViT/DeiT/ResNet-50].
@@ -125,8 +126,11 @@ measure but not yet derive.
 follows k*(0.999) of the output-gradient Gram Γ (Spearman +0.86; +0.93 at τ = 0.95), Γ is at least 3K wide in every layer, Γ narrows with optimisation steps
 (median 310 → 108 between 5,000 and 39,000 steps), and the forward prediction from the ReLU masks and the EL2N scores reproduces the *order* of Γ's head exactly
 (ρ = 1.000 in 21/21) but over-counts it by 1.6–2.1× on the fully trained CIFAR-10 networks; the Gram width follows the fraction of images with EL2N > 0.1
-(Spearman +0.85) but is not separated from K in this design (partial +0.58). The two-sided τ-width bound of B7.2′ (window Gram against final output) is being
-measured on checkpointed runs (P-b7.1′, P-b7.4; plan §9.27). Liu, Paquette and Sous (2026) read activation and per-sample gradient spectra side by side as
+(Spearman +0.85) but is not separated from K in this design (partial +0.58). The window Gram of B7.2′ orders the final output widths
+(Spearman +1.00 over the wide layers of three ruler-width VGG-16 runs, +0.83–0.88 after division by the channel count; P-b7.1′, plan §10.25), and the
+inclusion holds in every layer; as a *bound* it is informative only where the layer is already at its ruler width — on the full-width network the late
+window Gram is ≈ 12× wider than the output covariance (475 against 40 of 512 channels), i.e. cond(M) is large there. B7 is therefore stated as an inclusion
+and an ordering, not as an equality. The weight-decay sweep (P-b7.4) is being judged [2026-10-02]. Liu, Paquette and Sous (2026) read activation and per-sample gradient spectra side by side as
 diagnostics of LLM training; the relation between the two is what is claimed here.
 
 ### III-D. Net effect on the layer order: reversal is the assembled consequence of III-A and III-C, not a separate phenomenon
@@ -167,5 +171,7 @@ outputs, not about the stream.
   the measured *degree of hypothesis failure* per link is ours and is the part reviewers cannot find elsewhere.
 - Does not claim: a derivation of κ; a finite-width, correlated-position law for the ReLU step (open; B4); that the order reversal is a
   theorem (it is a consequence under the stated conditions, verified on two ImageNet architectures and one CIFAR family).
-- Weakest points: III-A(iii) sample independence (the real hole); III-C's bound on κ rests on P-b7.1′/P-b7.4 (running); III-D's last cell is A31 (running). The memory window is
-  known (Wang and Aitchison 2025); the τ-width consequence is ours only if P-b7.1′(c) holds, otherwise B7 is an ordering, not a bound.
+- Weakest points: III-A(iii) sample independence (the real hole); III-C: P-b7.1′(c) holds to the letter (0.93) but only because the ruler-width arms sit at the channel
+  count on both sides; on the full-width network the bound is loose by an order of magnitude, so **B7 is an ordering, not a bound** (judged 2026-10-02; P-b7.4 pending).
+  III-D's last cell is A31 (running). The memory window is known (Wang and Aitchison 2025). What III-C still lacks is a statement about M (why the map from the
+  window Gram to the output covariance has low effective rank in late full-width layers).

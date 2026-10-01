@@ -131,6 +131,11 @@
 
 > **更正（10-01）**：用登記的程式 `scripts/l1_forgetting_judge.py` 重算 seed 1（配對 `apriori_check.real_profile`），ResNet-50 這一列應為 **0.59／0.47／0.16、ρ −0.86；τ＝0.999 0.10／0.04／0.01、−0.88**
 > （ResNet-50 也隨深度忘卻），EfficientNet-B0 的 τ＝0.95 ρ 為 −0.65；其餘列在 0.05 內一致。上表 ResNet-50 列的算法已不可考，以程式輸出為準；「basic／bottleneck 殘差網路看不到」的讀法只剩 ResNet-18 支持，等 seed 2–3（plan §9.27(C)）。
+>
+> **三種子判定（10-02，plan §10.25）**：P9.85 成立（VGG／DenseNet／MobileNetV2 9/9：τ＝0.999 後三分之一差 ≤ 0.01）；**P9.86 不成立**——ResNet-18 三種子都不忘
+> （τ＝0.95 後三分之一 0.52–0.60），**ResNet-50 三種子都忘**（0.16–0.21、ρ −0.83…−0.87）。下面「讀法」段與補入 3「對我們」段裡「basic／bottleneck 殘差網路看不到忘卻」
+> 「20–53 層內看不到忘卻是預期的」兩句**作廢**：有恆等捷徑的 ResNet-50 照忘。Joudaki & Hofmann 命題 2（殘差使收斂變慢）仍可引，但我們的資料只給「ResNet-18 不忘、ResNet-50 忘」，
+> 不足以寫成「恆等捷徑保輸入」；差別在哪（bottleneck 的 1×1 壓縮、支路／捷徑的能量比、深度 53 對 20）沒有檢，不猜。維持探索性，不進主張表。
 
 **讀法**：Joudaki 推論 2 的「深層忘掉輸入」在 **plain／dense／inverted-residual** 家族看得到（VGG 後段相對差 0.24／0.01，MobileNetV2 0.02／0.00，DenseNet 0.12／0.00），
 在 **basic／bottleneck 殘差網路看不到**（ResNet-18／50 三等分都 0.4–0.65，ρ ≈ −0.2）。DenseNet 的 concat 與 MobileNetV2 的殘差都是 block 內部（量的是 conv 輸出），
