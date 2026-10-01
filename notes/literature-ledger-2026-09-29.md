@@ -62,4 +62,5 @@
 | S2 初始化剖面可算 | B+ 脊椎第二段 | conv 的 mean-field／NNGP 有限寬度修正；Everett 2026 |
 | ~~S3 訓練是否重排順序~~ | **09-30 已查**：`notes/s3-prior-art-2026-09-30.md` | 投稿前再查一次 2026 年的 arXiv |
 | ~~transformer 的剖面（A30）~~ | **09-30 已查**：`notes/a30-prior-art-2026-09-30.md` | 投稿前再查一次（搜尋不是窮盡的） |
+| ~~表徵／權重／梯度三者對齊（CRH／PAH）~~ | **10-02 已查**：`notes/crh-prior-art-2026-10-02.md`（Ziyin et al. ICLR 2025 全文；A32、P-b7.2 是其 forward GWA／RGA 的秩相關版本；B8 檢其冪次形式在 conv–BN 層不成立） | Semantic Scholar 只列 15 篇引用，投稿前用 Google Scholar 再掃一次 |
 | 梯度加權的寬度 | 上表的新想法 | Fisher／AGOP 加權的 PCA、task-relevant dimension、活性子空間（active subspaces） |

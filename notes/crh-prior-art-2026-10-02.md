@@ -62,6 +62,16 @@ Semantic Scholar 上引 CRH 的只有 15 篇，逐題名看過，沒有做卷積
 - **用什麼檢**：全部是既有資料——`results/gradwindow/*_epoch_*.npz` 存了每層的 Σ_out 與 Γ **矩陣**（尺寬臂三種子＋λ 掃描的全寬臂，掃描跑完共 6 跑）；
   W 在 `results/wd_sweep/*/` 與 `results/a18_pt/` 的 checkpoint；`results/gradgram/*_spectra.npz` 只有特徵值（21 個 checkpoint，只能做秩配對的版本）。不需要新訓練。
 
+## 4b. 結果（10-02 09:00；plan §10.27）——B8 照登記不成立
+
+預測先提交再跑。**P-b8.1–8.4 全部不成立**：Σ_out 與 Γ_end 在位置解析的 conv–BN 層上不共用特徵基底（共對角比例 0.17–0.23，隨機基底 0.09–0.15）；
+指數不是 2（Γ 基底下 0.26–0.48）；逐層中位 Γ 的一次方就在 Σ_out 寬度的 10–17% 內，平方沒有更近；W 基底下 s² ∝ γ^{2–5}，不是相 8 的比例。
+**PAH 不延伸到 conv–BN 層**（與他們自陳 conv 層較弱一致）——這本身是一句可寫的劃界：「the forward relations of Ziyin et al. hold on batch-normalised
+convolutions in rank only; as matrix proportionalities they fail (co-diagonal fraction 0.2 against 0.1 for a random basis)」。
+我在 §2 表裡把 A32 的 +0.98 稱為 forward GWA：**要加限定——秩相關是，冪次不是**（a_ZG 1.8–5.1）。
+判後觀察（探索性）：只有塌縮的末三層近似共基底（0.52–0.61 對 0.05），頭部寬度一次方就對、0.999 寬度要平方才對——不是單一冪次；
+Σ_out 沿**窗** Gram 方向的能量指數 ≈ 1.0，沿端點 Gram 只有 0.3–0.5（對未量的四跑補登記 P-b8.5／8.6）。
+
 ## 5. 要補引並劃界的文獻（加進 `refs.bib` 前照慣例核 Crossref／proceedings）
 
 - Ziyin, Chuang, Galanti & Poggio, ICLR 2025（CRH／PAH）——**必引**：第 2、3 環；劃界句：「stated and tested for fully connected layers; we measure the forward relations on

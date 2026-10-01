@@ -93,3 +93,6 @@ Table I、池化計數 687/703、對齊的 ρ_align、分解表都不含這五�
 - **第 3 環（理論鏈草稿 III-C 已改）**：B7.2′ 寫成包含關係＋順序，不寫等式、不寫「界是緊的」；表裡同列報尺寬臂（比值 0.93，兩邊貼 C）與全寬臂（0.08）。
 - **第 1′ 環（草稿 III-A(3) 已改）**：不寫「恆等捷徑保輸入」；寫 plain／dense／inverted-residual 三家族 9/9 忘、ResNet-18 不忘、ResNet-50 忘，標探索性。
 - **A29b**：seed 1 對收齊並由 `section_a29b` 判定前，正文不引 +0.75／+0.01。
+- **CRH／PAH（`notes/crh-prior-art-2026-10-02.md`；10-02 補）**：`sec:decompose` 與第 2、3 環引 Ziyin–Chuang–Galanti–Poggio（ICLR 2025）。
+  A22 的對齊＝他們的 backward RWA、A32 的「增益跟輸出端梯度能量」＝ forward GWA、P-b7.2＝ RGA——**都只在秩相關的意義下**；以矩陣比例的形式在位置解析的
+  conv–BN 層不成立（B8，plan §10.27：共對角 0.2 對隨機基底 0.1；s² ∝ γ^{2–5}）。劃界句在該筆記 §4b。bib 條目待核（ICLR 2025 proceedings；另 Ziyin–Wang–Li–Wu NeurIPS 2024）。
