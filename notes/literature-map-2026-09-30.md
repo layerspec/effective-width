@@ -67,3 +67,5 @@
 | 09-30 | L3 第一輪：Saxe、Maennel、Beaglehole、FACT、Atanasov（silent alignment）、Ba、Wang 2023（本體不變／尖峰／重尾）、Martin–Mahoney、Kunin。結論：對齊已知、譜的三種變化已知（兩層）；重排沒有理論；**候選的組裝解釋**：初始化尖峰＋本體（L1）→ 早期對齊去尖峰、水準升（L3）→ 後期 DNC 壓後段（L2）→ 塌縮段長（深、少類）時順序反轉。三條可用既有資料驗證的陳述寫在 L3 §3 |
 | 09-30 | L4 第一輪：Table S1 的 20 篇＋Kong–Valiant 2017、Ghosh 2022、RankMe、Recanatesi。結論：量法與偏差已知；門檻可由少樣本估譜取代（Kong–Valiant）；純冪律譜上數值秩讀頭部、τ 寬度讀滿——A34 的 0.2 對 0.5 說明真實譜非純冪律。留下：量法換算、位置相依樣本的估計理論 |
 | 09-30 | L5、L6 第一輪由既有筆記整理（Liu 2019、Veit、Balduzzi、Yang–Schoenholz 新讀）。六條線第一輪完成，見 §「交叉的問題」的暫定回答 |
+| 10-01 | 第二輪第一批（`b7-prior-art-2026-10-01.md`）：四次搜尋、11 篇下載、6 篇新讀。**B7.1 記憶窗已知**（Wang & Aitchison 2025；Everett & Qiu 2026），我們的只剩 B7.2′＋量測；Fan 2025 反向預測 P-b7.4d；L2 補 Garrod 2026（深度給 NC）、Beaglehole 2024（AGOP ⇒ DNC）。scan0930 的五篇「未讀」其實 09-30 已讀，Dees 2022 丟。剩：L4 待讀清單、L5／L6 定理段、各線 2025–26 第二批 |
+

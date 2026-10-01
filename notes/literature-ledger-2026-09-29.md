@@ -9,6 +9,11 @@
 | 同上＋Koltchinskii–Lounici 2017 | 高斯樣本共變異數的集中，由 effective rank r(Σ) 決定 | **「寬度就是樣本數」**：初始化的一層＝對輸入做 C 個樣本的 PCA。S2 可以用一句話講清楚，並預測初始寬度的波動 ∝ 1/√(C·r(Σ)) | ☐ 用 `results/freeprob/` 的譜驗證波動的尺度 |
 | Maennel 2020 | 第一層權重與資料主成分對齊（命題＋量測）；用輸入特徵向量建構深層初始化，重現隨機標籤預訓練的加速 | (i) 增益曲線「先升後降」——我們只報一個 Spearman 係數，看不到頂端；(ii) **資料相依初始化加速訓練但不提高最終準確率**，正好解釋我們先驗起點臂「無增益」的負結果，可以引用來定位 | ◐ A32 存逐方向的值（L3）；☐ 先驗臂的段落引 Maennel |
 | Beaglehole 2023；Radhakrishnan 2024 | WᵀW ∝ patch-AGOP，每一層、ImageNet 公開權重 | **以梯度加權的寬度**：現在的 k* 由變異決定、不看任務（9 月 2 日文獻地圖就寫過「深層判準必須是監督式的」）。用 Γ 加權的輸出共變異數算 k*，得到「對輸出有影響的寬度」，可能正是 VGG／CIFAR 以外「尺讀滿但仍可砍」的解釋 | ◐ A32 已存 Γ；☐ 跑完後探索性地算梯度加權的 k*（標示探索性） |
+| **Wang & Aitchison ICML 2025；Everett & Qiu 2026** | AdamW／decoupled wd 的權重＝最近更新的 EMA，時間尺度 1/(ηλ)；momentum 與 wd 都是「記憶」 | **B7.1 的記憶窗已知**；我們的是精確脈衝響應（momentum／Nesterov／時程）＋列空間 ⇒ Σ_out 的 τ 寬度（B7.2′）。論文措辭見 `b7-prior-art-2026-10-01.md` §1 | ☐ 改稿時引；bib 核 Crossref |
+| Fan et al. 2025（2510.15262） | 縫放不變架構穩態下權重奇異值譜 ∝ √(η/λ)、形狀不變 | **P-b7.4d 的反向預測**（λ 不改 τ 寬度）；判定時引 | ☐ P-b7.4 判定段引 |
+| Apte 2026（2607.23777） | 梯度 ⟂ 權重（縫放不變）、momentum buffer 對權重負對齊、常數 wd 無駐點（Prop. 3.1） | B6 第四個引用；proofs 筆記加「buffer 負對齊」一句 | ☐ |
+| Garrod–Keating–Thrampoulidis 2026（2605.23087） | 深 UFM 不靠 L2 就有 NC；softmax codes 秩低於 K−1 | 第 3 環劃界：B6 排除的是 Zangrando 的量化界，不是塌縮本身 | ☐ 第 3 環一句 |
+| Beaglehole–Súkeník–Mondelli–Belkin NeurIPS 2024（2402.13728） | AGOP 投影是 DNC 的資料相依機制（Deep RFM 定理 5.3） | 接 A32（AGOP）與第 3 環；B7.3 是它在位置解析梯度上的補充 | ☐ `sec:decompose`、第 3 環引 |
 | Boix-Adserà 2025（FACT） | 含 weight decay 的一階最適條件 | BN 網路上該條件不成立（梯度 ⟂ 權重）——劃界句；無正規化的網路（VGG 無 BN 版）可以當檢驗對象 | ☐ 改稿時寫劃界句 |
 | Li & Papyan 2023（Residual Alignment） | 訓練後 ResNet 支路 Jacobian 的秩 ≤ 類別數；去掉 skip 就消失 | **類別數 → 支路的秩 → 流最多失去多少方向**（配 Th9(a)）。A26 的十類 ResNet-18 權重在 pod 上，量它的支路寬度即可直接檢驗 | ☐ 殘差流量測加 A26 權重（pod 或把 final.pt 拉回 Mac） |
 | Dong 2021；Noci 2022；Daneshmand 2020 | skip 緩解秩塌縮；深度趨於無窮仍塌縮；緊下界是公開問題 | 我們的下界依賴量得到的 ρ，可以回應「公開問題」但要寫明逐 block、隨深度變鬆 | ◐ 殘差流量測已排 |
