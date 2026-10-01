@@ -69,4 +69,5 @@
 | 09-30 | L5、L6 第一輪由既有筆記整理（Liu 2019、Veit、Balduzzi、Yang–Schoenholz 新讀）。六條線第一輪完成，見 §「交叉的問題」的暫定回答 |
 | 10-01 | 第二輪第一批（`b7-prior-art-2026-10-01.md`）：四次搜尋、11 篇下載、6 篇新讀。**B7.1 記憶窗已知**（Wang & Aitchison 2025；Everett & Qiu 2026），我們的只剩 B7.2′＋量測；Fan 2025 反向預測 P-b7.4d；L2 補 Garrod 2026（深度給 NC）、Beaglehole 2024（AGOP ⇒ DNC）。scan0930 的五篇「未讀」其實 09-30 已讀，Dees 2022 丟。剩：L4 待讀清單、L5／L6 定理段、各線 2025–26 第二批 |
 | 10-01 | 第二輪第二批（`literature-round2-2026-10-01.md`）：L2 補 6 篇 2024–26（Zhao ICLR 2026 優化器、Jacot 2024、PFC、Rupa、Garrod、Beaglehole）；L4 待讀三篇讀完；題目的兩個最近鄰出現（NSC：規格→權重譜標量；Spectral Lens：激活＋梯度譜診斷），都不是逐層激活剖面。第 1 軸仍 3.5（劃界句與 bib 未進稿） |
+| 10-01 | 第三批：L3 加 Beaglehole–Mitliagkas–Agarwala TMLR 2024（NFA ＝ 對輸出端梯度特徵的對齊——A32 的理論出處）、Nyström 2026（交換子框架，旁引）；L6 定理段讀完（Yang–Schoenholz 多項式速率、Balduzzi 定理 3、Li–Papyan 定理 3.1／3.3）；L5 的 2025–26 寬度學習查詢只回到 AWN（已知）。**第二輪收尾**：剩 L2 定理段的最後一級（Súkeník 2025 定理 4.3）與投稿前的再查。第 1 軸 3.5 不變；進稿子的劃界句才是下一級 |
 

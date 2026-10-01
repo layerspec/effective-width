@@ -68,3 +68,9 @@ Radhakrishnan 2024 全文、Damian 2022（一步梯度學特徵）、2025–2026
   小初始化與白化資料；大初始化或非白化資料違反（§5 實證仍近似成立）。**我們的網路是標準初始化（不小）、資料未白化**，所以「epoch 7–15 到位」是實證上的
   silent alignment，不在他們定理的假設內。
 
+## 6. 第三批（10-01；`refs/scan1001/`）
+- **Beaglehole, Mitliagkas, Agarwala, TMLR 2024**（2402.05271）「Feature learning as alignment」：NFA（WᵀW 與 AGOP 的相關）**等價於 W 的左奇異結構與「pre-activation tangent features」（PTK，輸出端的梯度特徵）的對齊**（命題 2 的分解）；對齊由 SGD 的權重更新與 pre-activation 特徵的交互驅動，早期動力學可用輸入與標籤的簡單統計量解析（命題 3、定理 9）；大初始化下 uncentered NFA 不發展。
+  **對我們（A32）**：A32 量到「核增益首先跟輸出端梯度能量走（+0.95／+0.98），控制它之後對輸入變異的對齊剩 +0.5」——這正是他們的機制：NFA 是左奇異向量對輸出端梯度特徵的對齊，不是對輸入共變異數的對齊。`sec:decompose` 與 plan §10.21 的措辭要引這篇：「the gain sits where the output-side gradient energy is, as the alignment decomposition of the NFA predicts (Beaglehole et al. 2024)」。
+- **Nyström 2026**（2608.22910）「A commutator framework for selective spectral alignment」：有限寬度的幾何框架，用三組交換子（gate–covariance、sensitivity–covariance、AGOP–NFM）量化不相容性；逐層精確恆等式把 sensitivity–covariance 交換子分成四個來源；Lyapunov 型的衰減條件不由梯度流自動成立。純理論＋小實驗。**對我們**：A32 的「置換 Γ 通道不變的底」與他們的 AGOP–NFM 交換子是同一個對象的兩種寫法；只作旁引。
+- 第一批已記：Beaglehole–Súkeník–Mondelli–Belkin 2024（AGOP ⇒ DNC），把 L3 接到 L2。
+- 「feature learning spectrum batch normalization」查詢其餘命中（Local kernel renormalization in CNNs 2023、Wishart ansatz 2026、statistical-physics review 2025）屬貝氏／比例極限的特徵學習理論，與逐層剖面無直接關係，不讀。

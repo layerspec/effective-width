@@ -21,6 +21,7 @@
 | **Zhu–Zhao–Lu 2026（NSC）** | 從架構規格用 MP 律閉式算權重譜的容量標量 | S2 的最近鄰：權重 vs 激活、標量 vs 剖面；(i) 段劃界、題目陳述加 | ☐ |
 | Gao–Ganguli 2017；Del Giudice 2021；Stringer 2019 | PR 理論與 NTC 上界；ED 教程；冪律譜與平滑性 | Discussion 一句（維度由任務上界）；Table S1 出處；冪律是預期的 | ☐ |
 | Fernando–Guitchounts 2026 | LLM 殘差流 Jacobian 譜幾何 | L6 鄰居（Jacobian 不是共變異數） | ☐ |
+| **Beaglehole–Mitliagkas–Agarwala TMLR 2024** | NFA ⇔ W 的左奇異結構對輸出端梯度特徵（PTK）的對齊；SGD 驅動 | A32 結果的理論出處（增益跟梯度能量走）；`sec:decompose` 引 | ☐ pending §C 加一句 |
 | Boix-Adserà 2025（FACT） | 含 weight decay 的一階最適條件 | BN 網路上該條件不成立（梯度 ⟂ 權重）——劃界句；無正規化的網路（VGG 無 BN 版）可以當檢驗對象 | ☐ 改稿時寫劃界句 |
 | Li & Papyan 2023（Residual Alignment） | 訓練後 ResNet 支路 Jacobian 的秩 ≤ 類別數；去掉 skip 就消失 | **類別數 → 支路的秩 → 流最多失去多少方向**（配 Th9(a)）。A26 的十類 ResNet-18 權重在 pod 上，量它的支路寬度即可直接檢驗 | ☐ 殘差流量測加 A26 權重（pod 或把 final.pt 拉回 Mac） |
 | Dong 2021；Noci 2022；Daneshmand 2020 | skip 緩解秩塌縮；深度趨於無窮仍塌縮；緊下界是公開問題 | 我們的下界依賴量得到的 ρ，可以回應「公開問題」但要寫明逐 block、隨深度變鬆 | ◐ 殘差流量測已排 |
