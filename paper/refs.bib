@@ -1495,3 +1495,154 @@
   year      = {2019},
   annote    = {arXiv:1812.05159. Verified 2026-09-30 via the PDF header ("Published as a conference paper at ICLR 2019", six authors in this order).}
 }
+
+% ---- added 2026-10-01 (literature round 2; every entry checked before writing: Crossref by DOI, arXiv API, PDF header) ----
+
+@inproceedings{wang2025adamwDecay,
+  author    = {Wang, Xi and Aitchison, Laurence},
+  title     = {How to Set {AdamW}'s Weight Decay as You Scale Model and Dataset Size},
+  booktitle = {Proceedings of the 42nd International Conference on Machine Learning (ICML)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {267},
+  year      = {2025},
+  annote    = {arXiv:2405.13698. Verified 2026-10-01: arXiv API journal-ref "Published in ICML 2025"; PDF header "Proceedings of the 42nd ICML, Vancouver, PMLR 267, 2025". Section 3.1 (the AdamW iterate is an EMA of recent updates with timescale 1/(eta lambda)) is the result used: the memory window of Lemma B7.1 is this statement; pages not listed on the arXiv version -- add from PMLR before submission.}
+}
+
+@misc{everett2026memorySchedules,
+  author = {Everett, Katie and Qiu, Shikai},
+  title  = {Optimizer Memory Schedules for Outscaling the Overtraining Axis},
+  year   = {2026},
+  howpublished = {arXiv:2609.04577},
+  annote = {Verified 2026-10-01 via arXiv API (two authors, September 2026); no venue. Section 3.1 (momentum and decoupled weight decay as memory; window ~ 1/alpha updates, citing Wang and Aitchison) is the passage used.}
+}
+
+@misc{apte2026scaleDecay,
+  author = {Apte, Anuj},
+  title  = {Scale Weight Decay and Train Better},
+  year   = {2026},
+  howpublished = {arXiv:2607.23777},
+  annote = {Verified 2026-10-01 via arXiv API (single author, July 2026); no venue. Scale invariance under normalisation gives gradient orthogonal to the weight and a momentum buffer negatively aligned with it; Propositions 3.1--3.2 (constant decoupled decay stays away from minimisers) -- a companion to Proposition B6.}
+}
+
+@misc{fan2025layerwiseDecay,
+  author = {Fan, Zhiyuan and Liu, Yifeng and Zhao, Qingyue and Yuan, Angela and Gu, Quanquan},
+  title  = {Robust Layerwise Scaling Rules by Proper Weight Decay Tuning},
+  year   = {2025},
+  howpublished = {arXiv:2510.15262},
+  annote = {Verified 2026-10-01 via arXiv API (five authors, October 2025); no venue. Observation used: in the optimiser-governed steady state the singular-value spectrum of each matrix parameter scales in norm as sqrt(eta/lambda) with an approximately invariant shape (AdamW, transformers) -- the reverse prediction for P-b7.4d.}
+}
+
+@inproceedings{garrod2026implicitDepth,
+  author    = {Garrod, Connall and Keating, Jonathan P. and Thrampoulidis, Christos},
+  title     = {The Implicit Bias of Depth: From Neural Collapse to Softmax Codes},
+  booktitle = {Proceedings of the 43rd International Conference on Machine Learning (ICML)},
+  year      = {2026},
+  annote    = {arXiv:2605.23087. Verified 2026-10-01 via arXiv API (three authors; comment "accepted at ICML 2026"); PMLR volume and pages not yet available -- add before submission. Theorem 3.1 (depth alone, without L2, yields collapse in the deep UFM) and Theorems 4.3--4.5 (softmax codes of rank below K-1; DNC only locally stable) are the results used.}
+}
+
+@inproceedings{beaglehole2024agopDnc,
+  author    = {Beaglehole, Daniel and S{\'u}ken{\'i}k, Peter and Mondelli, Marco and Belkin, Mikhail},
+  title     = {Average Gradient Outer Product as a Mechanism for Deep Neural Collapse},
+  booktitle = {Advances in Neural Information Processing Systems 37},
+  pages     = {130764--130796},
+  year      = {2024},
+  doi       = {10.52202/079017-4156},
+  annote    = {arXiv:2402.13728. Verified 2026-10-01 via Crossref (title, pages, DOI, author order Beaglehole--S\'ukenik--Mondelli--Belkin). Theorem 5.3 (Deep RFM exhibits neural collapse through AGOP projection) is the result used: the data-dependent route from alignment (A32) to collapse.}
+}
+
+@article{beaglehole2024alignment,
+  author  = {Beaglehole, Daniel and Mitliagkas, Ioannis and Agarwala, Atish},
+  title   = {Feature Learning as Alignment: A Structural Property of Gradient Descent in Non-Linear Neural Networks},
+  journal = {Transactions on Machine Learning Research},
+  year    = {2024},
+  annote  = {arXiv:2402.05271. Verified 2026-10-01: PDF header "Published in Transactions on Machine Learning Research (11/2024)"; arXiv API author order Beaglehole--Mitliagkas--Agarwala. Proposition 2 (the neural feature correlation decomposes into alignment between the left singular structure of W and the pre-activation tangent features) is the result used: the theoretical source of the A32 finding that the kernel gain follows the output-side gradient energy.}
+}
+
+@inproceedings{zhao2026optimizerNc,
+  author    = {Zhao, Jim and Cheng, Tin Sum and Masarczyk, Wojciech and Lucchi, Aurelien},
+  title     = {Optimizer Choice Matters for the Emergence of Neural Collapse},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2026},
+  annote    = {arXiv:2602.16642. Verified 2026-10-01: PDF header and arXiv comment "Published as a conference paper at ICLR 2026"; four authors in this order. Result used: SGD and Adam reach neural collapse, AdamW does not; momentum accelerates it -- every collapse statement in the paper is for SGD with momentum and coupled weight decay.}
+}
+
+@misc{jacot2024wideNc,
+  author = {Jacot, Arthur and S{\'u}ken{\'i}k, Peter and Wang, Zihan and Mondelli, Marco},
+  title  = {Wide Neural Networks Trained with Weight Decay Provably Exhibit Neural Collapse},
+  year   = {2024},
+  howpublished = {arXiv:2410.04887},
+  annote = {Verified 2026-10-01 via arXiv API (four authors, October 2024); no published venue found on Crossref -- re-check before submission. Theorems 3.1 and 4.4 (neural collapse for networks ending in at least two linear layers under low training error and balancedness; wide networks with weight decay satisfy the conditions) are the results used: the collapsing object is the input of the final linear layers.}
+}
+
+@misc{wang2024pfc,
+  author = {Wang, Sicong and Gai, Kuo and Zhang, Shihua},
+  title  = {Progressive Feedforward Collapse of {ResNet} Training},
+  year   = {2024},
+  howpublished = {arXiv:2405.00985},
+  annote = {Verified 2026-10-01 via arXiv API (three authors, May 2024); no venue. Intermediate-layer collapse in ResNets increases monotonically with depth (PFC); multilayer UFM. Cited next to Rangamani et al. for intermediate-layer collapse.}
+}
+
+@misc{rupa2026ncThreshold,
+  author = {Rupa, Anamika Paul},
+  title  = {Neural Collapse Dynamics: Depth, Activation, Regularisation, and Feature Norm Threshold},
+  year   = {2026},
+  howpublished = {arXiv:2604.00230},
+  annote = {Verified 2026-10-01 via arXiv API (single author, v3 July 2026); no venue. Collapse onset coincides with the penultimate feature norm reaching a (model, dataset)-specific threshold; depth, width and weight decay set only the rate.}
+}
+
+@misc{zhu2026nsc,
+  author = {Zhu, Chenyu and Zhao, Ruoyu and Lu, Zhichao},
+  title  = {Neural Spectral Capacity: Measuring and Designing Architectures from Network Specification Alone},
+  year   = {2026},
+  howpublished = {arXiv:2609.23087},
+  annote = {Verified 2026-10-01 via arXiv API (three authors, September 2026); no venue. A closed-form scalar from the Marchenko--Pastur spectrum of each weight matrix at initialisation, computable from the architectural specification; the nearest neighbour of the a-priori profile, on weights rather than activations.}
+}
+
+@misc{liu2026spectralLens,
+  author = {Liu, Andy Zeyi and Paquette, Elliot and Sous, John},
+  title  = {Spectral Lens: Activation and Gradient Spectra as Diagnostics of {LLM} Optimization},
+  year   = {2026},
+  howpublished = {arXiv:2605.05683},
+  annote = {Verified 2026-10-01 via arXiv API (three authors, May 2026); no venue. Trace-normalised activation covariance spectra and per-sample gradient SVD spectra read side by side as diagnostics of language-model training; the nearest neighbour of the B7 measurements, which relate the two spectra.}
+}
+
+@misc{fernando2026residualStream,
+  author = {Fernando, Jesseba and Guitchounts, Grigori},
+  title  = {Dynamics of the Transformer Residual Stream: Coupling Spectral Geometry to Network Topology},
+  year   = {2026},
+  howpublished = {arXiv:2605.14258},
+  annote = {Verified 2026-10-01 via arXiv API (two authors, May 2026); no venue. Full Jacobian eigendecomposition of the residual stream of three LLMs; training installs a monotonic non-normality gradient. Residual-stream geometry on Jacobians, not covariances.}
+}
+
+@misc{gao2017dimensionality,
+  author = {Gao, Peiran and Trautmann, Eric and Yu, Byron and Santhanam, Gopal and Ryu, Stephen and Shenoy, Krishna and Ganguli, Surya},
+  title  = {A Theory of Multineuronal Dimensionality, Dynamics and Measurement},
+  year   = {2017},
+  howpublished = {bioRxiv 214262},
+  doi    = {10.1101/214262},
+  annote = {Verified 2026-10-01 via Crossref (DOI, seven authors in this order, November 2017). Participation-ratio dimensionality is bounded above by the neural task complexity; random-projection theory for the number of neurons to record.}
+}
+
+@article{delgiudice2021effectiveDim,
+  author  = {Del Giudice, Marco},
+  title   = {Effective Dimensionality: A Tutorial},
+  journal = {Multivariate Behavioral Research},
+  volume  = {56},
+  number  = {3},
+  pages   = {527--542},
+  year    = {2021},
+  doi     = {10.1080/00273171.2020.1743631},
+  annote  = {Verified 2026-10-01 via Crossref (volume, issue, pages, DOI; online 2020, issue 2021). Definition of effective dimensionality, its distinction from intrinsic dimensionality and the n1 / n2 / n-infinity estimators.}
+}
+
+@article{stringer2019powerLaw,
+  author  = {Stringer, Carsen and Pachitariu, Marius and Steinmetz, Nicholas and Carandini, Matteo and Harris, Kenneth D.},
+  title   = {High-Dimensional Geometry of Population Responses in Visual Cortex},
+  journal = {Nature},
+  volume  = {571},
+  number  = {7765},
+  pages   = {361--365},
+  year    = {2019},
+  doi     = {10.1038/s41586-019-1346-5},
+  annote  = {Verified 2026-10-01 via Crossref (volume, issue, pages, DOI, five authors in this order). Eigenspectrum of V1 responses to natural images follows a power law with exponent near 1; a smooth code requires exponent above 1 + 2/d.}
+}
