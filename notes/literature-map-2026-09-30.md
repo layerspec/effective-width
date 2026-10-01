@@ -68,4 +68,5 @@
 | 09-30 | L4 第一輪：Table S1 的 20 篇＋Kong–Valiant 2017、Ghosh 2022、RankMe、Recanatesi。結論：量法與偏差已知；門檻可由少樣本估譜取代（Kong–Valiant）；純冪律譜上數值秩讀頭部、τ 寬度讀滿——A34 的 0.2 對 0.5 說明真實譜非純冪律。留下：量法換算、位置相依樣本的估計理論 |
 | 09-30 | L5、L6 第一輪由既有筆記整理（Liu 2019、Veit、Balduzzi、Yang–Schoenholz 新讀）。六條線第一輪完成，見 §「交叉的問題」的暫定回答 |
 | 10-01 | 第二輪第一批（`b7-prior-art-2026-10-01.md`）：四次搜尋、11 篇下載、6 篇新讀。**B7.1 記憶窗已知**（Wang & Aitchison 2025；Everett & Qiu 2026），我們的只剩 B7.2′＋量測；Fan 2025 反向預測 P-b7.4d；L2 補 Garrod 2026（深度給 NC）、Beaglehole 2024（AGOP ⇒ DNC）。scan0930 的五篇「未讀」其實 09-30 已讀，Dees 2022 丟。剩：L4 待讀清單、L5／L6 定理段、各線 2025–26 第二批 |
+| 10-01 | 第二輪第二批（`literature-round2-2026-10-01.md`）：L2 補 6 篇 2024–26（Zhao ICLR 2026 優化器、Jacot 2024、PFC、Rupa、Garrod、Beaglehole）；L4 待讀三篇讀完；題目的兩個最近鄰出現（NSC：規格→權重譜標量；Spectral Lens：激活＋梯度譜診斷），都不是逐層激活剖面。第 1 軸仍 3.5（劃界句與 bib 未進稿） |
 

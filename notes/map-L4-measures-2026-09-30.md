@@ -32,3 +32,6 @@
 
 Roy & Vetterli 2007 原文；Stringer 2019 原文；Litwin-Kumar 2017、Gao & Ganguli 2017（PR 的理論）；Del Giudice 2021（有效維度教程）；
 Ledoit–Wolf 型的譜收縮估計（與 Kong–Valiant 對照）；2025–2026 的「effective rank estimation finite samples」新作。
+
+## 5. 第二輪（10-01；`literature-round2-2026-10-01.md` §D）
+待讀三篇讀完：Gao–Ganguli 2017（PR 理論、NTC 上界）、Del Giudice 2021（ED 教程、n1／n2／n∞）、Stringer 2019（冪律 α ≈ 1、平滑性 α > 1＋2/d）。Chun ICLR 2026（PR 的 U-統計量偏差校正）已在 §3。留下：Ledoit–Wolf 型收縮估計、Roy–Vetterli 原文。

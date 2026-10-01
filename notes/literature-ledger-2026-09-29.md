@@ -14,6 +14,13 @@
 | Apte 2026（2607.23777） | 梯度 ⟂ 權重（縫放不變）、momentum buffer 對權重負對齊、常數 wd 無駐點（Prop. 3.1） | B6 第四個引用；proofs 筆記加「buffer 負對齊」一句 | ☐ |
 | Garrod–Keating–Thrampoulidis 2026（2605.23087） | 深 UFM 不靠 L2 就有 NC；softmax codes 秩低於 K−1 | 第 3 環劃界：B6 排除的是 Zangrando 的量化界，不是塌縮本身 | ☐ 第 3 環一句 |
 | Beaglehole–Súkeník–Mondelli–Belkin NeurIPS 2024（2402.13728） | AGOP 投影是 DNC 的資料相依機制（Deep RFM 定理 5.3） | 接 A32（AGOP）與第 3 環；B7.3 是它在位置解析梯度上的補充 | ☐ `sec:decompose`、第 3 環引 |
+| **Liu–Paquette–Sous 2026（Spectral Lens）** | LLM 的激活共變異數譜＋逐樣本梯度譜當診斷 | B7 的最近鄰：他們並列、我們關聯（記憶窗、列空間、τ 寬度） | ☐ B7 段劃界句 |
+| **Zhao–Cheng–Masarczyk–Lucchi ICLR 2026** | AdamW 不到 NC、SGD／Adam 會；momentum 加速 | 塌縮陳述寫明優化器；跨配方 T–T 0.86 對優化器穩健；B6 限 coupled wd | ☐ 第 3 環、配方段 |
+| Jacot–Súkeník–Wang–Mondelli 2024 | 末端 ≥ 2 線性層的寬網路＋wd 證 NC | 定理對象是末端線性層，解釋 A35「池化特徵塌、conv 輸出不塌」 | ☐ 第 3 環一句 |
+| Wang–Gai–Zhang 2024（PFC）；Rupa 2026 | ResNet 中間層漸進塌縮；NC 起點＝特徵範數門檻 | 中間層 collapse 的實證鄰居；「塌縮前」的定義 | ☐ 第 3 環引 |
+| **Zhu–Zhao–Lu 2026（NSC）** | 從架構規格用 MP 律閉式算權重譜的容量標量 | S2 的最近鄰：權重 vs 激活、標量 vs 剖面；(i) 段劃界、題目陳述加 | ☐ |
+| Gao–Ganguli 2017；Del Giudice 2021；Stringer 2019 | PR 理論與 NTC 上界；ED 教程；冪律譜與平滑性 | Discussion 一句（維度由任務上界）；Table S1 出處；冪律是預期的 | ☐ |
+| Fernando–Guitchounts 2026 | LLM 殘差流 Jacobian 譜幾何 | L6 鄰居（Jacobian 不是共變異數） | ☐ |
 | Boix-Adserà 2025（FACT） | 含 weight decay 的一階最適條件 | BN 網路上該條件不成立（梯度 ⟂ 權重）——劃界句；無正規化的網路（VGG 無 BN 版）可以當檢驗對象 | ☐ 改稿時寫劃界句 |
 | Li & Papyan 2023（Residual Alignment） | 訓練後 ResNet 支路 Jacobian 的秩 ≤ 類別數；去掉 skip 就消失 | **類別數 → 支路的秩 → 流最多失去多少方向**（配 Th9(a)）。A26 的十類 ResNet-18 權重在 pod 上，量它的支路寬度即可直接檢驗 | ☐ 殘差流量測加 A26 權重（pod 或把 final.pt 拉回 Mac） |
 | Dong 2021；Noci 2022；Daneshmand 2020 | skip 緩解秩塌縮；深度趨於無窮仍塌縮；緊下界是公開問題 | 我們的下界依賴量得到的 ρ，可以回應「公開問題」但要寫明逐 block、隨深度變鬆 | ◐ 殘差流量測已排 |

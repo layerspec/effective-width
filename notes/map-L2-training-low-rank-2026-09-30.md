@@ -98,3 +98,7 @@ Yaras 2023（深線性 GD 的低維動力）；Kubaty 2025（已引）；Hui, Be
   （尺保留參數 0.88→0.99 隨 K 升）方向一致但量級不同。(c) 他們也承認「在真實網路我們模型預測不最優處仍見 DNC」——UFM 對真實網路的預測力有限，論文可引此句劃界。
 - **給論文**：環 3 段引 Zangrando（定量界）、Súkeník 2024／2025（不最優、ResNet／transformer）、Garrod & Keating（地景、寬度）三組，然後一句：
   「none of these predicts a cap above K; Proposition B6 shows why the bound does not apply in batch-normalised layers, and A35 measures how far the weights are from rank K」。
+
+## 第二輪補入（10-01；`literature-round2-2026-10-01.md` §A–B、`b7-prior-art-2026-10-01.md` §2）
+- Zhao–Cheng–Masarczyk–Lucchi ICLR 2026（優化器決定 NC：AdamW 不到、SGD／Adam 到、momentum 加速）；Jacot 2024（寬網路＋wd＋末端線性層證 NC）；Wang–Gai–Zhang 2024（ResNet 中間層 PFC）；Rupa 2026（NC 起點＝特徵範數門檻）；Garrod 2026（深度本身給 NC）；Beaglehole 2024（AGOP ⇒ DNC）。
+- 給第 3 環的三句：塌縮陳述寫明優化器；定理的對象是末端線性層（池化後），不是位置解析的 conv 輸出；B6 排除的是 L2 駐點的量化界，不是塌縮。
