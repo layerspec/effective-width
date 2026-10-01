@@ -8,7 +8,7 @@ own task, BN in training mode, ALL positions of the map (block 5: 2 x 2, P = 4; 
             B_p               cells = position          (rank <= P - 1)
     w_cp = tr W_cp / tr Sigma,  w_c = 1 - tr B_c / tr Sigma,  w_p = 1 - tr B_p / tr Sigma
 
-Lemma B9.0: w_cp <= 1 - tau  =>  k*_tau(Sigma) <= P K - 1.  Forward passes only, no training.
+Lemma B9.0: w_cp <= 1 - tau  =>  k*_tau(Sigma) <= P K - 1; sharper (same proof): it is enough that the variance outside the span\nof the cell means, w_out = tr((I - Pi) Sigma) / tr Sigma, is <= 1 - tau.  Forward passes only, no training.
 
     python scripts/measure_position_cells.py --results ../results --data ../data --device cpu
     python scripts/measure_position_cells.py --results ../results --judge          # P-b9.4 .. P-b9.6
@@ -53,10 +53,13 @@ def cell_decomposition(X: np.ndarray, cls: np.ndarray, pos: np.ndarray, chunk: i
     K, P = int(cls.max()) + 1, int(pos.max()) + 1
     B_cp, B_c, B_p = between(cls * P + pos), between(cls), between(pos)
     tr = np.trace(S)
-    eS = np.linalg.eigvalsh(S); eB = np.linalg.eigvalsh(B_cp)
+    eS = np.linalg.eigvalsh(S); eB, UB = np.linalg.eigh(B_cp)
+    r = min(P * K - 1, C)                                            # span of the cell means (rank <= PK - 1)
+    Pi = UB[:, np.argsort(-eB)[:r]]
+    w_out = float(1 - np.trace(Pi.T @ S @ Pi) / tr)                  # variance outside that span: the quantity Ky Fan needs
     g, ratio = cliff(eS, min(K, len(eS) // 2))
     return {"C": C, "n": n, "K": K, "P": P, "PK": P * K,
-            "w_cp": float(1 - np.trace(B_cp) / tr), "w_c": float(1 - np.trace(B_c) / tr), "w_p": float(1 - np.trace(B_p) / tr),
+            "w_cp": float(1 - np.trace(B_cp) / tr), "w_c": float(1 - np.trace(B_c) / tr), "w_p": float(1 - np.trace(B_p) / tr), "w_out": w_out,
             "k0.95": k_star(eS, 0.95), "k0.999": k_star(eS, 0.999), "kB_cp_0.999": k_star(eB, 0.999), "kB_c_0.999": k_star(np.linalg.eigvalsh(B_c), 0.999),
             "cliff_g": g, "cliff_ratio": ratio}
 
@@ -106,7 +109,7 @@ def run(a) -> None:
             (df if old is None else pd.concat([old, df], ignore_index=True)).to_csv(out + ".tmp", index=False)
             os.replace(out + ".tmp", out)
             last = df.iloc[-1]
-            print(f"=== {arm} seed {s}: features.40 w_cp {last.w_cp:.4f} w_c {last.w_c:.3f} k0.999 {last['k0.999']} kB {last['kB_cp_0.999']} "
+            print(f"=== {arm} seed {s}: features.40 w_cp {last.w_cp:.4f} w_c {last.w_c:.3f} w_out {last.w_out:.5f} k0.999 {last['k0.999']} kB {last['kB_cp_0.999']} "
                   f"({time.time() - t0:.0f} s) ===", flush=True)
 
 

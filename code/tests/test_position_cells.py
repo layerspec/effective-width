@@ -46,3 +46,17 @@ def test_fractions_agree_with_direct_computation():
     within = sum(((Xd[(cls == c) & (pos == p)] - Xd[(cls == c) & (pos == p)].mean(0)) ** 2).sum() for c in range(5) for p in range(3))
     assert r["w_cp"] == pytest.approx(within / tot, rel=1e-6)
     assert 0 < r["w_cp"] < r["w_c"] <= 1 and r["w_cp"] < r["w_p"]
+
+
+def test_within_cell_variance_inside_the_span_does_not_widen():
+    """Within-cell variation that stays in the span of the cell means leaves the width at PK - 1 although w_cp is not small."""
+    rng = np.random.default_rng(3)
+    P, K, C, per = 4, 10, 96, 300
+    mu = rng.standard_normal((P * K, C))
+    Q = np.linalg.qr((mu - mu.mean(0)).T)[0][:, :P * K - 1]            # basis of the span of the centred cell means
+    X, cls, pos = [], [], []
+    for cell in range(P * K):
+        X.append(mu[cell] + 0.6 * rng.standard_normal((per, P * K - 1)) @ Q.T)
+        cls += [cell // P] * per; pos += [cell % P] * per
+    r = cell_decomposition(np.concatenate(X).astype(np.float32), np.array(cls), np.array(pos))
+    assert r["w_cp"] > 0.05 and r["w_out"] < 1e-3 and r["k0.999"] <= P * K - 1
