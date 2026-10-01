@@ -1023,6 +1023,43 @@ A24 尺保留參數隨類別數 0.88→0.99。**本節任何一格的 T–R 都�
 - **文獻界線**：類別數影響深層壓縮的方向 Harun 2024／Masarczyk 2023 已報，A24 已量；A31 不寫成發現，寫成「鏈第 3 環的驢證：在 224² 的 ImageNet 影像上，
   類別數是否是把順序從保序推到重排的那個變數」。
 
+### 9.27 Mac 夜間三項（2026-10-01 寫，資料未見；作者 10-01：「今晚不關機，三項都可以跑」；預登記由我定）
+
+三項都是既有陳述的驢證，不是新問題：(A) 理論鏈 B7 的代數上界（P-b7.1′，theory-chain:176 的一行登記在此寫足）；(B) B7 的 λ 掃描（P-b7.4，theory-chain:152 的方向在此定門檻）；
+(C) L1 地圖「補入 1」的換譜忘卻（單種子探索性 → 補 seed 2–3）。順序 A → C → B（B 要訓練 8.5 h）。程式：`scripts/measure_gradwindow.py`（A、B 的量測＋`--judge`）、
+`scripts/trajectory_wd.py`（B 的訓練包裝，**不改 `trajectory_cifar.py`**）、`scripts/l1_forgetting_judge.py`（C）；隊列 `results/mac_queue_1001.sh`（等 p2l）。
+
+**(A) P-b7.1′：記憶窗的 Γ_win 對終態 Σ_out（A18 尺寬臂 `results/a18_pt/vgg16_bn_ruler_s{0,1,2}`，epoch 40／50／60／70／80／90／100 的 checkpoint）。**
+量法：每個 checkpoint 在 6,400 張 CIFAR-10 訓練影像 × 16 位置上量 Σ_out 與 Γ（同 `measure_gradgram.py`，訓練模式 BN）；
+用本配方（OneCycle max_lr 0.1、100 epoch × 391 步、μ 0.85–0.95、λ＝5e-4、Nesterov）的脈衝響應 c_s（引理 B7.1，`tests/test_lemma_b7_memory_window.py` 已逐位驢證）
+把每一步分給最近的已存 checkpoint，w_E ∝ Σ_{s→E} c_s，**Γ_win ＝ Σ_E w_E Γ_E**（B7.2′ 的線性權重）；另算 Γ_end ＝ Γ_100、Γ_avg ＝ epoch ≥ 10 的已存 checkpoint 等權平均。
+尺寬臂末三層只有 40 通道（尺本身定的），兩個寬度都會貼頂，所以判定用 **C ≥ 100 的層**（第 3–10 層），全部 13 層並報。
+- **P-b7.1′(a)**：每個種子，C ≥ 100 的層上 Spearman(k*_{0.95}(Γ_win), k*_{0.999}(Σ_out,終態)) ≥ +0.7（3/3）。
+- **P-b7.1′(b)（包含關係的 τ 版本）**：每一層 k*_{0.999}(Σ_out) ≤ k*_{0.999}(Γ_win)＋1（13/13、3/3）。
+- **P-b7.1′(c)（緊度；B2 的教訓）**：C ≥ 100 的層上 k*_{0.999}(Σ_out)／k*_{0.999}(Γ_win) 的中位 ≥ 0.5（3/3）。
+- 描述：同三個量對 Γ_end、Γ_avg；窗權重 w_E 的分布（預期 epoch ≥ 60 佔 > 90%）。
+- 後果：(a)(b)(c) 全成立 → B7.2′ 以「量到的不等式」寫進第 3 環（命題＋表）；(b) 不成立 → 假說 B7.2 錯（引理不受影響），改量 cond(M)；(c) 不成立 → 上界是空的，
+  B7 只能寫順序（P-b7.2 的相關），不寫界。
+
+**(B) P-b7.4：λ 掃描（新訓練；VGG-16_BN 全寬、CIFAR-10、本配方只換 weight decay）。** λ ∈ {5e-5, 5e-4, 5e-3} × seed {0, 1}，`--schedule 0 40 50 60 70 80 90 100 --save-checkpoints`
+（8 個 checkpoint × 59 MB × 6 跑 ≈ 2.8 GB；磁碟 8.3 GiB），每跑約 1.4 h（epoch 44 s）。量測同 (A)，c_s 用各自的 λ 算。
+- **P-b7.4a（代數，先算後看）**：半質量窗（Σc_s 的 50% 點）隨 λ 變短：5e-5 的在 5e-4 之前、5e-3 的在之後；只報數字。
+- **P-b7.4b**：P-b7.1′(a)(b) 在 6/6 跑成立（窗關係不依賴 λ）。
+- **P-b7.4c（λ 決定 κ 讀哪一段梯度）**：d_end ＝ C ≥ 100 的層上 |log k*_{0.999}(Σ_out) − log k*_{0.999}(Γ_end)| 的中位，d_avg 同式對 Γ_avg。
+  預測 **λ＝5e-3：d_end < d_avg（2/2 種子）；λ＝5e-5：d_end > d_avg（2/2）**。
+- **P-b7.4d（水準）**：末三層 k*_{0.999}(Σ_out)/C 的中位隨 λ 單調下降：5e-5 > 5e-4 > 5e-3（2/2 種子）。只在各臂 test acc 與 5e-4 臂差 ≤ 2.0 點時判，否則報「不可比」。
+- 後果：4b、4c 成立 → III-C 加一句「the weight decay sets the window the width is read from」＋ c_s 曲線圖；4c 不成立 → 窗位置的主張撤回，B7 只剩「κ 跟 Γ 走」；
+  4d 不成立 → 水準不由窗長定，報數字。
+
+**(C) P9.85／P9.86：換影像譜的初始化差隨深度衰減（L1 補入 1，seed 1 的表在 `map-L1` §補入 1；補 seed 2、3）。**
+量：`apriori_check.py --dataset cifar10=… measure --inputs cifar10 --seed {2,3}`（六家族隨機初始化在 CIFAR-10 放大影像上的剖面；ImageNet 影像上的同權重剖面在 `results/local6400/archs/seed{2,3}`）。
+統計量（每家族、每種子）：dense conv 輸出、兩個影像集都過門檻的層；rel|Δ|_ℓ ＝ |k_cifar − k_imagenet|/k_imagenet（k ＝ k*/r_max，τ＝0.95 與 0.999）；深度三等分的中位；ρ ＝ Spearman(深度, rel|Δ|)。
+- **P9.85（plain／dense 忘掉輸入）**：VGG-16_BN、DenseNet-121、MobileNetV2 三家族，τ＝0.999 的 ρ ≤ −0.5 **且**後三分之一中位 ≤ 0.05，3 種子全部（9/9）。
+- **P9.86（恆等捷徑保輸入）**：ResNet-18、ResNet-50，τ＝0.95 後三分之一中位 ≥ 0.3 **且** τ＝0.999 的 ρ ≥ −0.5，3 種子全部（6/6）。
+- EfficientNet-B0（seed 1 兩把尺不一致）只描述。
+- 後果：兩條成立 → 環 1′／環 5 的句子升為三種子、主張表加一列（Joudaki & Hofmann 命題 2＋Weyl 的交點）；任一不成立 → 維持「探索性、單種子」並報失敗的家族。
+- 成本：Mac CPU 各家族 1–6 分鐘，兩個種子約 30 分鐘。
+
 ## 10. 第三輪結果（2026-09-09；`results/checkpoint_analysis.txt` §12–§13、`results/round3*/`）
 
 24 個 run（RunPod 3090，2026-09-08）全部跑完 100 epoch；判定依 §9 的規則，資料見過之前的規則一字未改。
