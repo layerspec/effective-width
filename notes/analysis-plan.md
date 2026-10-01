@@ -1097,6 +1097,14 @@ a_HZ ＝ log(u_iᵀΣ_out u_i) 對 log s_i² 的斜率、a_ZG ＝ log s_i² 對 
   B8.0 當 remark；P-b7.1′ 的「上界鬆 12 倍」改由指數解釋。8.1 成立、8.3 不成立 → 維持「順序」，α̂ 報成量測；8.1 不成立 → conv–BN 層在位置解析下不共用基底，
   PAH 不延伸到這裡（與他們自陳 conv 層較弱一致），照實寫成負結果。8.4 單獨不成立 → 相 8 不是對的相，報實際的 (a_HZ, a_ZG) 並對表 1。
 - 程式 `scripts/pah_width_judge.py`（`--judge`；`tests/test_pah_width.py`）在看任何譜之前提交；掃描 6 跑齊（約 10-02 16:00）後判。
+- **補登記 P-b8.5／P-b8.6（10-02 09:10；看過 `wd5e-5_s0`、`wd5e-4_s0` 與三個尺寬臂的輸出之後寫，只對尚未量的四跑 `wd5e-3_s0`、`wd5e-5_s1`、`wd5e-4_s1`、`wd5e-3_s1` 判）**：
+  已看到的五跑裡，Σ_out 沿 **Γ_win** 特徵方向的能量對 γ 的指數是 0.91–1.08，沿 **Γ_end** 的是 0.26–0.48（寬層中位）——寬度分不開窗與端點（P-b7.1′），指數分得開。
+  這是判後的讀數，所以用未量的四跑檢：
+  **P-b8.5**：四跑的寬層中位 α̂_win ∈ [0.8, 1.25]，且 |α̂_win − 1| < |α̂_end − 1|（4/4）。
+  **P-b8.6（λ 的方向）**：同種子內 |α̂_end − 1| 在 λ＝5e-3 比 5e-4 小（窗短 ⇒ 端點 Gram 接近窗 Gram；2/2 種子，seed 0 的 5e-4 值 0.48 已見）。
+  後果：兩條成立 → 第 3 環寫「along the eigen-directions of the memory-window gradient Gram the output covariance carries energy proportional to the gradient energy
+  (exponent 1.0); the final-epoch Gram does not (0.3–0.5)」，這是窗（Wang & Aitchison 2025）對表徵的第一個可區分的讀數，也是 CRH 式 6 以時間平均的 G_b 成立的形式；
+  P-b8.5 不成立 → 只報五跑的讀數為探索性；P-b8.6 不成立 → 不寫 λ 的方向。判定程式加 `*_win` 欄與這兩條（P-b8.1–8.4 的判定邏輯不動）。
 
 ## 10. 第三輪結果（2026-09-09；`results/checkpoint_analysis.txt` §12–§13、`results/round3*/`）
 

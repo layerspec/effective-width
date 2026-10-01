@@ -33,6 +33,7 @@ HEAD_TAU = 0.999                 # directions used in the fits: the head carryin
 WIDE = 100                       # layers judged: at least this many channels (as in P-b7.1')
 FULL_RUNS = [f"wd{lam}_s{s}" for lam in ("5e-5", "5e-4", "5e-3") for s in (0, 1)]
 REF_LAM = "5e-4"
+UNSEEN = ("wd5e-3_s0", "wd5e-5_s1", "wd5e-4_s1", "wd5e-3_s1")     # not yet measured when P-b8.5 / P-b8.6 were registered
 IMAGENET = ("vgg16_bn", "resnet18")
 
 
@@ -150,7 +151,8 @@ def run_rows(results: str, run: str, epoch: int = 100) -> list[dict]:
                 Gw = Gw + w * np.load(pe)[f"{name}::grad"].astype(np.float64)
             if Gw is not None:
                 b = basis_stats(S, Gw, rng)
-                row.update({"alpha_hat_win": b["alpha_hat"], "kG1_win_0.999": b["kG1_0.999"], "kG2_win_0.999": b["kG2_0.999"]})
+                row.update({"alpha_hat_win": b["alpha_hat"], "rho_b_win": b["rho_b"], "codiag_win": b["codiag"],
+                            "kG1_win_0.999": b["kG1_0.999"], "kG2_win_0.999": b["kG2_0.999"]})
         rows.append(row)
     return rows
 
@@ -208,7 +210,8 @@ def judge(results: str, out: str | None = None) -> dict:
                       a_med=w.alpha_hat.median(), a_last3=last3.alpha_hat.median(), d1=d_alpha(d, "kG1"), d2=d_alpha(d, "kG2"), dhat=d_alpha(d, "kGhat"),
                       d1_95=d_alpha(d, "kG1", 0.95), d2_95=d_alpha(d, "kG2", 0.95),
                       a_HZ=w.a_HZ.median() if "a_HZ" in w else np.nan, a_ZG=w.a_ZG.median() if "a_ZG" in w else np.nan,
-                      a_win=w.alpha_hat_win.median() if "alpha_hat_win" in w else np.nan)
+                      a_win=w.alpha_hat_win.median() if "alpha_hat_win" in w else np.nan,
+                      codiag_win=w.codiag_win.median() if "codiag_win" in w else np.nan)
         s = S[run]
         print(f"    {run:20s} {s['rho_b']:+6.2f} {s['codiag']:7.2f} {s['null']:6.2f} {s['a_med']:6.2f} [{s['a_min']:.2f},{s['a_max']:.2f}] {s['a_last3']:11.2f} "
               f"{s['d1']:5.2f} {s['d2']:5.2f} {s['dhat']:6.2f} {s['d1_95']:7.2f} {s['d2_95']:7.2f} {s['a_HZ']:5.2f} {s['a_ZG']:5.2f} {s['a_win']:9.2f}")
@@ -240,6 +243,11 @@ def judge(results: str, out: str | None = None) -> dict:
         print(f"  P-b8.2 (exponent in [1/3, 3] in every wide layer, 6/6; last-three median in [1.5, 2.5] at lambda 5e-4, 2/2) -> {say('P-b8.2')}")
         print(f"  P-b8.3 (width from Gamma^2 closer than from Gamma, 6/6; within 0.35 in log at lambda 5e-4, 2/2) -> {say('P-b8.3')}")
         print(f"  P-b8.4 (a_HZ in [1.5, 2.5] and a_ZG in [0.67, 1.5]: lambda 5e-4 runs 2/2 and ImageNet VGG-16/ResNet-18 2/2) -> {say('P-b8.4')}")
+        if all(np.isfinite(S[r]["a_win"]) for r in UNSEEN):
+            V["P-b8.5"] = all(0.8 <= S[r]["a_win"] <= 1.25 and abs(S[r]["a_win"] - 1) < abs(S[r]["a_med"] - 1) for r in UNSEEN)
+            V["P-b8.6"] = all(abs(S[f"wd5e-3_s{s}"]["a_med"] - 1) < abs(S[f"wd5e-4_s{s}"]["a_med"] - 1) for s in (0, 1))
+            print(f"  P-b8.5 (window-Gram exponent in [0.8, 1.25] and closer to 1 than the final-Gram exponent, the four runs unseen at registration) -> {say('P-b8.5')}")
+            print(f"  P-b8.6 (the final-Gram exponent is closer to 1 at lambda 5e-3 than at 5e-4, both seeds) -> {say('P-b8.6')}")
     else:
         print("  verdicts withheld until the six full-width runs are measured")
     json.dump({"verdicts": V, "runs": S, "imagenet": IM}, open(os.path.join(out, "pah_judgement.json"), "w"), indent=1, default=float)

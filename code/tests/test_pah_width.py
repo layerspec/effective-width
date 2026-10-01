@@ -120,3 +120,26 @@ def test_judge_fails_the_width_prediction_when_the_power_is_one(tmp_path):
         _fake_run(results, run, 1.0, rng)
     V = P.judge(results)
     assert V["P-b8.1"] and not V["P-b8.2"] and not V["P-b8.3"]
+
+
+def test_window_exponent_verdicts(tmp_path):
+    """P-b8.5 / P-b8.6: the window Gram (weights json + per-epoch files) is read next to the final-epoch Gram."""
+    rng = np.random.default_rng(6)
+    results = str(tmp_path)
+    gw = os.path.join(results, "gradwindow"); os.makedirs(gw)
+    end_power = {"5e-5": 3.0, "5e-4": 3.0, "5e-3": 1.2}            # Sigma_out = Gamma_end^(1/power): exponent 1/3 or 1/1.2 on the final Gram
+    for run in P.FULL_RUNS:
+        lam = run[2:].split("_")[0]
+        a90, a100 = {}, {}
+        for i, C in enumerate((128, 256)):
+            U = _orth(C, rng); gam = np.exp(-np.arange(C) / (C / 20.0))
+            name = f"features.{3 * i}"
+            a90[f"{name}::grad"] = ((U * gam) @ U.T).astype(np.float64); a90[f"{name}::out"] = a90[f"{name}::grad"]
+            a100[f"{name}::grad"] = (U * gam ** end_power[lam]) @ U.T    # the window is all at epoch 90; the final Gram is a power of it
+            a100[f"{name}::out"] = (U * gam) @ U.T                       # Sigma_out prop. window Gram exactly
+        np.savez(os.path.join(gw, f"{run}_epoch_090.npz"), **a90); np.savez(os.path.join(gw, f"{run}_epoch_100.npz"), **a100)
+        json.dump({"weights": {"90": 1.0, "100": 0.0}}, open(os.path.join(gw, f"{run}_weights.json"), "w"))
+    V = P.judge(results)
+    assert V["P-b8.5"] is True and V["P-b8.6"] is True
+    df = __import__("pandas").read_csv(os.path.join(results, "pah", "pah_layers.csv"))
+    assert (df.alpha_hat_win.sub(1.0).abs() < 1e-6).all() and (df.codiag_win > 0.999).all()
