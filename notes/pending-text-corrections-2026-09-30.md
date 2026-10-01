@@ -68,3 +68,18 @@ Table I、池化計數 687/703、對齊的 ρ_align、分解表都不含這五�
 - **B7（theory-chain 判定段）**：κ 跟輸出端梯度 Gram 的寬度走（後三層 Spearman +0.86）、Γ 隨步數縮（108 對 310）、頭部順序可前向算（ρ 1.00）
   但數目在全訓練 CIFAR-10 高估 1.6–2.1 倍 → 只寫順序；難樣本數與 K 分不開（偏相關 +0.58）→ "consistent with, not separated from, the class count"。
 
+## F. 獨立審稿 agent（10-01；`hostile-review-agent-2026-10-01.md`，回應在 `…-response.md`）新增的 41 條
+
+改稿時以 response 表的「行動」欄逐條處理；這裡只列會動**陳述**的，其餘是數字與表的對帳（#10–14、25–27、29–32、35、41–44、50、52、63）：
+- **#1／#2／#51 對照不一致**：家族表加初始化欄、兩種對照並報；摘要「measured against their own initialisations」改「against a random draw of the same architecture (γ as stated)」；刪「bottleneck 家族的 gradient」與「depth is not the cause」。
+- **#5／#6**：「basic 家族保序」改為深度 × 資料 × 步數的陳述（引 A17、A28、A33）；Limitations 刪「沒跑」兩句，報 A17／A27。
+- **#7**：對齊改引 NFA 線（Beaglehole 2023／2024、Radhakrishnan 2024）；Saxe 只當深線性對照、寫明白化假設。
+- **#9／#21**：「merge」改效果量（S14）；摘要「寬度分成三個因子」改「共變異數分解、寬度被夾擠」。
+- **#15／#16／#17／#19／#20／#45–47（第 3 軸）**：Prop. 1 改成比值的正確陳述＋高斯假設；S5 改譜替身；S6 降 remark＋列高斯初始化的家族；S7 改第一層旋轉不變性＋修 BN 句；S2 置中；S4 κ＝1；Cor. 1 末句。
+- **#18**：Deshpande 改「in expectation」；greedy 界查 Altschuler 2016 後決定留或刪。
+- **#22**：家族表加角色內 T–R（DenseNet 3×3 −0.26、WRN −0.17、R101 −0.08）。
+- **#23／#37–40／#62**：檢定與相關加 CI、標 post hoc、只報 all-above-all；探針維度註明。
+- **#24／#28／#54**：刪控制器「0.2 each」；報 DeiT-S −0.9；先驗臂寫明是控制器臂。
+- **#48**：補引 Net2Net、GradMax、Firefly。
+- **#57／#59**：III-C 段序；摘要標探索性。
+
