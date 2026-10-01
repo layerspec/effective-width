@@ -102,20 +102,32 @@ resulting zero cosine was observed at initialisation by Chen, Bu and Yan (2024: 
 attributed to high dimension; what B6 adds is that it is exact, holds along the whole trajectory, and removes the hypothesis of
 Theorem 3.5 for every conv–BN layer. Training then reaches the balance between weight decay and gradient rotation: for a scale-invariant layer under SGD with weight decay the squared norm converges linearly to √(Lη/(2λ)) and the angular update to √(2ηλ) (Wan et al. 2021, Theorem 1; Li and Arora 2020) — the norm, not the rank, of W is set by λ.
 
-**Lemma B7.1 (the trained weight is a memory window of gradients).** For SGD with momentum μ_t (Nesterov or classical), weight decay λ and any schedule η_t, W_T = a_T W_0 − Σ_{s<T} c_{T,s} g_s exactly, where g_s is the batch gradient of the unregularised loss and (a_T, c_{T,s}) is the impulse response of the scalar recursion; if η̄λ[1 + μ̄ + μ̄² + 2μ̄³/(1−μ̄)] ≤ (1−μ̄)/2 then every c_{T,s} ≥ 0 and 0 < a_T < 1 (proofs note B7.1, B7.1′; verified to 10⁻¹⁰ against the optimiser). This sharpens Lemma 3.2 of Galanti et al. (2024), whose count of rank-one terms (patches × batch × window) exceeds C for convolutions. For our recipe a_T = 2·10⁻⁴ and 90 % of Σ c² lies in epochs 65–86, whereas the training loss reaches its terminal phase only after epoch 80–85: the trained weight is built from pre-collapse gradients. Since the gradient of a convolution is Σ δ xᵀ, col(W_T − a_T W_0) ⊆ span{δ}, the position-resolved gradients at the layer's output over the window — a bound with content for convolutions, where Galanti's count of rank-one terms (patches × batch × window) exceeds C. We hypothesise that the τ-width of the output covariance follows the width of this gradient Gram (P-b7.2; measured by `measure_gradgram.py` on the 21 checkpoints, and on the epoch-60–90 checkpoints of A18 with the exact weights c_s), and that the contraction with optimisation steps (A25) is a narrowing of the gradients inside the window, not a shift of the window (P-b7.3). The residual-initialisation alternative is excluded (⟨W_T, W_0⟩/‖W_0‖² = 0.003–0.05 in layers 2–13). At the last convolution the mechanism is explicit: δ_{i,p} = (1/HW) J_BNᵀ D_{i,p} W_cᵀ e_i with e_i = softmax_i − onehot_i and D_{i,p} the ReLU mask of the position; without masks the span is at most K-dimensional (the collapse bound reappears), with masks it is full, and its τ-width is concentrated by ‖e_i‖ — the EL2N score of Paul et al. (2021) — so that κ counts the examples that still carry gradient inside the window, times the diversity of their masks (P-b7.5, P-b7.6; a forward-only prediction of the Gram reproduces its head on the smoke, eigenvalue-sequence Spearman 1.000).
+**Lemma B7.1 (the trained weight is a memory window of gradients; the window itself is known).** The EMA view of weight decay (Wang and Aitchison, ICML 2025, §3.1; Everett and Qiu 2026, §3.1) already puts the trained weight in the span of the updates of the last ≈ 1/(ηλ) steps; what follows makes it exact for SGD with momentum and any schedule, and draws the consequence for the output covariance (B7.2′). For SGD with momentum μ_t (Nesterov or classical), weight decay λ and any schedule η_t, W_T = a_T W_0 − Σ_{s<T} c_{T,s} g_s exactly, where g_s is the batch gradient of the unregularised loss and (a_T, c_{T,s}) is the impulse response of the scalar recursion; if η̄λ[1 + μ̄ + μ̄² + 2μ̄³/(1−μ̄)] ≤ (1−μ̄)/2 then every c_{T,s} ≥ 0 and 0 < a_T < 1 (proofs note B7.1, B7.1′; verified to 10⁻¹⁰ against the optimiser). This sharpens Lemma 3.2 of Galanti et al. (2024), whose count of rank-one terms (patches × batch × window) exceeds C for convolutions. For our recipe a_T = 2·10⁻⁴ and 90 % of Σ c² lies in epochs 65–86, whereas the training loss reaches its terminal phase only after epoch 80–85: the trained weight is built from pre-collapse gradients. Since the gradient of a convolution is Σ δ xᵀ, col(W_T − a_T W_0) ⊆ span{δ}, the position-resolved gradients at the layer's output over the window — a bound with content for convolutions, where Galanti's count of rank-one terms (patches × batch × window) exceeds C. We hypothesise that the τ-width of the output covariance follows the width of this gradient Gram (P-b7.2; measured by `measure_gradgram.py` on the 21 checkpoints, and on the epoch-60–90 checkpoints of A18 with the exact weights c_s), and that the contraction with optimisation steps (A25) is a narrowing of the gradients inside the window, not a shift of the window (P-b7.3). The residual-initialisation alternative is excluded (⟨W_T, W_0⟩/‖W_0‖² = 0.003–0.05 in layers 2–13). At the last convolution the mechanism is explicit: δ_{i,p} = (1/HW) J_BNᵀ D_{i,p} W_cᵀ e_i with e_i = softmax_i − onehot_i and D_{i,p} the ReLU mask of the position; without masks the span is at most K-dimensional (the collapse bound reappears), with masks it is full, and its τ-width is concentrated by ‖e_i‖ — the EL2N score of Paul et al. (2021) — so that κ counts the examples that still carry gradient inside the window, times the diversity of their masks (P-b7.5, P-b7.6; a forward-only prediction of the Gram reproduces its head on the smoke, eigenvalue-sequence Spearman 1.000).
 
-**What we verify [A35, pending].** On 21 CIFAR checkpoints (VGG-16_BN, K = 10/13/20/50/100, three seeds each): the training-mode cosine
-per conv–BN layer, the stationarity residual ‖λW + ∇L₀‖/‖λW‖ (a smoke run gives 16–28: the trained weights are far from (4)), the rank-K
-tail energy of the late weights (smoke: 0.41–0.61 — far from rank K), and the within-class variance fraction along depth
-(smoke: 0.86 → 0.07 on pooled features — NC1 *is* reached in the pooled representation). The second explanation — that collapse is a
-property of the pooled/flattened representation whereas the position-sampled covariance is a different object — is consistent with the
-last number and with A34 (both rulers contract with optimisation steps on the position-sampled covariance, neither reaches K).
+**What we verify [A35, judged 2026-10-01, plan §10.24].** On 21 CIFAR checkpoints (VGG-16_BN, K = 10/13/20/50/100, three seeds each): the training-mode cosine
+per conv–BN layer is |cos| ≤ 0.043 in all 21 × 13 layers (≤ 0.003 outside the 39,000-step arm), the stationarity residual ‖λW + ∇L₀‖/‖λW‖ is 1.6–13
+(the gradient is 1.3–13 times λW and orthogonal to it: no layer is near (4)), the rank-K tail energy of the last three weights is 0.41–0.62 (far from rank K),
+and the within-class variance fraction of the pooled post-ReLU features falls from 0.86 to 0.07 at the last convolution on CIFAR-10 (0.41 at K = 100) — NC1 *is*
+reached in the pooled representation while neither the weights nor the position-sampled τ-width collapse. The second explanation — collapse is a property of the
+pooled/flattened representation, the position-sampled covariance is a different object — is therefore what the data say, consistent with A34 (both rulers
+contract with optimisation steps, neither reaches K) and with the hypothesis of the wide-network theorem (Jacot, Súkeník, Wang and Mondelli 2024: the collapsing
+object is the input of the final linear layers). Garrod, Keating and Thrampoulidis (2026) show that depth alone, without L2, yields collapse in the deep UFM: B6 removes
+the quantitative rank-K bound of Theorem 3.5 for conv–BN layers, not collapse itself. The optimiser matters for whether collapse occurs at all (Zhao, Cheng,
+Masarczyk and Lucchi, ICLR 2026: SGD and Adam reach it, AdamW does not); every CIFAR run here is SGD with momentum and coupled weight decay.
 
 **The class count enters where the theory says it should.** The width kept by the ruler rises monotonically with K
 (0.88/0.92/0.98/0.99 for K = 13/20/50/100, 3/3 seeds) [A24], contracts with optimisation steps at fixed data (d = 0.38 vs 0.52 at equal
 steps) [A25], and a ten-class ImageNet task at 224 px shows no idle width in a residual network [A26] — so the few-class collapse of the
 late layers is a property of plain networks on few-class tasks trained to the terminal phase, and its depth is set by κ, which we can
 measure but not yet derive.
+
+**What we verify [B7, judged 2026-10-01; theory-chain note, last section].** Over the last three convolutions of the same 21 checkpoints, k*(0.999) of the output covariance
+follows k*(0.999) of the output-gradient Gram Γ (Spearman +0.86; +0.93 at τ = 0.95), Γ is at least 3K wide in every layer, Γ narrows with optimisation steps
+(median 310 → 108 between 5,000 and 39,000 steps), and the forward prediction from the ReLU masks and the EL2N scores reproduces the *order* of Γ's head exactly
+(ρ = 1.000 in 21/21) but over-counts it by 1.6–2.1× on the fully trained CIFAR-10 networks; the Gram width follows the fraction of images with EL2N > 0.1
+(Spearman +0.85) but is not separated from K in this design (partial +0.58). The two-sided τ-width bound of B7.2′ (window Gram against final output) is being
+measured on checkpointed runs (P-b7.1′, P-b7.4; plan §9.27). Liu, Paquette and Sous (2026) read activation and per-sample gradient spectra side by side as
+diagnostics of LLM training; the relation between the two is what is claimed here.
 
 ### III-D. Net effect on the layer order: reversal is the assembled consequence of III-A and III-C, not a separate phenomenon
 
@@ -125,8 +137,10 @@ preserved (CIFAR-10, K = 10: late third 0.03 → 0.04, early third 0.42 → 0.31
 rise from the narrowest to the widest and the order is lost or reversed (ImageNet, K = 1000: late third 0.07 → 0.56, early third 0.48 → 0.44;
 T–R −0.25/−0.26 in ResNet-50 and −0.21/−0.02 in a 52-layer basic-block network of the same recipe, two seeds each — the second basic seed is near zero, not reversed) [A17, round 3; against each network's own initialisation, γ = 1 in the last BN of every block — against zero-γ references the same ResNet-50 weights give T–R +0.41/+0.33, so the statement is about the reference pair, plan §10.22]. The recipe is excluded
 (this recipe against six public ResNet-50 recipes: T–T +0.86) and the block type is excluded (neither basic nor bottleneck preserves the order on
-ImageNet, and both preserve it on CIFAR-10 at +0.4 to +0.56; H9.4a fails); what remains is the dataset at this depth [A17; A28 pending decides between class count,
-image count and resolution]. No theorem in the literature states the layer order; none is needed beyond III-A and III-C, and the one
+ImageNet, and both preserve it on CIFAR-10 at +0.4 to +0.56; H9.4a fails); what remains is the dataset at this depth [A17]. Within ImageNet, a hundred classes at 224 px, a thousand classes at 64 px and 130 images per class each still reorder
+(same-seed T–R −0.09 to −0.29; T–T with the full-data profile 0.84–0.90), and optimisation length pushes towards reordering (100 classes at 64 px: intermediate at 37,000
+steps, +0.02; reordered at 366,000 steps, −0.32) [A28, plan §10.23]; a VGG-16 on ten-class ImageNet keeps 0.52–0.62 of its parameters under the ruler and a ResNet-18
+0.95–0.97, so the plain-versus-residual reading is withdrawn [A27]. Whether ten classes at 224 px keep the order is the remaining cell [A31, pending]. No theorem in the literature states the layer order; none is needed beyond III-A and III-C, and the one
 open quantity is κ.
 
 ### III-E. Residual streams: the addition cannot lower the spectrum, only the τ-width
@@ -135,7 +149,7 @@ open quantity is κ.
 Σ_y ⪰ (1−ρ)(Σ_x + Σ_f) — classical; the mechanism that residual connections keep rank at initialisation is Dong et al. (2021) for
 attention and Joudaki–Hofmann (2024, Prop. 2) for the kernel map; after training the branches are low-rank (Li and Papyan 2023).
 
-**Proposition B2 (τ-width at the addition) — status 09-30 afternoon: proved only for an uncorrelated branch; with the (1±ρ) correction it is vacuous on all 56 measured blocks (ρ_max ≈ 0.95), so it stays out of the paper until a cross-term version is checked.** What can be said without it: the absolute spectrum cannot fall (Weyl), the relative width can, and in ResNets it does (below).
+**Proposition B2 (τ-width at the addition) — closed 2026-10-01.** Its cross-term (Ky Fan) form is valid in all 80 measured blocks but reaches a median 0.24 of the sum's τ = 0.95 width in trained ResNets (4/56 blocks above one half; plan §10.17); it stays out of the paper. What can be said without it: the absolute spectrum cannot fall (Weyl), the relative width can, and in ResNets it does (below).
 
 **What we verify [§10.17].** In 56 blocks of four ImageNet ResNets every eigenvalue of the stream at its own width is *larger* after the
 addition (retention ≥ 1.11, median 1.36–5.77), both lower bounds hold in every block, and yet the τ = 0.95 width before the ReLU is
@@ -151,4 +165,5 @@ outputs, not about the stream.
   the measured *degree of hypothesis failure* per link is ours and is the part reviewers cannot find elsewhere.
 - Does not claim: a derivation of κ; a finite-width, correlated-position law for the ReLU step (open; B4); that the order reversal is a
   theorem (it is a consequence under the stated conditions, verified on two ImageNet architectures and one CIFAR family).
-- Weakest points: III-A(iii) sample independence (the real hole); III-C rests on A35 (pending); III-D's "dataset at this depth" awaits A28.
+- Weakest points: III-A(iii) sample independence (the real hole); III-C's bound on κ rests on P-b7.1′/P-b7.4 (running); III-D's last cell is A31 (running). The memory window is
+  known (Wang and Aitchison 2025); the τ-width consequence is ours only if P-b7.1′(c) holds, otherwise B7 is an ordering, not a bound.
