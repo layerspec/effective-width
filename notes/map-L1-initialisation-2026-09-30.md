@@ -129,6 +129,9 @@
 | MobileNetV2 | 0.38／0.16／**0.02** | −0.89 | 0.08／0.02／**0.00** | −0.90 |
 | EfficientNet-B0 | 0.42／0.42／0.27 | +0.13 | 0.30／0.06／0.03 | −0.87 |
 
+> **更正（10-01）**：用登記的程式 `scripts/l1_forgetting_judge.py` 重算 seed 1（配對 `apriori_check.real_profile`），ResNet-50 這一列應為 **0.59／0.47／0.16、ρ −0.86；τ＝0.999 0.10／0.04／0.01、−0.88**
+> （ResNet-50 也隨深度忘卻），EfficientNet-B0 的 τ＝0.95 ρ 為 −0.65；其餘列在 0.05 內一致。上表 ResNet-50 列的算法已不可考，以程式輸出為準；「basic／bottleneck 殘差網路看不到」的讀法只剩 ResNet-18 支持，等 seed 2–3（plan §9.27(C)）。
+
 **讀法**：Joudaki 推論 2 的「深層忘掉輸入」在 **plain／dense／inverted-residual** 家族看得到（VGG 後段相對差 0.24／0.01，MobileNetV2 0.02／0.00，DenseNet 0.12／0.00），
 在 **basic／bottleneck 殘差網路看不到**（ResNet-18／50 三等分都 0.4–0.65，ρ ≈ −0.2）。DenseNet 的 concat 與 MobileNetV2 的殘差都是 block 內部（量的是 conv 輸出），
 所以「殘差保輸入」要更精確地說：**恆等捷徑把輸入的二階統計一路帶到每個 block 的輸入端**，conv 輸出才會在深層仍看到影像譜。這正是環 5（Weyl：加法處絕對譜不減）
