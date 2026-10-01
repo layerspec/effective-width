@@ -77,6 +77,8 @@ what we add is the bias-free form, the ε term, and the consequence for the stat
 has only the solution W_l = 0 (Proposition B6), and the measured ratio ‖∇L₀‖/‖λW‖ of 16–28 at the end of training shows the trained weights are nowhere near it.」
 
 ### B2 τ 寬度在加法處的下界（環 5 的補強；小）
+
+**關閉（2026-10-01，P9.62b 成立、P9.62c 不成立，plan §10.17 末段）**：交叉項的 Ky Fan 形式在 56 個訓練 block 上只到真實 τ 寬度的 0.24（中位），4/56 過半；不進論文。
 Weyl 只給特徵值下界；τ 寬度是相對量，可證：k*(τ)(Σ_x＋Σ_f) ≥ k*(τ′)(Σ_x)，τ′＝1−(1−τ)(1＋tr Σ_f／tr Σ_x)。初等，但把「絕對譜不減、τ 寬度可減」寫成一條可引的不等式，
 並解釋 §10.17 的 36/42。
 **證明（09-30 下午寫齊）**：設 k < k*_{τ′}(Σ_x)，即 Σ_{i≤k} λ_i(Σ_x) < τ′ tr Σ_x。Ky Fan：Σ_{i≤k} λ_i(Σ_x＋Σ_f) ≤ Σ_{i≤k} λ_i(Σ_x) ＋ Σ_{i≤k} λ_i(Σ_f) ≤ Σ_{i≤k} λ_i(Σ_x) ＋ tr Σ_f
