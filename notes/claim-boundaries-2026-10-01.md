@@ -24,3 +24,12 @@
 - 改稿時每條放在該主張第一次出現的段落末尾（一句），主張表的 Evidence 欄不改。
 - bib keys 全部已在 `refs.bib`（10-01 加的 17 條＋09-30 的 38 條）；wang2025adamwDecay 頁碰、garrod2026implicitDepth 卷頁待補。
 - 第 5 條的「界」字眼要看 P-b7.1′(c)：成立寫 bound，不成立寫 ordering。
+
+## 10-02 更正（P-b7.1′、B8 判後；`notes/crh-prior-art-2026-10-02.md`）
+- **第 5 條**：寫 **ordering**，不寫 bound（P-b7.1′(c) 字面成立但尺寬臂兩邊貼 C；全寬後段上界鬆 12 倍）。先行工作加 **Ziyin–Chuang–Galanti–Poggio ICLR 2025**（RGA：H_b ∝ G_b，全連接層）。
+  建議句改為："The EMA view of weight decay (Wang and Aitchison 2025) puts the trained weight in the span of recent gradients and Ziyin et al. (2025) posit that representation and
+  gradient second moments align in fully connected layers; on batch-normalised convolutions with positions as samples the output covariance is ordered by the gradient Gram
+  (Spearman +0.86 across checkpoints, +1.00 across layers) but is not proportional to it or to a power of it (co-diagonal fraction 0.2 against 0.1 for a random basis)."
+- **第 6 條**：先行工作加 Ziyin et al. 2025 的 **forward GWA**（WWᵀ ∝ 輸出端梯度 Gram）——A32 的 +0.95／+0.98 是它在 conv patch 上的秩相關版本；冪次不是比例（s² ∝ γ^{2–5}）。
+  建議句的 "predicts that the gain sits where the output-side gradient energy is" 後加 "(the forward gradient–weight alignment of Ziyin et al. 2025)"。
+- bib：`ziyin2025crh`（ICLR 2025）、`ziyin2024noiseEquilibrium`（NeurIPS 2024）待核後加入。
