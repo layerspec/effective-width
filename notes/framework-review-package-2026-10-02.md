@@ -87,7 +87,11 @@ curve's own jitter in 18/19 models (median ratio 2.2). (M3) the block output exc
   of Γ's head (ρ = 1.000 in 21/21) but over-counts by 1.6–2.1×; the window Gram orders the output widths within a network (+1.00; +0.83–0.88 after dividing by C).
   **Not verified:** the bound is tight only where the layer is already at its ruler width; on the full-width network the late window Gram is 12× wider than Σ_out. B7 is an inclusion and an ordering, not a bound.
   κ follows the fraction of hard examples (Spearman +0.85) but is not separated from K (partial +0.58). **There is no derivation of κ.**
-  Weight-decay sweep **[PENDING: P-b7.4a–d]**; window-versus-end exponent **[PENDING: P-b8.5/8.6]**.
+  Weight-decay sweep (λ = 5e-5 / 5e-4 / 5e-3, two seeds): the window's half-mass epoch moves 50 → 76 → 90; ordering and inclusion hold in 6/6 runs (P-b7.4b); at 5e-3 the output width is nearer the end-point Gram
+  than the run average, at 5e-5 the reverse (P-b7.4c, both seeds; at 5e-3 both distances are large, 0.63–0.77). The late level falls 0.43 → 0.078 → 0.05 with λ, but the 5e-3 arm loses 3–4 points of accuracy, so the
+  registered condition for judging it (P-b7.4d) is not met.
+  Along the *window* Gram the output energy has exponent ≈ 1 (0.94–1.01 on four runs unseen at registration, P-b8.5; 0.91–1.08 over nine), while along the end-point Gram it is 0.27–0.94 and approaches 1 as λ shortens the window (P-b8.6).
+  This is a proportionality of energies along the window Gram's eigenvectors, not a shared eigenbasis and not a width formula.
 - **B8 (negative; scopes Ziyin et al. 2025):** the alignment hypothesis would give κ = k*_τ(Γ^α) with α ≈ 2. Registered before the check, on existing data: Σ_out and the end-point gradient Gram do not share an eigenbasis
   (co-diagonal fraction 0.17–0.23 against 0.09–0.15 for a random basis), the exponent is 0.12–0.76, not 2 (P-b8.1–8.4 all fail). The hypothesis does not extend to position-resolved conv–BN layers.
 - **B9 (collapse is per position; the one quantitative statement that holds):** Lemma (elementary: total-variance decomposition + Ky Fan): if the variance outside the span of the (class × position) cell means is ≤ 1 − τ,
@@ -156,8 +160,6 @@ Self-admitted in the literature: "existing studies are exclusively empirical" (Y
 
 ## 8. Pending slots (filled before the review runs)
 
-- **[PENDING] P-b7.4a–d** weight-decay sweep: does λ set which gradients the width is read from, does the late level fall with λ.
-- **[PENDING] P-b8.5/8.6** window-Gram exponent ≈ 1 versus final-Gram 0.3–0.5 on four unseen runs.
 - **[PENDING] A31 K20/K50** (P9.80/83/84): dose–response between the two judged end cells (both reorder).
 - **[PENDING] A29b seed 1** (P9.50): depth axis 20/36/52 under one recipe.
 

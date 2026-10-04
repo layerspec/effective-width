@@ -130,7 +130,7 @@ follows k*(0.999) of the output-gradient Gram Γ (Spearman +0.86; +0.93 at τ = 
 (Spearman +1.00 over the wide layers of three ruler-width VGG-16 runs, +0.83–0.88 after division by the channel count; P-b7.1′, plan §10.25), and the
 inclusion holds in every layer; as a *bound* it is informative only where the layer is already at its ruler width — on the full-width network the late
 window Gram is ≈ 12× wider than the output covariance (475 against 40 of 512 channels), i.e. cond(M) is large there. B7 is therefore stated as an inclusion
-and an ordering, not as an equality. The weight-decay sweep (P-b7.4) is being judged [2026-10-02]. Liu, Paquette and Sous (2026) read activation and per-sample gradient spectra side by side as
+and an ordering, not as an equality. In a weight-decay sweep (λ = 5e-5, 5e-4, 5e-3; two seeds) the window's half-mass epoch moves from 50 to 76 to 90, the ordering and the inclusion hold in 6/6 runs, and the output width is nearer the end-point Gram at the largest λ and nearer the run average at the smallest (P-b7.4b, c; plan §10.30): the weight decay sets the window the width is read from. Along the window Gram's eigenvectors the output energy is proportional to the eigenvalue (exponent 0.91–1.08 over nine runs, 0.94–1.01 on the four unseen at registration; P-b8.5), which the end-point Gram reproduces only when λ makes the window short (0.93/0.94 at 5e-3 against 0.48 at 5e-4; P-b8.6). Liu, Paquette and Sous (2026) read activation and per-sample gradient spectra side by side as
 diagnostics of LLM training; the relation between the two is what is claimed here.
 
 **The alignment hypothesis does not supply κ [B8, plan §10.27].** Ziyin et al. (2025) would give Σ_out ∝ Γ^α in a shared eigenbasis (α ≈ 2 in the relevant phase), hence κ = k*_τ(Γ^α).
@@ -186,6 +186,6 @@ outputs, not about the stream.
 - Does not claim: a derivation of κ; a finite-width, correlated-position law for the ReLU step (open; B4); that the order reversal is a
   theorem (it is a consequence under the stated conditions, verified on two ImageNet architectures and one CIFAR family).
 - Weakest points: III-A(iii) sample independence (the real hole); III-C: P-b7.1′(c) holds to the letter (0.93) but only because the ruler-width arms sit at the channel
-  count on both sides; on the full-width network the bound is loose by an order of magnitude, so **B7 is an ordering, not a bound** (judged 2026-10-02; P-b7.4 pending).
+  count on both sides; on the full-width network the bound is loose by an order of magnitude, so **B7 is an ordering, not a bound**; the sweep's level-versus-λ prediction could not be judged (accuracy condition).
   III-D: neither ten nor a hundred classes at 224 px restore the order (A31, two seeds each); K = 20/50 running. B8 fails; B9 gives κ = P·K only in collapsed layers of VGG-16 on CIFAR. The memory window is known (Wang and Aitchison 2025). What III-C still lacks is a statement about M (why the map from the
   window Gram to the output covariance has low effective rank in late full-width layers).
