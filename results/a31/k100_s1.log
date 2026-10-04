@@ -188,3 +188,17 @@ arch resnet50  params 23,712,932  MACs@224 4.087 G  classes 100  train batches/e
     ep 89 it 0/390 loss 0.281 275 img/s
   epoch  89/95  lr 0.0013  loss 0.254  top1 81.50  top5 94.78  (59s, 1684 img/s)
     ep 90 it 0/390 loss 0.155 258 img/s
+  epoch  90/95  lr 0.0010  loss 0.255  top1 81.30  top5 94.74  (59s, 1681 img/s)
+  [measure] epoch  90  top1 81.30  53 conv layers  k*(.95)/C median 0.077  (73s)
+    ep 91 it 0/390 loss 0.305 277 img/s
+  epoch  91/95  lr 0.0007  loss 0.252  top1 81.26  top5 95.04  (59s, 1685 img/s)
+    ep 92 it 0/390 loss 0.252 272 img/s
+  epoch  92/95  lr 0.0004  loss 0.251  top1 81.50  top5 94.92  (59s, 1683 img/s)
+    ep 93 it 0/390 loss 0.288 256 img/s
+  epoch  93/95  lr 0.0002  loss 0.253  top1 81.54  top5 94.82  (59s, 1681 img/s)
+    ep 94 it 0/390 loss 0.255 293 img/s
+  epoch  94/95  lr 0.0001  loss 0.247  top1 81.54  top5 94.90  (59s, 1683 img/s)
+    ep 95 it 0/390 loss 0.270 286 img/s
+  epoch  95/95  lr 0.0000  loss 0.248  top1 81.54  top5 94.80  (59s, 1685 img/s)
+  [measure] epoch  95  top1 81.54  53 conv layers  k*(.95)/C median 0.094  (148s)
+done {"arch": "resnet50", "final_top1": 81.54, "final_top5": 94.8, "train_hours": 1.570881070892016}

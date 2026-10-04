@@ -1,0 +1,1 @@
+arch resnet50  params 23,549,012  MACs@224 4.087 G  classes 20  train batches/epoch 78  device cuda  crop 224  schedule [0, 5, 10, 25, 50, 100, 150, 225, 300, 375, 450, 468]
