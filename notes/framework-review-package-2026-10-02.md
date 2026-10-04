@@ -88,6 +88,14 @@ curve's own jitter in 18/19 models (median ratio 2.2). (M3) the block output exc
   **Not verified:** the bound is tight only where the layer is already at its ruler width; on the full-width network the late window Gram is 12× wider than Σ_out. B7 is an inclusion and an ordering, not a bound.
   κ follows the fraction of hard examples (Spearman +0.85) but is not separated from K (partial +0.58). **There is no derivation of κ.**
   Weight-decay sweep **[PENDING: P-b7.4a–d]**; window-versus-end exponent **[PENDING: P-b8.5/8.6]**.
+- **B8 (negative; scopes Ziyin et al. 2025):** the alignment hypothesis would give κ = k*_τ(Γ^α) with α ≈ 2. Registered before the check, on existing data: Σ_out and the end-point gradient Gram do not share an eigenbasis
+  (co-diagonal fraction 0.17–0.23 against 0.09–0.15 for a random basis), the exponent is 0.12–0.76, not 2 (P-b8.1–8.4 all fail). The hypothesis does not extend to position-resolved conv–BN layers.
+- **B9 (collapse is per position; the one quantitative statement that holds):** Lemma (elementary: total-variance decomposition + Ky Fan): if the variance outside the span of the (class × position) cell means is ≤ 1 − τ,
+  then k*_τ ≤ P·K − 1. Predictions committed before the spectra were opened: in trained ten-class VGG-16 on CIFAR-10 the spectral cliff sits at 39/40 = 4 positions × 10 classes in 18/18 layers of the last block
+  (ratio 10–77) and k*(0.999) ≤ 40; blind at K = 13 and 20 the cliff is at 51/52 and 79 in 9/9 layers that have one. Cell means are linearly independent (rank 38–39 of 39, 18/18); class-only cells leave 79–95% of the variance
+  (position is necessary, 15/18); the within-cell variance is 2–25% but lies inside the span (outside fraction 0.0006–0.0012, straddling 1 − τ, hence widths 39 and 40).
+  **Scope:** measured only in VGG-16 on CIFAR. The ten-class ImageNet ResNet-18 exceeds 490 = 49·10 in 11/12 last-stage sites (P-b9.8 fails): no per-position collapse there. K = 50/100 show no cliff.
+  A prediction from the cap (ten classes at 224 px do not bind ResNet-50's last stage, so the order is not kept) held against the registered opposite (P9.81); its second clause failed in one of three sites per seed.
 - Class count enters monotonically: the ruler keeps 0.88/0.92/0.98/0.99 of the parameters at K = 13/20/50/100 (3/3 seeds); the contraction deepens with optimisation steps, not with image count.
   Direction known (Masarczyk 2023; Harun 2024); ours is the per-layer number at fixed τ and the dose–response.
 

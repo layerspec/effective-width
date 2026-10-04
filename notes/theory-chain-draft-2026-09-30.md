@@ -133,6 +133,20 @@ window Gram is ≈ 12× wider than the output covariance (475 against 40 of 512 
 and an ordering, not as an equality. The weight-decay sweep (P-b7.4) is being judged [2026-10-02]. Liu, Paquette and Sous (2026) read activation and per-sample gradient spectra side by side as
 diagnostics of LLM training; the relation between the two is what is claimed here.
 
+**The alignment hypothesis does not supply κ [B8, plan §10.27].** Ziyin et al. (2025) would give Σ_out ∝ Γ^α in a shared eigenbasis (α ≈ 2 in the relevant phase), hence κ = k*_τ(Γ^α).
+On the full-width VGG-16 CIFAR-10 runs the two matrices do not share a basis (co-diagonal fraction 0.17–0.23 against 0.09–0.15 for a random basis) and the fitted exponent is
+0.12–0.76 (P-b8.1–8.4 fail, registered before the check). Their theorem is for fully connected layers at a local minimum; in a convolution followed by BN the minimum does not exist (B6) and the
+covariance is position-resolved. We cite it as the nearest hypothesis and report where it stops.
+
+**Where the layer has collapsed, the width is positions × classes [B9, plan §9.29, §10.28].** *Lemma B9.0.* Let a layer's position-sampled output have P positions and K classes, and let w_out be the
+fraction of its variance outside the span of the P·K (class, position) cell means. If w_out ≤ 1 − τ then k*_τ ≤ P·K − 1 (total-variance decomposition; Ky Fan). *Measured, predictions committed before
+the spectra were opened:* in the two trained ten-class VGG-16 CIFAR arms the largest eigenvalue gap of the three last-block layers (P = 2×2) sits at 39 or 40 in 18/18 layers (ratio 10–77) and
+k*(0.999) is 39 or 40; blind, at K = 13 and 20 the gap is at 51/52 and 79 in the 9/9 layers that have one. The cell means are linearly independent (rank 38–39 of 39, 18/18); grouping by class alone
+leaves 79–95% of the variance, by class and position 2–25% (position is necessary, 15/18); that remainder lies inside the span of the cell means (w_out 0.0006–0.0012, on either side of 1 − τ, which is
+why the width is 39 in some layers and 40 in others). The cell structure is present after 5,000 steps (gap at 39/40) while the width is still 110–386: the cap P·K is set early, and the width reaches it
+only when w_out falls below 1 − τ. *Scope.* This is measured in VGG-16 on CIFAR only. At K = 50 and 100 there is no gap; the ten-class ImageNet ResNet-18 exceeds 49·10 in 11 of 12 last-stage sites
+(P-b9.8 fails), so no per-position collapse is reached there. B9 names κ where collapse occurs; it does not say when collapse occurs.
+
 ### III-D. Net effect on the layer order: reversal is the assembled consequence of III-A and III-C, not a separate phenomenon
 
 At initialisation the profile falls with depth (III-A): ρ(depth, k*) at epoch 0 is −0.46 to −0.91 in the five trajectory families (VGG-16, basic52, bottleneck on CIFAR-10; basic6666 and ResNet-50 on ImageNet, two seeds each) [B1′ table]. Training raises every layer's level
@@ -144,7 +158,7 @@ T–R −0.25/−0.26 in ResNet-50 and −0.21/−0.02 in a 52-layer basic-block
 ImageNet, and both preserve it on CIFAR-10 at +0.4 to +0.56; H9.4a fails); what remains is the dataset at this depth [A17]. Within ImageNet, a hundred classes at 224 px, a thousand classes at 64 px and 130 images per class each still reorder
 (same-seed T–R −0.09 to −0.29; T–T with the full-data profile 0.84–0.90), and optimisation length pushes towards reordering (100 classes at 64 px: intermediate at 37,000
 steps, +0.02; reordered at 366,000 steps, −0.32) [A28, plan §10.23]; a VGG-16 on ten-class ImageNet keeps 0.52–0.62 of its parameters under the ruler and a ResNet-18
-0.95–0.97, so the plain-versus-residual reading is withdrawn [A27]. Whether ten classes at 224 px keep the order is the remaining cell [A31, pending].
+0.95–0.97, so the plain-versus-residual reading is withdrawn [A27]. Ten classes at 224 px do not keep it either: same-seed T–R +0.03/+0.10 in ResNet-50 (P9.81 fails, two seeds; plan §10.29) — as B9's cap predicts, since 49·10 = 490 does not bind a 512-wide last stage; the hundred-class cell at 1,000 images per class reorders on its first seed (−0.29; second seed not yet retrieved).
 
 **Two corrections forced by the independent review of 2026-10-01 (findings 1, 2, 22; `hostile-review-agent-2026-10-01-response.md`).** (i) The public-family numbers are properties of the pair (profile, reference draw): the ResNet-50 reference is torchvision's (γ = 1 in the last BN of each block), the other timm-named families' references are timm's (γ = 0), and under one reference the between-family ordering changes (ResNet-34 +0.61 → +0.13, ResNet-101 +0.20 → −0.59 against γ = 1; ResNet-50 −0.08 → +0.44 against γ = 0; plan §10.16(B), §10.22). Every T–R in this section names its reference, and no sentence ranks families whose references differ. (ii) An all-layer T–R can be carried by the alternation of the 1×1 and 3×3 levels — the sawtooth that r_max removes within a family but that still orders the two roles against each other. Within one role (library-default references, `checkpoint_analysis.txt` §8): 3×3 layers keep the order in the plain and basic families (VGG-16 +0.69, ResNet-18 +0.64, ResNet-34 +0.55) and lose it in the bottleneck and dense ones (ResNet-50 +0.09, ResNet-101 −0.08, Wide-ResNet-50-2 −0.17, ResNeXt-50 −0.22, DenseNet-121 −0.26), while 1×1 layers sit between (−0.28 to +0.61); the all-layer values of DenseNet-121 (+0.71), Wide-ResNet-50-2 (+0.33) and ResNeXt-50 (+0.46) are the two-population artefact, not learning. The family statement of this section is therefore made within role, with the reference named, and reads: in the deep ImageNet families the 3×3 order is lost whatever the block type, in the shallow and plain ones it is kept — the depth × dataset × optimisation-length statement of the paragraph above, not a block-type taxonomy. No theorem in the literature states the layer order; none is needed beyond III-A and III-C, and the one
 open quantity is κ.
@@ -173,5 +187,5 @@ outputs, not about the stream.
   theorem (it is a consequence under the stated conditions, verified on two ImageNet architectures and one CIFAR family).
 - Weakest points: III-A(iii) sample independence (the real hole); III-C: P-b7.1′(c) holds to the letter (0.93) but only because the ruler-width arms sit at the channel
   count on both sides; on the full-width network the bound is loose by an order of magnitude, so **B7 is an ordering, not a bound** (judged 2026-10-02; P-b7.4 pending).
-  III-D's last cell is A31 (running). The memory window is known (Wang and Aitchison 2025). What III-C still lacks is a statement about M (why the map from the
+  III-D: ten classes at 224 px do not restore the order (A31); the hundred-class cell has one seed. B8 fails; B9 gives κ = P·K only in collapsed layers of VGG-16 on CIFAR. The memory window is known (Wang and Aitchison 2025). What III-C still lacks is a statement about M (why the map from the
   window Gram to the output covariance has low effective rank in late full-width layers).
