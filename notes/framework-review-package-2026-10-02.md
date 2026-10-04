@@ -95,7 +95,7 @@ curve's own jitter in 18/19 models (median ratio 2.2). (M3) the block output exc
 - Statement: initial profiles fall with depth; training raises every level and caps the late layers at κ; with few classes the cap is low and the order survives, with many classes at depth the late layers rise and the order is lost.
 - Evidence for: CIFAR-10 families T–R +0.4 to +0.9; ImageNet ResNet-50 and a 52-layer basic network under one recipe T–R −0.25/−0.26 and −0.21/−0.02; recipe excluded (T–T +0.86 against six public recipes);
   block type excluded (H9.4a fails); within ImageNet neither 100 classes, nor 64 px, nor 130 images/class restores the order, and 10× more steps pushes further (+0.02 → −0.32) (A28).
-  Depth under one recipe: ResNet-18 +0.75 (keeps), ResNet-34 +0.01, 52-layer −0.11 **[PENDING: second seed, P9.50]**. Ten classes at 224 px **[PENDING: A31 K10/K100, P9.81/82]**.
+  Depth under one recipe: ResNet-18 +0.75 (keeps), ResNet-34 +0.01, 52-layer −0.11 **[PENDING: second seed, P9.50]**. Ten classes at 224 px do not restore the order: same-seed T–R +0.03 / +0.10 (P9.81 fails, two seeds); a hundred classes −0.29 on one seed **[PENDING: second seed, P9.82]**.
 - Corrections already forced by an independent review: every T–R names its reference initialisation (the same ResNet-50 weights read −0.25 against γ = 1 and +0.41 against γ = 0);
   all-layer T–R in families that alternate 1×1 and 3×3 is a two-population artefact (DenseNet-121 +0.71 overall, −0.26 within 3×3); within role, 3×3 order is kept in VGG-16/ResNet-18/34 and lost in every deep ImageNet family.
   "Block type decides" and "plain versus residual" are both withdrawn (A17, A26, A27). Attribution stops at "the data at this depth, and optimisation length".
@@ -150,7 +150,7 @@ Self-admitted in the literature: "existing studies are exclusively empirical" (Y
 
 - **[PENDING] P-b7.4a–d** weight-decay sweep: does λ set which gradients the width is read from, does the late level fall with λ.
 - **[PENDING] P-b8.5/8.6** window-Gram exponent ≈ 1 versus final-Gram 0.3–0.5 on four unseen runs.
-- **[PENDING] A31 K10/K100** (P9.81/P9.82): does a ten-class ImageNet task at 224 px keep the order of initialisation in ResNet-50.
+- **[PENDING] A31 K100 seed 1** (P9.82): the final files are on the network volume; K10 is judged (P9.81 fails).
 - **[PENDING] A29b seed 1** (P9.50): depth axis 20/36/52 under one recipe.
 
 ## 9. Self-score before the review (author's five axes; 1 = rejection ground, 3 = neutral, 5 = reason to accept)

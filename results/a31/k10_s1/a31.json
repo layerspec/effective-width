@@ -1,0 +1,25 @@
+{
+  "cell": "k10",
+  "K": 10,
+  "epochs": 925,
+  "steps_per_epoch": 40,
+  "crop": 224,
+  "n_measure": 6400,
+  "seed": 1,
+  "classes": [
+    181,
+    214,
+    223,
+    334,
+    613,
+    632,
+    827,
+    916,
+    937,
+    960
+  ],
+  "n_secondary_images": 2560,
+  "lists": "../results/a31/lists.json",
+  "data": "/workspace/imagenet",
+  "standard": "/workspace/imagenet_val_6400"
+}
