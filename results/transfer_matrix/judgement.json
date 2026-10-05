@@ -1,0 +1,8 @@
+{
+ "verdicts": {
+  "P-b10.1": true,
+  "P-b10.2": false,
+  "P-b10.3": false,
+  "P-b10.4": true
+ }
+}

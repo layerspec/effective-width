@@ -92,6 +92,10 @@ curve's own jitter in 18/19 models (median ratio 2.2). (M3) the block output exc
   5e-5 and 5e-4 and 12% thereafter: above 5e-4 the level is nearly insensitive to λ.
   Along the *window* Gram the output energy has exponent ≈ 1 (0.94–1.01 on four runs unseen at registration, P-b8.5; 0.91–1.08 over nine), while along the end-point Gram it is 0.27–0.94 and approaches 1 as λ shortens the window (P-b8.6).
   This is a proportionality of energies along the window Gram's eigenvectors, not a shared eigenbasis and not a width formula.
+- **B10 (identity + measurement; where κ sits):** write Σ_out = Γ^{1/2} M̃ Γ^{1/2} on the head of the window Gram, M̃ = Γ^{-1/2} Σ_out Γ^{-1/2} (the Σ_patch-Gram of the input filters attached to the gradient
+  directions). Then: the diagonal of M̃ has no trend in γ (the exponent-one fact) and keeping only the diagonal reproduces Γ's width (16/18) — energies do not narrow; in collapsed layers M̃ is an order of magnitude
+  narrower than Γ (k* 32–112 against H 121–485) and 1.3–2.8× wider than Σ_out (24–40) — most but not all of the narrowing is in M̃ (P-b10.2 fails its registered threshold on the uncollapsed λ = 5e-5 layers);
+  coherence grows with λ (median k*(M̃)/H 0.62 → 0.15 → 0.12); in the stem rank M̃ ≤ rank Σ_patch = 27, the r_max bound re-derived from the input side. **This locates κ in a measurable object; it does not derive it.**
 - **B8 (negative; scopes Ziyin et al. 2025):** the alignment hypothesis would give κ = k*_τ(Γ^α) with α ≈ 2. Registered before the check, on existing data: Σ_out and the end-point gradient Gram do not share an eigenbasis
   (co-diagonal fraction 0.17–0.23 against 0.09–0.15 for a random basis), the exponent is 0.12–0.76, not 2 (P-b8.1–8.4 all fail). The hypothesis does not extend to position-resolved conv–BN layers.
 - **B9 (collapse is per position; the one quantitative statement that holds):** Lemma (elementary: total-variance decomposition + Ky Fan): if the variance outside the span of the (class × position) cell means is ≤ 1 − τ,

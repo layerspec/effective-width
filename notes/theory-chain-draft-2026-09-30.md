@@ -133,6 +133,14 @@ window Gram is ≈ 12× wider than the output covariance (475 against 40 of 512 
 and an ordering, not as an equality. In a weight-decay sweep (λ = 5e-5, 5e-4, 5e-3; two seeds) the window's half-mass epoch moves from 50 to 76 to 90, the ordering and the inclusion hold in 6/6 runs, and the output width is nearer the end-point Gram at the largest λ and nearer the run average at the smallest (P-b7.4b, c; plan §10.30): the weight decay sets the window the width is read from. Along the window Gram's eigenvectors the output energy is proportional to the eigenvalue (exponent 0.91–1.08 over nine runs, 0.94–1.01 on the four unseen at registration; P-b8.5), which the end-point Gram reproduces only when λ makes the window short (0.93/0.94 at 5e-3 against 0.48 at 5e-4; P-b8.6). Liu, Paquette and Sous (2026) read activation and per-sample gradient spectra side by side as
 diagnostics of LLM training; the relation between the two is what is claimed here.
 
+**Where κ sits [B10, plan §9.31, §10.33].** On the head of the window Gram (Γ = U diag(γ) Uᵀ, H = k*(0.999)) write Σ_out = U γ^{1/2} M̃ γ^{1/2} Uᵀ with M̃ = γ^{-1/2} Uᵀ Σ_out U γ^{-1/2}; in the window model
+M̃_ij = ⟨X̃v_i, X̃v_j⟩_{Σ_patch} is the Σ_patch-inner product of the input filters attached to gradient directions i and j. The identity is trivial; what is measured is not. Its diagonal has no trend in γ
+(log–log slope −0.16 to +0.14; this is the exponent-one observation) and keeping only the diagonal reproduces Γ's width (16/18 late layers): the energies of the gradient directions do not narrow anything.
+In collapsed layers M̃ is an order of magnitude narrower than Γ (k*(0.999) 32–112 against H 121–485 over eight runs) and 1.3–2.8× wider than Σ_out (24–40): most of the narrowing from hundreds of gradient
+directions to a few tens of output directions is the Σ_patch-coherence of their input filters, the remainder the interaction of that coherence with the γ-weights. Coherence grows with the weight decay
+(median k*(M̃)/H 0.62 → 0.15 → 0.12 at λ = 5e-5, 5e-4, 2e-3; P-b10.4). In the stem rank M̃ ≤ rank Σ_patch = 27 whatever Γ does — the r_max bound of §II read from the input side. κ is thereby located
+in a measurable object; why M̃ becomes coherent during training is not derived.
+
 **The alignment hypothesis does not supply κ [B8, plan §10.27].** Ziyin et al. (2025) would give Σ_out ∝ Γ^α in a shared eigenbasis (α ≈ 2 in the relevant phase), hence κ = k*_τ(Γ^α).
 On the full-width VGG-16 CIFAR-10 runs the two matrices do not share a basis (co-diagonal fraction 0.17–0.23 against 0.09–0.15 for a random basis) and the fitted exponent is
 0.12–0.76 (P-b8.1–8.4 fail, registered before the check). Their theorem is for fully connected layers at a local minimum; in a convolution followed by BN the minimum does not exist (B6) and the
