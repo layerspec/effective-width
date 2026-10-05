@@ -144,7 +144,7 @@ the spectra were opened:* in the two trained ten-class VGG-16 CIFAR arms the lar
 k*(0.999) is 39 or 40; blind, at K = 13 and 20 the gap is at 51/52 and 79 in the 9/9 layers that have one. The cell means are linearly independent (rank 38–39 of 39, 18/18); grouping by class alone
 leaves 79–95% of the variance, by class and position 2–25% (position is necessary, 15/18); that remainder lies inside the span of the cell means (w_out 0.0006–0.0012, on either side of 1 − τ, which is
 why the width is 39 in some layers and 40 in others). The cell structure is present after 5,000 steps (gap at 39/40) while the width is still 110–386: the cap P·K is set early, and the width reaches it
-only when w_out falls below 1 − τ. *Scope.* This is measured in VGG-16 on CIFAR only. At K = 50 and 100 there is no gap; the ten-class ImageNet ResNet-18 exceeds 49·10 in 11 of 12 last-stage sites
+only when w_out falls below 1 − τ. *Scope.* This is measured in VGG-16 on CIFAR-10 at 32 px only. With the input upsampled to 48 px (P = 9, cap 90) the same network shows no gap after 100 epochs and widths of 95–213, with 0.003–0.023 of the variance outside the span of the cell means — above 1 − τ, so the lemma's premise fails and so does its cap (P-b9.10/9.11, two seeds, registered blind). At K = 50 and 100 there is no gap; the ten-class ImageNet ResNet-18 exceeds 49·10 in 11 of 12 last-stage sites
 (P-b9.8 fails), so no per-position collapse is reached there. B9 names κ where collapse occurs; it does not say when collapse occurs.
 
 ### III-D. Net effect on the layer order: reversal is the assembled consequence of III-A and III-C, not a separate phenomenon
@@ -187,5 +187,5 @@ outputs, not about the stream.
   theorem (it is a consequence under the stated conditions, verified on two ImageNet architectures and one CIFAR family).
 - Weakest points: III-A(iii) sample independence (the real hole); III-C: P-b7.1′(c) holds to the letter (0.93) but only because the ruler-width arms sit at the channel
   count on both sides; on the full-width network the bound is loose by an order of magnitude, so **B7 is an ordering, not a bound**; the sweep's level-versus-λ prediction could not be judged (accuracy condition).
-  III-D: neither ten nor a hundred classes at 224 px restore the order (A31, two seeds each); K = 20/50 running. B8 fails; B9 gives κ = P·K only in collapsed layers of VGG-16 on CIFAR. The memory window is known (Wang and Aitchison 2025). What III-C still lacks is a statement about M (why the map from the
+  III-D: no class count from ten to a hundred at 224 px restores the order (A31, four cells, two seeds each). B8 fails; B9 gives κ = P·K only in collapsed layers of VGG-16 on CIFAR. The memory window is known (Wang and Aitchison 2025). What III-C still lacks is a statement about M (why the map from the
   window Gram to the output covariance has low effective rank in late full-width layers).

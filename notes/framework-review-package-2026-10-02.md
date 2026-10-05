@@ -98,7 +98,7 @@ curve's own jitter in 18/19 models (median ratio 2.2). (M3) the block output exc
   then k*_τ ≤ P·K − 1. Predictions committed before the spectra were opened: in trained ten-class VGG-16 on CIFAR-10 the spectral cliff sits at 39/40 = 4 positions × 10 classes in 18/18 layers of the last block
   (ratio 10–77) and k*(0.999) ≤ 40; blind at K = 13 and 20 the cliff is at 51/52 and 79 in 9/9 layers that have one. Cell means are linearly independent (rank 38–39 of 39, 18/18); class-only cells leave 79–95% of the variance
   (position is necessary, 15/18); the within-cell variance is 2–25% but lies inside the span (outside fraction 0.0006–0.0012, straddling 1 − τ, hence widths 39 and 40).
-  **Scope:** measured only in VGG-16 on CIFAR. The ten-class ImageNet ResNet-18 exceeds 490 = 49·10 in 11/12 last-stage sites (P-b9.8 fails): no per-position collapse there. K = 50/100 show no cliff.
+  **Scope:** measured only in VGG-16 on CIFAR-10 at 32 px. The same network with its input upsampled to 48 px (9 positions, cap 90) reaches no per-position collapse in 100 epochs: no cliff, widths 95–213, outside-span variance 0.003–0.023 > 1 − τ (P-b9.10/9.11 fail, two seeds, registered blind); the ten-class ImageNet ResNet-18 exceeds 490 = 49·10 in 11/12 last-stage sites (P-b9.8 fails). K = 50/100 show no cliff. B9 is a conditional cap with one set of matching measurements, not a formula for κ.
   A prediction from the cap (ten classes at 224 px do not bind ResNet-50's last stage, so the order is not kept) held against the registered opposite (P9.81); its second clause failed in one of three sites per seed.
 - Class count enters monotonically: the ruler keeps 0.88/0.92/0.98/0.99 of the parameters at K = 13/20/50/100 (3/3 seeds); the contraction deepens with optimisation steps, not with image count.
   Direction known (Masarczyk 2023; Harun 2024); ours is the per-layer number at fixed τ and the dose–response.
@@ -107,7 +107,7 @@ curve's own jitter in 18/19 models (median ratio 2.2). (M3) the block output exc
 - Statement: initial profiles fall with depth; training raises every level and caps the late layers at κ; with few classes the cap is low and the order survives, with many classes at depth the late layers rise and the order is lost.
 - Evidence for: CIFAR-10 families T–R +0.4 to +0.9; ImageNet ResNet-50 and a 52-layer basic network under one recipe T–R −0.25/−0.26 and −0.21/−0.02; recipe excluded (T–T +0.86 against six public recipes);
   block type excluded (H9.4a fails); within ImageNet neither 100 classes, nor 64 px, nor 130 images/class restores the order, and 10× more steps pushes further (+0.02 → −0.32) (A28).
-  Depth under one recipe: ResNet-18 +0.75 (keeps), ResNet-34 +0.01, 52-layer −0.11 **[PENDING: second seed, P9.50]**. Ten classes at 224 px do not restore the order: same-seed T–R +0.03 / +0.10 (P9.81 fails, two seeds); a hundred classes at 1,000 images per class reorder (−0.29 / −0.34) and repeat A28's hundred-class profile (T–T +0.91; P9.82 holds). K = 20/50 **[PENDING: P9.80/83/84]**.
+  Depth under one recipe: ResNet-18 +0.75 (keeps), ResNet-34 +0.01, 52-layer −0.11 **[PENDING: second seed, P9.50]**. Ten classes at 224 px do not restore the order: same-seed T–R +0.03 / +0.10 (P9.81 fails, two seeds); a hundred classes at 1,000 images per class reorder (−0.29 / −0.34) and repeat A28's hundred-class profile (T–T +0.91; P9.82 holds). K = 20 and 50 reorder as well (−0.35/−0.17, +0.03/−0.52): no cell keeps the order, the response is not monotone in K (P9.80, P9.84 fail), and the trained level rises with K (Spearman +0.91, P9.83 holds).
 - Corrections already forced by an independent review: every T–R names its reference initialisation (the same ResNet-50 weights read −0.25 against γ = 1 and +0.41 against γ = 0);
   all-layer T–R in families that alternate 1×1 and 3×3 is a two-population artefact (DenseNet-121 +0.71 overall, −0.26 within 3×3); within role, 3×3 order is kept in VGG-16/ResNet-18/34 and lost in every deep ImageNet family.
   "Block type decides" and "plain versus residual" are both withdrawn (A17, A26, A27). Attribution stops at "the data at this depth, and optimisation length".
@@ -160,7 +160,6 @@ Self-admitted in the literature: "existing studies are exclusively empirical" (Y
 
 ## 8. Pending slots (filled before the review runs)
 
-- **[PENDING] A31 K20/K50** (P9.80/83/84): dose–response between the two judged end cells (both reorder).
 - **[PENDING] A29b seed 1** (P9.50): depth axis 20/36/52 under one recipe.
 
 ## 9. Self-score before the review (author's five axes; 1 = rejection ground, 3 = neutral, 5 = reason to accept)

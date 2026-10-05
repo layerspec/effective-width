@@ -1,5 +1,7 @@
 {
  "verdicts": {
-  "P-b9.9": true
+  "P-b9.9": true,
+  "P-b9.10": false,
+  "P-b9.11": false
  }
 }
