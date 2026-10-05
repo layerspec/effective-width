@@ -930,6 +930,16 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   order of its initialisation and one of 52 does not (recipes differ in the schedule; stated once).
 
 ========================================================================
+30. A29b: the depth axis under one recipe -- 20 / 36 / 52 basic convolutions on ImageNet-1k (analysis-plan 9.18)
+========================================================================
+  A17 recipe (SGD, lr 0.1 cosine, 90 epochs, wd 1e-4), torchvision initialisation (last BN weight at one);
+  T-R = Spearman between the final and the initial k*(0.95)/r_max profile of the same seed; all pairs as well
+    arch       conv seeds     T-R same seed  T-R all pairs    T-T   level R->T   top1  zone   T-T vs public tv/a-recipes
+    resnet18     20     1             +0.75          +0.75   +nan  0.44 -> 0.53  69.74  preserves median +0.91 over 6 pairs
+    resnet34     36     1             +0.01          +0.01   +nan  0.26 -> 0.55  72.99  reorders  median +0.89 over 5 pairs
+    basic6666    52     2       -0.21 -0.02          -0.11  +0.89  0.27 -> 0.53  74.44  reorders  
+
+========================================================================
 28. A28: what in ImageNet reorders ResNet-50 (analysis-plan 9.17)
 ========================================================================
   ResNet-50, the A17 recipe; k*(0.95)/r_max on held-out images of each cell's own task (primary) and on the
@@ -957,6 +967,26 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   P9.46 (ten times longer: same-seed T-R within 0.15, same zone) -> fails
   P9.47 (130 images per class, a thousand classes: reorders) -> holds
   Registered consequence: neither a hundred classes, nor 64 pixels, nor 130 images per class restores the order; attribution stays with ImageNet's data at this depth
+
+========================================================================
+31. A31: the class count alone, ImageNet images at 224 pixels, 1,000 images per class, 37,000 steps (analysis-plan 9.26)
+========================================================================
+  ResNet-50, the A17 recipe; k*(0.95)/r_max on the section-6 subset (primary; the same images as A17) and on the
+  cell's own held-out images (secondary); zones by same-seed T-R: reorders <= +0.10, preserves >= +0.40
+    k10    K   10  seeds 2  same-seed T-R +0.03 +0.10  median T-R +0.06  T-T +0.65  rho_depth -0.10 -0.32  level 0.21 0.21 -> 0.02 0.01  settle 925 600  top-1 86.40 85.60  layers 53  -> reorders
+           own held-out images (42, 42 gate-passing layers): same-seed T-R -0.43 -0.36 -> reorders
+           final T-T with A17 (thousand classes) median -0.04; with A28's hundred-class cell +0.30
+    k20    K   20  (no finished runs)
+    k50    K   50  (no finished runs)
+    k100   K  100  seeds 2  same-seed T-R -0.29 -0.34  median T-R -0.32  T-T +0.87  rho_depth +0.62 +0.47  level 0.30 0.14 -> 0.14 0.12  settle 45 45  top-1 81.48 81.54  layers 53  -> reorders
+           own held-out images (53, 53 gate-passing layers): same-seed T-R -0.30 -0.37 -> reorders
+           final T-T with A17 (thousand classes) median +0.64; with A28's hundred-class cell +0.91
+
+  P9.80 (dose-response: Spearman(K, same-seed T-R) <= -0.7 over the eight runs and cell medians non-increasing in K) -> not judged yet
+  P9.81 (ten classes keep the order (both same-seed T-R >= +0.40)) -> fails
+  P9.82 (a hundred classes reorder and repeat A28's hundred-class cell (T-T >= 0.8)) -> holds
+  P9.83 (the level rises with K: Spearman(K, median level) >= +0.7) -> not judged yet
+  P9.84 (the transition is gradual: K = 20 or 50 in neither zone) -> not judged yet
 
 ========================================================================
 29. A30: the ruler on two transformer families (analysis-plan 9.19)
