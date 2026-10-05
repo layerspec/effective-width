@@ -64,3 +64,4 @@
 | ~~transformer 的剖面（A30）~~ | **09-30 已查**：`notes/a30-prior-art-2026-09-30.md` | 投稿前再查一次（搜尋不是窮盡的） |
 | ~~表徵／權重／梯度三者對齊（CRH／PAH）~~ | **10-02 已查**：`notes/crh-prior-art-2026-10-02.md`（Ziyin et al. ICLR 2025 全文；A32、P-b7.2 是其 forward GWA／RGA 的秩相關版本；B8 檢其冪次形式在 conv–BN 層不成立） | Semantic Scholar 只列 15 篇引用，投稿前用 Google Scholar 再掃一次 |
 | 梯度加權的寬度 | 上表的新想法 | Fisher／AGOP 加權的 PCA、task-relevant dimension、活性子空間（active subspaces） |
+| 轉移矩陣 M̃ ＝ Γ^{−1/2}Σ_outΓ^{−1/2}（B10） | **10-06 初查**：`notes/b10-prior-art-2026-10-06.md`（手邊 11 篇全文＋arXiv 三個查詢；CRH 是最近鄰，NFA 文獻只有輸入側，Sun 2026 的「神經互動」是輸入側 AGOP 非對角的遠親） | S2 10-06 限流，CRH 被引清單未掃；mutual coherence 文獻未查 |
