@@ -88,8 +88,8 @@ curve's own jitter in 18/19 models (median ratio 2.2). (M3) the block output exc
   **Not verified:** the bound is tight only where the layer is already at its ruler width; on the full-width network the late window Gram is 12× wider than Σ_out. B7 is an inclusion and an ordering, not a bound.
   κ follows the fraction of hard examples (Spearman +0.85) but is not separated from K (partial +0.58). **There is no derivation of κ.**
   Weight-decay sweep (λ = 5e-5 / 5e-4 / 5e-3, two seeds): the window's half-mass epoch moves 50 → 76 → 90; ordering and inclusion hold in 6/6 runs (P-b7.4b); at 5e-3 the output width is nearer the end-point Gram
-  than the run average, at 5e-5 the reverse (P-b7.4c, both seeds; at 5e-3 both distances are large, 0.63–0.77). The late level falls 0.43 → 0.078 → 0.05 with λ, but the 5e-3 arm loses 3–4 points of accuracy, so the
-  registered condition for judging it (P-b7.4d) is not met.
+  than the run average, at 5e-5 the reverse (P-b7.4c, both seeds; at 5e-3 both distances are large, 0.63–0.77). The late level falls with λ among arms of equal accuracy (0.42 → 0.078 → 0.076 → 0.070 at 5e-5 / 5e-4 / 1e-3 / 2e-3, both seeds; P-b7.4d′ holds), but the drop is an order of magnitude only between
+  5e-5 and 5e-4 and 12% thereafter: above 5e-4 the level is nearly insensitive to λ.
   Along the *window* Gram the output energy has exponent ≈ 1 (0.94–1.01 on four runs unseen at registration, P-b8.5; 0.91–1.08 over nine), while along the end-point Gram it is 0.27–0.94 and approaches 1 as λ shortens the window (P-b8.6).
   This is a proportionality of energies along the window Gram's eigenvectors, not a shared eigenbasis and not a width formula.
 - **B8 (negative; scopes Ziyin et al. 2025):** the alignment hypothesis would give κ = k*_τ(Γ^α) with α ≈ 2. Registered before the check, on existing data: Σ_out and the end-point gradient Gram do not share an eigenbasis

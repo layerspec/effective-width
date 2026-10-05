@@ -186,6 +186,6 @@ outputs, not about the stream.
 - Does not claim: a derivation of κ; a finite-width, correlated-position law for the ReLU step (open; B4); that the order reversal is a
   theorem (it is a consequence under the stated conditions, verified on two ImageNet architectures and one CIFAR family).
 - Weakest points: III-A(iii) sample independence (the real hole); III-C: P-b7.1′(c) holds to the letter (0.93) but only because the ruler-width arms sit at the channel
-  count on both sides; on the full-width network the bound is loose by an order of magnitude, so **B7 is an ordering, not a bound**; the sweep's level-versus-λ prediction could not be judged (accuracy condition).
+  count on both sides; on the full-width network the bound is loose by an order of magnitude, so **B7 is an ordering, not a bound**; the late level falls with λ among equal-accuracy arms (P-b7.4d′) but is nearly flat above 5e-4 (40 → 35 channels for a fourfold λ).
   III-D: no class count from ten to a hundred at 224 px restores the order (A31, four cells, two seeds each). B8 fails; B9 gives κ = P·K only in collapsed layers of VGG-16 on CIFAR. The memory window is known (Wang and Aitchison 2025). What III-C still lacks is a statement about M (why the map from the
   window Gram to the output covariance has low effective rank in late full-width layers).
