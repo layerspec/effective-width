@@ -201,6 +201,97 @@ in the literature scan reported it.
 
 ---
 
+## Width reallocation: `layerspec.realloc`
+
+The measurement above reads a width off a trained layer. `layerspec.realloc`
+acts on it: remove the channels the covariance says are redundant and fold
+them into the layers that consume them (no retraining), add channels along the
+input directions the layer does not yet span (the function is unchanged), and
+split a channel budget across layers from their spectra. Everything is written
+against one interface, so porting to a new architecture is one function.
+
+### The interface: a `Site`
+
+A `Site` is one adjustable width: the module that produces it, the
+normalisation and activation that follow, and every module that reads it
+(`Consumer`s, with the axis they read along and where a folded constant goes:
+the consumer's bias, or the running mean of the next BatchNorm). Three
+discoverers cover the common patterns; `discover_sites(model)` runs all three.
+
+| Discoverer | Pattern | Example |
+|---|---|---|
+| `sequential_conv` | `Conv2d → BatchNorm2d → ReLU [→ MaxPool] → next Conv2d / classifier` inside an `nn.Sequential` | VGG |
+| `resnet_internal` | the widths *inside* a `BasicBlock` / `Bottleneck`-shaped module (`conv1 → bn1 → relu → conv2 [→ bn2 → relu → conv3]`); the block output, tied to the residual stream by the shortcut, is left alone | ResNet-18/50, ResNet-20 |
+| `mlp` | `fc1 → act → fc2` (timm `Mlp`) | ViT, DeiT, ConvNeXt |
+
+A site the discoverers do not find is a `Site(...)` you construct yourself.
+
+### The operators
+
+```python
+from layerspec.realloc import discover_sites, measure, greedy_cssp, shrink, grow, water_fill
+
+sites = discover_sites(model)                       # list[Site]
+mom   = measure(model, sites, calib_loader, device) # post-activation covariance and input-patch
+                                                    # covariance per site; inputs only, labels ignored
+s = sites[5]
+order, traces = greedy_cssp(mom[s.name].act_cov)    # channels in the order a pivoted Cholesky keeps them,
+                                                    # with the residual variance after each
+shrink(model, s, order[:m], mom[s.name])            # keep m channels; the rest are reconstructed
+                                                    # linearly and folded into every consumer
+grow(model, s, k, mom[s.name])                      # k new channels along the input directions the
+                                                    # site does not span; consumers get zero rows,
+                                                    # so the output is identical to the last bit
+widths, mu, _ = water_fill(spectra, cost, budget)   # one width per site at a total cost, by the
+                                                    # KKT conditions of the summed spectra
+```
+
+`removable_width(traces, eps)` is the smallest number of channels whose
+reconstruction residual is at most `eps` of the variance — the ruler of the
+paper read from the subset rather than the eigenvalues. `set_module` keeps the
+replaced module's train/eval mode (a fresh `BatchNorm` defaults to training and
+would silently switch to batch statistics).
+
+### What it has been checked on
+
+`scripts/realloc_check.py --device mps` runs the package end to end on the
+paper's VGG-16 (BN) CIFAR-10 network (seed 0, full width 93.83 %):
+
+* `discover_sites` finds the 13 sites.
+* Shrinking every site to the post-activation `k*(0.999)` widths and folding
+  the rest, with no retraining, gives 93.82 % at 67.3 % of the parameters —
+  the same network, parameter for parameter, as the paper's fold script.
+* Growing every site by 8 channels along its unmet directions leaves the
+  accuracy at 93.83 % exactly; the stem gains nothing, because a 3×3 RGB patch
+  spans at most 27 directions and the 64 filters already cover them.
+* Water-filling the same parameter budget as the ruler widths chooses a
+  different allocation (early layers full, the last three cut deeper) at the
+  same 93.82 %.
+
+`tests/test_realloc.py` covers discovery on VGG / ResNet-20 / `Mlp`,
+bit-exact function preservation under `grow`, exact removal of a dead channel,
+equality of the folded shrink with the hooked reconstruction, the two-sided
+CSSP bounds, and the KKT and budget conditions of `water_fill`.
+
+### What it does not do
+
+* It does not decide *whether* a network has width to remove. On CIFAR-10 at
+  ten classes the ruler frees a third of VGG-16's parameters; on CIFAR-100 and
+  ImageNet-1k, and in a ten-class ImageNet ResNet-18, the same ruler reads
+  the full width (a ten-class ImageNet VGG-16 keeps 0.52–0.62 of its
+  parameters), and folding removes nothing. Measure first.
+* It does not train. The in-training controller (shrink and grow on a
+  schedule) lives in `scripts/realloc_controller.py` and
+  `scripts/trajectory_cifar.py --realloc-budget`; on CIFAR-10 its gain over
+  a uniform width at equal FLOPs is confined to VGG-16, and on ResNet-20 and a
+  CIFAR ViT it equals the uniform baseline. It is not part of the package API.
+* `shrink` folds a *linear* reconstruction of the dropped channels into the
+  consumers; through a ReLU this is exact only for channels that are linear
+  functions of the kept ones. The residual it leaves is `traces[m]`, and the
+  accuracy cost is what the check above measures.
+
+---
+
 ## Cost
 
 | | |
