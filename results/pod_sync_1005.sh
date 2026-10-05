@@ -4,7 +4,7 @@
 R=/Users/ccli/Downloads/effective-width-claude/results
 SSH="ssh -p 10224 -i $HOME/.ssh/id_ed25519 -o BatchMode=yes -o ConnectTimeout=20"
 fail=0
-while [ $fail -lt 8 ]; do
+while true; do   # 2026-10-05: no give-up limit, the Mac is offline overnight and the pod runs until 10-06 evening
   ok=1
   for d in a31 a29b; do
     rsync -az --exclude '*.pt' --exclude '*.pth' -e "$SSH" root@203.57.40.67:/workspace/effwidth/results/$d/ $R/$d/ < /dev/null || ok=0

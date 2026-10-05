@@ -1,0 +1,114 @@
+arch resnet50  params 23,610,482  MACs@224 4.087 G  classes 50  train batches/epoch 195  device cuda  crop 224  schedule [0, 2, 4, 10, 20, 40, 60, 90, 120, 150, 180, 189]
+  [measure] epoch   0  top1  2.00  53 conv layers  k*(.95)/C median 0.109  (324s)
+    ep 1 it 0/195 loss 4.113 4 img/s
+  epoch   1/189  lr 0.1000  loss 4.533  top1  5.40  top5 18.12  (139s, 360 img/s)
+    ep 2 it 0/195 loss 3.703 171 img/s
+  epoch   2/189  lr 0.1000  loss 3.711  top1  7.80  top5 27.84  (31s, 1602 img/s)
+  [measure] epoch   2  top1  7.80  53 conv layers  k*(.95)/C median 0.004  (159s)
+    ep 3 it 0/195 loss 3.656 207 img/s
+  epoch   3/189  lr 0.1000  loss 3.572  top1 11.12  top5 35.12  (31s, 1605 img/s)
+    ep 4 it 0/195 loss 3.573 178 img/s
+  epoch   4/189  lr 0.0999  loss 3.449  top1 13.40  top5 40.40  (31s, 1590 img/s)
+  [measure] epoch   4  top1 13.40  53 conv layers  k*(.95)/C median 0.004  (137s)
+    ep 5 it 0/195 loss 3.243 195 img/s
+  epoch   5/189  lr 0.0999  loss 3.334  top1 17.20  top5 45.52  (31s, 1599 img/s)
+    ep 6 it 0/195 loss 3.370 209 img/s
+  epoch   6/189  lr 0.0998  loss 3.207  top1 18.92  top5 51.12  (31s, 1609 img/s)
+    ep 7 it 0/195 loss 3.197 168 img/s
+  epoch   7/189  lr 0.0998  loss 3.061  top1 24.08  top5 54.92  (32s, 1581 img/s)
+    ep 8 it 0/195 loss 2.990 141 img/s
+  epoch   8/189  lr 0.0997  loss 2.912  top1 26.52  top5 58.00  (31s, 1585 img/s)
+    ep 9 it 0/195 loss 2.847 174 img/s
+  epoch   9/189  lr 0.0996  loss 2.787  top1 29.12  top5 61.88  (31s, 1594 img/s)
+    ep 10 it 0/195 loss 2.633 138 img/s
+  epoch  10/189  lr 0.0994  loss 2.650  top1 32.68  top5 65.76  (32s, 1581 img/s)
+  [measure] epoch  10  top1 32.68  53 conv layers  k*(.95)/C median 0.004  (137s)
+    ep 11 it 0/195 loss 2.394 155 img/s
+  epoch  11/189  lr 0.0993  loss 2.524  top1 35.48  top5 67.08  (31s, 1593 img/s)
+    ep 12 it 0/195 loss 2.463 149 img/s
+  epoch  12/189  lr 0.0992  loss 2.415  top1 37.20  top5 68.72  (31s, 1587 img/s)
+    ep 13 it 0/195 loss 2.313 128 img/s
+  epoch  13/189  lr 0.0990  loss 2.312  top1 37.20  top5 71.56  (32s, 1577 img/s)
+    ep 14 it 0/195 loss 2.261 200 img/s
+  epoch  14/189  lr 0.0988  loss 2.222  top1 41.36  top5 74.28  (31s, 1597 img/s)
+    ep 15 it 0/195 loss 2.105 214 img/s
+  epoch  15/189  lr 0.0987  loss 2.119  top1 39.20  top5 71.12  (31s, 1588 img/s)
+    ep 16 it 0/195 loss 2.185 119 img/s
+  epoch  16/189  lr 0.0985  loss 2.043  top1 48.08  top5 78.96  (32s, 1560 img/s)
+    ep 17 it 0/195 loss 1.900 235 img/s
+  epoch  17/189  lr 0.0982  loss 1.966  top1 47.08  top5 79.08  (31s, 1598 img/s)
+    ep 18 it 0/195 loss 1.868 208 img/s
+  epoch  18/189  lr 0.0980  loss 1.893  top1 49.52  top5 81.16  (31s, 1599 img/s)
+    ep 19 it 0/195 loss 1.736 176 img/s
+  epoch  19/189  lr 0.0978  loss 1.822  top1 50.48  top5 80.72  (31s, 1597 img/s)
+    ep 20 it 0/195 loss 1.874 124 img/s
+  epoch  20/189  lr 0.0975  loss 1.751  top1 55.88  top5 83.84  (32s, 1565 img/s)
+  [measure] epoch  20  top1 55.88  53 conv layers  k*(.95)/C median 0.004  (135s)
+    ep 21 it 0/195 loss 1.747 186 img/s
+  epoch  21/189  lr 0.0973  loss 1.705  top1 54.32  top5 82.72  (32s, 1584 img/s)
+    ep 22 it 0/195 loss 1.728 150 img/s
+  epoch  22/189  lr 0.0970  loss 1.640  top1 57.24  top5 84.88  (31s, 1585 img/s)
+    ep 23 it 0/195 loss 1.405 140 img/s
+  epoch  23/189  lr 0.0967  loss 1.587  top1 51.52  top5 79.52  (32s, 1580 img/s)
+    ep 24 it 0/195 loss 1.553 161 img/s
+  epoch  24/189  lr 0.0964  loss 1.546  top1 56.16  top5 84.00  (31s, 1587 img/s)
+    ep 25 it 0/195 loss 1.441 195 img/s
+  epoch  25/189  lr 0.0961  loss 1.492  top1 57.16  top5 85.92  (31s, 1594 img/s)
+    ep 26 it 0/195 loss 1.436 210 img/s
+  epoch  26/189  lr 0.0957  loss 1.458  top1 60.60  top5 85.52  (31s, 1595 img/s)
+    ep 27 it 0/195 loss 1.385 135 img/s
+  epoch  27/189  lr 0.0954  loss 1.417  top1 60.08  top5 85.76  (32s, 1573 img/s)
+    ep 28 it 0/195 loss 1.366 152 img/s
+  epoch  28/189  lr 0.0950  loss 1.385  top1 57.64  top5 84.64  (32s, 1580 img/s)
+    ep 29 it 0/195 loss 1.218 173 img/s
+  epoch  29/189  lr 0.0947  loss 1.347  top1 62.28  top5 87.84  (31s, 1587 img/s)
+    ep 30 it 0/195 loss 1.258 163 img/s
+  epoch  30/189  lr 0.0943  loss 1.300  top1 54.88  top5 82.20  (31s, 1593 img/s)
+    ep 31 it 0/195 loss 1.192 235 img/s
+  epoch  31/189  lr 0.0939  loss 1.264  top1 64.36  top5 88.32  (31s, 1604 img/s)
+    ep 32 it 0/195 loss 1.308 213 img/s
+  epoch  32/189  lr 0.0935  loss 1.242  top1 63.00  top5 87.24  (31s, 1591 img/s)
+    ep 33 it 0/195 loss 1.172 141 img/s
+  epoch  33/189  lr 0.0931  loss 1.220  top1 63.96  top5 87.56  (32s, 1581 img/s)
+    ep 34 it 0/195 loss 1.307 178 img/s
+  epoch  34/189  lr 0.0927  loss 1.180  top1 63.24  top5 88.04  (31s, 1590 img/s)
+    ep 35 it 0/195 loss 1.118 160 img/s
+  epoch  35/189  lr 0.0922  loss 1.164  top1 63.20  top5 87.64  (31s, 1592 img/s)
+    ep 36 it 0/195 loss 1.201 206 img/s
+  epoch  36/189  lr 0.0918  loss 1.140  top1 65.88  top5 89.52  (31s, 1611 img/s)
+    ep 37 it 0/195 loss 0.948 186 img/s
+  epoch  37/189  lr 0.0913  loss 1.115  top1 66.96  top5 89.60  (31s, 1598 img/s)
+    ep 38 it 0/195 loss 0.962 181 img/s
+  epoch  38/189  lr 0.0908  loss 1.076  top1 65.24  top5 88.48  (31s, 1585 img/s)
+    ep 39 it 0/195 loss 0.922 164 img/s
+  epoch  39/189  lr 0.0904  loss 1.059  top1 65.96  top5 87.80  (31s, 1598 img/s)
+    ep 40 it 0/195 loss 0.940 240 img/s
+  epoch  40/189  lr 0.0899  loss 1.047  top1 66.00  top5 89.52  (31s, 1609 img/s)
+  [measure] epoch  40  top1 66.00  53 conv layers  k*(.95)/C median 0.031  (151s)
+    ep 41 it 0/195 loss 0.997 193 img/s
+  epoch  41/189  lr 0.0893  loss 1.026  top1 65.60  top5 88.68  (31s, 1599 img/s)
+    ep 42 it 0/195 loss 0.920 216 img/s
+  epoch  42/189  lr 0.0888  loss 0.999  top1 67.72  top5 89.60  (31s, 1590 img/s)
+    ep 43 it 0/195 loss 0.953 217 img/s
+  epoch  43/189  lr 0.0883  loss 0.981  top1 67.24  top5 89.40  (31s, 1614 img/s)
+    ep 44 it 0/195 loss 0.833 186 img/s
+  epoch  44/189  lr 0.0878  loss 0.971  top1 71.56  top5 91.84  (31s, 1614 img/s)
+    ep 45 it 0/195 loss 0.924 150 img/s
+  epoch  45/189  lr 0.0872  loss 0.942  top1 72.04  top5 91.88  (32s, 1584 img/s)
+    ep 46 it 0/195 loss 0.951 128 img/s
+  epoch  46/189  lr 0.0867  loss 0.927  top1 68.96  top5 91.40  (32s, 1570 img/s)
+    ep 47 it 0/195 loss 0.809 208 img/s
+  epoch  47/189  lr 0.0861  loss 0.910  top1 68.24  top5 90.88  (31s, 1598 img/s)
+    ep 48 it 0/195 loss 0.950 172 img/s
+  epoch  48/189  lr 0.0855  loss 0.898  top1 64.80  top5 87.96  (31s, 1610 img/s)
+    ep 49 it 0/195 loss 0.779 176 img/s
+  epoch  49/189  lr 0.0849  loss 0.881  top1 63.44  top5 87.64  (31s, 1597 img/s)
+    ep 50 it 0/195 loss 0.848 196 img/s
+  epoch  50/189  lr 0.0843  loss 0.868  top1 67.64  top5 88.88  (31s, 1602 img/s)
+    ep 51 it 0/195 loss 0.788 194 img/s
+  epoch  51/189  lr 0.0837  loss 0.859  top1 69.96  top5 91.16  (31s, 1595 img/s)
+    ep 52 it 0/195 loss 0.850 133 img/s
+  epoch  52/189  lr 0.0831  loss 0.839  top1 64.72  top5 86.84  (32s, 1578 img/s)
+    ep 53 it 0/195 loss 0.862 184 img/s
+  epoch  53/189  lr 0.0825  loss 0.833  top1 73.28  top5 91.92  (31s, 1602 img/s)
+    ep 54 it 0/195 loss 0.888 142 img/s
