@@ -285,10 +285,11 @@ CSSP bounds, and the KKT and budget conditions of `water_fill`.
   `scripts/trajectory_cifar.py --realloc-budget`; on CIFAR-10 its gain over
   a uniform width at equal FLOPs is confined to VGG-16, and on ResNet-20 and a
   CIFAR ViT it equals the uniform baseline. It is not part of the package API.
-* `shrink` folds a *linear* reconstruction of the dropped channels into the
-  consumers; through a ReLU this is exact only for channels that are linear
-  functions of the kept ones. The residual it leaves is `traces[m]`, and the
-  accuracy cost is what the check above measures.
+* `shrink` folds a *linear* reconstruction of the dropped post-activation
+  channels into the consumers. The fold itself is exact up to zero-padding
+  borders and any pooling between the activation and the consumer; what is
+  approximate is the reconstruction, whose residual variance is `traces[m]`,
+  and the accuracy cost is what the check above measures.
 
 ---
 
