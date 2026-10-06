@@ -48,6 +48,11 @@ curve's own jitter in 18/19 models (median ratio 2.2). (M3) the block output exc
 
 ## 3. The chain (the Theory section): five links, each = published theorem + hypothesis + measured degree of failure + what we verify
 
+### 3-0. The spine proposed on 2026-10-07 (review this too: is it clearer than five links, and does it over-reach?)
+- *One principle.* Ky Fan's maximum principle: the best rank-k projection keeps λ₁ + … + λ_k of the variance; k*(τ) is the smallest k at which that optimum keeps τ. Every width bound in the paper is this principle on a particular covariance: the fold's truncation error (Σ_out), the water-filling across layers (convexity of the tail), the finite-sample bias direction (convexity of the Ky Fan functional), the terminal cap P·K − 1 (cell-mean covariance, B9.0), and the gradient-side count on Γ — which is Cui et al.'s (SIAM J. Math. Data Sci. 2020, Def. 3.1) "number of active neurons" read at channel level. Σ_patch and Γ are the two K-FAC factors of the layer's Fisher (Grosse & Martens 2016).
+- *One chain, two directions.* At initialisation Σ₁ → Σ₂ → … is a Markov chain of covariances with the first-layer patch Gram as its only data input (3-A). After training the chain runs from the loss backward: Σ_out ⊆ span(Γ_win) (B7.1), Σ_out = Γ^{1/2} M̃ Γ^{1/2} (B10), cap P·K − 1 where collapse is complete (B9.0) (3-C).
+- *Three widths kept apart.* The width a PCA-optimal (orthogonal) encoder would use — forcing exact kernel isometry raises the width from 0.35–0.36 to 0.68–0.73 r_max and costs 0.10–0.16 points (D5); the width the trained network uses (the ruler, Σ_out; falls with optimisation steps, A25/A34); the width the task needs (Γ, ≥ 3K wide everywhere, P-b7.2; and the cell cap). The ruler reads the second. Variance ≠ task importance is also the finding of weighted-SVD compression (Hsu et al. 2022).
+
 ### 3-A. Initialisation: the profile is a function of architecture, initialisation scale and the image second-order statistics
 - Known: position-covariance recursion (Xiao 2018; Poole 2016); exact finite-width law of the linear step (Silverstein 1995); BN fixed point / isometry (Yang 2019; Joudaki–Daneshmand–Bach 2023);
   PR ≥ Ω(√C) under BN (Daneshmand 2020).
@@ -148,7 +153,7 @@ T–R is +0.52/+0.48 and fc2 is negative (A33). Yu & Wu's fc1 reading reproduced
 Zhu–Zhao–Lu 2026 (NSC: architecture spec → a scalar of the *weight* spectrum); Liu–Paquette–Sous 2026 (Spectral Lens: activation and gradient spectra side by side in LLM training);
 Garg 2024 (utilized rank per layer ÷ min(m, d)); Yu & Wu 2023 (DeiT per-block spectra, low-rank fold-in); Masarczyk 2023 / Harun 2024 (tunnel effect, factors);
 Ziyin et al. 2025 (representation–weight–gradient alignment; fully connected layers); Chen–Bu–Yan 2024 (per-layer "wide enough" criterion from weight-norm variance);
-Bayat 2026 / Mudarisov 2026 (layer-wise MLP widths in LLMs). A citation-graph scan (Ansuini 457 citing papers, Feng, Recanatesi, Daneshmand, …) found none that asks what sets the layer-wise profile or computes it before training.
+Bayat 2026 / Mudarisov 2026 (layer-wise MLP widths in LLMs). Gradient-side width: Cui et al. 2020 (active-subspace count per layer, flattened, one cut-off layer, CIFAR); EigenDamage 2019 / K-FAC (Σ_patch ⊗ Γ as the Fisher); FWSVD 2022 / GFWSVD / AIR (Fisher-weighted truncation of transformer weights); Taylor/Fisher pruning (per-channel scores, no width). Layer removal: Chen & Zhao TPAMI 2019 (probe-gain criterion; VGG-16 late layers saturate on CIFAR), Zhang–Bengio–Singer JMLR 2022 (robust/critical layers). We do not measure the depth axis. A citation-graph scan (Ansuini 457 citing papers, Feng, Recanatesi, Daneshmand, …) found none that asks what sets the layer-wise profile or computes it before training.
 Self-admitted in the literature: "existing studies are exclusively empirical" (Yusupov 2025).
 
 ## 7. Weaknesses we already know (do not spare them)
