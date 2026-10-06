@@ -35,7 +35,7 @@ Title candidates (author prefers the third; the subtitle is unsettled because of
 - Statistics are paired over all gated layers (Wilcoxon / sign test / rank correlation with depth); every effect is reported next to the curve's own adjacent-layer jitter.
 - Profiles are compared by Spearman correlation over layers: T–R (trained vs a random draw of the same architecture), T–T (two trainings), R–R (two draws).
 - 44 public checkpoints (22 trained + their random references), 11 CNN families and two transformer families; CIFAR and ImageNet controlled trainings.
-- 162 pre-registered predictions in a ledger (supplementary table): 61 hold, 47 fail, 5 hold in reverse, 3 partly, 5 cancelled, 16 pending, the rest descriptive. Failures are reported.
+- 164 pre-registered statements in Table S17 (counted by `scripts/prereg_counts.py`, 2026-10-07): 77 hold, 56 fail, 5 hold in reverse, 2 hold by letter only, 6 partly, 7 reported without a threshold, 4 cancelled (P2m), 4 never run (A21 distribution shift P9.26–28, controller P3), 3 not found. Failures are reported.
 - Two reproduction gates: Garg et al.'s CIFAR-10 VGG profile (13 layers, r = 0.981, MAD 0.052); Yu & Wu's DeiT-B fc1 spectra (12/12 blocks within 0.009).
 - Package `layerspec` (PyPI 0.2.0, 180 tests) implements the protocol.
 
@@ -82,7 +82,7 @@ curve's own jitter in 18/19 models (median ratio 2.2). (M3) the block output exc
 - Known: at a stationary point with weight decay, low within-class variation ⇒ weights near rank K (Zangrando 2026, Thm 3.5); deep UFM optima of rank Θ(√K)…K (Súkeník 2024), ≤ 2 for large depth (Garrod–Keating 2025);
   depth alone biases to low rank (Jacot 2023); collapse in the terminal phase (Papyan 2020). All predict a late rank at or below K.
 - Measured: late τ-width on CIFAR-10 is 20–50 channels for K = 10; numerical rank 68–138; ten-class ImageNet ResNet-18 reads 0.95 of 512 channels.
-- **Proposition B6 (ours, small, exact):** for conv followed by training-mode BN, ⟨∇L₀, W⟩ = 0, so λW = −∇L₀ has no solution with W ≠ 0: Theorem 3.5 has no stationary point to bite on.
+- **Proposition B6 (ours, small, exact):** for conv followed by training-mode BN, ⟨∇L₀, W⟩ = 0, so λW = −∇L₀ has no solution with W ≠ 0: Theorem 3.5 is stated for fully connected networks without normalisation (their §2); in a conv–BN layer its stationarity equation has no non-zero solution, so it does not transfer to the layers measured here (checked 2026-10-07 against the paper).
   (Scale invariance is classical; Chen–Bu–Yan 2024 observed the zero cosine at initialisation.) Verified on 21 checkpoints × 13 layers: |cos| ≤ 0.043, gradient 1.3–13× λW, rank-K tail energy of late weights 0.41–0.62,
   while the pooled post-ReLU features *do* reach NC1 at the last convolution (within-class fraction 0.07): collapse is a property of the pooled representation, not of the weights or the position-sampled width.
   Two rulers on the same network (numerical rank vs k*(0.999)) move together and neither reaches K (A34).
@@ -138,7 +138,7 @@ T–R is +0.52/+0.48 and fc2 is negative (A33). Yu & Wu's fc1 reading reproduced
    sample dependence; BN removes the stationary point; pooled-versus-position collapse; rank-only alignments).
 3. One exact proposition (B6), one exact lemma made sharper than the known EMA view (B7.1, with the non-negativity condition), one elementary identity (layer-local law at finite width), all with numerical tests.
 4. Controlled experiments that exclude attributions (recipe, block type, plain/residual, class count within ImageNet, resolution, image count) and one counterfactual that hits (ONI).
-5. A ledger of 162 registered predictions with the failures printed.
+5. A ledger of 164 registered statements with the failures printed.
 
 ## 5. Demoted (one paragraph each in the paper, or supplement)
 
