@@ -1,0 +1,25 @@
+arch resnet34  params 21,797,672  MACs@224 3.664 G  classes 1000  train batches/epoch 5004  device cuda  crop 224  schedule [0, 1, 2, 5, 10, 20, 30, 45, 60, 75, 90]
+  [measure] epoch   0  top1  0.10  36 conv layers  k*(.95)/C median 0.439  (32s)
+    ep 1 it 0/5004 loss 7.109 11 img/s
+    ep 1 it 500/5004 loss 6.427 1272 img/s
+    ep 1 it 1000/5004 loss 5.683 1469 img/s
+    ep 1 it 1500/5004 loss 5.360 1525 img/s
+    ep 1 it 2000/5004 loss 5.129 1588 img/s
+    ep 1 it 2500/5004 loss 4.863 1641 img/s
+    ep 1 it 3000/5004 loss 4.822 1658 img/s
+    ep 1 it 3500/5004 loss 4.526 1669 img/s
+    ep 1 it 4000/5004 loss 4.229 1690 img/s
+    ep 1 it 4500/5004 loss 4.228 1695 img/s
+    ep 1 it 5000/5004 loss 4.244 1693 img/s
+  epoch   1/90  lr 0.1000  loss 5.053  top1 19.58  top5 41.92  (756s, 1694 img/s)
+  [measure] epoch   1  top1 19.58  36 conv layers  k*(.95)/C median 0.172  (21s)
+    ep 2 it 0/5004 loss 3.833 188 img/s
+    ep 2 it 500/5004 loss 3.984 1728 img/s
+    ep 2 it 1000/5004 loss 3.911 1742 img/s
+    ep 2 it 1500/5004 loss 3.546 1751 img/s
+    ep 2 it 2000/5004 loss 3.549 1766 img/s
+    ep 2 it 2500/5004 loss 3.506 1761 img/s
+    ep 2 it 3000/5004 loss 3.431 1751 img/s
+    ep 2 it 3500/5004 loss 3.686 1755 img/s
+    ep 2 it 4000/5004 loss 3.518 1749 img/s
+    ep 2 it 4500/5004 loss 3.424 1745 img/s
