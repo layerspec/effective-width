@@ -53,6 +53,10 @@
 | **Wan, Zhu, Zhang & Sun, NeurIPS 2021**（`wan2021spherical`；讀定理 1） | 縫放不變層＋SGD＋wd：‖w‖² 線性收斂到 √(Lη/(2λ))、角度更新收斂到 √(2ηλ)，並給出達到平衡的充分條件 | B6 之後「訓練到達哪裡」的精確引用；κ 的第一個定量線索：範數由 (η, λ, 梯度能量) 定 | ☑ 已進理論鏈與草稿 |
 | **Galanti, Siegel, Gupte & Poggio 2024 v7**（2206.05794；09-30 讀定理與結論） | 展開 SGD＋wd 的遞推：權重＝記憶窗內 n·B 個秩 ≤ m_l 的梯度（引理 3.2、定理 3.3，不假設駐點）；batch 小／lr 高／wd 大 → 秩低（ResNet-18 CIFAR-10，無 momentum、階梯 lr） | **B7.1 的機制是他們的**；他們的界對卷積是空的（m_l＝patch 數），列空間包含把它變成有內容的；他們列的未來工作（momentum、中間層 NC）＝B7 的兩件事 | ☑ 已進 B7；☐ 改稿 III-C 引並劃界 |
 | **Paul, Ganguli & Dziugaite, NeurIPS 2021**（`paul2021dataDiet`）＋ **Toneva et al., ICLR 2019**（`toneva2019forgetting`；讀摘要） | EL2N ＝ ‖softmax−onehot‖ 幾個 epoch 後就能挑出重要樣本、砍半 CIFAR-10 不掉分；遺忘事件集中在少數樣本 | **B7 的 τ 寬度旋鈕**：Γ 的集中權重就是 EL2N；κ ＝ 窗內仍有 EL2N 的樣本 × 遮罩多樣性——A24／A25 的兩個方向都由它讀出，且前向可算 | ☐ gradgram 判後登記 P-b7.5 |
+| **Cui, Zhang, Daulbaev, Gusak, Oseledets & Zhang, SIMODS 2020**（`cui2020activeSubspace`；10-07 讀 §2、§3.2、§5.1） | 第 l 層損失梯度的非置中共變異數 C＝E[∇c∇cᵀ]，active-neuron 數＝累積特徵值比例 ≥ 1−ε 的最小 i（Def. 3.1，即 τ 尺套在梯度 Gram 上）；Poincaré 誤差界；VGG-19 CIFAR-10 第 4–7 層 105／84／54／36 個（攤平 8,192–16,384） | **B7 的 k*_τ(Γ) 是它的通道版本，論文要這樣寫**；仍是我們的：與 k*_τ(Σ_out) 逐層並列、沿訓練與 λ、對 K 與步數的反應（P-b7.2／7.3／7.6） | ☑ 筆記＋bib；☐ 改稿時 B7 段引 |
+| **Grosse & Martens, ICML 2016**（`grosse2016kfacConv`）＋ **Wang, Grosse, Fidler & Zhang, ICML 2019**（`wang2019eigendamage`；10-07 讀 §2、§4） | 卷積層 Fisher ≈ S ⊗ A：A＝patch 共變異數、S＝輸出端位置梯度的非置中共變異數；EigenDamage 在 Q_S ⊗ Q_A 基底剪通道 | **Σ_patch 與 Γ 在二階最佳化文獻裡有名字**，談它們時要定位；B10 的 M̃ 與 K-FAC 的 Kronecker 假設是不同問題但要並提 | ☑ 筆記＋bib；☐ 改稿時 Σ_patch／Γ 首次出現處引 |
+| **Hsu et al., ICLR 2022**（`hsu2022fwsvd`；10-07 讀 §3–4）＋ GFWSVD 2025／26、AIR 2026（讀摘要） | BERT 奇異值分十組逐組截：最小組掉分＝第 2 組（Fig. 1）；列和經驗 Fisher 加權 SVD；後續 Kronecker 兩側加權、activation＋influence 合併 | **「變異大 ≠ 任務需要」的先行證據**，摺入／尺段落引之；我們的摺入屬 activation-aware 一側，文獻已合併兩側，PCA／效率方向加不進主線 | ☑ 筆記＋bib；☐ 改稿時 §(ii) 引 |
+| **Chen & Zhao, TPAMI 2019**（`chen2019shallowing`）＋ **Zhang, Bengio & Singer, JMLR 2022**（`zhang2022allLayers`；10-07 讀原文） | 探針增益 < 1.5% 的層整層拿掉（VGG-16 CIFAR 末段飽和、ResNet-56 近半層冗餘）；單層重設為初始值：底層 critical、頂層與 residual block robust、任務越難 critical 越多 | 可拿掉的層＝我們尺讀閒置與 B9 塌縮的層（VGG／CIFAR），無人對照；**我們不量深度軸，Limitations 引之**；候選陳述（探針增益 vs k*/r_max 同一組層）等作者定 | ☑ 筆記＋bib；☐ Limitations 一句 |
 
 ## 還沒查、開工前要先查的
 
@@ -63,5 +67,6 @@
 | ~~S3 訓練是否重排順序~~ | **09-30 已查**：`notes/s3-prior-art-2026-09-30.md` | 投稿前再查一次 2026 年的 arXiv |
 | ~~transformer 的剖面（A30）~~ | **09-30 已查**：`notes/a30-prior-art-2026-09-30.md` | 投稿前再查一次（搜尋不是窮盡的） |
 | ~~表徵／權重／梯度三者對齊（CRH／PAH）~~ | **10-02 已查**：`notes/crh-prior-art-2026-10-02.md`（Ziyin et al. ICLR 2025 全文；A32、P-b7.2 是其 forward GWA／RGA 的秩相關版本；B8 檢其冪次形式在 conv–BN 層不成立） | Semantic Scholar 只列 15 篇引用，投稿前用 Google Scholar 再掃一次 |
-| 梯度加權的寬度 | 上表的新想法 | Fisher／AGOP 加權的 PCA、task-relevant dimension、活性子空間（active subspaces） |
+| ~~梯度加權的寬度~~ | **10-07 已查**：`notes/gradient-weighted-width-prior-art-2026-10-07.md`（13 篇原文）——定義已知（Cui 2020 SIMODS 的 active-neuron count＝τ 尺套在梯度 Gram 上）、矩陣已知（Γ＝K-FAC 的 S 因子）、變異≠任務已知（FWSVD）；仍是我們的只有 Σ_out 與 Γ 的 τ 寬度逐層並列（B7，且方向是 Γ 比 Σ_out 寬） | 投稿前再掃 Cui 2020 的被引 |
+| ~~層剪枝／tunnel 對寬度剖面~~ | **10-07 已查**（同一份筆記 §1.7）：Chen & Zhao TPAMI 2019（探針增益判層冗餘，VGG 末段在 CIFAR 飽和）、Zhang–Bengio–Singer JMLR 2022（robust／critical 層，任務越難 critical 越多）、Pons 2024；無人把可拿掉的層與寬度塌縮對照；我們不量深度軸，Limitations 引之 | 候選陳述在筆記 §2（作者定） |
 | 轉移矩陣 M̃ ＝ Γ^{−1/2}Σ_outΓ^{−1/2}（B10） | **10-06 初查**：`notes/b10-prior-art-2026-10-06.md`（手邊 11 篇全文＋arXiv 三個查詢；CRH 是最近鄰，NFA 文獻只有輸入側，Sun 2026 的「神經互動」是輸入側 AGOP 非對角的遠親） | CRH 被引 14 篇已掃（無卷積 Σ_out 對 Γ 分解）；Ziyin 2502.05300／2401.07085 定理段待讀；mutual coherence 文獻未查 |

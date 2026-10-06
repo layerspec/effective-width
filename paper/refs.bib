@@ -1721,3 +1721,97 @@
   year      = {2020},
   annote    = {Verified 2026-10-05 via arXiv API (2001.08248: title, three authors); ICLR 2020 venue as stated in the paper, no DOI. Zero padding lets CNNs encode absolute position; cited with B9.},
 }
+
+@article{cui2020activeSubspace,
+  author    = {Cui, Chunfeng and Zhang, Kaiqi and Daulbaev, Talgat and Gusak, Julia and
+               Oseledets, Ivan and Zhang, Zheng},
+  title     = {Active Subspace of Neural Networks: Structural Analysis and Universal Attacks},
+  journal   = {SIAM Journal on Mathematics of Data Science},
+  volume    = {2},
+  number    = {4},
+  pages     = {1096--1122},
+  year      = {2020},
+  doi       = {10.1137/19M1296070},
+  annote    = {Definition 3.1: the number of active neurons of layer l is the smallest i whose
+               cumulative eigenvalue fraction of the loss-gradient covariance E[grad c grad c^T]
+               (gradient with respect to the flattened layer output) reaches 1 - epsilon; the
+               tau ruler on the gradient Gram. Poincare error bound (Lemmas 2.3, 3.1). VGG-19
+               CIFAR-10 layers 4-7: 105/84/54/36 active neurons out of 8192-16384. Verified
+               2026-10-07 via Crossref.},
+}
+
+@inproceedings{grosse2016kfacConv,
+  author    = {Grosse, Roger and Martens, James},
+  title     = {A Kronecker-factored approximate {F}isher matrix for convolution layers},
+  booktitle = {Proceedings of the 33rd International Conference on Machine Learning (ICML)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {48},
+  pages     = {573--582},
+  year      = {2016},
+  annote    = {The convolution-layer Fisher as S (x) A: A the patch covariance, S the uncentred
+               covariance of the output-position gradients. Our Sigma_patch and Gamma are these
+               two factors. Verified 2026-10-07 via proceedings.mlr.press.},
+}
+
+@inproceedings{wang2019eigendamage,
+  author    = {Wang, Chaoqi and Grosse, Roger and Fidler, Sanja and Zhang, Guodong},
+  title     = {{EigenDamage}: Structured Pruning in the {K}ronecker-Factored Eigenbasis},
+  booktitle = {Proceedings of the 36th International Conference on Machine Learning (ICML)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {97},
+  pages     = {6566--6575},
+  year      = {2019},
+  annote    = {Channel pruning in the eigenbasis Q_S (x) Q_A of the K-FAC factors; importance
+               W' * diag(Lambda_A) diag(Lambda_S)^T * W'. No spectrum width is reported.
+               Verified 2026-10-07 via proceedings.mlr.press.},
+}
+
+@inproceedings{hsu2022fwsvd,
+  author    = {Hsu, Yen-Chang and Hua, Ting and Chang, Sung-En and Lou, Qian and Shen, Yilin and Jin, Hongxia},
+  title     = {Language model compression with weighted low-rank factorization},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2022},
+  annote    = {arXiv:2207.00112. Fig. 1: on BERT STS-B the smallest tenth of the singular values
+               costs as much accuracy as the second tenth; Fisher-weighted SVD with row-summed
+               empirical Fisher (Eqs. 5-6). Verified 2026-10-07 via iclr.cc (poster 6157).},
+}
+
+@inproceedings{molchanov2019importance,
+  author    = {Molchanov, Pavlo and Mallya, Arun and Tyree, Stephen and Frosio, Iuri and Kautz, Jan},
+  title     = {Importance Estimation for Neural Network Pruning},
+  booktitle = {IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {11256--11264},
+  year      = {2019},
+  doi       = {10.1109/CVPR.2019.01152},
+  annote    = {First-order Taylor importance on a gate, (dE/dz_m)^2 = (sum_s g_s w_s)^2 (Eq. 9);
+               a per-channel score in the standard basis. Verified 2026-10-07 via Crossref.},
+}
+
+@article{chen2019shallowing,
+  author    = {Chen, Shi and Zhao, Qi},
+  title     = {Shallowing Deep Networks: Layer-Wise Pruning Based on Feature Representations},
+  journal   = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
+  volume    = {41},
+  number    = {12},
+  pages     = {3048--3056},
+  year      = {2019},
+  doi       = {10.1109/TPAMI.2018.2874634},
+  annote    = {Layer removal by linear-probe gain below 1.5 percent of the full model; the last
+               layers of VGG-16 saturate on CIFAR-10/100 and SVHN; VGG-16 CIFAR-100 keeps accuracy
+               with 87 percent of the parameters removed, ResNet-56 CIFAR-10 improves with 42.3
+               percent removed. No width or rank is measured. Verified 2026-10-07 via Crossref.},
+}
+
+@article{zhang2022allLayers,
+  author    = {Zhang, Chiyuan and Bengio, Samy and Singer, Yoram},
+  title     = {Are All Layers Created Equal?},
+  journal   = {Journal of Machine Learning Research},
+  volume    = {23},
+  number    = {67},
+  pages     = {1--28},
+  year      = {2022},
+  annote    = {Post-training re-initialisation and re-randomisation of single layers: bottom
+               layers critical, top layers robust in FCN/VGG; residual blocks robust even to
+               re-randomisation; harder tasks make more layers critical (ResNet-18 on ImageNet).
+               Verified 2026-10-07 via jmlr.org (paper 20-069).},
+}
