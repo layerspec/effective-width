@@ -111,7 +111,7 @@ curve's own jitter in 18/19 models (median ratio 2.2). (M3) the block output exc
 - Statement: initial profiles fall with depth; training raises every level and caps the late layers at κ; with few classes the cap is low and the order survives, with many classes at depth the late layers rise and the order is lost.
 - Evidence for: CIFAR-10 families T–R +0.4 to +0.9; ImageNet ResNet-50 and a 52-layer basic network under one recipe T–R −0.25/−0.26 and −0.21/−0.02; recipe excluded (T–T +0.86 against six public recipes);
   block type excluded (H9.4a fails); within ImageNet neither 100 classes, nor 64 px, nor 130 images/class restores the order, and 10× more steps pushes further (+0.02 → −0.32) (A28).
-  Depth under one recipe: ResNet-18 +0.75 (keeps), ResNet-34 +0.01, 52-layer −0.11 **[PENDING: second seed, P9.50]**. Ten classes at 224 px do not restore the order: same-seed T–R +0.03 / +0.10 (P9.81 fails, two seeds); a hundred classes at 1,000 images per class reorder (−0.29 / −0.34) and repeat A28's hundred-class profile (T–T +0.91; P9.82 holds). K = 20 and 50 reorder as well (−0.35/−0.17, +0.03/−0.52): no cell keeps the order, the response is not monotone in K (P9.80, P9.84 fail), and the trained level rises with K (Spearman +0.91, P9.83 holds).
+  Depth under one recipe and one initialisation (γ = 1), two seeds each: ResNet-18 +0.75 / +0.68 (keeps), ResNet-34 +0.01 / +0.09, 52-layer −0.21 / −0.02 (both reorder); the turn lies between 20 and 36 convolutions (P9.50 holds). Ten classes at 224 px do not restore the order: same-seed T–R +0.03 / +0.10 (P9.81 fails, two seeds); a hundred classes at 1,000 images per class reorder (−0.29 / −0.34) and repeat A28's hundred-class profile (T–T +0.91; P9.82 holds). K = 20 and 50 reorder as well (−0.35/−0.17, +0.03/−0.52): no cell keeps the order, the response is not monotone in K (P9.80, P9.84 fail), and the trained level rises with K (Spearman +0.91, P9.83 holds).
 - Corrections already forced by an independent review: every T–R names its reference initialisation (the same ResNet-50 weights read −0.25 against γ = 1 and +0.41 against γ = 0);
   all-layer T–R in families that alternate 1×1 and 3×3 is a two-population artefact (DenseNet-121 +0.71 overall, −0.26 within 3×3); within role, 3×3 order is kept in VGG-16/ResNet-18/34 and lost in every deep ImageNet family.
   "Block type decides" and "plain versus residual" are both withdrawn (A17, A26, A27). Attribution stops at "the data at this depth, and optimisation length".
@@ -164,7 +164,7 @@ Self-admitted in the literature: "existing studies are exclusively empirical" (Y
 
 ## 8. Pending slots (filled before the review runs)
 
-- **[PENDING] A29b seed 1** (P9.50): depth axis 20/36/52 under one recipe.
+- ~~A29b seed 1 (P9.50)~~ filled 2026-10-07: holds (medians +0.71 > +0.05 > −0.11). No slot is pending.
 
 ## 9. Self-score before the review (author's five axes; 1 = rejection ground, 3 = neutral, 5 = reason to accept)
 

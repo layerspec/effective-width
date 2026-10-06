@@ -1,0 +1,19 @@
+=== resnet18_s0 start Wed Sep 30 21:49:59 UTC 2026 ===
+=== resnet18_s0 end Thu Oct  1 10:11:15 UTC 2026 ===
+=== resnet34_s0 start Thu Oct  1 10:11:15 UTC 2026 ===
+=== resnet34_s0 end Thu Oct  1 22:48:13 UTC 2026 ===
+=== resnet18_s1 start Thu Oct  1 22:48:13 UTC 2026 ===
+=== resnet18_s0 already done, skipping ===
+=== resnet34_s0 already done, skipping ===
+=== resnet18_s1 start Fri Oct  2 07:13:52 UTC 2026 ===
+=== resnet18_s0 already done, skipping ===
+=== resnet34_s0 already done, skipping ===
+=== resnet18_s1 start Mon Oct  5 09:11:14 UTC 2026 ===
+=== resnet18_s1 end Tue Oct  6 04:01:08 UTC 2026 ===
+=== resnet34_s1 start Tue Oct  6 04:01:08 UTC 2026 ===
+=== resnet34_s1 end Tue Oct  6 16:33:26 UTC 2026 ===
+=== A29b done Tue Oct  6 16:33:26 UTC 2026 ===
+resnet18_s0: 69.738 89.092 11.9 h
+resnet18_s1: 69.442 89.166 18.2 h
+resnet34_s0: 72.986 91.414 12.2 h
+resnet34_s1: 73.064 91.252 12.1 h
