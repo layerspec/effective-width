@@ -1,0 +1,19 @@
+=== timm_resnet34.tv_in1k_random_s1 start 2026-10-07 08:30:04 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+=== timm_resnet34.tv_in1k_random_s1 end: 16 blocks, 207 s ===
+=== timm_resnext50_32x4d.tv_in1k_random_s1 start 2026-10-07 08:33:31 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+=== timm_resnext50_32x4d.tv_in1k_random_s1 end: 16 blocks, 1156 s ===
+  resnet34.tv_in1k           layer1: x=[14, 31, 37] f=[36, 39, 39] y=[31, 38, 40] z=[31, 37, 33] ok=3/3
+  resnet34.tv_in1k           layer2: x=[26, 47, 57, 62] f=[71, 71, 71, 75] y=[59, 71, 74, 77] z=[47, 57, 62, 64] ok=4/4
+  resnet34.tv_in1k           layer3: x=[52, 92, 98, 95, 87, 77] f=[122, 118, 109, 99, 87, 65] y=[108, 123, 118, 103, 92, 73] z=[92, 97, 95, 87, 77, 63] ok=6/6
+  resnet34.tv_in1k           layer4: x=[45, 71, 63] f=[66, 55, 42] y=[64, 65, 50] z=[71, 63, 50] ok=3/3
+  resnext50_32x4d.tv_in1k    layer1: x=[10, 21, 24] f=[28, 26, 30] y=[11, 24, 26] z=[21, 24, 25] ok=3/3
+  resnext50_32x4d.tv_in1k    layer2: x=[24, 34, 40, 45] f=[44, 65, 55, 67] y=[25, 43, 48, 53] z=[34, 40, 45, 51] ok=4/4
+  resnext50_32x4d.tv_in1k    layer3: x=[46, 63, 79, 91, 101, 111] f=[96, 128, 126, 123, 129, 124] y=[50, 85, 97, 105, 116, 126] z=[63, 79, 91, 100, 111, 120] ok=6/6
+  resnext50_32x4d.tv_in1k    layer4: x=[100, 132, 159] f=[194, 220, 232] y=[108, 170, 190] z=[131, 159, 180] ok=3/3
+  P9.93 (ResNet-34 layer3: f<x 1/6, z<x 4/6; layer1 f>x 3/3) -> fails
+  P9.94 (ResNeXt-50 layer3: f>=x 6/6, z>=x 6/6) -> holds
+  P9.95 (sign agreement 91% over 32 ok blocks; ReLU step within 10% in 50%) -> fails
