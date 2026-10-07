@@ -1,0 +1,12 @@
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+saved ../results/branch_overlap_cross/resnet50_tv_in1k_s1_layer3.npz (603 s)
+stage blocks ['layer3.0', 'layer3.1', 'layer3.2', 'layer3.3', 'layer3.4', 'layer3.5']; C=1024; k95(f)=[60, 57, 54, 49, 44, 43]; k95(x)=[52, 84, 93, 85, 75, 66]
+P9.101(a) overlap omega(b-1,b) = [0.056 0.051 0.048 0.043 0.04 ] (random expectation ~ 0.050) -> fails
+  P9.102(beta) layer3.0: along top-52 of x: x 574.2  f 25.1  cross +26.4  cross/x +0.05  | trace cross/trace x +0.044
+  P9.102(beta) layer3.1: along top-84 of x: x 523.4  f 92.9  cross +17.3  cross/x +0.03  | trace cross/trace x +0.031
+  P9.102(beta) layer3.2: along top-93 of x: x 1173.6  f 249.2  cross +102.3  cross/x +0.09  | trace cross/trace x +0.083
+  P9.102(beta) layer3.3: along top-85 of x: x 2701.4  f 476.3  cross +15.4  cross/x +0.01  | trace cross/trace x +0.006
+  P9.102(beta) layer3.4: along top-75 of x: x 6112.3  f 976.3  cross -264.7  cross/x -0.04  | trace cross/trace x -0.041
+  P9.102(beta) layer3.5: along top-66 of x: x 14179.5  f 2088.3  cross +251.4  cross/x +0.02  | trace cross/trace x +0.017
+P9.101(b) energy share eta inside union of the two previous branch top subspaces = [0.491 0.531 0.532 0.532]  dim(U)/k95(x) = [1.26 1.31 1.37 1.41] -> fails

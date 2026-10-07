@@ -32,7 +32,13 @@ def measure(a):
     out = {}
     for t in taps:
         J = t.cov(t.joint); C = J.shape[0] // 2
-        sx, sf = J[:C, :C], J[C:, C:]
+        sx, sf, sxf = J[:C, :C], J[C:, C:], J[:C, C:]
+        wx_, Vx_ = np.linalg.eigh(sx); ix = np.argsort(wx_)[::-1][:TOP]; Ux = Vx_[:, ix]
+        # cross term along the stream's top directions: diag of Ux^T (Sxf + Sfx) Ux, and the same for Sx and Sf
+        out[f"{t.name}::cross_top"] = np.einsum("ij,ji->i", Ux.T @ (sxf + sxf.T), Ux)
+        out[f"{t.name}::x_top"] = np.einsum("ij,ji->i", Ux.T @ sx, Ux)
+        out[f"{t.name}::f_top"] = np.einsum("ij,ji->i", Ux.T @ sf, Ux)
+        out[f"{t.name}::cross_trace"] = np.array([2 * np.trace(sxf)])
         for key, S in (("x", sx), ("f", sf)):
             w, V = np.linalg.eigh(S); idx = np.argsort(w)[::-1][:TOP]
             out[f"{t.name}::{key}_eig"] = w[idx]; out[f"{t.name}::{key}_vec"] = V[:, idx]; out[f"{t.name}::{key}_trace"] = np.array([np.trace(S)])
@@ -61,6 +67,10 @@ def judge(path, tau=0.95):
         w, V = z[f"{b}::x_eig"], z[f"{b}::x_vec"]; tr = float(z[f"{b}::x_trace"][0])
         inside = float(np.sum(w * np.sum((Q.T @ V) ** 2, 0)))  # energy of the top-200 part inside U
         eta.append(inside / tr); ratio.append(dU / kx[b])
+    if f"{names[0]}::cross_top" in z.files:
+        for n in names:
+            k = kx[n]; cx, xx, ff = z[f"{n}::cross_top"][:k].sum(), z[f"{n}::x_top"][:k].sum(), z[f"{n}::f_top"][:k].sum()
+            print(f"  P9.102(beta) {n}: along top-{k} of x: x {xx:.1f}  f {ff:.1f}  cross {cx:+.1f}  cross/x {cx/xx:+.2f}  | trace cross/trace x {float(z[f'{n}::cross_trace'][0])/float(z[f'{n}::x_trace'][0]):+.3f}")
     print("P9.101(b) energy share eta inside union of the two previous branch top subspaces =", np.round(eta, 3), " dim(U)/k95(x) =", np.round(ratio, 2),
           "->", "holds" if sum(e >= 0.9 for e in eta) >= 3 and all(r <= 1.5 for r in ratio) else "fails")
 
