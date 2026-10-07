@@ -35,6 +35,7 @@ REGISTRY = {
     "resnet50": ("resnet50", "ResNet50_Weights"),
     "convnext_tiny": ("convnext_tiny", "ConvNeXt_Tiny_Weights"),
     "densenet121": ("densenet121", "DenseNet121_Weights"),
+    "mobilenet_v2": ("mobilenet_v2", "MobileNet_V2_Weights"),   # 2026-10-07: torchvision's two recipes (V1, V2) replicate timm's single one
 }
 
 DEFAULT_MODELS = ("vgg16_bn", "resnet18", "resnet50", "convnext_tiny")
@@ -88,8 +89,8 @@ def parse(name: str) -> tuple[str, str, bool]:
 
 
 def file_stem(name: str) -> str:
-    """Model name as it appears in output file names (no ':' on any FS)."""
-    return name.replace(":", "_")
+    """Model name as it appears in output file names (no ':' on any FS; '@' marks a torchvision weights variant)."""
+    return name.replace(":", "_").replace("@", "_")
 
 
 def build(name: str, pretrained: bool = True, seed: int = 0) -> tuple[nn.Module, str]:
@@ -122,14 +123,17 @@ def build(name: str, pretrained: bool = True, seed: int = 0) -> tuple[nn.Module,
 
     import torchvision.models as tvm
 
-    if base not in REGISTRY:
+    if base.split("@", 1)[0] not in REGISTRY:
         raise KeyError(f"unknown model {base!r}; known: {sorted(REGISTRY)}")
 
+    variant = "IMAGENET1K_V1"
+    if "@" in base:                      # 2026-10-07: "mobilenet_v2@IMAGENET1K_V2" selects a torchvision weights variant
+        base, variant = base.split("@", 1)
     ctor_name, weights_enum = REGISTRY[base]
     ctor = getattr(tvm, ctor_name)
 
     if random_init or not pretrained:
         return ctor(weights=None), f"random_init(seed={seed})"
 
-    weights = getattr(tvm, weights_enum).IMAGENET1K_V1
+    weights = getattr(getattr(tvm, weights_enum), variant)
     return ctor(weights=weights), str(weights)

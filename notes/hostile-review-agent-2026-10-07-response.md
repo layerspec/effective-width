@@ -61,7 +61,7 @@ A31 K10：終態 `k*(0.95)＝1` 的層 15／29 個（s0／s1，70 列含未過�
 | 32 | MINOR | 成立 | FWSVD 只當「同方向的觀察」引，不當支持 |
 | 33 | MINOR | 部分 | Garg 關卡兩層差 0.2 已依規則 11 寫明；E&B 措辭已是「同一估計器兩種實作」；Yu & Wu 只寫 fc1 |
 | 34 | MAJOR | 成立 | 層間自相關；p 值降為輔助、效果量＋CI 為主 |
-| 35 | MAJOR | 成立 | 已知弱點 §7.4；家族層級句限於 ResNet-50 與受控訓練 |
+| 35 | MAJOR | 部分（10-07 16:00 核：「9/11 家族 n＝1」高估——§8 家族表 nT：mobilenetv2 1、vgg16_bn 1、densenet121 2、convnext_tiny 2，其餘 3–6；免費補 mobilenet_v2 tv V1/V2 與 convnext in12k/fb 後只剩 vgg16_bn 與 densenet121） | 家族層級句限於 nT ≥ 3 的家族；vgg16_bn 要付費訓才有複本 |
 | 36 | MAJOR | 成立 | 門檻的依據是經驗平坦化（Fig. S1），不是 Prop. 1；寫明，並對 C＝2048 層報位置數減半的穩定性（既有資料可算） |
 | 37 | MINOR | 成立 | ConvNeXt dense 4 層的 p 不報 |
 | 38 | MINOR | 成立 | DenseNet 0.5 的比值寫出 |
