@@ -2223,6 +2223,14 @@ ResNeXt-50 layer3（C＝1024，grouped bottleneck）：x＝[46,63,79,91,101,111]
   e ＝ `energy_f_over_x` 的 Spearman ≥ +0.6（能量比越大、ReLU 變窄越多）；且 e < 0.3 的 block 中 r ≤ 0.05 者 ≥ 80%。
 - 後果：成立 → (ii) 寫成「ReLU 步的強弱由分支對流的能量比決定」；不成立 → (ii) 只列數字。
 
+### 10.39 §9.36 判定：ReLU 步的強弱不由能量比決定，是 block 家族的性質（2026-10-07 13:05；56 個 ok block）
+
+**P9.96 不成立**：Spearman(e, r) ＝ +0.28（ResNet-18 +0.10、ResNet-34 +0.15、ResNet-50 +0.62、ResNeXt +0.83——後兩者的範圍與前兩者不重疊）；e < 0.3 的 16 個 block（全是 ResNeXt，e ＝ 0.02–0.07）
+只有 62% 的 r ≤ 0.05。看到的其實是家族：**basic（ResNet-18／34）的 ReLU 步每塊變窄 10–20%，與 e（0.9–2.7）無關；bottleneck ResNet-50 的 ReLU 步 ≈ 0 或微幅變寬（r −0.52…+0.03）；
+ResNeXt 的分支能量只有流的 2–7%（grouped 分支＋BN 的尺度），ReLU 步在各 stage 第一塊變寬、其餘 ≈ 0。**
+**選項 2 到此的誠實結論**：初始化的 stage 內趨勢可以拆成加法步（方向大致由分支可達秩對流寬度定）與 ReLU 步（強弱是 block 家族的性質），
+兩者都是量到的規律，都沒有做成定理（加法步的界 B2 已關、ReLU 步的閉式 feasibility C 已關）。理論軸沒有因選項 2 增加。
+
 ### 10.34 A29b 兩種子定案（2026-10-07 07:40 判；`checkpoint_analysis.py` §30 `section_a29b`；plan §9.18）
 
 pod 鏈 `chain_1005.sh` 於 10-06 16:53 UTC 跑完自行終止；`resnet34_s1`（top-1 73.06，12.1 h）10-07 從網路磁碟取回後判。
