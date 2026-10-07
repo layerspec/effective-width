@@ -1815,3 +1815,50 @@
                re-randomisation; harder tasks make more layers critical (ResNet-18 on ImageNet).
                Verified 2026-10-07 via jmlr.org (paper 20-069).},
 }
+
+@inproceedings{doimo2020nucleation,
+  author    = {Doimo, Diego and Glielmo, Aldo and Ansuini, Alessio and Laio, Alessandro},
+  title     = {Hierarchical nucleation in deep neural networks},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {33},
+  year      = {2020},
+  annote    = {arXiv:2007.03506. Neighbourhood overlap with the output stays near zero up to layer 142 of
+               ResNet-152 and rises to 0.73 within nine layers; single-class density peaks nucleate only in
+               the last layers. Pages not shown on the proceedings page (verified title/authors/volume
+               2026-10-07 via proceedings.neurips.cc); pages to be added before submission.},
+}
+
+@inproceedings{kunstner2019empiricalFisher,
+  author    = {Kunstner, Frederik and Hennig, Philipp and Balles, Lukas},
+  title     = {Limitations of the empirical {F}isher approximation for natural gradient descent},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {32},
+  pages     = {4156--4167},
+  year      = {2019},
+  annote    = {The empirical Fisher (outer products of true-label gradients) equals the Fisher only near a
+               minimum of a realisable model; far from it the two can point in opposite directions. Our
+               Gamma is an empirical-Fisher factor, not K-FAC's sampled-label S. Verified 2026-10-07 via the
+               proceedings metadata.},
+}
+
+@inproceedings{dangelo2024weightDecay,
+  author    = {D'Angelo, Francesco and Andriushchenko, Maksym and Varre, Aditya and Flammarion, Nicolas},
+  title     = {Why Do We Need Weight Decay in Modern Deep Learning?},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  volume    = {37},
+  pages     = {23191--23223},
+  year      = {2024},
+  doi       = {10.52202/079017-0730},
+  annote    = {arXiv:2310.04415. Weight decay in multi-pass vision training acts through the effective
+               learning rate of scale-invariant layers, not as a regulariser; the EMA limit is set by the
+               product eta*lambda. Verified 2026-10-07 via the proceedings bibtex.},
+}
+
+@misc{parker2023intermediateNC,
+  author    = {Parker, Liam and Onal, Emre and Stengel, Anton and Intrater, Jacob},
+  title     = {Neural Collapse in the Intermediate Hidden Layers of Classification Neural Networks},
+  howpublished = {arXiv:2308.02760; HLD workshop at ICML 2023},
+  year      = {2023},
+  annote    = {Layer-wise NC1-NC4 on flattened post-activations of MLP6/VGG11/ResNet18; NC1 falls
+               linearly in the shallow layers and plateaus; CIFAR-100 shows no NC1 decrease.},
+}
