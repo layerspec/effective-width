@@ -1,0 +1,6 @@
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+saved ../results/branch_overlap/resnet50_tv_in1k_s1_layer3.npz (590 s)
+stage blocks ['layer3.0', 'layer3.1', 'layer3.2', 'layer3.3', 'layer3.4', 'layer3.5']; C=1024; k95(f)=[60, 57, 54, 49, 44, 43]; k95(x)=[52, 84, 93, 85, 75, 66]
+P9.101(a) overlap omega(b-1,b) = [0.056 0.051 0.048 0.043 0.04 ] (random expectation ~ 0.050) -> fails
+P9.101(b) energy share eta inside union of the two previous branch top subspaces = [0.491 0.531 0.532 0.532]  dim(U)/k95(x) = [1.26 1.31 1.37 1.41] -> fails
