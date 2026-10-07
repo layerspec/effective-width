@@ -2362,6 +2362,17 @@ ResNeXt 的分支能量只有流的 2–7%（grouped 分支＋BN 的尺度），
 - 剩 n＝1：vgg16_bn（要自訓，付費）；densenet121 停在 2（公開只有兩組）。審稿 #35 的實際範圍：家族層級句限於 nT ≥ 3 的九個家族（含 ConvNeXt-T 4、MobileNetV2 3）。
 - 程式：`layerspec.models` 加 `name@IMAGENET1K_V2` 變體與 `mobilenet_v2`；`checkpoint_analysis.py` 的 mobilenetv2 glob 與 `CONVNEXT_CKPTS` 加入新權重（ConvNeXt 檔複製到 results 根目錄，與既有約定相同）。
 
+### 9.43 目標 (c)：ReLU 步的 Hermite 閉式在殘差流上的檢驗（2026-10-07 18:10 寫；先行工作 `relu-step-prior-art-2026-10-07.md`；Σ_y／Σ_z 矩陣未量）
+
+- **公式（已知，Mehler）**：若流的 ReLU 前輸出 y 在樣本（影像×位置）上是通道間聯合高斯、通道 i 標準差 σ_i、相關矩陣 R，則 ReLU 輸出的置中共變異數
+  Σ̂_z ＝ D [Σ_{k≥1} (a_k²/k!) R^{∘k}] D，D＝diag(σ)，a_k 為 ReLU 的機率論 Hermite 係數（a_1＝1/2、a_2＝1/√(2π)、a_{2m+1}＝0 (m≥1)、a_{2m}＝(−1)^{m+1}(2m−3)!!/√(2π)）。
+  截到 k＝24（係數衰減快）。預測 k_τ(Σ̂_z) 與量到的 k_τ(Σ_z) 比。
+- **量**：`branch_overlap.py --save-cov` 存 layer3 六個 block 的 Σ_y 與 Σ_z（1024×1024）：ResNet-50 γ＝1 隨機 seed 1、ResNet-34 γ＝1 隨機 seed 1（C＝256）、ResNet-50 tv 訓練後。
+- **P9.103（初始化，兩個家族，τ＝0.95）**：|k_τ(Σ̂_z) − k_τ(Σ_z)| / k_τ(Σ_z) ≤ 0.10 在 ≥ 10/12 個 block；且預測的符號對：ResNet-50 的 |Δ| ≤ 0.05、ResNet-34 的預測 Δ ≤ −0.05（變窄）在 ≥ 5/6。
+- **P9.104（訓練後 ResNet-50 tv）**：高斯閉式**不**命中——|誤差| > 0.20 在 ≥ 4/6（訓練後 y 非高斯，塌縮）。若反而命中，ReLU 的訓練後變寬也是高斯效應，是更強的結果。
+- **探索性**：y 的高斯程度（前 10 個主成分的峰度）在初始化與訓練後的差。
+- 後果：P9.103 成立 → stage 遞推的三步（層內律／自由卷積／Hermite）都有已知閉式可用，各環失效量到（獨立性 20%、ReLU 步 ≤ 10%）；寫成「可預測的鏈」。不成立 → 流也不夠高斯，目標 (c) 關閉。
+
 ### 10.34 A29b 兩種子定案（2026-10-07 07:40 判；`checkpoint_analysis.py` §30 `section_a29b`；plan §9.18）
 
 pod 鏈 `chain_1005.sh` 於 10-06 16:53 UTC 跑完自行終止；`resnet34_s1`（top-1 73.06，12.1 h）10-07 從網路磁碟取回後判。
