@@ -96,3 +96,24 @@ Table I、池化計數 687/703、對齊的 ρ_align、分解表都不含這五�
 - **CRH／PAH（`notes/crh-prior-art-2026-10-02.md`；10-02 補）**：`sec:decompose` 與第 2、3 環引 Ziyin–Chuang–Galanti–Poggio（ICLR 2025）。
   A22 的對齊＝他們的 backward RWA、A32 的「增益跟輸出端梯度能量」＝ forward GWA、P-b7.2＝ RGA——**都只在秩相關的意義下**；以矩陣比例的形式在位置解析的
   conv–BN 層不成立（B8，plan §10.27：共對角 0.2 對隨機基底 0.1；s² ∝ γ^{2–5}）。劃界句在該筆記 §4b。bib 條目待核（ICLR 2025 proceedings；另 Ziyin–Wang–Li–Wu NeurIPS 2024）。
+
+## H. 10-07 框架審稿後的措辭修正（我的 19 條＋agent 48 條；核對在 `hostile-review-agent-2026-10-07-response.md`；改稿時逐條處理）
+
+| # | 位置 | 現在的句子／用法 | 改成 |
+|---|---|---|---|
+| H1 | 摘要、§I、§III-D、標題候選 | 「初始化的順序在深 ImageNet 網路丟失」「Initialisation Sets the Order」、任何全層 T–R | **T–R 全退場**。順序軸只寫不需參照的格內趨勢：訓練後第三 stage 的 3×3 寬度隨 block 序上升（公開 26/26、受控 22/24、CIFAR bottleneck 3/3）；γ＝1 初始剖面同格下降、γ＝0 無序；「順序丟失」是兩者的差（plan §10.35） |
+| H2 | §III-D、A17／A28／A29b／A31 各段 | 「歸因停在 the data at this depth」「深度是軸」「轉折在 20–36 層」「K 不恢復順序」 | 刪歸因語言；A17／A28／A31 改報格內趨勢（都上升）與水準；A29b 改「ResNet-18 初始化就上升；ResNet-34／50 的第三 stage 由下降翻成上升」；A31 K10 格退化（15／29 層 k*＝1），P9.81、P-b9.7 不當證據 |
+| H3 | 理論節標題、§I 貢獻 | 「theory section」「one exact proposition」「removes the hypothesis of Theorem 3.5」 | 節名改「What the published theorems say about this object, and where their hypotheses fail」；B6 一句 remark 加四引用（van Laarhoven、Li & Arora、Zhang–Wang–Xu、Kunin）＋「Zangrando 的設定是全連接無正規化，不適用」；精確陳述全進補充 |
+| H4 | 3-0 骨架 | 「one principle」「PCA-optimal width」「task needs」「Markov chain of covariances」「K-FAC factors」「cost 0.10–0.16」 | Ky Fan 縮成一句記號；「isometric-kernel width」；「gradient-side width（Cui 2020 的 active-neuron count 在通道上的版本）」；「Markov in the activation law；covariance recursion closed only for the linear step」；「analogous to the K-FAC factors（經驗 Fisher ≠ Fisher，Kunstner 2019）」；刪準確率代價（P-d5.3 ±0.5 成立） |
+| H5 | B9 段 | 「predictions committed before the spectra were opened」「the one quantitative statement that holds」「Lemma」 | 「exploratory observation on VGG-16/CIFAR-10 at 32 px; blind only at K = 13/20 on the layers with a cliff」；引理改一句 remark |
+| H6 | B7／B10 段 | 「bound」「chain link」「κ follows Γ (+0.86)」「late level falls with λ」 | 「inclusion and ordering, loose by an order of magnitude on full-width networks」；B10 進補充分解表；「+0.86 is consistent with, not separated from K and steps（fixed-K −0.05…−0.49）」；「weight decay must be present; above 5e-4 the level is insensitive」 |
+| H7 | III-C 開頭 | 「what we measure is 2–50 K」「the position-sampled covariance does not collapse」 | 定案：對象不同（位置當樣本），塌縮定理**未被檢驗**；P 因子當作量到的關係報（4、49） |
+| H8 | ONI 段 | 「counterfactual that hits」 | 「the input-side width is unchanged by ONI（Ostrowski identity holds by construction at erank 1）」；SO／SRIP 的一半保留為描述 |
+| H9 | §II 協定、M4、家族表 | p 值（Wilcoxon over layers）、「every effect next to its jitter」、家族排序句 | 層間自相關：p 值降為輔助；T–R／λ 水準／B10 寬度都要抖動或 CI；家族層級句限於 ResNet-50 與受控訓練（n＝1 家族不排序） |
+| H10 | A24／A25 句 | 「contraction deepens with steps, not with image count」「class count enters monotonically（κ）」 | 「步數主導、影像數反向且較小（P9.34 反向）」；「monotone」從 κ 拿掉，A24 只當 CIFAR 上量到的數 |
+| H11 | §VI 最近鄰、gap 句 | 「none asks what sets the layer-wise profile」 | 「no one measures the τ-width of the position-sampled conv-output covariance against a random draw across families」；補 Harun／Masarczyk 問同組因素；K-FAC／Cui／FWSVD／Chen & Zhao／Zhang 的劃界句 |
+| H12 | 貢獻 2、M1 | 「the nominal denominator understates…」當作發現 | 「we apply the attainable-rank normalisation of Garg et al. to the activation-spectrum literature, where it was not used」 |
+| H13 | 預登記段、Table S17 | 「162／164 predictions」「pre-registered」於存量資料項 | 數字只引 `prereg_counts.py`；存量資料項寫「hypothesis written before the stored data were read」；non-blind／post hoc 列不計入 |
+| H14 | Transformers | 「preserves」 | 寫明兩種參照（預設 +0.69／+0.61、忠實 +0.52／+0.48、fc2 負）；順序句同 H1 改趨勢 |
+| H15 | Limitations | — | 加：不量深度軸（引 Chen & Zhao 2019、Zhang 2022）；有效樣本數的門檻依據是經驗平坦化（Fig. S1）不是 Prop. 1；只用 CIFAR stem／ImageNet stem 各一（stem 與資料集混淆） |
+| H16 | 「computable before training」 | computable | 「simulable from the architecture and the image second-order statistics」（≥ 3 種子後） |
