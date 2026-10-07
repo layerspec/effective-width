@@ -1,0 +1,30 @@
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+saved ../results/relu_step/resnet50_tv_in1k_random_s1_layer3.npz (582 s)
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+saved ../results/relu_step/resnet34_tv_in1k_random_s1_layer3.npz (217 s)
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+saved ../results/relu_step/resnet50_tv_in1k_pretrained_layer3.npz (633 s)
+  resnet34_tv_in1k_random_s1_layer3  layer3.0: k(y)  108  k(z)   92  Hermite k(z_hat)  107  err +0.16 | measured ReLU step -0.15  predicted -0.01 | median |mean|/std of y 1.25
+  resnet34_tv_in1k_random_s1_layer3  layer3.1: k(y)  123  k(z)   98  Hermite k(z_hat)  108  err +0.10 | measured ReLU step -0.20  predicted -0.12 | median |mean|/std of y 1.28
+  resnet34_tv_in1k_random_s1_layer3  layer3.2: k(y)  118  k(z)   95  Hermite k(z_hat)  107  err +0.13 | measured ReLU step -0.19  predicted -0.09 | median |mean|/std of y 1.29
+  resnet34_tv_in1k_random_s1_layer3  layer3.3: k(y)  103  k(z)   88  Hermite k(z_hat)  101  err +0.15 | measured ReLU step -0.15  predicted -0.02 | median |mean|/std of y 1.24
+  resnet34_tv_in1k_random_s1_layer3  layer3.4: k(y)   92  k(z)   77  Hermite k(z_hat)   92  err +0.19 | measured ReLU step -0.16  predicted +0.00 | median |mean|/std of y 1.19
+  resnet34_tv_in1k_random_s1_layer3  layer3.5: k(y)   73  k(z)   63  Hermite k(z_hat)   79  err +0.25 | measured ReLU step -0.14  predicted +0.08 | median |mean|/std of y 1.32
+  resnet50_tv_in1k_pretrained_layer3 layer3.0: k(y)  129  k(z)  489  Hermite k(z_hat)  553  err +0.13 | measured ReLU step +2.79  predicted +3.29 | median |mean|/std of y 0.24
+  resnet50_tv_in1k_pretrained_layer3 layer3.1: k(y)  412  k(z)  620  Hermite k(z_hat)  674  err +0.09 | measured ReLU step +0.50  predicted +0.64 | median |mean|/std of y 0.21
+  resnet50_tv_in1k_pretrained_layer3 layer3.2: k(y)  546  k(z)  711  Hermite k(z_hat)  757  err +0.06 | measured ReLU step +0.30  predicted +0.39 | median |mean|/std of y 0.21
+  resnet50_tv_in1k_pretrained_layer3 layer3.3: k(y)  624  k(z)  768  Hermite k(z_hat)  803  err +0.05 | measured ReLU step +0.23  predicted +0.29 | median |mean|/std of y 0.20
+  resnet50_tv_in1k_pretrained_layer3 layer3.4: k(y)  664  k(z)  814  Hermite k(z_hat)  831  err +0.02 | measured ReLU step +0.23  predicted +0.25 | median |mean|/std of y 0.26
+  resnet50_tv_in1k_pretrained_layer3 layer3.5: k(y)  676  k(z)  850  Hermite k(z_hat)  830  err -0.02 | measured ReLU step +0.26  predicted +0.23 | median |mean|/std of y 0.47
+  resnet50_tv_in1k_random_s1_layer3  layer3.0: k(y)   82  k(z)   84  Hermite k(z_hat)  106  err +0.26 | measured ReLU step +0.02  predicted +0.29 | median |mean|/std of y 1.72
+  resnet50_tv_in1k_random_s1_layer3  layer3.1: k(y)   90  k(z)   93  Hermite k(z_hat)  110  err +0.18 | measured ReLU step +0.03  predicted +0.22 | median |mean|/std of y 1.64
+  resnet50_tv_in1k_random_s1_layer3  layer3.2: k(y)   84  k(z)   85  Hermite k(z_hat)  102  err +0.20 | measured ReLU step +0.01  predicted +0.21 | median |mean|/std of y 1.66
+  resnet50_tv_in1k_random_s1_layer3  layer3.3: k(y)   77  k(z)   75  Hermite k(z_hat)   92  err +0.23 | measured ReLU step -0.03  predicted +0.19 | median |mean|/std of y 1.64
+  resnet50_tv_in1k_random_s1_layer3  layer3.4: k(y)   67  k(z)   66  Hermite k(z_hat)   83  err +0.26 | measured ReLU step -0.01  predicted +0.24 | median |mean|/std of y 1.65
+  resnet50_tv_in1k_random_s1_layer3  layer3.5: k(y)   61  k(z)   61  Hermite k(z_hat)   78  err +0.28 | measured ReLU step +0.00  predicted +0.28 | median |mean|/std of y 1.69
+  P9.103: |err| <= 0.10 in 0/12; ResNet-50 predicted |step| <= 0.05 in 0/6; ResNet-34 predicted step <= -0.05 in 2/6 -> fails
+  P9.104 (trained: Gaussian form misses by > 0.20): 0/6 -> fails
+relu_step done
