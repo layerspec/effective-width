@@ -226,6 +226,39 @@ def summarise(df: pd.DataFrame) -> None:
             print(piv2.round(2).to_string())
 
 
+def trend_rows(label: str, group: str, family: str, which: str, prof: pd.DataFrame, rows: list) -> None:
+    """Reference-free statistic: Spearman between the block index within a (stage, role) cell and the width.
+    Layers are in network order in the CSV, so the index is the position in the cell."""
+    for (st, role), g in prof.groupby(["stage", "role"], sort=False):
+        if role == "other" or len(g) < MIN_N:
+            continue
+        rho = float(spearmanr(np.arange(len(g)), g["v"].values).correlation)
+        rows.append({"group": group, "run": label, "family": family, "which": which, "stage": st, "role": role,
+                     "n": len(g), "rho_depth": rho})
+
+
+def run_trends(results: str, rows: list) -> None:
+    for group, pat in CONTROLLED:
+        for run_dir in sorted(glob.glob(os.path.join(results, pat))):
+            fs = epoch_files(run_dir)
+            if len(fs) < 2:
+                continue
+            rel = os.path.relpath(run_dir, results); fam = family_of(rel)
+            trend_rows(rel, group, fam, "init (epoch 0)", gated(pd.read_csv(fs[0]), fam), rows)
+            trend_rows(rel, group, fam, "trained (final)", gated(pd.read_csv(fs[-1]), fam), rows)
+    for fam, (trained_globs, default_glob, g1_glob, g0_glob) in PUBLIC.items():
+        for tf in sorted(f for g in trained_globs for f in glob.glob(os.path.join(results, g)) if "random" not in f and "_layers.csv" in f):
+            trend_rows(os.path.basename(tf).replace("_layers.csv", ""), "public " + fam, fam, "trained", gated(pd.read_csv(tf), fam), rows)
+        draws = [("default draw", default_glob), ("gamma=1 draw", g1_glob), ("gamma=0 draw", g0_glob)]
+        for name, g in draws:
+            if not g:
+                continue
+            for rf in sorted(glob.glob(os.path.join(results, g))):
+                label = os.path.relpath(rf, results)
+                which = name if not (fam == "resnet50" and name == "default draw") else "gamma=1 draw"
+                trend_rows(label, "public " + fam, fam, "init " + which, gated(pd.read_csv(rf), fam), rows)
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--results", default="../results")
@@ -238,6 +271,12 @@ def main():
     out = a.out or os.path.join(a.results, "order_within_stage")
     os.makedirs(out, exist_ok=True)
     df.to_csv(os.path.join(out, "table.csv"), index=False)
+    trows: list = []
+    run_trends(a.results, trows)
+    tdf = pd.DataFrame(trows)
+    tdf.to_csv(os.path.join(out, "trend.csv"), index=False)
+    print("\n== within-cell trend rho(block index, width), median over runs/draws, 3x3 cells")
+    print(tdf[tdf.role == "3x3"].groupby(["group", "family", "which", "stage"]).rho_depth.median().round(2).unstack("stage").to_string())
     summarise(df)
     print(f"\nwrote {os.path.join(out, 'table.csv')}  ({len(df)} rows)")
 

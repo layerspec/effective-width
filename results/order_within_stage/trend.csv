@@ -1,0 +1,729 @@
+group,run,family,which,stage,role,n,rho_depth
+A17 ImageNet-1k,a17/basic6666_s0,basic6666,init (epoch 0),56x56,3x3,12,-0.36079713130177726
+A17 ImageNet-1k,a17/basic6666_s0,basic6666,init (epoch 0),28x28,3x3,12,0.2671390381609462
+A17 ImageNet-1k,a17/basic6666_s0,basic6666,init (epoch 0),14x14,3x3,12,-0.4561431587846275
+A17 ImageNet-1k,a17/basic6666_s0,basic6666,init (epoch 0),7x7,3x3,12,-0.9823873549089052
+A17 ImageNet-1k,a17/basic6666_s0,basic6666,trained (final),56x56,3x3,12,0.9420166082517577
+A17 ImageNet-1k,a17/basic6666_s0,basic6666,trained (final),28x28,3x3,12,0.7986001739057148
+A17 ImageNet-1k,a17/basic6666_s0,basic6666,trained (final),14x14,3x3,12,0.742558056438647
+A17 ImageNet-1k,a17/basic6666_s0,basic6666,trained (final),7x7,3x3,12,0.20979020979020982
+A17 ImageNet-1k,a17/basic6666_s1,basic6666,init (epoch 0),56x56,3x3,12,-0.13684294763538826
+A17 ImageNet-1k,a17/basic6666_s1,basic6666,init (epoch 0),28x28,3x3,12,-0.9211923058649254
+A17 ImageNet-1k,a17/basic6666_s1,basic6666,init (epoch 0),14x14,3x3,12,0.920670718462285
+A17 ImageNet-1k,a17/basic6666_s1,basic6666,init (epoch 0),7x7,3x3,12,-0.44685346571544543
+A17 ImageNet-1k,a17/basic6666_s1,basic6666,trained (final),56x56,3x3,12,0.9352028352316922
+A17 ImageNet-1k,a17/basic6666_s1,basic6666,trained (final),28x28,3x3,12,0.7652457077368607
+A17 ImageNet-1k,a17/basic6666_s1,basic6666,trained (final),14x14,3x3,12,0.8231186002975568
+A17 ImageNet-1k,a17/basic6666_s1,basic6666,trained (final),7x7,3x3,12,0.05954474980875943
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,init (epoch 0),56x56,1x1,8,0.5509080804800991
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,init (epoch 0),28x28,3x3,4,-0.632455532033676
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,init (epoch 0),28x28,1x1,9,-0.5333333333333333
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,init (epoch 0),14x14,3x3,6,-0.942857142857143
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,init (epoch 0),14x14,1x1,13,-0.5179083013048741
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,init (epoch 0),7x7,1x1,6,0.057977103565244846
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,trained (final),56x56,1x1,8,0.8095238095238096
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,trained (final),28x28,3x3,4,0.39999999999999997
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,trained (final),28x28,1x1,9,0.39999999999999997
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,trained (final),14x14,3x3,6,0.7714285714285715
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,trained (final),14x14,1x1,13,0.7582417582417583
+A17 ImageNet-1k,a17/resnet50_s0,resnet50,trained (final),7x7,1x1,6,0.6
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,init (epoch 0),56x56,1x1,8,0.5628843430992317
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,init (epoch 0),28x28,3x3,4,0.7745966692414834
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,init (epoch 0),28x28,1x1,9,-0.00836827408755723
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,init (epoch 0),14x14,3x3,6,-0.942857142857143
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,init (epoch 0),14x14,1x1,13,-0.5659340659340659
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,init (epoch 0),7x7,1x1,6,-0.14285714285714288
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,trained (final),56x56,1x1,8,0.790433332862751
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,trained (final),28x28,3x3,4,0.7999999999999999
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,trained (final),28x28,1x1,9,0.38333333333333336
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,trained (final),14x14,3x3,6,0.8857142857142858
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,trained (final),14x14,1x1,13,0.7417582417582418
+A17 ImageNet-1k,a17/resnet50_s1,resnet50,trained (final),7x7,1x1,6,0.6
+A29b ImageNet-1k depth,a29b/resnet18_s0,resnet18,init (epoch 0),56x56,3x3,4,0.7999999999999999
+A29b ImageNet-1k depth,a29b/resnet18_s0,resnet18,init (epoch 0),28x28,3x3,4,0.9486832980505139
+A29b ImageNet-1k depth,a29b/resnet18_s0,resnet18,init (epoch 0),14x14,3x3,4,0.7999999999999999
+A29b ImageNet-1k depth,a29b/resnet18_s0,resnet18,init (epoch 0),7x7,3x3,4,0.7999999999999999
+A29b ImageNet-1k depth,a29b/resnet18_s0,resnet18,trained (final),56x56,3x3,4,1.0
+A29b ImageNet-1k depth,a29b/resnet18_s0,resnet18,trained (final),28x28,3x3,4,1.0
+A29b ImageNet-1k depth,a29b/resnet18_s0,resnet18,trained (final),14x14,3x3,4,1.0
+A29b ImageNet-1k depth,a29b/resnet18_s0,resnet18,trained (final),7x7,3x3,4,0.19999999999999998
+A29b ImageNet-1k depth,a29b/resnet18_s1,resnet18,init (epoch 0),56x56,3x3,4,0.9486832980505139
+A29b ImageNet-1k depth,a29b/resnet18_s1,resnet18,init (epoch 0),28x28,3x3,4,0.9486832980505139
+A29b ImageNet-1k depth,a29b/resnet18_s1,resnet18,init (epoch 0),14x14,3x3,4,0.7999999999999999
+A29b ImageNet-1k depth,a29b/resnet18_s1,resnet18,init (epoch 0),7x7,3x3,4,0.7999999999999999
+A29b ImageNet-1k depth,a29b/resnet18_s1,resnet18,trained (final),56x56,3x3,4,1.0
+A29b ImageNet-1k depth,a29b/resnet18_s1,resnet18,trained (final),28x28,3x3,4,0.9486832980505139
+A29b ImageNet-1k depth,a29b/resnet18_s1,resnet18,trained (final),14x14,3x3,4,1.0
+A29b ImageNet-1k depth,a29b/resnet18_s1,resnet18,trained (final),7x7,3x3,4,0.19999999999999998
+A29b ImageNet-1k depth,a29b/resnet34_s0,resnet34,init (epoch 0),56x56,3x3,6,0.5217939320872036
+A29b ImageNet-1k depth,a29b/resnet34_s0,resnet34,init (epoch 0),28x28,3x3,8,-0.5952380952380953
+A29b ImageNet-1k depth,a29b/resnet34_s0,resnet34,init (epoch 0),14x14,3x3,12,-0.9632238939652261
+A29b ImageNet-1k depth,a29b/resnet34_s0,resnet34,init (epoch 0),7x7,3x3,6,0.7944613465542746
+A29b ImageNet-1k depth,a29b/resnet34_s0,resnet34,trained (final),56x56,3x3,6,0.9856107606091623
+A29b ImageNet-1k depth,a29b/resnet34_s0,resnet34,trained (final),28x28,3x3,8,0.6904761904761906
+A29b ImageNet-1k depth,a29b/resnet34_s0,resnet34,trained (final),14x14,3x3,12,0.7880922768806397
+A29b ImageNet-1k depth,a29b/resnet34_s0,resnet34,trained (final),7x7,3x3,6,0.2
+A29b ImageNet-1k depth,a29b/resnet34_s1,resnet34,init (epoch 0),56x56,3x3,6,0.8406680016960503
+A29b ImageNet-1k depth,a29b/resnet34_s1,resnet34,init (epoch 0),28x28,3x3,8,0.7856457858243782
+A29b ImageNet-1k depth,a29b/resnet34_s1,resnet34,init (epoch 0),14x14,3x3,12,-0.9492133645984593
+A29b ImageNet-1k depth,a29b/resnet34_s1,resnet34,init (epoch 0),7x7,3x3,6,-0.8857142857142858
+A29b ImageNet-1k depth,a29b/resnet34_s1,resnet34,trained (final),56x56,3x3,6,0.9856107606091623
+A29b ImageNet-1k depth,a29b/resnet34_s1,resnet34,trained (final),28x28,3x3,8,0.9157291161525718
+A29b ImageNet-1k depth,a29b/resnet34_s1,resnet34,trained (final),14x14,3x3,12,0.5594405594405596
+A29b ImageNet-1k depth,a29b/resnet34_s1,resnet34,trained (final),7x7,3x3,6,0.2
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,init (epoch 0),16x16,1x1,8,0.5509080804800991
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,init (epoch 0),8x8,3x3,4,-1.0
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,init (epoch 0),8x8,1x1,9,-0.5085476277156078
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,init (epoch 0),4x4,3x3,6,-1.0
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,init (epoch 0),4x4,1x1,13,-0.7912087912087913
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,init (epoch 0),2x2,1x1,6,-0.7247137945655605
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,trained (final),16x16,1x1,8,0.7380952380952381
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,trained (final),8x8,3x3,4,-0.316227766016838
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,trained (final),8x8,1x1,9,0.36976095499904793
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,trained (final),4x4,3x3,6,0.8285714285714287
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,trained (final),4x4,1x1,13,0.7032967032967032
+A28 ImageNet factors,a28/k1000_64_s0,resnet50,trained (final),2x2,1x1,6,0.3714285714285715
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,init (epoch 0),16x16,1x1,8,0.5628843430992317
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,init (epoch 0),8x8,3x3,4,-0.7999999999999999
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,init (epoch 0),8x8,1x1,9,-0.03347309635022892
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,init (epoch 0),4x4,3x3,6,-1.0
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,init (epoch 0),4x4,1x1,13,-0.7142857142857143
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,init (epoch 0),2x2,1x1,6,-0.6473388749701496
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,trained (final),16x16,1x1,8,0.730552019767088
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,trained (final),8x8,3x3,4,0.316227766016838
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,trained (final),8x8,1x1,9,0.35146751167740364
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,trained (final),4x4,3x3,6,0.9276336570439175
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,trained (final),4x4,1x1,13,0.7207709707237556
+A28 ImageNet factors,a28/k1000_64_s1,resnet50,trained (final),2x2,1x1,6,0.3714285714285715
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,init (epoch 0),56x56,1x1,8,0.5509080804800991
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,init (epoch 0),28x28,3x3,4,-0.632455532033676
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,init (epoch 0),28x28,1x1,9,-0.5333333333333333
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,init (epoch 0),14x14,3x3,6,-0.942857142857143
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,init (epoch 0),14x14,1x1,13,-0.5179083013048741
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,init (epoch 0),7x7,1x1,6,0.057977103565244846
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,trained (final),56x56,1x1,8,0.467074242146171
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,trained (final),28x28,3x3,4,0.7999999999999999
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,trained (final),28x28,1x1,9,0.3765723339400754
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,trained (final),14x14,3x3,6,0.8857142857142858
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,trained (final),14x14,1x1,13,0.6492440804992607
+A28 ImageNet factors,a28/k1000_n130_224_s0,resnet50,trained (final),7x7,1x1,6,0.4285714285714286
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,init (epoch 0),56x56,1x1,8,0.5628843430992317
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,init (epoch 0),28x28,3x3,4,0.7745966692414834
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,init (epoch 0),28x28,1x1,9,-0.00836827408755723
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,init (epoch 0),14x14,3x3,6,-0.942857142857143
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,init (epoch 0),14x14,1x1,13,-0.5659340659340659
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,init (epoch 0),7x7,1x1,6,-0.14285714285714288
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,trained (final),56x56,1x1,8,0.36596252735569995
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,trained (final),28x28,3x3,4,0.7999999999999999
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,trained (final),28x28,1x1,9,0.5333333333333333
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,trained (final),14x14,3x3,6,0.8857142857142858
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,trained (final),14x14,1x1,13,0.6905095940903154
+A28 ImageNet factors,a28/k1000_n130_224_s1,resnet50,trained (final),7x7,1x1,6,0.4285714285714286
+A28 ImageNet factors,a28/k100_224_s0,resnet50,init (epoch 0),56x56,1x1,8,0.37126414119311024
+A28 ImageNet factors,a28/k100_224_s0,resnet50,init (epoch 0),28x28,3x3,4,1.0
+A28 ImageNet factors,a28/k100_224_s0,resnet50,init (epoch 0),28x28,1x1,9,0.34309923758984645
+A28 ImageNet factors,a28/k100_224_s0,resnet50,init (epoch 0),14x14,3x3,6,-0.942857142857143
+A28 ImageNet factors,a28/k100_224_s0,resnet50,init (epoch 0),14x14,1x1,13,-0.6538461538461539
+A28 ImageNet factors,a28/k100_224_s0,resnet50,init (epoch 0),7x7,1x1,6,-0.028571428571428574
+A28 ImageNet factors,a28/k100_224_s0,resnet50,trained (final),56x56,1x1,8,0.21957751641341997
+A28 ImageNet factors,a28/k100_224_s0,resnet50,trained (final),28x28,3x3,4,-0.7999999999999999
+A28 ImageNet factors,a28/k100_224_s0,resnet50,trained (final),28x28,1x1,9,-0.28942722045797453
+A28 ImageNet factors,a28/k100_224_s0,resnet50,trained (final),14x14,3x3,6,0.8285714285714287
+A28 ImageNet factors,a28/k100_224_s0,resnet50,trained (final),14x14,1x1,13,0.7531098958554835
+A28 ImageNet factors,a28/k100_224_s0,resnet50,trained (final),7x7,1x1,6,0.7142857142857143
+A28 ImageNet factors,a28/k100_224_s1,resnet50,init (epoch 0),56x56,1x1,8,0.30122668294492494
+A28 ImageNet factors,a28/k100_224_s1,resnet50,init (epoch 0),28x28,3x3,4,-0.39999999999999997
+A28 ImageNet factors,a28/k100_224_s1,resnet50,init (epoch 0),28x28,1x1,9,-0.32636268941473195
+A28 ImageNet factors,a28/k100_224_s1,resnet50,init (epoch 0),14x14,3x3,6,-0.8285714285714287
+A28 ImageNet factors,a28/k100_224_s1,resnet50,init (epoch 0),14x14,1x1,13,-0.5903498817328697
+A28 ImageNet factors,a28/k100_224_s1,resnet50,init (epoch 0),7x7,1x1,6,0.7142857142857143
+A28 ImageNet factors,a28/k100_224_s1,resnet50,trained (final),56x56,1x1,8,0.09639253854237598
+A28 ImageNet factors,a28/k100_224_s1,resnet50,trained (final),28x28,3x3,4,0.39999999999999997
+A28 ImageNet factors,a28/k100_224_s1,resnet50,trained (final),28x28,1x1,9,-0.13333333333333333
+A28 ImageNet factors,a28/k100_224_s1,resnet50,trained (final),14x14,3x3,6,0.8285714285714287
+A28 ImageNet factors,a28/k100_224_s1,resnet50,trained (final),14x14,1x1,13,0.510989010989011
+A28 ImageNet factors,a28/k100_224_s1,resnet50,trained (final),7x7,1x1,6,0.7714285714285715
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,init (epoch 0),16x16,1x1,8,0.30952380952380953
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,init (epoch 0),8x8,3x3,4,0.9486832980505139
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,init (epoch 0),8x8,1x1,9,0.24267994853915967
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,init (epoch 0),4x4,3x3,6,-1.0
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,init (epoch 0),4x4,1x1,13,-0.8241758241758241
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,init (epoch 0),2x2,1x1,6,-0.2608969660436018
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,trained (final),16x16,1x1,8,0.8263621207201486
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,trained (final),8x8,3x3,4,0.7999999999999999
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,trained (final),8x8,1x1,9,0.5833333333333334
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,trained (final),4x4,3x3,6,0.8857142857142858
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,trained (final),4x4,1x1,13,0.7472527472527472
+A28 ImageNet factors,a28/k100_64_long_s0,resnet50,trained (final),2x2,1x1,6,0.08571428571428573
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,init (epoch 0),16x16,1x1,8,0.2515015150017844
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,init (epoch 0),8x8,3x3,4,-0.7999999999999999
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,init (epoch 0),8x8,1x1,9,-0.36820405985251814
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,init (epoch 0),4x4,3x3,6,-0.942857142857143
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,init (epoch 0),4x4,1x1,13,-0.8292042483657825
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,init (epoch 0),2x2,1x1,6,0.39279220242478635
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,trained (final),16x16,1x1,8,0.8263621207201486
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,trained (final),8x8,3x3,4,0.39999999999999997
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,trained (final),8x8,1x1,9,0.510464719340991
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,trained (final),4x4,3x3,6,0.942857142857143
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,trained (final),4x4,1x1,13,0.6978021978021978
+A28 ImageNet factors,a28/k100_64_long_s1,resnet50,trained (final),2x2,1x1,6,0.028571428571428574
+A28 ImageNet factors,a28/k100_64_s0,resnet50,init (epoch 0),16x16,1x1,8,0.30952380952380953
+A28 ImageNet factors,a28/k100_64_s0,resnet50,init (epoch 0),8x8,3x3,4,0.9486832980505139
+A28 ImageNet factors,a28/k100_64_s0,resnet50,init (epoch 0),8x8,1x1,9,0.24267994853915967
+A28 ImageNet factors,a28/k100_64_s0,resnet50,init (epoch 0),4x4,3x3,6,-1.0
+A28 ImageNet factors,a28/k100_64_s0,resnet50,init (epoch 0),4x4,1x1,13,-0.8241758241758241
+A28 ImageNet factors,a28/k100_64_s0,resnet50,init (epoch 0),2x2,1x1,6,-0.2608969660436018
+A28 ImageNet factors,a28/k100_64_s0,resnet50,trained (final),16x16,1x1,8,0.467074242146171
+A28 ImageNet factors,a28/k100_64_s0,resnet50,trained (final),8x8,3x3,4,0.7999999999999999
+A28 ImageNet factors,a28/k100_64_s0,resnet50,trained (final),8x8,1x1,9,0.30125786715206027
+A28 ImageNet factors,a28/k100_64_s0,resnet50,trained (final),4x4,3x3,6,0.942857142857143
+A28 ImageNet factors,a28/k100_64_s0,resnet50,trained (final),4x4,1x1,13,0.6538461538461539
+A28 ImageNet factors,a28/k100_64_s0,resnet50,trained (final),2x2,1x1,6,0.4285714285714286
+A28 ImageNet factors,a28/k100_64_s1,resnet50,init (epoch 0),16x16,1x1,8,0.2515015150017844
+A28 ImageNet factors,a28/k100_64_s1,resnet50,init (epoch 0),8x8,3x3,4,-0.7999999999999999
+A28 ImageNet factors,a28/k100_64_s1,resnet50,init (epoch 0),8x8,1x1,9,-0.36820405985251814
+A28 ImageNet factors,a28/k100_64_s1,resnet50,init (epoch 0),4x4,3x3,6,-0.942857142857143
+A28 ImageNet factors,a28/k100_64_s1,resnet50,init (epoch 0),4x4,1x1,13,-0.8292042483657825
+A28 ImageNet factors,a28/k100_64_s1,resnet50,init (epoch 0),2x2,1x1,6,0.39279220242478635
+A28 ImageNet factors,a28/k100_64_s1,resnet50,trained (final),16x16,1x1,8,0.7380952380952381
+A28 ImageNet factors,a28/k100_64_s1,resnet50,trained (final),8x8,3x3,4,0.7999999999999999
+A28 ImageNet factors,a28/k100_64_s1,resnet50,trained (final),8x8,1x1,9,0.3628982732049805
+A28 ImageNet factors,a28/k100_64_s1,resnet50,trained (final),4x4,3x3,6,-0.6377481392176932
+A28 ImageNet factors,a28/k100_64_s1,resnet50,trained (final),4x4,1x1,13,-0.36515396023384716
+A28 ImageNet factors,a28/k100_64_s1,resnet50,trained (final),2x2,1x1,6,0.3142857142857143
+A31 ImageNet class count,a31/k100_s0,resnet50,init (epoch 0),56x56,1x1,8,0.3494229522161129
+A31 ImageNet class count,a31/k100_s0,resnet50,init (epoch 0),28x28,3x3,4,1.0
+A31 ImageNet class count,a31/k100_s0,resnet50,init (epoch 0),28x28,1x1,9,0.32636268941473195
+A31 ImageNet class count,a31/k100_s0,resnet50,init (epoch 0),14x14,3x3,6,-0.942857142857143
+A31 ImageNet class count,a31/k100_s0,resnet50,init (epoch 0),14x14,1x1,13,-0.6446305452411731
+A31 ImageNet class count,a31/k100_s0,resnet50,init (epoch 0),7x7,1x1,6,-0.028571428571428574
+A31 ImageNet class count,a31/k100_s0,resnet50,trained (final),56x56,1x1,8,-0.36596252735569995
+A31 ImageNet class count,a31/k100_s0,resnet50,trained (final),28x28,3x3,4,0.7999999999999999
+A31 ImageNet class count,a31/k100_s0,resnet50,trained (final),28x28,1x1,9,0.5042194840896107
+A31 ImageNet class count,a31/k100_s0,resnet50,trained (final),14x14,3x3,6,0.8857142857142858
+A31 ImageNet class count,a31/k100_s0,resnet50,trained (final),14x14,1x1,13,0.7032967032967032
+A31 ImageNet class count,a31/k100_s0,resnet50,trained (final),7x7,1x1,6,0.6667366910003157
+A31 ImageNet class count,a31/k100_s1,resnet50,init (epoch 0),56x56,1x1,8,0.3233590907165799
+A31 ImageNet class count,a31/k100_s1,resnet50,init (epoch 0),28x28,3x3,4,-0.632455532033676
+A31 ImageNet class count,a31/k100_s1,resnet50,init (epoch 0),28x28,1x1,9,-0.3666666666666667
+A31 ImageNet class count,a31/k100_s1,resnet50,init (epoch 0),14x14,3x3,6,-0.8285714285714287
+A31 ImageNet class count,a31/k100_s1,resnet50,init (epoch 0),14x14,1x1,13,-0.6096603918830104
+A31 ImageNet class count,a31/k100_s1,resnet50,init (epoch 0),7x7,1x1,6,0.6667366910003157
+A31 ImageNet class count,a31/k100_s1,resnet50,trained (final),56x56,1x1,8,0.07662141663581955
+A31 ImageNet class count,a31/k100_s1,resnet50,trained (final),28x28,3x3,4,0.0
+A31 ImageNet class count,a31/k100_s1,resnet50,trained (final),28x28,1x1,9,-0.20083857810137354
+A31 ImageNet class count,a31/k100_s1,resnet50,trained (final),14x14,3x3,6,0.8285714285714287
+A31 ImageNet class count,a31/k100_s1,resnet50,trained (final),14x14,1x1,13,0.7465593066681963
+A31 ImageNet class count,a31/k100_s1,resnet50,trained (final),7x7,1x1,6,0.7714285714285715
+A31 ImageNet class count,a31/k10_s0,resnet50,init (epoch 0),56x56,1x1,8,0.3735210868517069
+A31 ImageNet class count,a31/k10_s0,resnet50,init (epoch 0),28x28,3x3,4,0.39999999999999997
+A31 ImageNet class count,a31/k10_s0,resnet50,init (epoch 0),28x28,1x1,9,0.2845213189769458
+A31 ImageNet class count,a31/k10_s0,resnet50,init (epoch 0),14x14,3x3,6,-0.8857142857142858
+A31 ImageNet class count,a31/k10_s0,resnet50,init (epoch 0),14x14,1x1,13,-0.6685013201750863
+A31 ImageNet class count,a31/k10_s0,resnet50,init (epoch 0),7x7,1x1,6,0.6
+A31 ImageNet class count,a31/k10_s0,resnet50,trained (final),56x56,1x1,8,-0.313275750262722
+A31 ImageNet class count,a31/k10_s0,resnet50,trained (final),28x28,3x3,4,-0.2581988897471611
+A31 ImageNet class count,a31/k10_s0,resnet50,trained (final),28x28,1x1,9,-0.10891622972743419
+A31 ImageNet class count,a31/k10_s0,resnet50,trained (final),14x14,3x3,6,-0.6
+A31 ImageNet class count,a31/k10_s0,resnet50,trained (final),14x14,1x1,13,-0.34810267416175095
+A31 ImageNet class count,a31/k10_s0,resnet50,trained (final),7x7,1x1,6,0.6
+A31 ImageNet class count,a31/k10_s1,resnet50,init (epoch 0),56x56,1x1,8,-0.012049067317796997
+A31 ImageNet class count,a31/k10_s1,resnet50,init (epoch 0),28x28,3x3,4,1.0
+A31 ImageNet class count,a31/k10_s1,resnet50,init (epoch 0),28x28,1x1,9,0.42678197846541877
+A31 ImageNet class count,a31/k10_s1,resnet50,init (epoch 0),14x14,3x3,6,-1.0
+A31 ImageNet class count,a31/k10_s1,resnet50,init (epoch 0),14x14,1x1,13,-0.6473853766310926
+A31 ImageNet class count,a31/k10_s1,resnet50,init (epoch 0),7x7,1x1,6,-0.5217939320872036
+A31 ImageNet class count,a31/k10_s1,resnet50,trained (final),56x56,1x1,8,-0.30122668294492494
+A31 ImageNet class count,a31/k10_s1,resnet50,trained (final),28x28,3x3,4,
+A31 ImageNet class count,a31/k10_s1,resnet50,trained (final),28x28,1x1,9,-0.6832018046539052
+A31 ImageNet class count,a31/k10_s1,resnet50,trained (final),14x14,3x3,6,0.8280786712108252
+A31 ImageNet class count,a31/k10_s1,resnet50,trained (final),14x14,1x1,13,0.6523007852097092
+A31 ImageNet class count,a31/k10_s1,resnet50,trained (final),7x7,1x1,6,0.5428571428571429
+A31 ImageNet class count,a31/k20_s0,resnet50,init (epoch 0),56x56,1x1,8,0.0727392967453308
+A31 ImageNet class count,a31/k20_s0,resnet50,init (epoch 0),28x28,3x3,4,-0.39999999999999997
+A31 ImageNet class count,a31/k20_s0,resnet50,init (epoch 0),28x28,1x1,9,-0.1596695032950434
+A31 ImageNet class count,a31/k20_s0,resnet50,init (epoch 0),14x14,3x3,6,-1.0
+A31 ImageNet class count,a31/k20_s0,resnet50,init (epoch 0),14x14,1x1,13,-0.66391436497061
+A31 ImageNet class count,a31/k20_s0,resnet50,init (epoch 0),7x7,1x1,6,0.753702346348183
+A31 ImageNet class count,a31/k20_s0,resnet50,trained (final),56x56,1x1,8,-0.012049067317796997
+A31 ImageNet class count,a31/k20_s0,resnet50,trained (final),28x28,3x3,4,-1.0
+A31 ImageNet class count,a31/k20_s0,resnet50,trained (final),28x28,1x1,9,-0.6208039573946187
+A31 ImageNet class count,a31/k20_s0,resnet50,trained (final),14x14,3x3,6,0.942857142857143
+A31 ImageNet class count,a31/k20_s0,resnet50,trained (final),14x14,1x1,13,0.8500695799757271
+A31 ImageNet class count,a31/k20_s0,resnet50,trained (final),7x7,1x1,6,0.7142857142857143
+A31 ImageNet class count,a31/k20_s1,resnet50,init (epoch 0),56x56,1x1,8,0.16766767666785626
+A31 ImageNet class count,a31/k20_s1,resnet50,init (epoch 0),28x28,3x3,4,0.19999999999999998
+A31 ImageNet class count,a31/k20_s1,resnet50,init (epoch 0),28x28,1x1,9,0.21849510977216466
+A31 ImageNet class count,a31/k20_s1,resnet50,init (epoch 0),14x14,3x3,6,-0.8285714285714287
+A31 ImageNet class count,a31/k20_s1,resnet50,init (epoch 0),14x14,1x1,13,-0.5034698542618196
+A31 ImageNet class count,a31/k20_s1,resnet50,init (epoch 0),7x7,1x1,6,0.2732295333235123
+A31 ImageNet class count,a31/k20_s1,resnet50,trained (final),56x56,1x1,8,-0.011976262619132589
+A31 ImageNet class count,a31/k20_s1,resnet50,trained (final),28x28,3x3,4,-0.10540925533894598
+A31 ImageNet class count,a31/k20_s1,resnet50,trained (final),28x28,1x1,9,0.15126584522688324
+A31 ImageNet class count,a31/k20_s1,resnet50,trained (final),14x14,3x3,6,0.6667366910003157
+A31 ImageNet class count,a31/k20_s1,resnet50,trained (final),14x14,1x1,13,0.5151534699149545
+A31 ImageNet class count,a31/k20_s1,resnet50,trained (final),7x7,1x1,6,0.7714285714285715
+A31 ImageNet class count,a31/k50_s0,resnet50,init (epoch 0),56x56,1x1,8,0.46355253465055324
+A31 ImageNet class count,a31/k50_s0,resnet50,init (epoch 0),28x28,3x3,4,-0.39999999999999997
+A31 ImageNet class count,a31/k50_s0,resnet50,init (epoch 0),28x28,1x1,9,-0.17573375583870182
+A31 ImageNet class count,a31/k50_s0,resnet50,init (epoch 0),14x14,3x3,6,-0.8406680016960503
+A31 ImageNet class count,a31/k50_s0,resnet50,init (epoch 0),14x14,1x1,13,-0.60330807439238
+A31 ImageNet class count,a31/k50_s0,resnet50,init (epoch 0),7x7,1x1,6,0.4285714285714286
+A31 ImageNet class count,a31/k50_s0,resnet50,trained (final),56x56,1x1,8,0.6107893935757621
+A31 ImageNet class count,a31/k50_s0,resnet50,trained (final),28x28,3x3,4,0.6000000000000001
+A31 ImageNet class count,a31/k50_s0,resnet50,trained (final),28x28,1x1,9,0.7615129419677079
+A31 ImageNet class count,a31/k50_s0,resnet50,trained (final),14x14,3x3,6,0.942857142857143
+A31 ImageNet class count,a31/k50_s0,resnet50,trained (final),14x14,1x1,13,0.5439560439560439
+A31 ImageNet class count,a31/k50_s0,resnet50,trained (final),7x7,1x1,6,0.7142857142857143
+A31 ImageNet class count,a31/k50_s1,resnet50,init (epoch 0),56x56,1x1,8,0.21957751641341997
+A31 ImageNet class count,a31/k50_s1,resnet50,init (epoch 0),28x28,3x3,4,0.19999999999999998
+A31 ImageNet class count,a31/k50_s1,resnet50,init (epoch 0),28x28,1x1,9,0.016666666666666666
+A31 ImageNet class count,a31/k50_s1,resnet50,init (epoch 0),14x14,3x3,6,-0.9856107606091623
+A31 ImageNet class count,a31/k50_s1,resnet50,init (epoch 0),14x14,1x1,13,-0.5914723614717842
+A31 ImageNet class count,a31/k50_s1,resnet50,init (epoch 0),7x7,1x1,6,-0.20291986247835697
+A31 ImageNet class count,a31/k50_s1,resnet50,trained (final),56x56,1x1,8,-0.15569141404872364
+A31 ImageNet class count,a31/k50_s1,resnet50,trained (final),28x28,3x3,4,0.632455532033676
+A31 ImageNet class count,a31/k50_s1,resnet50,trained (final),28x28,1x1,9,0.47060485181697
+A31 ImageNet class count,a31/k50_s1,resnet50,trained (final),14x14,3x3,6,0.8696565534786727
+A31 ImageNet class count,a31/k50_s1,resnet50,trained (final),14x14,1x1,13,0.6556498708008512
+A31 ImageNet class count,a31/k50_s1,resnet50,trained (final),7x7,1x1,6,0.5428571428571429
+round 3 CIFAR-10,round3/a2_basic52_s0,basic52,init (epoch 0),32x32,3x3,13,0.12171798674461572
+round 3 CIFAR-10,round3/a2_basic52_s0,basic52,init (epoch 0),16x16,3x3,12,0.18310313195303968
+round 3 CIFAR-10,round3/a2_basic52_s0,basic52,init (epoch 0),8x8,3x3,12,-0.49912820287966264
+round 3 CIFAR-10,round3/a2_basic52_s0,basic52,init (epoch 0),4x4,3x3,12,-0.9352939892706227
+round 3 CIFAR-10,round3/a2_basic52_s0,basic52,trained (final),32x32,3x3,13,0.5682807272755662
+round 3 CIFAR-10,round3/a2_basic52_s0,basic52,trained (final),16x16,3x3,12,-0.03527474017096878
+round 3 CIFAR-10,round3/a2_basic52_s0,basic52,trained (final),8x8,3x3,12,-0.4798606308117672
+round 3 CIFAR-10,round3/a2_basic52_s0,basic52,trained (final),4x4,3x3,12,-0.8189920512039535
+round 3 CIFAR-10,round3/a2_basic52_s1,basic52,init (epoch 0),32x32,3x3,13,0.27701787587544957
+round 3 CIFAR-10,round3/a2_basic52_s1,basic52,init (epoch 0),16x16,3x3,12,0.3761036458318585
+round 3 CIFAR-10,round3/a2_basic52_s1,basic52,init (epoch 0),8x8,3x3,12,-0.6007404688291865
+round 3 CIFAR-10,round3/a2_basic52_s1,basic52,init (epoch 0),4x4,3x3,12,-0.838330008288623
+round 3 CIFAR-10,round3/a2_basic52_s1,basic52,trained (final),32x32,3x3,13,0.6317295463403139
+round 3 CIFAR-10,round3/a2_basic52_s1,basic52,trained (final),16x16,3x3,12,-0.06666707705313786
+round 3 CIFAR-10,round3/a2_basic52_s1,basic52,trained (final),8x8,3x3,12,-0.4825174825174825
+round 3 CIFAR-10,round3/a2_basic52_s1,basic52,trained (final),4x4,3x3,12,-0.8321678321678322
+round 3 CIFAR-10,round3/a2_basic52_s2,basic52,init (epoch 0),32x32,3x3,13,-0.3166862158018933
+round 3 CIFAR-10,round3/a2_basic52_s2,basic52,init (epoch 0),16x16,3x3,12,-0.21517591504290956
+round 3 CIFAR-10,round3/a2_basic52_s2,basic52,init (epoch 0),8x8,3x3,12,0.6748775700908115
+round 3 CIFAR-10,round3/a2_basic52_s2,basic52,init (epoch 0),4x4,3x3,12,-0.9396505434536336
+round 3 CIFAR-10,round3/a2_basic52_s2,basic52,trained (final),32x32,3x3,13,0.4784797676995524
+round 3 CIFAR-10,round3/a2_basic52_s2,basic52,trained (final),16x16,3x3,12,-0.0979020979020979
+round 3 CIFAR-10,round3/a2_basic52_s2,basic52,trained (final),8x8,3x3,12,-0.4265734265734266
+round 3 CIFAR-10,round3/a2_basic52_s2,basic52,trained (final),4x4,3x3,12,-0.7705791151721809
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,init (epoch 0),32x32,3x3,4,0.7999999999999999
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,init (epoch 0),32x32,1x1,8,0.2380952380952381
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,init (epoch 0),16x16,3x3,4,-0.19999999999999998
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,init (epoch 0),16x16,1x1,9,0.05857791861290061
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,init (epoch 0),8x8,3x3,6,-0.8696565534786727
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,init (epoch 0),8x8,1x1,13,-0.6221094787836314
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,init (epoch 0),4x4,1x1,6,0.3714285714285715
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,trained (final),32x32,3x3,4,-0.39999999999999997
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,trained (final),32x32,1x1,8,0.0
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,trained (final),16x16,3x3,4,0.9486832980505139
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,trained (final),16x16,1x1,9,0.6333333333333333
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,trained (final),8x8,3x3,6,0.6571428571428573
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,trained (final),8x8,1x1,13,0.29986273209499753
+round 3 CIFAR-10,round3/a2_bottleneck_s0,bottleneck,trained (final),4x4,1x1,6,-0.8116794499134279
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,init (epoch 0),32x32,3x3,4,0.9486832980505139
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,init (epoch 0),32x32,1x1,8,-0.14458880781356398
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,init (epoch 0),16x16,3x3,4,1.0
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,init (epoch 0),16x16,1x1,9,0.5188329934285483
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,init (epoch 0),8x8,3x3,6,-0.942857142857143
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,init (epoch 0),8x8,1x1,13,-0.6049816090202638
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,init (epoch 0),4x4,1x1,6,-0.2571428571428572
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,trained (final),32x32,3x3,4,-0.39999999999999997
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,trained (final),32x32,1x1,8,-0.18413573105258865
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,trained (final),16x16,3x3,4,0.7999999999999999
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,trained (final),16x16,1x1,9,0.65
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,trained (final),8x8,3x3,6,0.8285714285714287
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,trained (final),8x8,1x1,13,0.35714285714285715
+round 3 CIFAR-10,round3/a2_bottleneck_s1,bottleneck,trained (final),4x4,1x1,6,-0.8827348295047495
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,init (epoch 0),32x32,3x3,4,1.0
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,init (epoch 0),32x32,1x1,8,0.4761904761904762
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,init (epoch 0),16x16,3x3,4,0.39999999999999997
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,init (epoch 0),16x16,1x1,9,0.26051340011296553
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,init (epoch 0),8x8,3x3,6,-0.942857142857143
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,init (epoch 0),8x8,1x1,13,-0.6373626373626374
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,init (epoch 0),4x4,1x1,6,0.08571428571428573
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,trained (final),32x32,3x3,4,-0.39999999999999997
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,trained (final),32x32,1x1,8,0.0
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,trained (final),16x16,3x3,4,1.0
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,trained (final),16x16,1x1,9,0.5333333333333333
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,trained (final),8x8,3x3,6,0.6571428571428573
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,trained (final),8x8,1x1,13,0.34615384615384615
+round 3 CIFAR-10,round3/a2_bottleneck_s2,bottleneck,trained (final),4x4,1x1,6,-0.8827348295047495
+round 3 CIFAR-10,round3/a2_mobilenetv2_s0,mobilenetv2,init (epoch 0),8x8,1x1,7,0.14414999403128945
+round 3 CIFAR-10,round3/a2_mobilenetv2_s0,mobilenetv2,init (epoch 0),4x4,1x1,5,-0.6
+round 3 CIFAR-10,round3/a2_mobilenetv2_s0,mobilenetv2,trained (final),8x8,1x1,7,-0.7857142857142859
+round 3 CIFAR-10,round3/a2_mobilenetv2_s0,mobilenetv2,trained (final),4x4,1x1,5,-0.6668859288553501
+round 3 CIFAR-10,round3/a2_mobilenetv2_s1,mobilenetv2,init (epoch 0),8x8,1x1,7,0.4818120558297158
+round 3 CIFAR-10,round3/a2_mobilenetv2_s1,mobilenetv2,init (epoch 0),4x4,1x1,5,-0.6
+round 3 CIFAR-10,round3/a2_mobilenetv2_s1,mobilenetv2,trained (final),8x8,1x1,7,-0.6306562238868914
+round 3 CIFAR-10,round3/a2_mobilenetv2_s1,mobilenetv2,trained (final),4x4,1x1,5,-0.6668859288553501
+round 3 CIFAR-10,round3/a2_mobilenetv2_s2,mobilenetv2,init (epoch 0),8x8,1x1,7,-0.03571428571428572
+round 3 CIFAR-10,round3/a2_mobilenetv2_s2,mobilenetv2,init (epoch 0),4x4,1x1,5,-0.7
+round 3 CIFAR-10,round3/a2_mobilenetv2_s2,mobilenetv2,trained (final),8x8,1x1,7,-0.642857142857143
+round 3 CIFAR-10,round3/a2_mobilenetv2_s2,mobilenetv2,trained (final),4x4,1x1,5,-0.6668859288553501
+public resnet50,resnet50,resnet50,trained,56x56,1x1,8,0.790433332862751
+public resnet50,resnet50,resnet50,trained,28x28,3x3,4,0.7999999999999999
+public resnet50,resnet50,resnet50,trained,28x28,1x1,9,0.42678197846541877
+public resnet50,resnet50,resnet50,trained,14x14,3x3,6,0.6571428571428573
+public resnet50,resnet50,resnet50,trained,14x14,1x1,13,0.6253467255117363
+public resnet50,resnet50,resnet50,trained,7x7,1x1,6,0.028571428571428574
+public resnet50,timm_resnet50.a1_in1k,resnet50,trained,56x56,1x1,8,0.6666666666666669
+public resnet50,timm_resnet50.a1_in1k,resnet50,trained,28x28,3x3,4,0.39999999999999997
+public resnet50,timm_resnet50.a1_in1k,resnet50,trained,28x28,1x1,9,0.5333333333333333
+public resnet50,timm_resnet50.a1_in1k,resnet50,trained,14x14,3x3,6,0.8857142857142858
+public resnet50,timm_resnet50.a1_in1k,resnet50,trained,14x14,1x1,13,0.6153846153846153
+public resnet50,timm_resnet50.a1_in1k,resnet50,trained,7x7,1x1,6,-0.3714285714285715
+public resnet50,timm_resnet50.a3_in1k,resnet50,trained,56x56,1x1,8,0.7857142857142858
+public resnet50,timm_resnet50.a3_in1k,resnet50,trained,28x28,3x3,4,0.39999999999999997
+public resnet50,timm_resnet50.a3_in1k,resnet50,trained,28x28,1x1,9,0.43333333333333335
+public resnet50,timm_resnet50.a3_in1k,resnet50,trained,14x14,3x3,6,0.8285714285714287
+public resnet50,timm_resnet50.a3_in1k,resnet50,trained,14x14,1x1,13,0.7647875185542139
+public resnet50,timm_resnet50.a3_in1k,resnet50,trained,7x7,1x1,6,0.3142857142857143
+public resnet50,timm_resnet50.fb_ssl_yfcc100m_ft_in1k,resnet50,trained,56x56,1x1,8,0.6467181814331598
+public resnet50,timm_resnet50.fb_ssl_yfcc100m_ft_in1k,resnet50,trained,28x28,3x3,4,0.7999999999999999
+public resnet50,timm_resnet50.fb_ssl_yfcc100m_ft_in1k,resnet50,trained,28x28,1x1,9,0.43333333333333335
+public resnet50,timm_resnet50.fb_ssl_yfcc100m_ft_in1k,resnet50,trained,14x14,3x3,6,0.753702346348183
+public resnet50,timm_resnet50.fb_ssl_yfcc100m_ft_in1k,resnet50,trained,14x14,1x1,13,0.6208791208791209
+public resnet50,timm_resnet50.fb_ssl_yfcc100m_ft_in1k,resnet50,trained,7x7,1x1,6,0.4285714285714286
+public resnet50,timm_resnet50.gluon_in1k,resnet50,trained,56x56,1x1,8,0.7619047619047621
+public resnet50,timm_resnet50.gluon_in1k,resnet50,trained,28x28,3x3,4,0.39999999999999997
+public resnet50,timm_resnet50.gluon_in1k,resnet50,trained,28x28,1x1,9,0.4937287878400742
+public resnet50,timm_resnet50.gluon_in1k,resnet50,trained,14x14,3x3,6,0.7714285714285715
+public resnet50,timm_resnet50.gluon_in1k,resnet50,trained,14x14,1x1,13,0.8005509636664615
+public resnet50,timm_resnet50.gluon_in1k,resnet50,trained,7x7,1x1,6,0.14285714285714288
+public resnet50,timm_resnet50.tv2_in1k,resnet50,trained,56x56,1x1,8,0.7619047619047621
+public resnet50,timm_resnet50.tv2_in1k,resnet50,trained,28x28,3x3,4,0.39999999999999997
+public resnet50,timm_resnet50.tv2_in1k,resnet50,trained,28x28,1x1,9,0.32636268941473195
+public resnet50,timm_resnet50.tv2_in1k,resnet50,trained,14x14,3x3,6,0.8285714285714287
+public resnet50,timm_resnet50.tv2_in1k,resnet50,trained,14x14,1x1,13,0.5557089163595367
+public resnet50,timm_resnet50.tv2_in1k,resnet50,trained,7x7,1x1,6,-0.6
+public resnet50,timm_resnet50.tv_in1k,resnet50,trained,56x56,1x1,8,0.790433332862751
+public resnet50,timm_resnet50.tv_in1k,resnet50,trained,28x28,3x3,4,0.7999999999999999
+public resnet50,timm_resnet50.tv_in1k,resnet50,trained,28x28,1x1,9,0.42678197846541877
+public resnet50,timm_resnet50.tv_in1k,resnet50,trained,14x14,3x3,6,0.6571428571428573
+public resnet50,timm_resnet50.tv_in1k,resnet50,trained,14x14,1x1,13,0.6253467255117363
+public resnet50,timm_resnet50.tv_in1k,resnet50,trained,7x7,1x1,6,0.028571428571428574
+public resnet50,local6400/seed1/resnet50_random_layers.csv,resnet50,init gamma=1 draw,56x56,1x1,8,0.5628843430992317
+public resnet50,local6400/seed1/resnet50_random_layers.csv,resnet50,init gamma=1 draw,28x28,3x3,4,0.316227766016838
+public resnet50,local6400/seed1/resnet50_random_layers.csv,resnet50,init gamma=1 draw,28x28,1x1,9,-0.042018290340800894
+public resnet50,local6400/seed1/resnet50_random_layers.csv,resnet50,init gamma=1 draw,14x14,3x3,6,-0.942857142857143
+public resnet50,local6400/seed1/resnet50_random_layers.csv,resnet50,init gamma=1 draw,14x14,1x1,13,-0.5659340659340659
+public resnet50,local6400/seed1/resnet50_random_layers.csv,resnet50,init gamma=1 draw,7x7,1x1,6,-0.20291986247835697
+public resnet50,local6400/seed2/resnet50_random_layers.csv,resnet50,init gamma=1 draw,56x56,1x1,8,0.5714285714285715
+public resnet50,local6400/seed2/resnet50_random_layers.csv,resnet50,init gamma=1 draw,28x28,3x3,4,0.316227766016838
+public resnet50,local6400/seed2/resnet50_random_layers.csv,resnet50,init gamma=1 draw,28x28,1x1,9,0.08403658068160179
+public resnet50,local6400/seed2/resnet50_random_layers.csv,resnet50,init gamma=1 draw,14x14,3x3,6,-1.0
+public resnet50,local6400/seed2/resnet50_random_layers.csv,resnet50,init gamma=1 draw,14x14,1x1,13,-0.6648332780262692
+public resnet50,local6400/seed2/resnet50_random_layers.csv,resnet50,init gamma=1 draw,7x7,1x1,6,-0.3188740696088466
+public resnet50,local6400/seed3/resnet50_random_layers.csv,resnet50,init gamma=1 draw,56x56,1x1,8,0.51234753829798
+public resnet50,local6400/seed3/resnet50_random_layers.csv,resnet50,init gamma=1 draw,28x28,3x3,4,1.0
+public resnet50,local6400/seed3/resnet50_random_layers.csv,resnet50,init gamma=1 draw,28x28,1x1,9,0.4407412773535268
+public resnet50,local6400/seed3/resnet50_random_layers.csv,resnet50,init gamma=1 draw,14x14,3x3,6,-0.4285714285714286
+public resnet50,local6400/seed3/resnet50_random_layers.csv,resnet50,init gamma=1 draw,14x14,1x1,13,0.16827730273693953
+public resnet50,local6400/seed3/resnet50_random_layers.csv,resnet50,init gamma=1 draw,7x7,1x1,6,0.2898855178262242
+public resnet50,local6400/seed5/resnet50_random_layers.csv,resnet50,init gamma=1 draw,56x56,1x1,8,0.09639253854237598
+public resnet50,local6400/seed5/resnet50_random_layers.csv,resnet50,init gamma=1 draw,28x28,3x3,4,0.9486832980505139
+public resnet50,local6400/seed5/resnet50_random_layers.csv,resnet50,init gamma=1 draw,28x28,1x1,9,0.3133397807202561
+public resnet50,local6400/seed5/resnet50_random_layers.csv,resnet50,init gamma=1 draw,14x14,3x3,6,-0.9276336570439175
+public resnet50,local6400/seed5/resnet50_random_layers.csv,resnet50,init gamma=1 draw,14x14,1x1,13,-0.4632673265805825
+public resnet50,local6400/seed5/resnet50_random_layers.csv,resnet50,init gamma=1 draw,7x7,1x1,6,0.14285714285714288
+public resnet50,init_axis/gamma0/seed1/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,56x56,1x1,8,0.2395252523826518
+public resnet50,init_axis/gamma0/seed1/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,28x28,3x3,4,0.632455532033676
+public resnet50,init_axis/gamma0/seed1/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,28x28,1x1,9,0.16736548175114463
+public resnet50,init_axis/gamma0/seed1/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,14x14,3x3,6,-0.14285714285714288
+public resnet50,init_axis/gamma0/seed1/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,14x14,1x1,13,0.0
+public resnet50,init_axis/gamma0/seed1/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,7x7,1x1,6,0.5428571428571429
+public resnet50,init_axis/gamma0/seed2/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,56x56,1x1,8,0.156637875131361
+public resnet50,init_axis/gamma0/seed2/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,28x28,3x3,4,1.0
+public resnet50,init_axis/gamma0/seed2/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,28x28,1x1,9,0.18333333333333335
+public resnet50,init_axis/gamma0/seed2/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,14x14,3x3,6,0.3188740696088466
+public resnet50,init_axis/gamma0/seed2/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,14x14,1x1,13,-0.06620746337191064
+public resnet50,init_axis/gamma0/seed2/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,7x7,1x1,6,0.3768511731740915
+public resnet50,init_axis/gamma0/seed3/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,56x56,1x1,8,0.19162020190612142
+public resnet50,init_axis/gamma0/seed3/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,28x28,3x3,4,0.7999999999999999
+public resnet50,init_axis/gamma0/seed3/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,28x28,1x1,9,0.18333333333333335
+public resnet50,init_axis/gamma0/seed3/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,14x14,3x3,6,-0.030358837035945815
+public resnet50,init_axis/gamma0/seed3/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,14x14,1x1,13,0.14325123227581624
+public resnet50,init_axis/gamma0/seed3/timm_resnet50.tv_in1k_random_layers.csv,resnet50,init gamma=0 draw,7x7,1x1,6,0.44136741475237473
+public resnet18,timm_resnet18.a1_in1k,resnet18,trained,56x56,3x3,4,1.0
+public resnet18,timm_resnet18.a1_in1k,resnet18,trained,28x28,3x3,4,0.9486832980505139
+public resnet18,timm_resnet18.a1_in1k,resnet18,trained,14x14,3x3,4,0.7999999999999999
+public resnet18,timm_resnet18.a1_in1k,resnet18,trained,7x7,3x3,4,0.39999999999999997
+public resnet18,timm_resnet18.a2_in1k,resnet18,trained,56x56,3x3,4,1.0
+public resnet18,timm_resnet18.a2_in1k,resnet18,trained,28x28,3x3,4,0.7999999999999999
+public resnet18,timm_resnet18.a2_in1k,resnet18,trained,14x14,3x3,4,0.9486832980505139
+public resnet18,timm_resnet18.a2_in1k,resnet18,trained,7x7,3x3,4,0.39999999999999997
+public resnet18,timm_resnet18.a3_in1k,resnet18,trained,56x56,3x3,4,1.0
+public resnet18,timm_resnet18.a3_in1k,resnet18,trained,28x28,3x3,4,0.7999999999999999
+public resnet18,timm_resnet18.a3_in1k,resnet18,trained,14x14,3x3,4,1.0
+public resnet18,timm_resnet18.a3_in1k,resnet18,trained,7x7,3x3,4,0.39999999999999997
+public resnet18,timm_resnet18.fb_ssl_yfcc100m_ft_in1k,resnet18,trained,56x56,3x3,4,1.0
+public resnet18,timm_resnet18.fb_ssl_yfcc100m_ft_in1k,resnet18,trained,28x28,3x3,4,1.0
+public resnet18,timm_resnet18.fb_ssl_yfcc100m_ft_in1k,resnet18,trained,14x14,3x3,4,1.0
+public resnet18,timm_resnet18.fb_ssl_yfcc100m_ft_in1k,resnet18,trained,7x7,3x3,4,0.7999999999999999
+public resnet18,timm_resnet18.gluon_in1k,resnet18,trained,56x56,3x3,4,1.0
+public resnet18,timm_resnet18.gluon_in1k,resnet18,trained,28x28,3x3,4,0.7999999999999999
+public resnet18,timm_resnet18.gluon_in1k,resnet18,trained,14x14,3x3,4,1.0
+public resnet18,timm_resnet18.gluon_in1k,resnet18,trained,7x7,3x3,4,0.19999999999999998
+public resnet18,timm_resnet18.tv_in1k,resnet18,trained,56x56,3x3,4,1.0
+public resnet18,timm_resnet18.tv_in1k,resnet18,trained,28x28,3x3,4,1.0
+public resnet18,timm_resnet18.tv_in1k,resnet18,trained,14x14,3x3,4,1.0
+public resnet18,timm_resnet18.tv_in1k,resnet18,trained,7x7,3x3,4,0.19999999999999998
+public resnet18,local6400/archs/seed1/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,56x56,3x3,4,0.39999999999999997
+public resnet18,local6400/archs/seed1/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,28x28,3x3,4,0.7999999999999999
+public resnet18,local6400/archs/seed1/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,14x14,3x3,4,0.7999999999999999
+public resnet18,local6400/archs/seed1/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,7x7,3x3,4,0.39999999999999997
+public resnet18,local6400/archs/seed2/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,56x56,3x3,4,0.0
+public resnet18,local6400/archs/seed2/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,28x28,3x3,4,0.7999999999999999
+public resnet18,local6400/archs/seed2/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,14x14,3x3,4,0.632455532033676
+public resnet18,local6400/archs/seed2/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,7x7,3x3,4,0.39999999999999997
+public resnet18,local6400/archs/seed3/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,56x56,3x3,4,0.632455532033676
+public resnet18,local6400/archs/seed3/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,28x28,3x3,4,0.7999999999999999
+public resnet18,local6400/archs/seed3/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,14x14,3x3,4,0.7999999999999999
+public resnet18,local6400/archs/seed3/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init default draw,7x7,3x3,4,0.39999999999999997
+public resnet18,bplus_controls/gamma1/seed1/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,56x56,3x3,4,0.9486832980505139
+public resnet18,bplus_controls/gamma1/seed1/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,28x28,3x3,4,0.9486832980505139
+public resnet18,bplus_controls/gamma1/seed1/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,14x14,3x3,4,0.7999999999999999
+public resnet18,bplus_controls/gamma1/seed1/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,7x7,3x3,4,0.7999999999999999
+public resnet18,bplus_controls/gamma1/seed2/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,56x56,3x3,4,0.9486832980505139
+public resnet18,bplus_controls/gamma1/seed2/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,28x28,3x3,4,0.7999999999999999
+public resnet18,bplus_controls/gamma1/seed2/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,14x14,3x3,4,0.19999999999999998
+public resnet18,bplus_controls/gamma1/seed2/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,7x7,3x3,4,0.0
+public resnet18,bplus_controls/gamma1/seed3/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,56x56,3x3,4,0.7999999999999999
+public resnet18,bplus_controls/gamma1/seed3/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,28x28,3x3,4,0.7999999999999999
+public resnet18,bplus_controls/gamma1/seed3/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,14x14,3x3,4,0.632455532033676
+public resnet18,bplus_controls/gamma1/seed3/timm_resnet18.tv_in1k_random_layers.csv,resnet18,init gamma=1 draw,7x7,3x3,4,0.39999999999999997
+public resnet34,timm_resnet34.a1_in1k,resnet34,trained,56x56,3x3,6,1.0
+public resnet34,timm_resnet34.a1_in1k,resnet34,trained,28x28,3x3,8,0.7619047619047621
+public resnet34,timm_resnet34.a1_in1k,resnet34,trained,14x14,3x3,12,0.41719250565759153
+public resnet34,timm_resnet34.a1_in1k,resnet34,trained,7x7,3x3,6,-0.028571428571428574
+public resnet34,timm_resnet34.a2_in1k,resnet34,trained,56x56,3x3,6,1.0
+public resnet34,timm_resnet34.a2_in1k,resnet34,trained,28x28,3x3,8,0.8383383833392813
+public resnet34,timm_resnet34.a2_in1k,resnet34,trained,14x14,3x3,12,0.41958041958041964
+public resnet34,timm_resnet34.a2_in1k,resnet34,trained,7x7,3x3,6,-0.028571428571428574
+public resnet34,timm_resnet34.a3_in1k,resnet34,trained,56x56,3x3,6,0.9856107606091623
+public resnet34,timm_resnet34.a3_in1k,resnet34,trained,28x28,3x3,8,0.7619047619047621
+public resnet34,timm_resnet34.a3_in1k,resnet34,trained,14x14,3x3,12,0.5534159099872936
+public resnet34,timm_resnet34.a3_in1k,resnet34,trained,7x7,3x3,6,0.2571428571428572
+public resnet34,timm_resnet34.gluon_in1k,resnet34,trained,56x56,3x3,6,0.942857142857143
+public resnet34,timm_resnet34.gluon_in1k,resnet34,trained,28x28,3x3,8,0.8503146459584139
+public resnet34,timm_resnet34.gluon_in1k,resnet34,trained,14x14,3x3,12,0.7253700996601186
+public resnet34,timm_resnet34.gluon_in1k,resnet34,trained,7x7,3x3,6,0.028571428571428574
+public resnet34,timm_resnet34.tv_in1k,resnet34,trained,56x56,3x3,6,1.0
+public resnet34,timm_resnet34.tv_in1k,resnet34,trained,28x28,3x3,8,0.9047619047619048
+public resnet34,timm_resnet34.tv_in1k,resnet34,trained,14x14,3x3,12,0.54641064530391
+public resnet34,timm_resnet34.tv_in1k,resnet34,trained,7x7,3x3,6,0.3714285714285715
+public resnet34,local6400/archs/seed1/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,56x56,3x3,6,-0.1449427589131121
+public resnet34,local6400/archs/seed1/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,28x28,3x3,8,0.5988131309566295
+public resnet34,local6400/archs/seed1/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,14x14,3x3,12,0.12767241877584157
+public resnet34,local6400/archs/seed1/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,7x7,3x3,6,0.20291986247835697
+public resnet34,local6400/archs/seed2/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,56x56,3x3,6,0.028571428571428574
+public resnet34,local6400/archs/seed2/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,28x28,3x3,8,0.626551500525444
+public resnet34,local6400/archs/seed2/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,14x14,3x3,12,0.18310313195303968
+public resnet34,local6400/archs/seed2/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,7x7,3x3,6,0.7142857142857143
+public resnet34,local6400/archs/seed3/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,56x56,3x3,6,-0.2
+public resnet34,local6400/archs/seed3/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,28x28,3x3,8,0.33737388489831593
+public resnet34,local6400/archs/seed3/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,14x14,3x3,12,0.4938463623935629
+public resnet34,local6400/archs/seed3/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init default draw,7x7,3x3,6,0.2571428571428572
+public resnet34,bplus_controls/gamma1/seed1/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,56x56,3x3,6,0.8406680016960503
+public resnet34,bplus_controls/gamma1/seed1/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,28x28,3x3,8,0.80511756018254
+public resnet34,bplus_controls/gamma1/seed1/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,14x14,3x3,12,-0.965034965034965
+public resnet34,bplus_controls/gamma1/seed1/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,7x7,3x3,6,-0.8857142857142858
+public resnet34,bplus_controls/gamma1/seed2/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,56x56,3x3,6,0.028571428571428574
+public resnet34,bplus_controls/gamma1/seed2/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,28x28,3x3,8,0.38794291597509756
+public resnet34,bplus_controls/gamma1/seed2/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,14x14,3x3,12,-0.5237331142892234
+public resnet34,bplus_controls/gamma1/seed2/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,7x7,3x3,6,-0.8857142857142858
+public resnet34,bplus_controls/gamma1/seed3/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,56x56,3x3,6,0.029424494316824982
+public resnet34,bplus_controls/gamma1/seed3/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,28x28,3x3,8,0.28743030285918214
+public resnet34,bplus_controls/gamma1/seed3/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,14x14,3x3,12,-0.9559454586332539
+public resnet34,bplus_controls/gamma1/seed3/timm_resnet34.tv_in1k_random_layers.csv,resnet34,init gamma=1 draw,7x7,3x3,6,-0.942857142857143
+public resnet101,timm_resnet101.a1_in1k,resnet101,trained,56x56,1x1,8,0.6190476190476191
+public resnet101,timm_resnet101.a1_in1k,resnet101,trained,28x28,3x3,4,0.39999999999999997
+public resnet101,timm_resnet101.a1_in1k,resnet101,trained,28x28,1x1,9,0.23732222626728364
+public resnet101,timm_resnet101.a1_in1k,resnet101,trained,14x14,3x3,23,0.5433870468503775
+public resnet101,timm_resnet101.a1_in1k,resnet101,trained,14x14,1x1,47,0.7544463935806528
+public resnet101,timm_resnet101.a1_in1k,resnet101,trained,7x7,1x1,6,-0.6571428571428573
+public resnet101,timm_resnet101.a3_in1k,resnet101,trained,56x56,1x1,8,0.7619047619047621
+public resnet101,timm_resnet101.a3_in1k,resnet101,trained,28x28,3x3,4,-0.39999999999999997
+public resnet101,timm_resnet101.a3_in1k,resnet101,trained,28x28,1x1,9,0.2833333333333333
+public resnet101,timm_resnet101.a3_in1k,resnet101,trained,14x14,3x3,23,0.6345441261173348
+public resnet101,timm_resnet101.a3_in1k,resnet101,trained,14x14,1x1,47,0.7717292921585411
+public resnet101,timm_resnet101.a3_in1k,resnet101,trained,7x7,1x1,6,0.028571428571428574
+public resnet101,timm_resnet101.gluon_in1k,resnet101,trained,56x56,1x1,8,0.7784570702436182
+public resnet101,timm_resnet101.gluon_in1k,resnet101,trained,28x28,3x3,4,0.39999999999999997
+public resnet101,timm_resnet101.gluon_in1k,resnet101,trained,28x28,1x1,9,0.4746444525345673
+public resnet101,timm_resnet101.gluon_in1k,resnet101,trained,14x14,3x3,23,0.7931801576466685
+public resnet101,timm_resnet101.gluon_in1k,resnet101,trained,14x14,1x1,47,0.8541028290207255
+public resnet101,timm_resnet101.gluon_in1k,resnet101,trained,7x7,1x1,6,-0.14285714285714288
+public resnet101,timm_resnet101.tv2_in1k,resnet101,trained,56x56,1x1,8,0.6467181814331598
+public resnet101,timm_resnet101.tv2_in1k,resnet101,trained,28x28,3x3,4,-0.19999999999999998
+public resnet101,timm_resnet101.tv2_in1k,resnet101,trained,28x28,1x1,9,0.3
+public resnet101,timm_resnet101.tv2_in1k,resnet101,trained,14x14,3x3,23,0.699456338544746
+public resnet101,timm_resnet101.tv2_in1k,resnet101,trained,14x14,1x1,47,0.7797444100274705
+public resnet101,timm_resnet101.tv2_in1k,resnet101,trained,7x7,1x1,6,-0.6
+public resnet101,timm_resnet101.tv_in1k,resnet101,trained,56x56,1x1,8,0.6506496351610379
+public resnet101,timm_resnet101.tv_in1k,resnet101,trained,28x28,3x3,4,0.7999999999999999
+public resnet101,timm_resnet101.tv_in1k,resnet101,trained,28x28,1x1,9,0.39330888211518983
+public resnet101,timm_resnet101.tv_in1k,resnet101,trained,14x14,3x3,23,0.7597628214440102
+public resnet101,timm_resnet101.tv_in1k,resnet101,trained,14x14,1x1,47,0.8808374354898326
+public resnet101,timm_resnet101.tv_in1k,resnet101,trained,7x7,1x1,6,0.08571428571428573
+public resnet101,local6400/archs/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,56x56,1x1,8,0.13173888881045848
+public resnet101,local6400/archs/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,28x28,3x3,4,0.19999999999999998
+public resnet101,local6400/archs/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,28x28,1x1,9,0.01695158759052026
+public resnet101,local6400/archs/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,14x14,3x3,23,0.22436918727736355
+public resnet101,local6400/archs/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,14x14,1x1,47,0.08447978645384696
+public resnet101,local6400/archs/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,7x7,1x1,6,0.4285714285714286
+public resnet101,local6400/archs/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,56x56,1x1,8,0.14285714285714288
+public resnet101,local6400/archs/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,28x28,3x3,4,0.316227766016838
+public resnet101,local6400/archs/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,28x28,1x1,9,0.050209644525343385
+public resnet101,local6400/archs/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,14x14,3x3,23,0.29923321387906493
+public resnet101,local6400/archs/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,14x14,1x1,47,0.09743682359037874
+public resnet101,local6400/archs/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,7x7,1x1,6,0.028988551782622423
+public resnet101,local6400/archs/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,56x56,1x1,8,0.023809523809523815
+public resnet101,local6400/archs/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,28x28,3x3,4,0.19999999999999998
+public resnet101,local6400/archs/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,28x28,1x1,9,0.05085476277156078
+public resnet101,local6400/archs/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,14x14,3x3,23,-0.3113245923830016
+public resnet101,local6400/archs/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,14x14,1x1,47,-0.05965860208328482
+public resnet101,local6400/archs/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init default draw,7x7,1x1,6,0.028571428571428574
+public resnet101,bplus_controls/gamma1/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,56x56,1x1,8,0.1077863635721933
+public resnet101,bplus_controls/gamma1/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,28x28,3x3,4,0.7999999999999999
+public resnet101,bplus_controls/gamma1/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,28x28,1x1,9,0.35
+public resnet101,bplus_controls/gamma1/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,14x14,3x3,23,-0.8613994616183516
+public resnet101,bplus_controls/gamma1/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,14x14,1x1,47,-0.8930381202383008
+public resnet101,bplus_controls/gamma1/seed1/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,7x7,1x1,6,0.8827348295047495
+public resnet101,bplus_controls/gamma1/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,56x56,1x1,8,0.15569141404872364
+public resnet101,bplus_controls/gamma1/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,28x28,3x3,4,0.632455532033676
+public resnet101,bplus_controls/gamma1/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,28x28,1x1,9,0.05857791861290061
+public resnet101,bplus_controls/gamma1/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,14x14,3x3,23,-0.9313350690076669
+public resnet101,bplus_controls/gamma1/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,14x14,1x1,47,-0.9006686958300963
+public resnet101,bplus_controls/gamma1/seed2/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,7x7,1x1,6,0.9276336570439175
+public resnet101,bplus_controls/gamma1/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,56x56,1x1,8,0.24098134635593996
+public resnet101,bplus_controls/gamma1/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,28x28,3x3,4,0.19999999999999998
+public resnet101,bplus_controls/gamma1/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,28x28,1x1,9,0.32636268941473195
+public resnet101,bplus_controls/gamma1/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,14x14,3x3,23,-0.8945049717945224
+public resnet101,bplus_controls/gamma1/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,14x14,1x1,47,-0.8668868424498823
+public resnet101,bplus_controls/gamma1/seed3/timm_resnet101.tv_in1k_random_layers.csv,resnet101,init gamma=1 draw,7x7,1x1,6,0.753702346348183
+public wide_resnet50_2,timm_wide_resnet50_2.racm_in1k,wide_resnet50_2,trained,56x56,1x1,8,0.7619047619047621
+public wide_resnet50_2,timm_wide_resnet50_2.racm_in1k,wide_resnet50_2,trained,28x28,3x3,4,0.7999999999999999
+public wide_resnet50_2,timm_wide_resnet50_2.racm_in1k,wide_resnet50_2,trained,28x28,1x1,9,0.09999999999999999
+public wide_resnet50_2,timm_wide_resnet50_2.racm_in1k,wide_resnet50_2,trained,14x14,3x3,6,0.8857142857142858
+public wide_resnet50_2,timm_wide_resnet50_2.racm_in1k,wide_resnet50_2,trained,14x14,1x1,13,0.5494505494505494
+public wide_resnet50_2,timm_wide_resnet50_2.racm_in1k,wide_resnet50_2,trained,7x7,1x1,6,-0.14285714285714288
+public wide_resnet50_2,timm_wide_resnet50_2.tv2_in1k,wide_resnet50_2,trained,56x56,1x1,8,0.7619047619047621
+public wide_resnet50_2,timm_wide_resnet50_2.tv2_in1k,wide_resnet50_2,trained,28x28,3x3,4,0.39999999999999997
+public wide_resnet50_2,timm_wide_resnet50_2.tv2_in1k,wide_resnet50_2,trained,28x28,1x1,9,0.09999999999999999
+public wide_resnet50_2,timm_wide_resnet50_2.tv2_in1k,wide_resnet50_2,trained,14x14,3x3,6,0.942857142857143
+public wide_resnet50_2,timm_wide_resnet50_2.tv2_in1k,wide_resnet50_2,trained,14x14,1x1,13,0.45090981453119
+public wide_resnet50_2,timm_wide_resnet50_2.tv2_in1k,wide_resnet50_2,trained,7x7,1x1,6,-0.3714285714285715
+public wide_resnet50_2,timm_wide_resnet50_2.tv_in1k,wide_resnet50_2,trained,56x56,1x1,8,0.3353353533357125
+public wide_resnet50_2,timm_wide_resnet50_2.tv_in1k,wide_resnet50_2,trained,28x28,3x3,4,0.39999999999999997
+public wide_resnet50_2,timm_wide_resnet50_2.tv_in1k,wide_resnet50_2,trained,28x28,1x1,9,0.32636268941473195
+public wide_resnet50_2,timm_wide_resnet50_2.tv_in1k,wide_resnet50_2,trained,14x14,3x3,6,0.8285714285714287
+public wide_resnet50_2,timm_wide_resnet50_2.tv_in1k,wide_resnet50_2,trained,14x14,1x1,13,0.6483516483516483
+public wide_resnet50_2,timm_wide_resnet50_2.tv_in1k,wide_resnet50_2,trained,7x7,1x1,6,0.6
+public wide_resnet50_2,local6400/archs/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,56x56,1x1,8,-0.38095238095238104
+public wide_resnet50_2,local6400/archs/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,28x28,3x3,4,0.19999999999999998
+public wide_resnet50_2,local6400/archs/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,28x28,1x1,9,-0.15062893357603013
+public wide_resnet50_2,local6400/archs/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,14x14,3x3,6,0.5428571428571429
+public wide_resnet50_2,local6400/archs/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,14x14,1x1,13,0.06611595335806904
+public wide_resnet50_2,local6400/archs/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,7x7,1x1,6,0.14285714285714288
+public wide_resnet50_2,local6400/archs/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,56x56,1x1,8,-0.3855701541695039
+public wide_resnet50_2,local6400/archs/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,28x28,3x3,4,0.19999999999999998
+public wide_resnet50_2,local6400/archs/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,28x28,1x1,9,-0.11715583722580122
+public wide_resnet50_2,local6400/archs/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,14x14,3x3,6,0.20291986247835697
+public wide_resnet50_2,local6400/archs/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,14x14,1x1,13,0.060774408212081285
+public wide_resnet50_2,local6400/archs/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,7x7,1x1,6,0.5428571428571429
+public wide_resnet50_2,local6400/archs/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,56x56,1x1,8,-0.2142857142857143
+public wide_resnet50_2,local6400/archs/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,28x28,3x3,4,0.39999999999999997
+public wide_resnet50_2,local6400/archs/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,28x28,1x1,9,-0.1924703040138163
+public wide_resnet50_2,local6400/archs/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,14x14,3x3,6,0.40583972495671394
+public wide_resnet50_2,local6400/archs/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,14x14,1x1,13,0.005502068478807295
+public wide_resnet50_2,local6400/archs/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init default draw,7x7,1x1,6,0.2571428571428572
+public wide_resnet50_2,bplus_controls/gamma1/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,56x56,1x1,8,0.05988131309566295
+public wide_resnet50_2,bplus_controls/gamma1/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,28x28,3x3,4,0.7999999999999999
+public wide_resnet50_2,bplus_controls/gamma1/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,28x28,1x1,9,0.3
+public wide_resnet50_2,bplus_controls/gamma1/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,14x14,3x3,6,-0.8857142857142858
+public wide_resnet50_2,bplus_controls/gamma1/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,14x14,1x1,13,-0.6685184903328941
+public wide_resnet50_2,bplus_controls/gamma1/seed1/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,7x7,1x1,6,-0.7714285714285715
+public wide_resnet50_2,bplus_controls/gamma1/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,56x56,1x1,8,0.1197626261913259
+public wide_resnet50_2,bplus_controls/gamma1/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,28x28,3x3,4,0.632455532033676
+public wide_resnet50_2,bplus_controls/gamma1/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,28x28,1x1,9,0.11715583722580122
+public wide_resnet50_2,bplus_controls/gamma1/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,14x14,3x3,6,-0.942857142857143
+public wide_resnet50_2,bplus_controls/gamma1/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,14x14,1x1,13,-0.8638247511727453
+public wide_resnet50_2,bplus_controls/gamma1/seed2/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,7x7,1x1,6,-0.3714285714285715
+public wide_resnet50_2,bplus_controls/gamma1/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,56x56,1x1,8,0.4047619047619048
+public wide_resnet50_2,bplus_controls/gamma1/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,28x28,3x3,4,-0.7999999999999999
+public wide_resnet50_2,bplus_controls/gamma1/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,28x28,1x1,9,-0.6443571047419068
+public wide_resnet50_2,bplus_controls/gamma1/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,14x14,3x3,6,-1.0
+public wide_resnet50_2,bplus_controls/gamma1/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,14x14,1x1,13,-0.8016559344665871
+public wide_resnet50_2,bplus_controls/gamma1/seed3/timm_wide_resnet50_2.tv_in1k_random_layers.csv,wide_resnet50_2,init gamma=1 draw,7x7,1x1,6,0.14285714285714288
+public resnext50_32x4d,timm_resnext50_32x4d.a1_in1k,resnext50_32x4d,trained,56x56,1x1,8,0.7619047619047621
+public resnext50_32x4d,timm_resnext50_32x4d.a1_in1k,resnext50_32x4d,trained,28x28,3x3,4,0.632455532033676
+public resnext50_32x4d,timm_resnext50_32x4d.a1_in1k,resnext50_32x4d,trained,28x28,1x1,9,0.18333333333333335
+public resnext50_32x4d,timm_resnext50_32x4d.a1_in1k,resnext50_32x4d,trained,14x14,3x3,6,0.7714285714285715
+public resnext50_32x4d,timm_resnext50_32x4d.a1_in1k,resnext50_32x4d,trained,14x14,1x1,13,0.5164835164835164
+public resnext50_32x4d,timm_resnext50_32x4d.a1_in1k,resnext50_32x4d,trained,7x7,1x1,6,-0.6
+public resnext50_32x4d,timm_resnext50_32x4d.a3_in1k,resnext50_32x4d,trained,56x56,1x1,8,0.7619047619047621
+public resnext50_32x4d,timm_resnext50_32x4d.a3_in1k,resnext50_32x4d,trained,28x28,3x3,4,0.7999999999999999
+public resnext50_32x4d,timm_resnext50_32x4d.a3_in1k,resnext50_32x4d,trained,28x28,1x1,9,0.25
+public resnext50_32x4d,timm_resnext50_32x4d.a3_in1k,resnext50_32x4d,trained,14x14,3x3,6,0.8285714285714287
+public resnext50_32x4d,timm_resnext50_32x4d.a3_in1k,resnext50_32x4d,trained,14x14,1x1,13,0.6373626373626374
+public resnext50_32x4d,timm_resnext50_32x4d.a3_in1k,resnext50_32x4d,trained,7x7,1x1,6,-0.6
+public resnext50_32x4d,timm_resnext50_32x4d.gluon_in1k,resnext50_32x4d,trained,56x56,1x1,8,0.730552019767088
+public resnext50_32x4d,timm_resnext50_32x4d.gluon_in1k,resnext50_32x4d,trained,28x28,3x3,4,1.0
+public resnext50_32x4d,timm_resnext50_32x4d.gluon_in1k,resnext50_32x4d,trained,28x28,1x1,9,0.18333333333333335
+public resnext50_32x4d,timm_resnext50_32x4d.gluon_in1k,resnext50_32x4d,trained,14x14,3x3,6,0.8857142857142858
+public resnext50_32x4d,timm_resnext50_32x4d.gluon_in1k,resnext50_32x4d,trained,14x14,1x1,13,0.5474558136413259
+public resnext50_32x4d,timm_resnext50_32x4d.gluon_in1k,resnext50_32x4d,trained,7x7,1x1,6,0.6571428571428573
+public resnext50_32x4d,timm_resnext50_32x4d.tv2_in1k,resnext50_32x4d,trained,56x56,1x1,8,0.7619047619047621
+public resnext50_32x4d,timm_resnext50_32x4d.tv2_in1k,resnext50_32x4d,trained,28x28,3x3,4,1.0
+public resnext50_32x4d,timm_resnext50_32x4d.tv2_in1k,resnext50_32x4d,trained,28x28,1x1,9,0.15
+public resnext50_32x4d,timm_resnext50_32x4d.tv2_in1k,resnext50_32x4d,trained,14x14,3x3,6,0.6571428571428573
+public resnext50_32x4d,timm_resnext50_32x4d.tv2_in1k,resnext50_32x4d,trained,14x14,1x1,13,0.3301241087284377
+public resnext50_32x4d,timm_resnext50_32x4d.tv2_in1k,resnext50_32x4d,trained,7x7,1x1,6,0.2
+public resnext50_32x4d,timm_resnext50_32x4d.tv_in1k,resnext50_32x4d,trained,56x56,1x1,8,0.7619047619047621
+public resnext50_32x4d,timm_resnext50_32x4d.tv_in1k,resnext50_32x4d,trained,28x28,3x3,4,0.7378647873726218
+public resnext50_32x4d,timm_resnext50_32x4d.tv_in1k,resnext50_32x4d,trained,28x28,1x1,9,0.2845213189769458
+public resnext50_32x4d,timm_resnext50_32x4d.tv_in1k,resnext50_32x4d,trained,14x14,3x3,6,0.8857142857142858
+public resnext50_32x4d,timm_resnext50_32x4d.tv_in1k,resnext50_32x4d,trained,14x14,1x1,13,0.576923076923077
+public resnext50_32x4d,timm_resnext50_32x4d.tv_in1k,resnext50_32x4d,trained,7x7,1x1,6,-0.6
+public resnext50_32x4d,local6400/archs/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,56x56,1x1,8,-0.28743030285918214
+public resnext50_32x4d,local6400/archs/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,28x28,3x3,4,0.19999999999999998
+public resnext50_32x4d,local6400/archs/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,28x28,1x1,9,-0.11715583722580122
+public resnext50_32x4d,local6400/archs/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,14x14,3x3,6,0.5428571428571429
+public resnext50_32x4d,local6400/archs/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,14x14,1x1,13,0.1155434380549532
+public resnext50_32x4d,local6400/archs/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,7x7,1x1,6,0.3142857142857143
+public resnext50_32x4d,local6400/archs/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,56x56,1x1,8,-0.30952380952380953
+public resnext50_32x4d,local6400/archs/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,28x28,3x3,4,0.19999999999999998
+public resnext50_32x4d,local6400/archs/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,28x28,1x1,9,-0.09999999999999999
+public resnext50_32x4d,local6400/archs/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,14x14,3x3,6,0.6571428571428573
+public resnext50_32x4d,local6400/archs/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,14x14,1x1,13,0.12672224393629897
+public resnext50_32x4d,local6400/archs/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,7x7,1x1,6,0.5428571428571429
+public resnext50_32x4d,local6400/archs/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,56x56,1x1,8,-0.3333333333333334
+public resnext50_32x4d,local6400/archs/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,28x28,3x3,4,0.7999999999999999
+public resnext50_32x4d,local6400/archs/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,28x28,1x1,9,-0.10041928905068677
+public resnext50_32x4d,local6400/archs/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,14x14,3x3,6,0.2571428571428572
+public resnext50_32x4d,local6400/archs/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,14x14,1x1,13,0.005509662779839086
+public resnext50_32x4d,local6400/archs/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init default draw,7x7,1x1,6,0.3142857142857143
+public resnext50_32x4d,bplus_controls/gamma1/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,56x56,1x1,8,-0.261904761904762
+public resnext50_32x4d,bplus_controls/gamma1/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,28x28,3x3,4,0.19999999999999998
+public resnext50_32x4d,bplus_controls/gamma1/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,28x28,1x1,9,0.03333333333333333
+public resnext50_32x4d,bplus_controls/gamma1/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,14x14,3x3,6,0.753702346348183
+public resnext50_32x4d,bplus_controls/gamma1/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,14x14,1x1,13,0.16483516483516483
+public resnext50_32x4d,bplus_controls/gamma1/seed1/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,7x7,1x1,6,0.5428571428571429
+public resnext50_32x4d,bplus_controls/gamma1/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,56x56,1x1,8,-0.19047619047619052
+public resnext50_32x4d,bplus_controls/gamma1/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,28x28,3x3,4,0.19999999999999998
+public resnext50_32x4d,bplus_controls/gamma1/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,28x28,1x1,9,-0.050209644525343385
+public resnext50_32x4d,bplus_controls/gamma1/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,14x14,3x3,6,0.6667366910003157
+public resnext50_32x4d,bplus_controls/gamma1/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,14x14,1x1,13,0.1868131868131868
+public resnext50_32x4d,bplus_controls/gamma1/seed2/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,7x7,1x1,6,0.3714285714285715
+public resnext50_32x4d,bplus_controls/gamma1/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,56x56,1x1,8,-0.2142857142857143
+public resnext50_32x4d,bplus_controls/gamma1/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,28x28,3x3,4,0.7999999999999999
+public resnext50_32x4d,bplus_controls/gamma1/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,28x28,1x1,9,-0.03333333333333333
+public resnext50_32x4d,bplus_controls/gamma1/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,14x14,3x3,6,0.3714285714285715
+public resnext50_32x4d,bplus_controls/gamma1/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,14x14,1x1,13,0.14305378044898964
+public resnext50_32x4d,bplus_controls/gamma1/seed3/timm_resnext50_32x4d.tv_in1k_random_layers.csv,resnext50_32x4d,init gamma=1 draw,7x7,1x1,6,0.4285714285714286
