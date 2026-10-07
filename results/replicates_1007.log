@@ -1,0 +1,75 @@
+
+=== timm:convnext_tiny.in12k_ft_in1k ===
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  77 layers, 147.4s
+  r_max check: max k*(0.999)/r_max = 0.992 at stages.2.blocks.4.conv_dw -> ok
+  !! 1/77 layers under-sampled (worst: head.fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.062  max 0.786  mean 0.632
+
+=== timm:convnext_tiny.fb_in1k ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  77 layers, 147.4s
+  r_max check: max k*(0.999)/r_max = 0.990 at stages.0.blocks.2.conv_dw -> ok
+  !! 1/77 layers under-sampled (worst: head.fc, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.115  max 0.781  mean 0.559
+
+=== mobilenet_v2 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  70 layers, 112.1s
+  r_max check: max k*(0.999)/r_max = 1.000 at features.1.conv.1 -> ok
+  !! 1/70 layers under-sampled (worst: classifier.1, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.002  max 0.803  mean 0.395
+
+=== mobilenet_v2@IMAGENET1K_V2 ===
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+  batch 0
+  batch 20
+  batch 40
+  batch 60
+  batch 80
+  batch 100
+  batch 120
+  batch 140
+  batch 160
+  batch 180
+  70 layers, 108.9s
+  r_max check: max k*(0.999)/r_max = 1.000 at features.1.conv.1 -> ok
+  !! 1/70 layers under-sampled (worst: classifier.1, C=1000, n/C=6.4). Need >= 3125 images at --positions 16. These rows are flagged n_over_C_ok=False -- do not report them.
+  k*/C (95% EV, conv layers, adequately sampled): min 0.095  max 0.875  mean 0.427
+
+wrote ../results/local6400/archs/trained/

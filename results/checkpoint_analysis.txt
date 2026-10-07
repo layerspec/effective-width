@@ -1,4 +1,4 @@
-loaded 22 layer tables from ../results
+loaded 24 layer tables from ../results
 duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
 
 ========================================================================
@@ -54,6 +54,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     layer4.0    2048     1.07     1.07  0.998
     layer4.1    2048     1.06     1.06  1.000
     layer4.2    2048     1.06     1.06  0.996
+  wrote ../paper/table_models.tex
 
 ========================================================================
 1. r_max as the denominator, on every checkpoint
@@ -70,7 +71,9 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     resnet18                                 max 0.992   bounded   3/ 20   r_max/C values [0.5]
     resnet50                                 max 0.977   bounded  20/ 53   r_max/C values [0.25, 0.5]
     resnet50_random                          max 0.969   bounded  20/ 53   r_max/C values [0.25, 0.5]
+    timm_convnext_tiny.fb_in1k               max 0.990   bounded   1/ 22   r_max/C values [0.5]
     timm_convnext_tiny.fb_in22k_ft_in1k      max 0.990   bounded   1/ 22   r_max/C values [0.5]
+    timm_convnext_tiny.in12k_ft_in1k         max 0.992   bounded   1/ 22   r_max/C values [0.5]
     timm_densenet121.tv_in1k                 max 1.000   bounded   2/120   r_max/C values [0.5, 0.75]
     timm_efficientnet_b0.ra_in1k             max 1.000   bounded  17/ 49   r_max/C values [0.167, 0.25, 0.844]
     timm_mobilenetv2_100.ra_in1k             max 1.000   bounded  18/ 52   r_max/C values [0.167, 0.25, 0.844]
@@ -97,11 +100,11 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       0.4000    1      0.370          0.925  [0.93, 0.93]      1
       0.4219    2      0.156          0.370  [0.33, 0.41]      2
       0.4348    2      0.416          0.956  [0.95, 0.96]      1
-      0.5000   70      0.410          0.820  [0.72, 0.91]      14
+      0.5000   72      0.408          0.815  [0.70, 0.90]      16
       0.7500    1      0.438          0.583  [0.58, 0.58]      1
       0.8438    2      0.266          0.315  [0.31, 0.32]      2
-    Spearman(bound, k*/C)     = +0.770  p=2.2e-52
-    Spearman(bound, k*/r_max) = -0.647  p=2.7e-32
+    Spearman(bound, k*/C)     = +0.761  p=7.0e-51
+    Spearman(bound, k*/r_max) = -0.651  p=4.2e-33
     Reading: k*/C tracks the bound one-for-one.  k*/r_max is not constant
     either -- a tighter ceiling is hit harder (1/6: ~0.99, 1/4: ~0.94, 1/2:
     ~0.82) -- but it stays within the unbounded layers' range, and the
@@ -156,15 +159,15 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     pairwise Spearman between k_star_ratio_0.95 profiles: min +0.909  median +0.944  max +0.979
     pairwise Spearman between k_star_rmax_0.95 profiles: min +0.790  median +0.847  max +0.915
 
-  ConvNeXt-T x2 (dense 1x1 only): 2 checkpoints, 4 gate-passing layers each
-    k_star_ratio_0.95      per-layer SD across ckpts: median 0.013 max 0.074   range: median 0.018
-                           adjacent-layer jitter per ckpt: median 0.081  (min 0.061, max 0.102)
-                           whole-profile mean per ckpt: 0.281  0.313
-    k_star_ratio_0.999     per-layer SD across ckpts: median 0.035 max 0.092   range: median 0.049
-                           adjacent-layer jitter per ckpt: median 0.123  (min 0.056, max 0.190)
-                           whole-profile mean per ckpt: 0.601  0.626
-    pairwise Spearman between k_star_ratio_0.95 profiles: min +0.800  median +0.800  max +0.800
-    pairwise Spearman between k_star_rmax_0.95 profiles: min +0.800  median +0.800  max +0.800
+  ConvNeXt-T x2 (dense 1x1 only): 4 checkpoints, 4 gate-passing layers each
+    k_star_ratio_0.95      per-layer SD across ckpts: median 0.037 max 0.056   range: median 0.085
+                           adjacent-layer jitter per ckpt: median 0.065  (min 0.021, max 0.102)
+                           whole-profile mean per ckpt: 0.281  0.313  0.297  0.259
+    k_star_ratio_0.999     per-layer SD across ckpts: median 0.042 max 0.087   range: median 0.085
+                           adjacent-layer jitter per ckpt: median 0.117  (min 0.056, max 0.190)
+                           whole-profile mean per ckpt: 0.601  0.626  0.579  0.592
+    pairwise Spearman between k_star_ratio_0.95 profiles: min +0.800  median +0.900  max +1.000
+    pairwise Spearman between k_star_rmax_0.95 profiles: min +0.800  median +0.900  max +1.000
 
   Reading: if the per-layer SD across recipes is comparable to the
   adjacent-layer jitter, a single checkpoint's fine structure is not
@@ -186,7 +189,9 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     model                                        dense  depthwise   drop/C  jit/C  drop/rmax jit/rmax  ratio/C ratio/rmax  Wilcoxon p
     convnext_tiny                               4/4       18/18      0.152  0.061      0.204    0.026     2.49       7.85         nan
     resnet18                                   20/20       0/0       0.285  0.172      0.289    0.141     1.66       2.06     4.4e-05
+    timm_convnext_tiny.fb_in1k                  1/1        3/3       0.083    nan      0.167      nan      nan        nan         nan
     timm_convnext_tiny.fb_in22k_ft_in1k         4/4       17/18      0.152  0.102      0.204    0.102     1.50       2.01         nan
+    timm_convnext_tiny.in12k_ft_in1k            1/1        3/3       0.031    nan      0.062      nan      nan        nan         nan
     timm_densenet121.tv_in1k                  109/120      0/0       0.148  0.297      0.148    0.297     0.50       0.50     4.9e-20  <-- 10 tie(s), 1 reversal(s)
     timm_efficientnet_b0.ra_in1k               28/28      12/12      0.059  0.625      0.187    0.125     0.09       1.50     1.9e-06
     timm_mobilenetv2_100.ra_in1k               34/34      17/17      0.055  0.682      0.231    0.109     0.08       2.11     1.8e-07
@@ -206,8 +211,8 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     convnext_tiny_random                        4/4       18/18      0.091  0.042      0.091    0.039     2.19       2.33         nan
     resnet50_random                            42/42       0/0       0.143  0.074      0.184    0.062     1.92       2.94     8.2e-09
 
-    TRAINED TOTAL dense    : pooled lower on 687/703
-    TRAINED TOTAL depthwise: pooled lower on 79/80
+    TRAINED TOTAL dense    : pooled lower on 689/705
+    TRAINED TOTAL depthwise: pooled lower on 85/86
     exceptions (dense, pooled >= sampled).  k* is an integer, so at
     C = 32 one channel is 0.031 of the range; a tie there is resolution,
     not a reversal:
@@ -228,6 +233,8 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     expansion layers (r_max < C).  A ratio below 1 means the pooling
     effect is smaller than the curve's own adjacent-layer step:
       model                                     bounded  ratio/C ratio/rmax
+      timm_convnext_tiny.fb_in1k                 1/1         nan        nan
+      timm_convnext_tiny.in12k_ft_in1k           1/1         nan        nan
       timm_mobilenetv2_100.ra_in1k              17/34       0.08       2.11
       timm_mobilenetv3_large_100.ra_in1k        15/31       0.17       1.25
       timm_efficientnet_b0.ra_in1k              12/28       0.09       1.50
@@ -247,12 +254,13 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       timm_vgg16.tv_in1k                         1/13       3.71       4.98
       vgg16_bn                                   1/13       3.79       5.24
       timm_densenet121.tv_in1k                   2/120      0.50       0.50
-      inverted-residual models (>=40% bounded layers), median ratio: /C 0.09   /r_max 1.50   (n=3)
+      inverted-residual models (>=40% bounded layers), median ratio: /C nan   /r_max nan   (n=5)
       all other trained models, median ratio                   : /C 1.29   /r_max 2.20   (n=16)
       trained models with ratio/r_max < 1: ['timm_densenet121.tv_in1k']
       (DenseNet-121's jitter is the 1x1/3x3 alternation of its dense
        layers, which is structural; its ratio is below 1 with either
        denominator and is reported as such)
+  wrote ../paper/table_pooling.tex
 
 ========================================================================
 3b. Layers whose k*(.95)/C had not flattened at n/C = 250 (|delta| > 0.02)
@@ -275,7 +283,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
       conv_stem                                     C=  16  moved +1.0 channels between n/C=100 and 250
     vgg16_bn:
       features.40                                   C= 512  moved +18.0 channels between n/C=100 and 250
-  pooled-lower count (dense, trained) with flagged layers removed: 679/689
+  pooled-lower count (dense, trained) with flagged layers removed: 681/691
   (a C=32 layer moves 0.031 per channel, so one channel trips the 0.02 rule)
 
 ========================================================================
@@ -294,6 +302,10 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     convnext_tiny dw                         convnext_tiny_random     13/18    4.8e-02     1.3e-02    +0.089   0.044
     timm_convnext_tiny.fb_in22k_ft_in1k      convnext_tiny_random      4/4     6.2e-02     6.2e-02    +0.199   0.102
     timm_convnext_tiny.fb_in22k_ft_in1k dw   convnext_tiny_random     12/18    1.2e-01     2.1e-01    +0.043   0.073
+    timm_convnext_tiny.in12k_ft_in1k         convnext_tiny_random      4/4     6.2e-02     6.2e-02    +0.223   0.069
+    timm_convnext_tiny.in12k_ft_in1k dw      convnext_tiny_random     14/18    1.5e-02     4.8e-03    +0.111   0.052
+    timm_convnext_tiny.fb_in1k               convnext_tiny_random      4/4     6.2e-02     6.2e-02    +0.160   0.021
+    timm_convnext_tiny.fb_in1k dw            convnext_tiny_random     11/18    2.4e-01     3.3e-01    +0.017   0.062
 
   Caveat: the random control is ONE draw of the initialiser, and the
   first and second runs drew different weights (the init was not seeded;
@@ -368,13 +380,13 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     conv2     16     +0.69 [+0.53,+0.86]     +0.00 [-0.19,+0.28]   level trained 0.516 random 0.197
     conv3     16     +0.70 [+0.60,+0.87]     -0.51 [-0.59,-0.19]   level trained 0.500 random 0.172
 
-  ConvNeXt-T (depthwise 7x7): 2 trained checkpoints vs 1 random init, 18 layers
-    k_star_ratio_0.95          trained-vs-trained rho: median +0.34 [+0.34, +0.34]   trained-vs-random rho: median +0.10 [+0.02, +0.18]
-                               rho(depth): trained mean +0.16  random +0.86    level: trained median 0.689  random median 0.656
-    k_star_ratio_0.999         trained-vs-trained rho: median +0.36 [+0.36, +0.36]   trained-vs-random rho: median +0.31 [+0.17, +0.45]
-                               rho(depth): trained mean +0.45  random +0.80    level: trained median 0.980  random median 0.990
-    participation_ratio_norm   trained-vs-trained rho: median +0.61 [+0.61, +0.61]   trained-vs-random rho: median -0.04 [-0.21, +0.12]
-                               rho(depth): trained mean -0.68  random +0.01    level: trained median 0.213  random median 0.043
+  ConvNeXt-T (depthwise 7x7): 4 trained checkpoints vs 1 random init, 18 layers
+    k_star_ratio_0.95          trained-vs-trained rho: median +0.51 [+0.24, +0.75]   trained-vs-random rho: median -0.00 [-0.15, +0.18]
+                               rho(depth): trained mean +0.08  random +0.86    level: trained median 0.686  random median 0.656
+    k_star_ratio_0.999         trained-vs-trained rho: median +0.41 [+0.16, +0.75]   trained-vs-random rho: median +0.10 [-0.11, +0.45]
+                               rho(depth): trained mean +0.33  random +0.80    level: trained median 0.982  random median 0.990
+    participation_ratio_norm   trained-vs-trained rho: median +0.38 [+0.32, +0.86]   trained-vs-random rho: median -0.00 [-0.21, +0.12]
+                               rho(depth): trained mean -0.75  random +0.01    level: trained median 0.217  random median 0.043
 
   Caveat: one random draw per architecture (init now seeded; more draws
   are cheap).  A single draw can only show whether the random profile is
@@ -448,10 +460,10 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
     resnext50        all    53  5  3  +0.92 [+0.91,+0.94]  +0.92 [+0.87,+0.97]  +0.46 [+0.31,+0.64]  0.391/0.190    +0.197  0.42 0.36 0.36 0.37 0.34
     resnext50        3x3    16  5  3  +0.73 [+0.67,+0.80]  +0.84 [+0.69,+0.91]  -0.22 [-0.53,+0.01]  0.496/0.246    +0.243  0.52 0.49 0.47 0.49 0.46
     resnext50        1x1    36  5  3  +0.96 [+0.95,+0.96]  +0.91 [+0.87,+0.97]  +0.33 [+0.24,+0.51]  0.336/0.148    +0.181  0.39 0.32 0.32 0.33 0.29
-    mobilenetv2      under k*/C: R-R +0.97  T-T +nan  T-R +0.88
-    mobilenetv2      all    35  1  3  +0.85 [+0.85,+0.97]       n/a         +0.42 [+0.41,+0.42]  0.719/0.625    +0.124  0.71
-    mobilenetv2      1x1    34  1  3  +0.84 [+0.83,+0.97]       n/a         +0.37 [+0.36,+0.37]  0.719/0.625    +0.124  0.73
-    mobilenetv2      dw     17  1  3  +0.55 [+0.51,+0.84]       n/a         +0.15 [+0.03,+0.32]  0.419/0.388    +0.041  0.42
+    mobilenetv2      under k*/C: R-R +0.97  T-T +0.90  T-R +0.82
+    mobilenetv2      all    35  3  3  +0.85 [+0.85,+0.97]  +0.65 [+0.58,+0.72]  +0.26 [+0.02,+0.42]  0.708/0.625    +0.100  0.70 0.65 0.71
+    mobilenetv2      1x1    34  3  3  +0.84 [+0.83,+0.97]  +0.62 [+0.55,+0.69]  +0.19 [-0.06,+0.37]  0.717/0.625    +0.100  0.72 0.66 0.73
+    mobilenetv2      dw     17  3  3  +0.55 [+0.51,+0.84]  +0.74 [+0.70,+0.84]  +0.03 [-0.27,+0.32]  0.438/0.388    +0.035  0.43 0.39 0.42
     mobilenetv3      under k*/C: R-R +0.94  T-T +0.97  T-R +0.94
     mobilenetv3      all    31  4  3  +0.75 [+0.68,+0.94]  +0.88 [+0.79,+0.94]  +0.65 [+0.34,+0.74]  0.653/0.525    +0.132  0.64 0.66 0.65 0.61
     mobilenetv3      1x1    30  4  3  +0.73 [+0.66,+0.94]  +0.86 [+0.77,+0.93]  +0.61 [+0.28,+0.72]  0.662/0.531    +0.135  0.65 0.68 0.65 0.62
@@ -466,6 +478,7 @@ duplicates excluded from counts: {'resnet50': 'timm_resnet50.tv_in1k'}
   look at its per-checkpoint levels before saying anything about it.
   VGG-16's two checkpoints are with and without BN, so its T-T compares
   two architectures.
+  wrote ../paper/table_families.tex
 
 ========================================================================
 9. When does the profile become the trained one?  CIFAR-10 trajectories
@@ -1319,11 +1332,11 @@ layer4 conv1       0.97   0.51
 ========================================================================
 22. Estimator comparison (B10, plan section 11): the ruler against RankMe, alpha-ReQ, corrected PR, on identical layers and images
 ========================================================================
-  21 checkpoints with saved spectra, 894 gate-passing dense conv layers (random inits: ['convnext_tiny_random', 'resnet50_random'])
+  23 checkpoints with saved spectra, 902 gate-passing dense conv layers (random inits: ['convnext_tiny_random', 'resnet50_random'])
   bound check: max estimator / r_max over all rows = 1.000 (must be <= 1)
-  PR correction |PRc-PR|/PR: median 0.00%, max 0.03% (at n/C = 1042, convnext_tiny features.6.1); rows with > 5%: 0, > 10%: 0
+  PR correction |PRc-PR|/PR: median 0.00%, max 0.17% (at n/C = 133, timm_convnext_tiny.in12k_ft_in1k stages.3.downsample.1); rows with > 5%: 0, > 10%: 0
 
-  1. per-model Spearman rho between each estimator/r_max and the ruler (over layers; 19 trained + 2 random checkpoints, >= 5 layers each)
+  1. per-model Spearman rho between each estimator/r_max and the ruler (over layers; 21 trained + 2 random checkpoints, >= 5 layers each)
      estimator       vs k*(.999)/r_max: med [min, max]     vs k*(.95)/r_max: med [min, max]   n>=0.8
      k95                          +0.93 [+0.50, +0.98]                                     --    15/18
      k999                                           --                   +0.93 [+0.50, +0.98]  
@@ -1334,8 +1347,8 @@ layer4 conv1       0.97   0.51
      alpha                        -0.66 [-0.94, -0.14]                   -0.60 [-0.93, +0.04]     2/18
 
   2. level: median of estimator / r_max over all gate-passing dense conv layers (trained only)
-     (alpha defined on 833/837 layers; the fit window [10, C] needs C >= 18)
-     k95 0.474  k999 0.950  PR 0.150  PRc 0.150  erank 0.296  RankMe 0.707  alpha 2.576
+     (alpha defined on 841/845 layers; the fit window [10, C] needs C >= 18)
+     k95 0.471  k999 0.949  PR 0.150  PRc 0.150  erank 0.294  RankMe 0.706  alpha 2.582
 
   3. six ResNet-50 recipes: median pairwise layer-ordering rho, per estimator
      k95          median +0.85 [+0.79, +0.91]  (15 pairs, 6 recipes)
@@ -1347,9 +1360,9 @@ layer4 conv1       0.97   0.51
      alpha        median +0.97 [+0.95, +0.99]  (15 pairs, 6 recipes)
 
   6. pooling: layers where position-sampled > globally pooled, per estimator (trained, gate-passing dense conv, both gates)
-     k*(0.95)   687/703
-     PR         669/703
-     erank      688/703
+     k*(0.95)   689/705
+     PR         671/705
+     erank      690/705
 
   per-checkpoint rho vs k*(0.999)/r_max (trained):
      model                                      layers     k95      PR     PRc   erank  RankMe   alpha

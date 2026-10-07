@@ -2350,6 +2350,18 @@ ResNeXt 的分支能量只有流的 2–7%（grouped 分支＋BN 的尺度），
   (a) mobilenetv2 三組的 dense T–T 中位與 ResNet-50 六配方的 0.84 比；(b) 家族層級現有的句子（inverted residual「保序並加水準」、ConvNeXt dense T–R）在加入新權重後方向是否不變。
   任何因新權重而翻轉的句子列入 pending §H。
 
+### 10.46 §9.42 判定：免費複本量完，兩個家族的 T–R 往零退、T–T 可報（2026-10-07 17:00；`results/local6400/archs/trained/{mobilenet_v2,mobilenet_v2_IMAGENET1K_V2,timm_convnext_tiny.in12k_ft_in1k,timm_convnext_tiny.fb_in1k}_*`；`checkpoint_analysis.txt` §6／§8 重產）
+
+| 家族 | nT 前→後 | T–T（dense）後 | T–R dense 前→後 | T–R dw 前→後 | 水準 T/R |
+|---|---|---|---|---|---|
+| MobileNetV2（timm ra ＋ tv V1 ＋ tv V2） | 1→3 | **+0.65 [+0.58, +0.72]** | +0.42 → **+0.26 [+0.02, +0.42]** | +0.15 → +0.03 [−0.27, +0.32] | 0.71／0.63（＋0.10，不變） |
+| ConvNeXt-T（tv ＋ fb in22k ft ＋ in12k ft ＋ fb in1k） | 2→4 | **+0.51 [+0.24, +0.75]**（dw 18 層） | dense 4 層不變 | +0.10 → **−0.00 [−0.15, +0.18]** | 不變 |
+
+- (a) MobileNetV2 三組的 T–T 0.65 低於 ResNet-50 六配方的 0.84／0.94：inverted residual 家族的配方穩定性較低，這是新數字，可寫。
+- (b) 家族句的方向：**沒有翻轉，但 T–R 往零退**——單一權重的 +0.42 是三組裡最高的一組；dw 的 T–R 在兩個家族都 ≈ 0。這與 §10.35「T–R 全退場」一致；家族表的 T–R 欄只當描述。
+- 剩 n＝1：vgg16_bn（要自訓，付費）；densenet121 停在 2（公開只有兩組）。審稿 #35 的實際範圍：家族層級句限於 nT ≥ 3 的九個家族（含 ConvNeXt-T 4、MobileNetV2 3）。
+- 程式：`layerspec.models` 加 `name@IMAGENET1K_V2` 變體與 `mobilenet_v2`；`checkpoint_analysis.py` 的 mobilenetv2 glob 與 `CONVNEXT_CKPTS` 加入新權重（ConvNeXt 檔複製到 results 根目錄，與既有約定相同）。
+
 ### 10.34 A29b 兩種子定案（2026-10-07 07:40 判；`checkpoint_analysis.py` §30 `section_a29b`；plan §9.18）
 
 pod 鏈 `chain_1005.sh` 於 10-06 16:53 UTC 跑完自行終止；`resnet34_s1`（top-1 73.06，12.1 h）10-07 從網路磁碟取回後判。

@@ -46,7 +46,8 @@ RESNET50_RECIPES = [
     "timm_resnet50.a3_in1k", "timm_resnet50.gluon_in1k",
     "timm_resnet50.fb_ssl_yfcc100m_ft_in1k",
 ]
-CONVNEXT_CKPTS = ["convnext_tiny", "timm_convnext_tiny.fb_in22k_ft_in1k"]
+CONVNEXT_CKPTS = ["convnext_tiny", "timm_convnext_tiny.fb_in22k_ft_in1k",
+                  "timm_convnext_tiny.in12k_ft_in1k", "timm_convnext_tiny.fb_in1k"]   # last two measured 2026-10-07 (plan 9.42)
 BOTTLENECK_RESNETS = RESNET50_RECIPES + [
     "timm_resnet101.tv_in1k", "timm_wide_resnet50_2.tv_in1k",
     "timm_resnext50_32x4d.tv_in1k",
@@ -320,6 +321,8 @@ MODEL_LABELS = {
     "timm_efficientnet_b0.ra_in1k": ("EfficientNet-B0", "RA"),
     "convnext_tiny": ("ConvNeXt-T", "in1k"),
     "timm_convnext_tiny.fb_in22k_ft_in1k": ("ConvNeXt-T", "in22k ft"),
+    "timm_convnext_tiny.in12k_ft_in1k": ("ConvNeXt-T", "in12k ft"),
+    "timm_convnext_tiny.fb_in1k": ("ConvNeXt-T", "fb in1k"),
 }
 MODEL_ORDER = list(MODEL_LABELS)
 
@@ -742,7 +745,7 @@ ARCH_FAMILIES = {
                         "local6400/archs/seed*/timm_wide_resnet50_2.tv_in1k_random_layers.csv"),
     "resnext50":       ("local6400/archs/trained/timm_resnext50_32x4d.*_layers.csv",
                         "local6400/archs/seed*/timm_resnext50_32x4d.tv_in1k_random_layers.csv"),
-    "mobilenetv2":     ("local6400/archs/trained/timm_mobilenetv2_100.*_layers.csv",
+    "mobilenetv2":     ("local6400/archs/trained/*mobilenet*v2*_layers.csv",   # timm ra_in1k + torchvision V1/V2 (2026-10-07)
                         "local6400/archs/seed*/timm_mobilenetv2_100.ra_in1k_random_layers.csv"),
     "mobilenetv3":     ("local6400/archs/trained/timm_*mobilenetv3_large_100.*_layers.csv",
                         "local6400/archs/seed*/timm_mobilenetv3_large_100.ra_in1k_random_layers.csv"),
@@ -778,7 +781,7 @@ def conv_role(family: str, layer: str, is_dw: bool) -> str:
             return "stem"
         return "3x3" if layer.endswith(".conv2") else "1x1"     # denselayer conv1, transition conv
     if family in ("mobilenetv3", "efficientnet_b0", "mobilenetv2"):
-        if layer == "conv_stem":
+        if layer in ("conv_stem", "features.0.0"):                 # timm / torchvision stem
             return "stem"
         return "1x1"                                              # conv_pw, conv_pwl, conv_head
     return "other"

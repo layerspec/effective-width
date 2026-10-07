@@ -117,3 +117,4 @@ Table I、池化計數 687/703、對齊的 ρ_align、分解表都不含這五�
 | H14 | Transformers | 「preserves」 | 寫明兩種參照（預設 +0.69／+0.61、忠實 +0.52／+0.48、fc2 負）；順序句同 H1 改趨勢 |
 | H15 | Limitations | — | 加：不量深度軸（引 Chen & Zhao 2019、Zhang 2022）；有效樣本數的門檻依據是經驗平坦化（Fig. S1）不是 Prop. 1；只用 CIFAR stem／ImageNet stem 各一（stem 與資料集混淆） |
 | H16 | 「computable before training」 | computable | 「simulable from the architecture and the image second-order statistics」（≥ 3 種子後） |
+| H17 | 家族表、§III 家族句 | MobileNetV2 nT＝1、ConvNeXt-T nT＝2；「inverted residual 保序」用單一權重的 +0.42 | nT 3／4；MobileNetV2 T–T +0.65（低於 ResNet-50 的 0.84）、T–R +0.26 [+0.02, +0.42]；ConvNeXt dw T–R −0.00——家族句改為「配方穩定性」與水準，T–R 只當描述（plan §10.46） |
