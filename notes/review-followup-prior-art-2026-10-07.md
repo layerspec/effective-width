@@ -1,0 +1,10 @@
+# 審稿第 31 條點名的四篇（2026-10-07 11:30 讀原文；PDF 在 `refs/B12/`，不進 git）
+
+| 論文 | 做了什麼（讀到的） | 給我們的 | 行動 |
+|---|---|---|---|
+| **Doimo, Glielmo, Ansuini & Laio, "Hierarchical nucleation in deep neural networks", NeurIPS 2020**（arXiv 2007.03506；讀摘要、§3.1–3.3 的 ResNet-152 結果） | ImageNet 上逐層的鄰域重疊 χ：與輸出的重疊到第 142 層（conv4 末）前近 0，之後 9 層內升到 0.73；相鄰層重疊在第 10–142 層約 0.95（每 20–30 層換掉一半鄰居）；與輸入的重疊在 conv3（第 34 層）後消失；密度峰依語義階層出現，單類的峰只在最後幾層「成核」。 | 逐層幾何的另一條線（鄰域／密度，不是譜）；他們的「第 142 層前後」正是我們第三 stage 末到第四 stage。不談寬度、不談初始化。劃界句：我們量的是第二階（譜）、他們量的是鄰域結構；兩者在同一段深度看到轉變。 | ☐ Related work 一句；bib（NeurIPS 2020 proceedings 核對） |
+| **Parker, Onal, Stengel & Intrater, "Neural collapse in the intermediate hidden layers…", HLD workshop 2023**（arXiv 2308.02760；全文） | MLP6／VGG11／ResNet18 在 MNIST／SVHN／CIFAR-10／100 上逐層算 NC1–NC4（攤平的後激活）：NC1 在淺層線性下降、深層平台；NC2 角分離持續到最深；CIFAR-100 的 NC1 訓練中幾乎不降。 | 與 A35（池化特徵 NC1 在末層近完成）同方向、更早；但他們攤平（含位置），我們的 B9 說塌縮是逐位置的——劃界句：攤平的 NC1 平台與位置解析的格結構是兩個對象。workshop 短文、無理論。 | ☐ `sec:why`／B9 段一句；bib（arXiv） |
+| **Kunstner, Hennig & Balles, "Limitations of the empirical Fisher approximation for natural gradient descent", NeurIPS 2019**（arXiv 1905.12558；讀摘要、§3–4） | 經驗 Fisher（真標籤梯度外積）≠ Fisher（模型抽樣標籤）；相等只在可實現模型的最小值附近（§4.2）；遠離最小值時經驗 Fisher 可與 Fisher 方向相反、尺度與梯度大小近乎反比（§4.3）；它的實際作用更像變異數適應。 | **直接約束我們的措辭**：Γ 是經驗 Fisher 的因子，不是 K-FAC 的 S（後者用抽樣標籤）；B6／A35 說我們的層都不在最小值附近，正是兩者不等的區域。所以「Σ_patch 與 Γ 是 K-FAC 的兩個因子」要改「analogous to」，並註明差別。 | ☑ pending §H4 已含；☐ bib（NeurIPS 2019 proceedings） |
+| **D'Angelo, Andriushchenko, Varre & Flammarion, "Why do we need weight decay in modern deep learning?", arXiv 2310.04415 v2（2024-11；NeurIPS 2024 待核）**（讀摘要、§1–2、EMA 段） | 視覺多輪訓練：wd 不是正則化，是經由縫放不變性改有效學習率、讓 SGD 的損失穩定機制發揮；LLM 單輪：wd 平衡隨機最佳化的偏差–變異、降訓練損失。EMA 迭代的極限點由 ηλ 的乘積決定（Conjecture 1），EMA 與學習率衰減等價。 | 與 B6／B7 同一條線（van Laarhoven、Li & Arora、Wan 2021 已引）。他們沒有「權重＝梯度記憶窗」的陳述（那是 Wang & Aitchison），但「EMA 的極限由 ηλ 定」與我們「λ 定寬度讀自哪一段梯度」（P-b7.4c）是同一件事的兩個面；B7 段引為 wd 作用的現代綜述。 | ☐ B7 段一句；bib |
+
+結論：四篇都不搶我們的對象；Kunstner 改一處措辭（已在 pending §H4）；Doimo／Parker 各加一句劃界；Andriushchenko 進 B7 的引用。
