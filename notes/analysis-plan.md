@@ -2340,6 +2340,16 @@ ResNeXt 的分支能量只有流的 2–7%（grouped 分支＋BN 的尺度），
 - **結論**：對齊（分支間、分支對流）與交叉項都不是機制；20% 是「自由加法卷積」這個獨立性假設在位置取樣的有限維資料上的失效程度，其解剖是細節，不追（作者 10-06 規則）。
   三週賭注第一天的最終位置：**加法步＝自由卷積（已知）＋量到的 20% 失效；ReLU 步保寬度（量到）；分支寬度＝層內律（已知）→ stage 內趨勢是一條已知映射鏈的數值結果（A7 替身），沒有閉式、沒有定理。**
 
+### 9.42 免費補公開配方：把 n＝1 的家族補到 ≥ 3（2026-10-07 16:00 寫；作者定「先量免費的」；資料未量）
+
+- **現況（§8 家族表 nT）**：mobilenetv2 **1**、vgg16_bn **1**（vgg16 無 BN 是另一架構）、densenet121 2、convnext_tiny 2；其餘 ≥ 3（efficientnet_b0 5、mobilenetv3 4、wide 3、resnet 系 5–6）。
+  審稿 #35「9/11 家族 n＝1」是高估，正確是 2 個 n＝1、2 個 n＝2。
+- **免費可加**：mobilenet_v2 torchvision IMAGENET1K_V1 與 V2（兩個配方；timm 只有 ra_in1k）→ 3；convnext_tiny.in12k_ft_in1k 與 convnext_tiny.fb_in1k（timm；現有 fb_in22k_ft_in1k 與 torchvision）→ 4。
+  densenet121 公開只有兩組（timm ra、tv）；vgg16_bn 只有 torchvision 一組——這兩個家族免費補不到，vgg16_bn 要自己訓（付費，作者定）。
+- **讀法（登記）**：新權重以 §6 標準協定量（6,400 張、16 位置、n/C ≥ 50），加進 `local6400/archs/trained`，重產 §8 家族表。**不預測數字**；要看的是：
+  (a) mobilenetv2 三組的 dense T–T 中位與 ResNet-50 六配方的 0.84 比；(b) 家族層級現有的句子（inverted residual「保序並加水準」、ConvNeXt dense T–R）在加入新權重後方向是否不變。
+  任何因新權重而翻轉的句子列入 pending §H。
+
 ### 10.34 A29b 兩種子定案（2026-10-07 07:40 判；`checkpoint_analysis.py` §30 `section_a29b`；plan §9.18）
 
 pod 鏈 `chain_1005.sh` 於 10-06 16:53 UTC 跑完自行終止；`resnet34_s1`（top-1 73.06，12.1 h）10-07 從網路磁碟取回後判。
