@@ -2231,6 +2231,16 @@ ResNeXt 的分支能量只有流的 2–7%（grouped 分支＋BN 的尺度），
 **選項 2 到此的誠實結論**：初始化的 stage 內趨勢可以拆成加法步（方向大致由分支可達秩對流寬度定）與 ReLU 步（強弱是 block 家族的性質），
 兩者都是量到的規律，都沒有做成定理（加法步的界 B2 已關、ReLU 步的閉式 feasibility C 已關）。理論軸沒有因選項 2 增加。
 
+### 9.37 三週理論賭注的目標 (a)：A7 替身是否已重現 stage 內的下降（2026-10-07 13:30 寫；**替身 CSV 的 layer3 列未讀**；時限 2026-10-28）
+
+- **資料**：`results/apriori/{matched,param,pink,white,phase}/seed1/resnet50_random_layers.csv`（torchvision ResNet-50、γ＝1、隨機網路跑在合成影像上：matched＝量到的完整交叉功率譜、
+  param＝冪律×3×3 通道矩陣、pink＝1/f 通道不相關、white＝白噪、phase＝相位打亂）；對照真實影像的 γ＝1 抽樣（§10.36：block −0.83、conv2 −0.94、流 0.082→0.060）。
+- **P9.97（matched 與 param）**：layer3 六個 block 的 ρ(b, k*₀.₉₅/C) 在 block 輸出與 conv2 兩列都 ≤ −0.6（2/2 替身）——趨勢可由架構＋影像二階統計重現。
+- **P9.98（white）**：white 也 ≤ −0.6 於兩列——下降是架構（分支可達秩）的性質，影像譜不是必要條件。若 white 的 |ρ| ≤ 0.3 而 P9.97 成立 → 影像的空間相關是必要條件，
+  定理要帶 Σ_patch 的條件；若 white 也下降 → 定理只需分支結構，可對白噪輸入證。
+- **探索性**：pink、phase 的同兩列；流寬度逐 block 的數值對真實影像的 0.082→0.060。
+- 後果：P9.97 成立 → 目標 (a) 達成，(b) 的證明對象定為「隨機 bottleneck stage 在高斯輸入上的流寬度遞推」；不成立 → 替身漏掉了造成下降的東西，先找是什麼（用 cocomatched／cifar10 對照）。
+
 ### 10.34 A29b 兩種子定案（2026-10-07 07:40 判；`checkpoint_analysis.py` §30 `section_a29b`；plan §9.18）
 
 pod 鏈 `chain_1005.sh` 於 10-06 16:53 UTC 跑完自行終止；`resnet34_s1`（top-1 73.06，12.1 h）10-07 從網路磁碟取回後判。
