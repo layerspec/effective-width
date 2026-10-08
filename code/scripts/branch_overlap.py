@@ -43,6 +43,15 @@ def measure(a):
             w, V = np.linalg.eigh(S); idx = np.argsort(w)[::-1][:TOP]
             out[f"{t.name}::{key}_eig"] = w[idx]; out[f"{t.name}::{key}_vec"] = V[:, idx]; out[f"{t.name}::{key}_trace"] = np.array([np.trace(S)])
         out[f"{t.name}::Sx_full_eig"] = np.sort(np.linalg.eigvalsh(sx))[::-1]
+        if a.cross_y:  # plan 9.44 (P9.107): the cross term along the SUM's own top directions
+            sy = sx + sf + sxf + sxf.T
+            wy, Vy = np.linalg.eigh(sy); iy = np.argsort(wy)[::-1]; Uy = Vy[:, iy[:TOP]]
+            out[f"{t.name}::Sf_full_eig"] = np.sort(np.linalg.eigvalsh(sf))[::-1]
+            out[f"{t.name}::Sy_full_eig"] = wy[iy]
+            out[f"{t.name}::y_trace"] = np.array([np.trace(sy)])
+            out[f"{t.name}::cross_ytop"] = np.einsum("ij,ji->i", Uy.T @ (sxf + sxf.T), Uy)
+            out[f"{t.name}::x_ytop"] = np.einsum("ij,ji->i", Uy.T @ sx, Uy)
+            out[f"{t.name}::f_ytop"] = np.einsum("ij,ji->i", Uy.T @ sf, Uy)
         for h in t.handles:
             h.remove()
     return out
@@ -75,11 +84,33 @@ def judge(path, tau=0.95):
           "->", "holds" if sum(e >= 0.9 for e in eta) >= 3 and all(r <= 1.5 for r in ratio) else "fails")
 
 
+def judge_cross_y(path, tau=0.95, draws=5, seed=0):
+    """P9.107 (plan 9.44): at k = k_tau(y measured), the free superposition captures F_free(k) < tau; gap g = tau - F_free(k).
+    The cross term's share along the top-k directions of y is c = 2 tr(P_y Sigma_xf) / tr Sigma_y. Holds if c >= g/2 in >= 4/6 blocks."""
+    from free_superposition_scale import haar
+    z = np.load(path); names = sorted({k.split("::")[0] for k in z.keys()}, key=lambda n: int(n.split(".")[1]))
+    rng = np.random.default_rng(seed); hits = 0
+    print("P9.107: block  k_y  F_free(k)  gap g  cross share c (along top-k of y)  x share  f share  -> c >= g/2 ?")
+    for n in names:
+        lx = np.clip(z[f"{n}::Sx_full_eig"], 0, None); lf = np.clip(z[f"{n}::Sf_full_eig"], 0, None); ly = z[f"{n}::Sy_full_eig"]
+        k = kstar(ly, tau); ty = float(z[f"{n}::y_trace"][0])
+        fr = []
+        for _ in range(draws):
+            o = haar(len(lx), rng); ev = np.sort(np.linalg.eigvalsh(np.diag(lx) + (o * lf) @ o.T))[::-1]
+            fr.append(ev[:k].sum() / ev.sum())
+        F = float(np.mean(fr)); g = tau - F
+        c = float(z[f"{n}::cross_ytop"][:k].sum() / ty); xs = float(z[f"{n}::x_ytop"][:k].sum() / ty); fs = float(z[f"{n}::f_ytop"][:k].sum() / ty)
+        ok = c >= 0.5 * g; hits += ok
+        print(f"  {n}  {k:4d}  {F:.3f}  {g:+.3f}  {c:+.3f}  {xs:.3f}  {fs:.3f}  -> {'yes' if ok else 'no'}")
+    print(f"P9.107 -> {hits}/{len(names)}: {'HOLDS' if hits >= 4 else 'FAILS'}")
+
+
 def main(argv=None):
     p = argparse.ArgumentParser()
     p.add_argument("--model", default="resnet50.tv_in1k"); p.add_argument("--seed", type=int, default=1); p.add_argument("--stage", default="layer3")
     p.add_argument("--data", default="../data/imagenet_val_6400"); p.add_argument("--out", default="../results/branch_overlap")
     p.add_argument("--judge", action="store_true"); p.add_argument("--device", default="cpu")
+    p.add_argument("--cross-y", action="store_true", help="also store the cross term along the sum's top directions (P9.107)")
     p.add_argument("--positions", type=int, default=32); p.add_argument("--batch-size", type=int, default=32)
     p.add_argument("--workers", type=int, default=2); p.add_argument("--limit", type=int, default=None)
     a = p.parse_args(argv)
@@ -88,6 +119,8 @@ def main(argv=None):
     if not a.judge:
         t0 = time.time(); out = measure(a); np.savez_compressed(path, **out); print(f"saved {path} ({time.time() - t0:.0f} s)")
     judge(path)
+    if a.cross_y:
+        judge_cross_y(path)
 
 
 if __name__ == "__main__":
