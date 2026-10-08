@@ -32,3 +32,29 @@ def test_cross_block_changes_the_width():
 def test_kstar_monotone_in_tau():
     e = np.exp(-np.arange(30) / 5.0)
     assert kstar(e, 0.5) <= kstar(e, 0.9) <= kstar(e, 0.99)
+
+
+def test_im2col_matches_conv2d_weight_order():
+    import torch
+    from scripts.addition_law import im2col
+    torch.manual_seed(0)
+    conv = torch.nn.Conv2d(5, 7, 3, padding=1, bias=False)
+    t = torch.randn(2, 5, 6, 6)
+    cols = im2col(t, 3, 1)                                   # (2, 36, 45)
+    W = conv.weight.reshape(7, -1)
+    out = (cols @ W.T).permute(0, 2, 1).reshape(2, 7, 6, 6)
+    assert torch.allclose(out, conv(t), atol=1e-5)
+
+
+def test_basic_block_tap_rebuild_equals_direct():
+    import timm, torch
+    from scripts.addition_law import JointTap, sigma_y, kstar
+    torch.manual_seed(0)
+    model = timm.create_model("resnet18", pretrained=False, zero_init_last=False).eval()
+    blk = model.layer2[1]
+    tap = JointTap("layer2.1", blk, 16, torch.Generator().manual_seed(0))
+    with torch.no_grad():
+        for _ in range(3):
+            model(torch.randn(4, 3, 64, 64))
+    J, Sy = tap.cov(tap.joint), tap.cov(tap.ycov)
+    assert np.allclose(sigma_y(J, tap.C, tap.W3), Sy, atol=1e-4 * abs(Sy).max())   # float32 forward
