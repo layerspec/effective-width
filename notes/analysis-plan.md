@@ -2408,7 +2408,7 @@ ResNeXt 的分支能量只有流的 2–7%（grouped 分支＋BN 的尺度），
 - **後果**：P9.105 與 P9.106 成立 → 核 Mingo–Speicher 後把「初始化的 stage 內趨勢是自由卷積鏈的有限維近似」寫成補充命題（引用的定理＋初始化供給假設＋量到的 1/C 趨勢）；
   P9.105 不成立、P9.107 成立 → 加法步寫成「自由卷積＋交叉項的選擇效應」，機制定位、無定理；都不成立 → (d2) 關閉，20% 只報數字（§10.45 的措辭不變）。
 
-### 10.48 §9.44 判定：自由卷積預測與量到的流寬度之差**不**隨 C 縮小——結構性，且隨深度變大（2026-10-08 18:50；`scripts/free_superposition_scale.py`、`results/free_scale/blocks.csv`；56 個 block、τ＝0.95、5 個 Haar 抽樣、seed 0）
+### 10.48 §9.44 判定：自由卷積預測與量到的流寬度之差**不**隨 C 縮小——結構性，且隨深度變大（2026-10-08 18:40；`scripts/free_superposition_scale.py`、`results/free_scale/blocks.csv`；56 個 block、τ＝0.95、5 個 Haar 抽樣、seed 0）
 
 健全性：自由疊加的 k 在精確夾擠區間內 56/56（下界＝Ky Fan 三角不等式、上界＝B11.0）；bottleneck 的自由值貼著上界（layer3：103／111、108／117、106／116、97／106、85／92、81／87），
 即 Haar 位置下兩個頂端子空間近乎不相交。**量到的 k(y) 在 56/56 個 block 都比自由疊加窄**（δ ＝ 1 − k_y/k_free 最小 0.056），family 中位 basic +0.095、bottleneck +0.185、grouped +0.138。
