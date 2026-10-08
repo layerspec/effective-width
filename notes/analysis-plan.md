@@ -2427,7 +2427,7 @@ ResNeXt 的分支能量只有流的 2–7%（grouped 分支＋BN 的尺度），
 - **登記後果**：「stage 內趨勢＝自由卷積鏈」**不能寫成極限陳述**；自由卷積只是數值上重現方向的近似（§10.44 的措辭不變）。P9.107（交叉項沿 y 頂端子空間）是登記的條件項，結果見下。
 - 先驗命中（結構性），但方向的細節（隨深度累積）是登記外的觀察，標探索性。Mingo–Speicher 的二階自由性仍要核（只用來說「有限維漲落是 O(1/C)」這一句）。
 
-**P9.107 成立 6/6（19:00；`branch_overlap.py --cross-y`，`results/branch_overlap_crossy/`，ResNet-50 γ＝1 s1 layer3，574 s）。** 取 k ＝ k₀.₉₅(y 量到)：
+**P9.107 成立 6/6（18:50；`branch_overlap.py --cross-y`，`results/branch_overlap_crossy/`，ResNet-50 γ＝1 s1 layer3，574 s）。** 取 k ＝ k₀.₉₅(y 量到)：
 
 | block | k_y | 自由疊加在 k 的份額 F_free | 缺口 g | 交叉項沿 y 頂端 k 維的份額 c | x 的份額 | f 的份額 |
 |---|---|---|---|---|---|---|
