@@ -76,3 +76,4 @@ refs/scan0930/
 refs/earlier/
 refs/B7/
 results/relu_step/*.npz
+CLAUDE-archive-*.md
