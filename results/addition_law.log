@@ -1,0 +1,20 @@
+/Users/ccli/.venvs/effwidth/lib/python3.14/site-packages/torch/utils/data/dataloader.py:1102: UserWarning: 'pin_memory' argument is set as true but not supported on MPS now, device pinned memory won't be used.
+  super().__init__(loader)
+saved ../results/addition_law/resnet50_tv_in1k_s1.npz (653 s)
+   block    C  Ch      n  std_W3  k_meas  k_rebuilt  k_sampled  sd_sampled  k_nocross  sd_nocross  err_sampled  err_nocross  cross_energy
+layer2.0  512 128 204800   0.063      60         60       57.4       1.200       70.6       0.800        0.043        0.177         0.232
+layer2.1  512 128 204800   0.062      65         65       63.4       1.020       72.4       1.020        0.025        0.114         0.227
+layer2.2  512 128 204800   0.062      66         66       65.2       1.166       74.4       1.020        0.012        0.127         0.256
+layer2.3  512 128 204800   0.062      60         60       62.6       1.200       75.2       1.166        0.043        0.253         0.310
+layer3.0 1024 256 204800   0.044      82         82       82.0       1.414      102.8       0.748        0.000        0.254         0.381
+layer3.1 1024 256 204800   0.044      90         90       93.6       2.245      108.6       1.855        0.040        0.207         0.293
+layer3.2 1024 256 204800   0.044      84         84       87.6       0.800      108.2       1.939        0.043        0.288         0.329
+layer3.3 1024 256 204800   0.044      77         77       78.6       1.960       98.4       2.059        0.021        0.278         0.364
+layer3.4 1024 256 204800   0.044      66         66       66.0       0.632       83.0       1.414        0.000        0.258         0.367
+layer3.5 1024 256 204800   0.044      61         61       60.6       0.490       83.0       0.894        0.007        0.361         0.347
+layer4.0 2048 512 204800   0.031      67         67       68.8       2.227       93.4       0.490        0.027        0.394         0.400
+layer4.1 2048 512 204800   0.031      52         52       50.0       1.789       71.0       3.162        0.038        0.365         0.313
+layer4.2 2048 512 204800   0.031      44         44       41.8       1.600       66.6       1.744        0.050        0.514         0.277
+sanity: rebuilt from J with the network's own W3 equals the measured width (+-1) in 13/13
+P9.108(a): sampled law within 10% of measured in 13/13 -> HOLDS (threshold 10/13)
+P9.108(b): cross-free draws off by > 10% in 13/13 -> HOLDS (threshold 10/13)
