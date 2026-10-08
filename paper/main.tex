@@ -706,7 +706,11 @@ has learned it. Three behaviours appear.
   \caption{Is the ordering of layers learned? Median Spearman $\rho$ between
   $k^*(0.95)/r_{\max}$ profiles over a family's $L$ dense convolutions, on the
   same $6{,}400$ images: random-vs-random over $n_R$ seeds, trained-vs-trained
-  over $n_T$ checkpoints, and trained-vs-random over all pairs. $T$ and $R$
+  over $n_T$ checkpoints, and trained-vs-random over all pairs. \emph{Draw}
+  is the initialisation of the random networks behind the R columns (last BN
+  of each block $\gamma = 1$ for the torchvision draws of ResNet-50, $\gamma = 0$
+  for the timm defaults of the other ResNet families); \emph{other draw} is
+  T--R against three networks drawn the other way. $T$ and $R$
   are the median levels. Depthwise rows are reported separately. VGG-16's
   two checkpoints are with and without BN. ConvNeXt-T, with four dense
   convolutions, is omitted: a rank correlation over four layers is
