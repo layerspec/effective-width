@@ -1,0 +1,8 @@
+sanity: k_lo <= k_surr <= k_hi in 62/62 (theorem; a miss is a bug)
+P9.118: k_hi <= 1.3 k_surr at tau=0.95 in 14/31 (need >= 20) -> fails
+P9.119: k_lo >= 0.4 k_surr at tau=0.95 in 0/31 (need >= 20) -> fails
+P9.120: |k_pred - k_surr|/k_surr <= 0.15 at tau=0.95 in 6/31 (need >= 20) -> fails; signed error median +0.60 [+0.06, +1339.86]; @0.999 median +788.26; vgg: median +0.83; stream_init: median +0.19; stream_trained: median +233.08
+exploratory (post hoc, per-term Ky Fan lower bound k_lo2): valid in 62/62; k_lo2/k_surr@0.95 median 0.67 [0.23, 0.75]; >= 0.4 in 30/31; k_lo2 >= k_G in 1/31; k_lin <= k_surr in 31/31
+exploratory vgg: kappa median 2.58 [1.05, 3.00]; hi/surr@0.95 median 1.63 [1.34, 2.37]; lo/surr@0.95 median 0.01 [0.01, 0.25]; hi/surr@0.999 median 1.19; lo/surr@0.999 median 0.01; k_hi covers measured k_a @0.95 in 13/13; greedy split (lin part, product vectors) median (150, 46)
+exploratory stream_init: kappa median 1.64 [1.54, 2.38]; hi/surr@0.95 median 1.18 [1.09, 1.50]; lo/surr@0.95 median 0.02 [0.01, 0.03]; hi/surr@0.999 median 1.20; lo/surr@0.999 median 0.01; k_hi covers measured k_a @0.95 in 12/12; greedy split (lin part, product vectors) median (106, 9)
+exploratory stream_trained: kappa median 3.24 [2.58, 5.02]; hi/surr@0.95 median 1.31 [1.23, 1.85]; lo/surr@0.95 median 0.02 [0.00, 0.03]; hi/surr@0.999 median 1.01; lo/surr@0.999 median 0.02; k_hi covers measured k_a @0.95 in 6/6; greedy split (lin part, product vectors) median (1024, 0)
