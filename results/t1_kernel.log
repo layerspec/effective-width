@@ -1,0 +1,39 @@
+         group       layer    C  snr_z  beta  rms_rho  reff_p_hat  k_lin@0.95  k_a@0.95  k_surr@0.95  k_ge@0.95  k_M@0.95  tau2@0.95  k_a_tau2@0.95  order_ok@0.95
+           vgg  features.2   64  0.026 0.464    0.680       1.479           4         8            8         33         6      0.927              6           True
+           vgg  features.5   64  0.562 0.853    0.454       2.940          12        18           27         37        10      0.907             10           True
+           vgg  features.9  128  0.762 1.439    0.430       3.690          20        33           48         64        11      0.878             11           True
+           vgg features.12  128  0.871 2.080    0.417       3.809          28        40           54         68        11      0.846             11           True
+           vgg features.16  256  1.402 3.079    0.364       5.407          52        70           88        101        10      0.796             10           True
+           vgg features.19  256  1.204 2.824    0.324       6.849          66        90          106        117        18      0.809             18           True
+           vgg features.22  256  1.306 2.876    0.310       6.473          76        98          112        118        25      0.806             25           True
+           vgg features.26  512  1.430 3.928    0.289       8.401         124       172          195        211        18      0.754             18           True
+           vgg features.29  512  1.272 3.710    0.272       9.147         140       193          214        228        26      0.765             26           True
+           vgg features.32  512  1.270 3.840    0.270       9.050         144       193          214        223        27      0.758             27           True
+           vgg features.36  512  1.516 4.516    0.302       7.793         130       175          190        206        12      0.724             12           True
+           vgg features.39  512  1.423 3.705    0.319       6.876         115       164          184        203        16      0.765             16           True
+           vgg features.42  512  1.310 3.350    0.321       7.110         132       178          201        222        22      0.783             21           True
+   stream_init    layer3.0  256  1.253 3.067    0.323       6.150          72        92          107        113        19      0.797             19           True
+   stream_init    layer3.1  256  1.281 3.247    0.351       5.137          79        98          108        113        13      0.788             13           True
+   stream_init    layer3.2  256  1.294 3.141    0.360       4.737          79        95          107        114        12      0.793             12           True
+   stream_init    layer3.3  256  1.241 3.217    0.374       4.294          74        88          101        111         8      0.789              8           True
+   stream_init    layer3.4  256  1.190 3.178    0.390       4.326          62        77           92        104         7      0.791              7           True
+   stream_init    layer3.5  256  1.323 3.237    0.413       3.521          52        63           79         91         6      0.788              5           True
+stream_trained    layer3.0 1024  0.240 0.445    0.133      50.723         124       489          553        634       392      0.928            391           True
+stream_trained    layer3.1 1024  0.209 0.423    0.097     100.025         394       620          674        707       530      0.929            529           True
+stream_trained    layer3.2 1024  0.208 0.359    0.084     134.734         521       711          757        783       638      0.932            637           True
+stream_trained    layer3.3 1024  0.199 0.311    0.079     142.049         597       768          803        822       709      0.934            709           True
+stream_trained    layer3.4 1024  0.256 0.254    0.083     127.938         621       814          831        848       772      0.937            771           True
+stream_trained    layer3.5 1024  0.473 0.232    0.121      60.925         580       850          830        853       816      0.938            816          False
+   stream_init    layer3.0 1024  1.721 4.399    0.448       2.599          66        84          106        120         3      0.730              3           True
+   stream_init    layer3.1 1024  1.637 4.555    0.424       3.028          75        93          110        121         3      0.722              3           True
+   stream_init    layer3.2 1024  1.662 4.436    0.444       2.896          70        85          102        117         3      0.728              3           True
+   stream_init    layer3.3 1024  1.638 4.510    0.447       2.745          61        75           92        107         3      0.724              3           True
+   stream_init    layer3.4 1024  1.649 4.534    0.447       2.852          53        66           83         99         3      0.723              3           True
+   stream_init    layer3.5 1024  1.687 4.474    0.451       2.781          50        61           78         91         3      0.726              3           True
+sanity: Lemma T1.3 bounds hold 62/62; surrogate cross-check (Hermite vs stored Gauss-Hermite, rel. Frobenius <= 0.02) 13/13 (max 0.0059)
+P9.116: RMS rho >= 0.15 in 25/31 rows (need >= 25); VGG r_eff_hat(Sigma_p) <= 45 in 13/13 (need all) -> holds
+P9.117: linear <= measured <= surrogate <= GE at tau=0.95 in VGG 13/13 (need >= 11), init streams 12/12 (need >= 10) -> holds; trained streams (described only) 5/6
+exploratory: Spearman(mean rho^2, (k_GE - k_surr)/C) over 13 VGG layers = +0.97
+exploratory vgg: beta/(1/(pi-1)) median 6.59 [0.99, 9.67]; tau''@0.95 median 0.796; k_M - k_a @0.95 median -73; RMS rho median 0.321 [0.270, 0.680]; |mean|/std of z median 1.27
+exploratory stream_init: beta/(1/(pi-1)) median 8.19 [6.57, 9.75]; tau''@0.95 median 0.759; k_M - k_a @0.95 median -76; RMS rho median 0.418 [0.323, 0.451]; |mean|/std of z median 1.48
+exploratory stream_trained: beta/(1/(pi-1)) median 0.72 [0.50, 0.95]; tau''@0.95 median 0.933; k_M - k_a @0.95 median -66; RMS rho median 0.091 [0.079, 0.133]; |mean|/std of z median 0.22

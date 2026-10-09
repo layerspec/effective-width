@@ -1,0 +1,7 @@
+sanity: Lemma T1.3 bounds hold 62/62; surrogate cross-check (Hermite vs stored Gauss-Hermite, rel. Frobenius <= 0.02) 13/13 (max 0.0059)
+P9.116: RMS rho >= 0.15 in 25/31 rows (need >= 25); VGG r_eff_hat(Sigma_p) <= 45 in 13/13 (need all) -> holds
+P9.117: linear <= measured <= surrogate <= GE at tau=0.95 in VGG 13/13 (need >= 11), init streams 12/12 (need >= 10) -> holds; trained streams (described only) 5/6
+exploratory: Spearman(mean rho^2, (k_GE - k_surr)/C) over 13 VGG layers = +0.97
+exploratory vgg: beta/(1/(pi-1)) median 6.59 [0.99, 9.67]; tau''@0.95 median 0.796; k_M - k_a @0.95 median -73; RMS rho median 0.321 [0.270, 0.680]; |mean|/std of z median 1.27
+exploratory stream_init: beta/(1/(pi-1)) median 8.19 [6.57, 9.75]; tau''@0.95 median 0.759; k_M - k_a @0.95 median -76; RMS rho median 0.418 [0.323, 0.451]; |mean|/std of z median 1.48
+exploratory stream_trained: beta/(1/(pi-1)) median 0.72 [0.50, 0.95]; tau''@0.95 median 0.933; k_M - k_a @0.95 median -66; RMS rho median 0.091 [0.079, 0.133]; |mean|/std of z median 0.22

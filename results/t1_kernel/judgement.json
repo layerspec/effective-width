@@ -1,0 +1,13 @@
+{
+ "lemma_ok": 62,
+ "lemma_n": 62,
+ "xcheck_ok": 13,
+ "xcheck_n": 13,
+ "p116_rows": 25,
+ "p116_vgg_reff": 13,
+ "p116": true,
+ "p117_vgg": 13,
+ "p117_init": 12,
+ "p117": true,
+ "spearman_rho2_vs_ge_minus_surr": 0.9656130180306802
+}
