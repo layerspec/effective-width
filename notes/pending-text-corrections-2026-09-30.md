@@ -118,3 +118,16 @@ Table I、池化計數 687/703、對齊的 ρ_align、分解表都不含這五�
 | H15 | Limitations | — | 加：不量深度軸（引 Chen & Zhao 2019、Zhang 2022）；有效樣本數的門檻依據是經驗平坦化（Fig. S1）不是 Prop. 1；只用 CIFAR stem／ImageNet stem 各一（stem 與資料集混淆） |
 | H16 | 「computable before training」 | computable | 「simulable from the architecture and the image second-order statistics」（≥ 3 種子後） |
 | H17 | 家族表、§III 家族句 | MobileNetV2 nT＝1、ConvNeXt-T nT＝2；「inverted residual 保序」用單一權重的 +0.42 | nT 3／4；MobileNetV2 T–T +0.65（低於 ResNet-50 的 0.84）、T–R +0.26 [+0.02, +0.42]；ConvNeXt dw T–R −0.00——家族句改為「配方穩定性」與水準，T–R 只當描述（plan §10.46） |
+
+## I. 10-09 作者問「與 autoencoder／t-SNE／UMAP 的差別」帶來的（plan §9.47；bib 三條 10-09 已核 Crossref 並加入：`eckart1936approximation`、`baldi1989pca`、`facco2017twonn`）
+
+| # | 位置 | 現況 | 改法 |
+|---|---|---|---|
+| I1 | §II 統計量定義段（規則 4 那一句） | 四種維度只列名 | 加階梯一句：線性自編碼器的最佳解是 PCA（Eckart–Young；Baldi & Hornik），故 k*(τ) 是重建誤差 ≤ 1−τ 的線性自編碼器瓶頸寬度；非線性瓶頸只會更小、流形內在維度（TwoNN）更小——我們量的是線性那一級，因為下一層的消費者是線性映射。t-SNE／UMAP 是嵌入、不輸出維度，不列入 |
+| I2 | 補充（估計量對比表旁） | 無 | 依 §9.47 判定後加「四種維度在同一組層」表（k*/r_max、PR、erank、TwoNN；三個訓練權重＋兩個隨機）；P9.111 成立則加方法註「位置樣本上的 ID 每張影像只取一個位置」 |
+| I3 | 塌縮段（B9 一句旁） | 無 | 加 LDA 劃界句（plan §10.51）：k*_τ(S_B) ≤ K−1 是 LDA 維度、少類別訓練後飽和 15/15；位置取樣寬度在 126/126 層高於它，差額是「類均值隨位置變」的格結構（w_c ≥ 0.65 對 w_cp ≤ 0.02）；補充加 §10.51 的表；不寫「跟著類內份額走」（P9.115 不成立） |
+| I1′ | 同 I1（plan §10.52 判後改） | — | 階梯句只留 Eckart–Young 那一半（k*_τ ＝ 重建誤差 ≤ 1−τ 的線性 AE 瓶頸寬度）；規則 4 句改成「the two scales order the layers alike before normalisation (ρ 0.88–0.94) and differ in level by 4–5×; the manifold dimension has no attainable-rank counterpart」；不寫「ID 更小」為通則（P9.110 不成立：早期層 ID > k*(0.90)） |
+| I2′ | 同 I2（§10.52 判後改） | — | 補充表欄位：k*(0.95)/r_max、PR、erank、TwoNN(S1)、TwoNN(P)，三訓練＋兩隨機，附 ID 抖動；方法註限定「末段 ≤ 14×14 特徵圖上位置樣本的 ID 要每張一個位置（7×7 全位置 ID 掉到 0.1–0.3 倍），更早的層差 ≤ 15%」；探索性一句：訓練抬 ID 1.67 倍（18/20、12/13 層） |
+| I4 | S6 命題與正文首次出現處（`notes/b4-prior-art-2026-10-09.md` §3(a)） | 「層內律（本文）」 | 改成「the conditional Gaussian structure of Novak et al. 2019 Eq. 3–6 / Xiao et al. 2018 Lemma A.1 / Aitchison 2020 Eq. 16–17, read on the channel side, sample-centred and divided by r_max」；bib 加 Novak、Garriga-Alonso、Aitchison（核 Crossref） |
+| I5 | ReLU 步（III-A／III-E、脊椎第二段） | 「ReLU 步沒有理論」 | 「a known sampling law given the n×n patch kernel (Louart–Liao–Couillet 2018 Thm 1–2, proportional regime; Fan–Ma–Paquette–Wang 2026 / Ma–Misiakiewicz 2026, local law, centred features), no closed form from Σ_in; the closed forms assume i.i.d. or near-orthogonal samples and E σ(ξ) = 0 (Chouard 2023 Remark 5.8)」；兩個限制句（C/n → 0 不是比例極限；輸入側均值違反 LLC 假設 3）；Mehler 高估的候選解釋（漏掉的秩一偏置項）標推論；「高斯等價＋arc-cosine 母體」若寫，標為 LLC 定理 2 在其假設外的驗證 |
+| I6 | 樣本門檻段（B5）、Limitations | 「n/C ≥ 50 門檻依據是經驗平坦化」 | 加一句：C/n → 0 下位置相依只透過 n⁻¹tr T² 進入（Wang & Paul 2014 Thm 2.1／Rem. 2.2），n_eff ＝ n²/tr T²（block 形式 mp²/tr R² 是我們的套用），限制：漸近、i.i.d. 元可分離模型、無均值；Limitations 加空格句（相依 patch＋非置中＋C/n → 0 下 post-ReLU 譜無定理） |

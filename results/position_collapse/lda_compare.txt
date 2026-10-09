@@ -1,0 +1,19 @@
+rows 126; rank-bound violations (k*_0.999(B_c) > K-1): 0
+P9.113 LDA dimension = K-1 at features.40, K <= 20: 15/15 -> HOLDS (>= 12/15)
+    descriptive c100_k50 s0: K-1=49 kB_c=48 nu=3.243
+    descriptive c100_k50 s1: K-1=49 kB_c=48 nu=3.135
+    descriptive c100_k50 s2: K-1=49 kB_c=48 nu=3.254
+    descriptive c100_k100 s0: K-1=99 kB_c=95 nu=5.000
+    descriptive c100_k100 s1: K-1=99 kB_c=95 nu=5.038
+    descriptive c100_k100 s2: K-1=99 kB_c=94 nu=5.118
+P9.114 w_c > 0.2 => k95 > K-1: 1.000 of 126 rows -> HOLDS (>= 0.90); lemma half w_c <= 0.05 => k95 <= K-1: nan of 0 rows -> OK
+P9.115 rho(nu, k95/(K-1)) all rows +0.087 -> FAILS (>= 0.7); within (arm, seed) six-layer rho median +0.66
+exploratory, last conv by arm (median over seeds): K-1 | LDA dim | nu | w_c | k95 | k999
+    c100_k100          99 |    95 | 5.038 | 0.834 |   254 |   491
+    c100_k13           12 |    12 | 1.798 | 0.643 |    42 |   172
+    c100_k20           19 |    19 | 2.374 | 0.704 |    63 |   176
+    c100_k50           49 |    48 | 3.243 | 0.764 |   137 |   378
+    c10_full            9 |     9 | 4.437 | 0.816 |    35 |    40
+    c10_pc640           9 |     9 | 1.860 | 0.650 |    32 |   116
+    c10_pc640_e780      9 |     9 | 3.871 | 0.795 |    36 |    39
+first layer with nu < 0.1: c100_k100/s0:none, c100_k100/s1:none, c100_k100/s2:none, c100_k13/s0:none, c100_k13/s1:none, c100_k13/s2:none, c100_k20/s0:none, c100_k20/s1:none, c100_k20/s2:none, c100_k50/s0:none, c100_k50/s1:none, c100_k50/s2:none, c10_full/s0:none, c10_full/s1:none, c10_full/s2:none, c10_pc640/s0:none, c10_pc640/s1:none, c10_pc640/s2:none, c10_pc640_e780/s0:none, c10_pc640_e780/s1:none, c10_pc640_e780/s2:none

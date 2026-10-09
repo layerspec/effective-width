@@ -61,13 +61,14 @@
 | **Grosse & Martens, ICML 2016**（`grosse2016kfacConv`）＋ **Wang, Grosse, Fidler & Zhang, ICML 2019**（`wang2019eigendamage`；10-07 讀 §2、§4） | 卷積層 Fisher ≈ S ⊗ A：A＝patch 共變異數、S＝輸出端位置梯度的非置中共變異數；EigenDamage 在 Q_S ⊗ Q_A 基底剪通道 | **Σ_patch 與 Γ 在二階最佳化文獻裡有名字**，談它們時要定位；B10 的 M̃ 與 K-FAC 的 Kronecker 假設是不同問題但要並提 | ☑ 筆記＋bib；☐ 改稿時 Σ_patch／Γ 首次出現處引 |
 | **Hsu et al., ICLR 2022**（`hsu2022fwsvd`；10-07 讀 §3–4）＋ GFWSVD 2025／26、AIR 2026（讀摘要） | BERT 奇異值分十組逐組截：最小組掉分＝第 2 組（Fig. 1）；列和經驗 Fisher 加權 SVD；後續 Kronecker 兩側加權、activation＋influence 合併 | **「變異大 ≠ 任務需要」的先行證據**，摺入／尺段落引之；我們的摺入屬 activation-aware 一側，文獻已合併兩側，PCA／效率方向加不進主線 | ☑ 筆記＋bib；☐ 改稿時 §(ii) 引 |
 | **Chen & Zhao, TPAMI 2019**（`chen2019shallowing`）＋ **Zhang, Bengio & Singer, JMLR 2022**（`zhang2022allLayers`；10-07 讀原文） | 探針增益 < 1.5% 的層整層拿掉（VGG-16 CIFAR 末段飽和、ResNet-56 近半層冗餘）；單層重設為初始值：底層 critical、頂層與 residual block robust、任務越難 critical 越多 | 可拿掉的層＝我們尺讀閒置與 B9 塌縮的層（VGG／CIFAR），無人對照；**我們不量深度軸，Limitations 引之**；候選陳述（探針增益 vs k*/r_max 同一組層）等作者定 | ☑ 筆記＋bib；☐ Limitations 一句 |
+| **B4／B5 相依位置樣本下 ReLU 步的譜律與有效樣本數**（10-09；`notes/b4-prior-art-2026-10-09.md`；四條線 73 份 PDF）：Louart–Liao–Couillet 2018、Fan–Wang 2020、Chouard 2023、Fan–Ma–Paquette–Wang 2026、Ma–Misiakiewicz 2026、Piccolo–Schröder 2021、Wang–Paul 2014、Paul–Silverstein 2009、Novak 2019、Xiao 2018、Aitchison 2020、Bassetti 2025 等 | **B4 無人做**：相依 patch（內積 Θ(1)）＋非置中流＋C/n → 0 下 post-ReLU 共變異數的譜或 τ 寬度沒有定理；所有極限律要近正交（FW 定義 3.1、Chouard 備註 5.8）、獨立樣本或 lim sup‖X‖<∞（LLC 假設 3，非置中輸入流違反；輸出均值則收）。**但給定 patch 的 ReLU 步是已知抽樣律**（LLC 定理 1–2；FMPW／MM 2026 局部律），母體是 n×n arc-cosine 核、無從 Σ_in 的閉式。**B5＝Wang–Paul 2014 定理 2.1／備註 2.2 的應用**（C/n → 0 下只透過 n⁻¹tr T²；n_eff＝n²/tr T²）。S6 的條件高斯結構在 Novak 式 4–6／Xiao 引理 A.1／Aitchison 式 16–17 已有 | (i) S6 改寫成三篇的「通道側、樣本置中、r_max」讀法；(ii) ReLU 步寫「已知抽樣律、無閉式」＋兩個限制（C/n → 0、置中）；(iii) B5 寫成 Wang–Paul 應用、門檻改 n_eff 只在 C/n → 0 有背書；(iv) Mehler 初始化高估的候選解釋＝漏掉的秩一偏置項（Piccolo–Schröder），標推論；(v) 空格清單進 Limitations 一句；(vi) 量測陳述無人搶先 | ☑ 查完；☐ 改稿：S6／ReLU／B5 三處措辭；☐ 賭注候選三條（§4）等作者定；☐ 回查 10-07 feasibility-C 用的是抽樣律還是 C → ∞ 核；☐ bib：Novak、Garriga-Alonso、Aitchison、Wang–Paul、Chouard、FMPW、MM、Cho–Saul 核 Crossref |
 
 ## 還沒查、開工前要先查的
 
 | 主題 | 為什麼 | 先查什麼 |
 |---|---|---|
 | ~~Th8（ReLU 這一步）~~ | **09-30 已查**：已知（Fan–Wang 2020、Louart–Liao–Couillet 2018），假設在卷積 patch 上不成立 | `notes/th8-prior-art-2026-09-30.md` |
-| S2 初始化剖面可算 | B+ 脊椎第二段 | conv 的 mean-field／NNGP 有限寬度修正；Everett 2026 |
+| ~~S2 初始化剖面可算~~ | **10-09 已查**（B4 筆記 §2.5）：conv 的 NNGP 遞推（Novak、Xiao、Garriga-Alonso）即 S6 的來源；有限寬度修正只有 Aitchison 2020 附錄 A.2、Bassetti 2025（線性）；無人給位置樣本下的有限 C 通道共變異數 | `notes/b4-prior-art-2026-10-09.md` |
 | ~~S3 訓練是否重排順序~~ | **09-30 已查**：`notes/s3-prior-art-2026-09-30.md` | 投稿前再查一次 2026 年的 arXiv |
 | ~~transformer 的剖面（A30）~~ | **09-30 已查**：`notes/a30-prior-art-2026-09-30.md` | 投稿前再查一次（搜尋不是窮盡的） |
 | ~~表徵／權重／梯度三者對齊（CRH／PAH）~~ | **10-02 已查**：`notes/crh-prior-art-2026-10-02.md`（Ziyin et al. ICLR 2025 全文；A32、P-b7.2 是其 forward GWA／RGA 的秩相關版本；B8 檢其冪次形式在 conv–BN 層不成立） | Semantic Scholar 只列 15 篇引用，投稿前用 Google Scholar 再掃一次 |
