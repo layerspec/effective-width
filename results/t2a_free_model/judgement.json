@@ -1,0 +1,12 @@
+{
+ "p121_vgg": 11,
+ "p121_init": 7,
+ "p121": false,
+ "p122_vgg": 9,
+ "p122_init": 12,
+ "p122": false,
+ "p123_vgg": 12,
+ "p123_init": 12,
+ "p123_better": 4,
+ "p123": true
+}

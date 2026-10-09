@@ -1,0 +1,6 @@
+P9.121 (model A): VGG k_surr inside the rotation range 11/13 (need >= 12; theorem); init streams |median_A - k_surr|/k_surr <= 0.10 in 7/12 (need >= 9) -> fails; trained streams 4/6; VGG sd_A median 2.8 channels
+P9.122 (model B): |k_B - k_surr|/k_surr <= 0.10 in VGG 9/13 (need >= 10), init streams 12/12 (need >= 9) -> fails; trained 6/6
+P9.123 (model B'): |k_B' - k_surr|/k_surr <= 0.10 in VGG 12/13 (need >= 10), init streams 12/12 (need >= 9); B' strictly closer than B on the C <= 128 VGG rows 4/4 (need all) -> holds; B' signed err median vgg -0.01, init -0.02, trained +0.02; top-5 ratio B'/true (first VGG row) 0.97;0.88;0.99;0.93;0.88
+exploratory vgg: B signed err@0.95 median +0.02 [-0.00, +0.88]; B@0.999 median +0.01; simplified B2@0.95 median +0.02; A@0.999 median +0.00; top-5 ratio B/true (first row) 0.99;0.68;1.00;1.37;1.30
+exploratory stream_init: B signed err@0.95 median +0.03 [+0.00, +0.06]; B@0.999 median +0.03; simplified B2@0.95 median +0.03; A@0.999 median -0.03; top-5 ratio B/true (first row) 1.00;1.00;1.00;1.00;1.00
+exploratory stream_trained: B signed err@0.95 median +0.02 [+0.01, +0.08]; B@0.999 median +0.00; simplified B2@0.95 median +0.02; A@0.999 median +0.01; top-5 ratio B/true (first row) 0.99;1.00;1.00;0.99;1.00
