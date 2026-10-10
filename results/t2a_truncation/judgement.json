@@ -1,0 +1,11 @@
+{
+ "p124": false,
+ "p124_f2_err": 0.875,
+ "p124_vgg": 11,
+ "p124_init": 12,
+ "p125": false,
+ "p125_n_strong": 11,
+ "p125_strong_closer": 1.0,
+ "p125_strong_half": 1.0,
+ "p125_vgg_half": 0.4423076923076923
+}

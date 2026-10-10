@@ -1,0 +1,73 @@
+vgg features.2 C=64: k_surr 8 B' 12 B'' 15 lam1/C 0.67 strong 1 (0s)
+vgg features.5 C=64: k_surr 27 B' 29 B'' 31 lam1/C 0.41 strong 1 (0s)
+vgg features.9 C=128: k_surr 48 B' 50 B'' 52 lam1/C 0.38 strong 1 (0s)
+vgg features.12 C=128: k_surr 54 B' 56 B'' 58 lam1/C 0.36 strong 1 (0s)
+vgg features.16 C=256: k_surr 88 B' 88 B'' 90 lam1/C 0.29 strong 0 (1s)
+vgg features.19 C=256: k_surr 106 B' 105 B'' 106 lam1/C 0.24 strong 0 (1s)
+vgg features.22 C=256: k_surr 112 B' 110 B'' 111 lam1/C 0.25 strong 0 (1s)
+vgg features.26 C=512: k_surr 195 B' 191 B'' 194 lam1/C 0.23 strong 0 (15s)
+vgg features.29 C=512: k_surr 214 B' 210 B'' 212 lam1/C 0.22 strong 0 (15s)
+vgg features.32 C=512: k_surr 214 B' 208 B'' 211 lam1/C 0.22 strong 0 (15s)
+vgg features.36 C=512: k_surr 190 B' 188 B'' 190 lam1/C 0.23 strong 0 (15s)
+vgg features.39 C=512: k_surr 184 B' 180 B'' 183 lam1/C 0.25 strong 0 (14s)
+vgg features.42 C=512: k_surr 201 B' 198 B'' 201 lam1/C 0.25 strong 0 (14s)
+resnet34_tv_in1k_random_s1_layer3 layer3.0 C=256: k_surr 107 B' 104 B'' 106 lam1/C 0.28 strong 0 (1s)
+resnet34_tv_in1k_random_s1_layer3 layer3.1 C=256: k_surr 108 B' 105 B'' 107 lam1/C 0.31 strong 0 (1s)
+resnet34_tv_in1k_random_s1_layer3 layer3.2 C=256: k_surr 107 B' 105 B'' 107 lam1/C 0.32 strong 0 (1s)
+resnet34_tv_in1k_random_s1_layer3 layer3.3 C=256: k_surr 101 B' 101 B'' 103 lam1/C 0.33 strong 0 (1s)
+resnet34_tv_in1k_random_s1_layer3 layer3.4 C=256: k_surr 92 B' 90 B'' 92 lam1/C 0.33 strong 0 (1s)
+resnet34_tv_in1k_random_s1_layer3 layer3.5 C=256: k_surr 79 B' 79 B'' 81 lam1/C 0.37 strong 1 (1s)
+resnet50_tv_in1k_pretrained_layer3 layer3.0 C=1024: k_surr 553 B' 595 B'' 595 lam1/C 0.07 strong 0 (80s)
+resnet50_tv_in1k_pretrained_layer3 layer3.1 C=1024: k_surr 674 B' 696 B'' 697 lam1/C 0.04 strong 0 (79s)
+resnet50_tv_in1k_pretrained_layer3 layer3.2 C=1024: k_surr 757 B' 775 B'' 775 lam1/C 0.03 strong 0 (102s)
+resnet50_tv_in1k_pretrained_layer3 layer3.3 C=1024: k_surr 803 B' 816 B'' 816 lam1/C 0.03 strong 0 (118s)
+resnet50_tv_in1k_pretrained_layer3 layer3.4 C=1024: k_surr 831 B' 842 B'' 843 lam1/C 0.05 strong 0 (82s)
+resnet50_tv_in1k_pretrained_layer3 layer3.5 C=1024: k_surr 830 B' 842 B'' 843 lam1/C 0.10 strong 0 (77s)
+resnet50_tv_in1k_random_s1_layer3 layer3.0 C=1024: k_surr 106 B' 100 B'' 106 lam1/C 0.43 strong 1 (77s)
+resnet50_tv_in1k_random_s1_layer3 layer3.1 C=1024: k_surr 110 B' 106 B'' 111 lam1/C 0.39 strong 1 (78s)
+resnet50_tv_in1k_random_s1_layer3 layer3.2 C=1024: k_surr 102 B' 101 B'' 105 lam1/C 0.41 strong 1 (78s)
+resnet50_tv_in1k_random_s1_layer3 layer3.3 C=1024: k_surr 92 B' 90 B'' 95 lam1/C 0.41 strong 1 (77s)
+resnet50_tv_in1k_random_s1_layer3 layer3.4 C=1024: k_surr 83 B' 83 B'' 86 lam1/C 0.41 strong 1 (77s)
+resnet50_tv_in1k_random_s1_layer3 layer3.5 C=1024: k_surr 78 B' 77 B'' 81 lam1/C 0.42 strong 1 (76s)
+         group       layer    C  lam1_over_C  n_strong  r_eff_R  k_surr@0.95  kBp_med@0.95  Bp_err@0.95  kBpp_med@0.95  Bpp_err@0.95  k_surr@0.999  kBp_med@0.999  kBpp_med@0.999  tr_ratio_Bp  tr_ratio_Bpp top5_ratio_Bpp_over_true  sec
+           vgg  features.2   64         0.67         1     2.12            8         12.00         0.50          15.00          0.88            47          55.00           56.00         1.93          1.08 0.98;0.66;0.99;1.05;1.17    0
+           vgg  features.5   64         0.41         1     4.57           27         29.00         0.07          31.00          0.15            62          62.00           62.00         1.43          1.14 1.01;0.99;0.85;0.70;0.98    0
+           vgg  features.9  128         0.38         1     5.24           48         49.50         0.03          52.00          0.08           118         118.00          118.50         1.39          1.15 1.00;0.99;0.91;0.74;0.95    0
+           vgg features.12  128         0.36         1     5.56           54         56.00         0.04          58.00          0.07           120         121.00          121.00         1.37          1.16 1.00;1.00;0.91;0.93;0.87    0
+           vgg features.16  256         0.29         0     7.36           88         88.00         0.00          90.00          0.02           216         219.00          219.00         1.27          1.15 1.00;1.00;1.00;0.99;1.00    1
+           vgg features.19  256         0.24         0     9.21          106        105.00        -0.01         106.00          0.00           219         221.00          221.00         1.22          1.13 1.00;1.00;1.00;1.00;1.00    1
+           vgg features.22  256         0.25         0    10.05          112        110.00        -0.02         111.00         -0.01           219         223.00          224.00         1.20          1.10 1.00;1.00;1.00;1.00;0.99    1
+           vgg features.26  512         0.23         0    11.73          195        191.00        -0.02         194.00         -0.01           413         416.50          417.00         1.17          1.09 1.00;1.00;1.00;1.00;1.00   15
+           vgg features.29  512         0.22         0    13.15          214        210.00        -0.02         212.00         -0.01           426         428.50          429.00         1.15          1.09 1.00;1.00;1.00;1.00;1.00   15
+           vgg features.32  512         0.22         0    13.37          214        208.00        -0.03         211.00         -0.01           426         430.00          430.00         1.15          1.08 1.00;1.00;1.00;1.00;1.00   15
+           vgg features.36  512         0.23         0    10.75          190        188.00        -0.01         190.00          0.00           404         407.00          407.00         1.19          1.11 1.00;1.00;1.00;1.00;1.00   15
+           vgg features.39  512         0.25         0     9.64          184        180.50        -0.02         183.00         -0.01           418         426.00          426.00         1.21          1.12 1.00;1.00;1.00;1.00;1.00   14
+           vgg features.42  512         0.25         0     9.52          201        198.00        -0.01         201.00          0.00           432         440.00          441.00         1.21          1.12 1.00;1.00;1.00;1.00;1.00   14
+   stream_init    layer3.0  256         0.28         0     9.30          107        104.00        -0.03         106.00         -0.01           227         231.00          232.00         1.22          1.09 1.00;1.00;1.00;1.00;1.00    1
+   stream_init    layer3.1  256         0.31         0     7.90          108        105.00        -0.03         107.00         -0.01           231         234.00          234.00         1.26          1.10 1.00;0.99;1.00;1.00;1.00    1
+   stream_init    layer3.2  256         0.32         0     7.52          107        105.00        -0.02         107.00          0.00           232         235.00          236.00         1.27          1.10 1.00;1.00;1.00;0.99;1.00    1
+   stream_init    layer3.3  256         0.33         0     6.97          101        101.00         0.00         103.00          0.02           231         234.00          234.00         1.29          1.12 1.00;0.99;0.99;1.00;1.00    1
+   stream_init    layer3.4  256         0.33         0     6.43           92         90.00        -0.02          92.00          0.00           234         237.00          237.00         1.31          1.14 1.00;0.99;0.99;1.00;1.00    1
+   stream_init    layer3.5  256         0.37         1     5.75           79         79.00         0.00          81.00          0.03           228         233.00          234.00         1.35          1.13 1.00;0.99;0.99;0.99;1.00    1
+stream_trained    layer3.0 1024         0.07         0    53.58          553        595.00         0.08         595.00          0.08           948         950.00          950.00         1.04          1.03 0.99;1.00;1.00;1.00;1.00   80
+stream_trained    layer3.1 1024         0.04         0    96.47          674        696.00         0.03         697.00          0.03           994         996.00          996.00         1.02          1.02 0.99;0.99;0.99;0.99;0.99   79
+stream_trained    layer3.2 1024         0.03         0   123.90          757        775.00         0.02         775.00          0.02          1007        1008.00         1008.00         1.02          1.02 0.99;0.99;0.99;0.99;0.99  102
+stream_trained    layer3.3 1024         0.03         0   139.10          803        816.00         0.02         816.00          0.02          1012        1012.00         1012.00         1.02          1.01 0.99;0.99;0.99;0.99;0.99  118
+stream_trained    layer3.4 1024         0.05         0   126.84          831        842.50         0.01         843.00          0.01          1016        1016.00         1016.00         1.02          1.01 0.96;0.98;0.97;0.98;0.98   82
+stream_trained    layer3.5 1024         0.10         0    63.95          830        841.50         0.01         843.00          0.02          1017        1017.00         1017.00         1.03          1.02 0.93;0.97;0.94;0.96;0.95   77
+   stream_init    layer3.0 1024         0.43         1     4.96          106        100.00        -0.06         106.00          0.00           752         807.00          811.50         1.40          1.07 1.00;1.00;1.00;1.00;1.00   77
+   stream_init    layer3.1 1024         0.39         1     5.54          110        106.50        -0.03         111.00          0.01           788         816.00          821.00         1.36          1.09 1.00;1.00;1.00;1.00;1.00   78
+   stream_init    layer3.2 1024         0.41         1     5.05          102        101.00        -0.01         105.00          0.03           798         827.00          832.00         1.39          1.10 1.00;1.00;1.00;1.00;1.00   78
+   stream_init    layer3.3 1024         0.41         1     4.99           92         90.50        -0.02          95.00          0.03           799         823.00          828.00         1.40          1.10 1.00;1.00;1.00;1.00;0.99   77
+   stream_init    layer3.4 1024         0.41         1     4.98           83         83.00         0.00          86.00          0.04           799         822.00          827.00         1.40          1.12 1.00;1.00;1.00;0.99;1.00   77
+   stream_init    layer3.5 1024         0.42         1     4.90           78         77.00        -0.01          81.00          0.04           794         825.50          831.00         1.41          1.11 1.00;1.00;1.00;0.99;1.00   76
+P9.124 (model B''): features.2 |err| 0.88 (need <= 0.25 and < B' 0.50) -> fails; |err| <= 0.10 in VGG 11/13 (need >= 12), init streams 12/12 (need >= 9); trained 6/6 -> fails; B'' signed err median vgg +0.00, init +0.01, trained +0.02; B' same rows: vgg 12/13, init 12/12
+P9.125 (eigenvector level): strong spikes (lam > C/3, 25 init rows) n = 11: B'' closer than Haar 1.00 (need >= 0.90), |p - a| <= 0.5 1.00 (need >= 0.80); VGG top-K all: |p - a| <= 0.5 0.44 (need >= 0.80) -> fails
+strong spikes: features.2 i=0 lam/C 0.67 a 1.21 p 1.10 haar 2.91; features.5 i=0 lam/C 0.41 a 1.48 p 1.39 haar 2.91; features.9 i=0 lam/C 0.38 a 1.53 p 1.45 haar 2.95; features.12 i=0 lam/C 0.36 a 1.51 p 1.52 haar 2.95; resnet34_tv_in1k_random_s1_layer3:layer3.5 i=0 lam/C 0.37 a 1.54 p 1.41 haar 2.98; resnet50_tv_in1k_random_s1_layer3:layer3.0 i=0 lam/C 0.43 a 1.47 p 1.18 haar 2.99; resnet50_tv_in1k_random_s1_layer3:layer3.1 i=0 lam/C 0.39 a 1.53 p 1.29 haar 2.99; resnet50_tv_in1k_random_s1_layer3:layer3.2 i=0 lam/C 0.41 a 1.48 p 1.28 haar 2.99; resnet50_tv_in1k_random_s1_layer3:layer3.3 i=0 lam/C 0.41 a 1.51 p 1.29 haar 2.99; resnet50_tv_in1k_random_s1_layer3:layer3.4 i=0 lam/C 0.41 a 1.51 p 1.34 haar 2.99; resnet50_tv_in1k_random_s1_layer3:layer3.5 i=0 lam/C 0.42 a 1.50 p 1.29 haar 2.99
+exploratory medium spikes (C/10 < lam <= C/3) n = 48: |p - a| median 0.33, |haar - a| median 0.74; bulk (lam <= C/10) VGG |p - a| median 0.63
+exploratory vgg: a/haar median 1.20 [0.42, 3.33]; a/p median 1.20
+exploratory stream_init: a/haar median 1.38 [0.49, 4.24]; a/p median 1.38
+exploratory stream_trained: a/haar median 1.10 [0.62, 5.57]; a/p median 1.12
+exploratory vgg: lam1/C median 0.25 [0.22, 0.67], strong per row [1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0]; B''@0.999 err median +0.01, B'@0.999 +0.01; pre-rescale trace/C B' 1.21 B'' 1.12; top-5 ratio B''/true (first row) 0.98;0.66;0.99;1.05;1.17 (B' 0.97;0.84;0.98;0.92;0.88)
+exploratory stream_init: lam1/C median 0.38 [0.28, 0.43], strong per row [0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1]; B''@0.999 err median +0.03, B'@0.999 +0.03; pre-rescale trace/C B' 1.35 B'' 1.10; top-5 ratio B''/true (first row) 1.00;1.00;1.00;1.00;1.00 (B' 1.00;1.00;1.00;1.00;1.00)
+exploratory stream_trained: lam1/C median 0.05 [0.03, 0.10], strong per row [0, 0, 0, 0, 0, 0]; B''@0.999 err median +0.00, B'@0.999 +0.00; pre-rescale trace/C B' 1.02 B'' 1.02; top-5 ratio B''/true (first row) 0.99;1.00;1.00;1.00;1.00 (B' 0.99;1.00;1.00;1.00;1.00)

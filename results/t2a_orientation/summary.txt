@@ -1,0 +1,5 @@
+tau=0.95: rotated-true-spectrum err: C<=128 [0.5, 0.07, 0.04, 0.06], C>=256 median -0.009 [-0.042, +0.018]; peel err: C<=128 [0.25, 0.04, 0.02, 0.04], C>=256 median -0.032
+tau=0.95: B' spectrum of R^(o2) alone vs true: err median +0.050 [-0.067, +0.144]; |err| <= 0.10 in 25/31; C<=128 [-0.07, 0.08, 0.06, 0.06]
+tau=0.999: rotated-true-spectrum err: C<=128 [0.09, 0.0, 0.0, 0.01], C>=256 median +0.004 [-0.001, +0.011]; peel err: C<=128 [0.06, 0.0, 0.0, 0.0], C>=256 median +0.004
+tau=0.999: B' spectrum of R^(o2) alone vs true: err median +0.006 [+0.001, +0.341]; |err| <= 0.10 in 30/31; C<=128 [0.34, 0.03, 0.01, 0.02]
+cos(m,u1): median 0.93 [0.03, 0.96] (n=31); corr(mu2^2,u1^2): C<=128 [0.53, 0.59, 0.68, 0.65], C>=256 median -0.60; median |m/s|: C<=128 [0.03, 0.56, 0.76, 0.87], C>=256 median 1.29
