@@ -1,0 +1,20 @@
+{
+ "coverage@0.95": 1.0,
+ "coverage_mc@0.95": 1.0,
+ "coverage_lam@0.95": 1.0,
+ "median_halfwidth_over_rmax@0.95": 0.056640625,
+ "frac_nondegenerate@0.95": 0.9902912621359223,
+ "frac_nondegenerate_lam@0.95": 0.8601941747572815,
+ "median_halfwidth_over_mcsd@0.95": 6.02038037998254,
+ "coverage_n_over_d50@0.95": 1.0,
+ "coverage@0.999": 1.0,
+ "coverage_mc@0.999": 1.0,
+ "coverage_lam@0.999": 1.0,
+ "median_halfwidth_over_rmax@0.999": 0.02197265625,
+ "frac_nondegenerate@0.999": 0.7359223300970874,
+ "frac_nondegenerate_lam@0.999": 0.26990291262135924,
+ "median_halfwidth_over_mcsd@0.999": 7.171499719644791,
+ "coverage_n_over_d50@0.999": 1.0,
+ "P9.126": true,
+ "P9.127": true
+}

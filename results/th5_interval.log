@@ -1,0 +1,35 @@
+densenet121.tv_in1k: 120 layers, coverage@0.95 1.000, median halfwidth/r_max 0.104, 73 s
+efficientnet_b0.ra_in1k: 33 layers, coverage@0.95 1.000, median halfwidth/r_max 0.050, 29 s
+mobilenetv2_100.ra_in1k: 35 layers, coverage@0.95 1.000, median halfwidth/r_max 0.062, 20 s
+mobilenetv3_large_100.ra_in1k: 31 layers, coverage@0.95 1.000, median halfwidth/r_max 0.075, 13 s
+resnet101.tv_in1k: 104 layers, coverage@0.95 1.000, median halfwidth/r_max 0.037, 515 s
+resnet34.tv_in1k: 36 layers, coverage@0.95 1.000, median halfwidth/r_max 0.047, 277 s
+resnet50: 53 layers, coverage@0.95 1.000, median halfwidth/r_max 0.062, 314 s
+resnext50_32x4d.tv_in1k: 37 layers, coverage@0.95 1.000, median halfwidth/r_max 0.020, 422 s
+vgg16_bn: 13 layers, coverage@0.95 1.000, median halfwidth/r_max 0.059, 211 s
+wide_resnet50_2.tv_in1k: 53 layers, coverage@0.95 1.000, median halfwidth/r_max 0.028, 1266 s
+plan 9.55 judgement (u = 4.5, guarantee 1 - 4/u^2 = 0.802); layers = 275 x families = 10
+tau=0.95: coverage 1.000 (515/515); MC-sd interval 1.000; lambda_1 interval 1.000; median halfwidth/r_max 0.057; non-degenerate 0.990 (lambda_1 version 0.860); median halfwidth/MC sd(k*) 6.02; n/d>=50 subset coverage 1.000
+   densenet121.tv_in1k              L=120 coverage 1.000  median halfwidth/r_max 0.104  non-degenerate 1.00  median |measured - mc_mean| 1.0 ch
+   efficientnet_b0.ra_in1k          L= 33 coverage 1.000  median halfwidth/r_max 0.050  non-degenerate 0.91  median |measured - mc_mean| 0.5 ch
+   mobilenetv2_100.ra_in1k          L= 35 coverage 1.000  median halfwidth/r_max 0.062  non-degenerate 0.97  median |measured - mc_mean| 0.5 ch
+   mobilenetv3_large_100.ra_in1k    L= 31 coverage 1.000  median halfwidth/r_max 0.075  non-degenerate 0.97  median |measured - mc_mean| 0.5 ch
+   resnet101.tv_in1k                L=104 coverage 1.000  median halfwidth/r_max 0.037  non-degenerate 1.00  median |measured - mc_mean| 0.9 ch
+   resnet34.tv_in1k                 L= 36 coverage 1.000  median halfwidth/r_max 0.047  non-degenerate 1.00  median |measured - mc_mean| 0.7 ch
+   resnet50                         L= 53 coverage 1.000  median halfwidth/r_max 0.062  non-degenerate 1.00  median |measured - mc_mean| 0.9 ch
+   resnext50_32x4d.tv_in1k          L= 37 coverage 1.000  median halfwidth/r_max 0.020  non-degenerate 1.00  median |measured - mc_mean| 1.0 ch
+   vgg16_bn                         L= 13 coverage 1.000  median halfwidth/r_max 0.059  non-degenerate 1.00  median |measured - mc_mean| 2.0 ch
+   wide_resnet50_2.tv_in1k          L= 53 coverage 1.000  median halfwidth/r_max 0.028  non-degenerate 1.00  median |measured - mc_mean| 1.1 ch
+tau=0.999: coverage 1.000 (515/515); MC-sd interval 1.000; lambda_1 interval 1.000; median halfwidth/r_max 0.022; non-degenerate 0.736 (lambda_1 version 0.270); median halfwidth/MC sd(k*) 7.17; n/d>=50 subset coverage 1.000
+   densenet121.tv_in1k              L=120 coverage 1.000  median halfwidth/r_max 0.031  non-degenerate 0.52  median |measured - mc_mean| 0.0 ch
+   efficientnet_b0.ra_in1k          L= 33 coverage 1.000  median halfwidth/r_max 0.018  non-degenerate 0.55  median |measured - mc_mean| 0.0 ch
+   mobilenetv2_100.ra_in1k          L= 35 coverage 1.000  median halfwidth/r_max 0.023  non-degenerate 0.26  median |measured - mc_mean| 0.0 ch
+   mobilenetv3_large_100.ra_in1k    L= 31 coverage 1.000  median halfwidth/r_max 0.037  non-degenerate 0.29  median |measured - mc_mean| 0.0 ch
+   resnet101.tv_in1k                L=104 coverage 1.000  median halfwidth/r_max 0.014  non-degenerate 0.97  median |measured - mc_mean| 0.4 ch
+   resnet34.tv_in1k                 L= 36 coverage 1.000  median halfwidth/r_max 0.014  non-degenerate 0.78  median |measured - mc_mean| 0.2 ch
+   resnet50                         L= 53 coverage 1.000  median halfwidth/r_max 0.023  non-degenerate 0.92  median |measured - mc_mean| 0.4 ch
+   resnext50_32x4d.tv_in1k          L= 37 coverage 1.000  median halfwidth/r_max 0.029  non-degenerate 1.00  median |measured - mc_mean| 1.1 ch
+   vgg16_bn                         L= 13 coverage 1.000  median halfwidth/r_max 0.008  non-degenerate 1.00  median |measured - mc_mean| 0.3 ch
+   wide_resnet50_2.tv_in1k          L= 53 coverage 1.000  median halfwidth/r_max 0.018  non-degenerate 1.00  median |measured - mc_mean| 0.6 ch
+P9.126 (coverage >= 0.80 at both tau): HOLDS
+P9.127 (tau=0.95: median halfwidth <= 0.10 r_max and k_plus < r_max in >= 80%): HOLDS
