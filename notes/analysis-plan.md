@@ -3029,3 +3029,27 @@ CIFAR-10 最後三層 40 vs 168–347（下游不需要，所以縮到 40 沒掉
 - **讀法**：定理 M.2 在卷積步「有內容」：初始化一層的 τ ＝ 0.95 寬度，由定理保證以 ≥ 0.8 的機率落在 Monte Carlo 均值 ±0.06 r_max（中位；8 通道）之內，實際落在 ±1 通道。這是 III-A 總綱 (b) 可以寫的那句（pending I9）。**激活步未核**（需要 patch，存量沒有；M.2 對它的常數是 λ_1 of 未置中二階矩）。
 - **理論軸**：§M 末段的條件達成 → 3 → **3.5**（Claude 估；決定性＋集中＋可算＋區間，四條都有定理與量到的缺口；仍無寬度閉式、無真實資料下激活步定理）。→ 4 要路線 2（T3）。
 - **進論文（改稿時）**：I9 的 (b) 句用本節數字；補充加表（515 列：C、d、r_max、量到、MC mean±SD、[k₋, k₊]、半寬/r_max；兩個 τ）；Table S17 加 P9.126–127；S19 的「535」與本節的「515」要說明 resnet18 無存譜（或補跑 resnet18 的譜，Mac 幾分鐘）。
+
+### 9.56 T3 四臂：白化輸入 × 等距核對 τ 寬度上限 ⌈τC⌉（2026-10-11 12:12 寫，資料未見；`proofs-2026-09-29.md` §T3；文獻 `t3-prior-art-2026-10-11.md`；路線 2；CIFAR-10，VGG-16_BN 與 basic52，各 3 種子，與 §9.2／D5 同配方）
+
+- **臂**：(a) none、(b) ONI——**D5 現成**（`results/round3/a5_{vgg16_bn,basic52}_{none,oni}_s{0,1,2}`、`round3_decompose/`）；
+  (c) **ND**：Ye et al. 2020 原樣（block B ＝ 64、ε ＝ 1e-5、Newton–Schulz 5 次、EMA momentum 0.1、取樣步幅 3、**取代 BN**、bias 保留；結束時把 running D 折進權重存成一般 conv），寫「the published operator」；
+  (d) **WO（whitened-orthogonal，T3.1 的最大化子）**：整個 Σ_patch 的白化（EMA 共變異數、每 20 步 eigh 一次 (Σ＋εI)^{−1/2}，ε ＝ 1e-4·tr Σ/d；折進權重）＋ **保留 BN** ＋ ONI（有效核 W_∘D，W_∘ 為儲存核的極因子）。
+  實作：`scripts/whiten_conv.py`（兩種 D 的 conv 包裝，含烘焙）＋ `scripts/trajectory_whiten.py`（照 `trajectory_oni.py` 的包裝法，不改 `trajectory_cifar.py`）＋測試；量測照 D5：`decompose_check.py`（out／kernel／data／ortho，6,400 張測試影像、16 位置）＋ 一次 `run_probe(include_activations=True)` 取 post-ReLU 寬度。
+- **預測（寫在跑之前；τ ＝ 0.95，/r_max；dense conv 層；「層」排除 Σ_patch 近奇異者：none 臂 data_0.999 < 1 的層另列、不計）**
+  - **P9.128（ND 的反事實命中；T3.2(iv)）**：同種子 none 臂的 (W, Σ_p) 算 pred_ND ＝ k_τ(W D_B Σ_p D_B Wᵀ)/r_max（D_B 用 none 臂的 Σ_p、B ＝ 64、同 ε）；ND 臂量到的 out 與 pred_ND 的逐層配對中位 |差| < 0.10，兩架構各 ≥ 2/3 種子（與 P9.3／P-d5.1 同門檻）。
+  - **P9.129（最大化子；T3.1）**：WO 臂的 out_0.95 ≥ 0.90（上限 ⌈0.95C⌉/C ≈ 0.95–0.96）在 ≥ 90% 的層，兩架構、三種子全部；量在測試影像上（白化統計來自訓練 EMA，所以這同時測白化的泛化）。
+  - **P9.130（白化輸入下的 ReLU 步；T3.3 對真實資料）**：WO 臂每層 post-ReLU k_0.95 ÷ conv（BN 後）k_0.95 ∈ [0.90, 1.10] 在 ≥ 80% 的層（替身說 ＝ 1；偏離 ＝ 非高斯）。
+  - **P9.131（不崩）**：(c)(d) 的測試準確率 ≥ none 臂同種子 − 1.0（Ye 報 ND +1.0；我們不主張增益）。
+  - **探索性**：ND 臂的 out 對核因子 k_τ(W_NDW_NDᵀ) 與對資料因子（應介於兩者，T3.2(iv)）；跨 block 相關佔 Σ_p 能量的份額 vs pred_ND 與 (ii) 的差；WO 臂下一層 Σ_patch 的白度（data_0.95）；兩臂的訓練時間開銷；τ ＝ 0.999 同表；排除層（近奇異）的 out 與 ε 的關係。
+- **後果**：P9.128 ∧ P9.129 成立 ⇒ III 加一段「兩個因子、兩個運算子、上限 ⌈τC⌉」（T3.1–3.2 進補充當命題，正文一段＋一張四臂表）；P9.130 成立 ⇒ T1.2 替身在白化點命中，III-A 的 ReLU 步段多一個真實資料的錨；P9.129 不成立（白化泛化不到測試影像、或 ε 截住）⇒ 寫「on the training statistics」限制句並報測試值；P9.128 不成立 ⇒ 反事實在取代 BN 的介入下失效，照報，不改 T3.2 的代數。
+- **型別與成本（量測；作者定在哪跑）**：Mac MPS 量到 VGG-16 約 30 batch/16 s ⇒ 每 epoch ≈ 210 s ⇒ 100 epoch ≈ 6 h／run（白化額外 10–50%）；basic52 在 pod 60 s/epoch 對 VGG 6–11 s ⇒ Mac 上一 run 估 1.5–2.5 天，不實際。
+  新跑 12 run（(c)(d) × 2 架構 × 3 種子）：**pod 4090 約 US$15–25**（VGG 12 run-min 級、basic52 2–3 h/run×6＋白化開銷；重 Deploy＋venv 半小時）；**Mac 只跑 VGG 6 run ≈ 2 天、US$0**，basic52 之後看 VGG 結果再決定要不要開 pod。開跑前問作者一次。
+- **9.56 補記（2026-10-11 12:33，跑正式實驗前；煙霧測試 30 batch 的結果，不是資料）**：WO 臂原登記 ε ＝ 1e-4·tr Σ/d、每 20 步更新，在 VGG 4×4 特徵圖（取樣後樣本數 < d ＝ 4608）30 batch 內 loss ＝ NaN：近零方向被放大 > 100×，梯度 ∂L/∂W ＝ (∂L/∂W_eff)Dᵀ 跟著放大。ND 不炸的原因是 Newton–Schulz 只跑 5 次，對近零特徵值的增益隱含上限 (3/2)⁵ ≈ 7.6（相對頂端方向）。
+  改法（寫進 `whiten_conv.py`、`trajectory_whiten.py` 的 ARMS 與 `t3_counterfactual.py`）：WO 的 ε ＝ λ_max(Σ)/g²、**g ＝ 8**（與 ND 的隱含上限同量級）；前 50 步 D ＝ I（暖機），之後每 50 步 eigh 一次。後果寫明：λ < λ_max/64 的方向只被部分白化，P9.129 的「≥ 0.90」要在這個 ε 下看；反事實 full_pred／both_pred 用同一個 ε（T3.2 的 Π_ε）。測試改為 gain_cap 1e4–1e6 的極限情形。
+  時間：ND 臂 30 batch 36 s（none 16 s，2.25×）；WO 重測見下一行。
+- **9.56 補記 2（2026-10-11 12:45，跑正式實驗前；`t3_counterfactual.py` 在 none 臂 seed 0 的 6 個測試 batch 上的煙霧數字，不是判定資料）**：增益上限 g ＝ 8 下，both_pred_95（白化＋等距的反事實）在 VGG 中段層 0.83–0.92、features.0 0.48（RGB patch 譜的動態範圍 > 64）、末三層 0.19–0.41（Σ_patch 近奇異）——**ε 截住是常態，不是例外**，原登記的 P9.129「≥ 0.90 在 ≥ 90% 的層」在這個 ε 下不可能達到，與定理無關。
+  改登記（寫在任何 WO 訓練前）：**P9.129′**：WO 臂量到的 out_0.95 與同種子 none 臂的 both_pred_0.95（同一個 g ＝ 8）逐層配對中位 |差| < 0.10，兩架構各 ≥ 2/3 種子（與 P9.128 同型：白化臂也是反事實的檢驗）；並且 out_WO > ortho_none（ONI 的資料因子天花板）在 ≥ 80% 的層（白化在等距之上還加寬）。
+  探索性：out_WO 與 ceiling ⌈τC⌉/r_max 的差 vs 該層 Σ_patch 在 λ_max/64 以下的能量份額（ε 截掉多少）；g 的敏感度只在反事實上算（g ＝ 4／8／16／∞），不另跑訓練。
+- **9.56 補記 3（2026-10-11 12:58，跑正式實驗前）**：WO 的 NaN 第二個來源是程式錯誤，不是數學：`tensor.to("cpu", torch.float64)` 從 MPS 轉出來是垃圾（trace 0、特徵值 1e-313；MPS 無 float64，先轉型再搬），eigh 因此給 inf 的 D。改成 `.cpu().double()`（教訓寫進 CLAUDE.md）。修後 60 batch 煙霧：第 50 步 13 層同時開始白化，loss 10.3 → 2.5 回穩，D 的最大元素 0.18–1.43，烘焙成功。
+  時間：WO 在 Mac 每輪 refresh（13 層 eigh，d 到 4608，CPU float64）約 90 s，每 50 步一輪 ⇒ 每 epoch 多約 12 分鐘 ⇒ 100 epoch 約 25 h／run；ND 2.25× ⇒ 13 h／run。**Mac 不實際，兩臂都上 pod**（CUDA 的 eigh 4608 約 1–2 s）。pod 估：VGG 六跑約 3 h、basic52 六跑約 20 h（ND 135 s/epoch、WO 約 100 s/epoch），合計約 23 GPU-h ≈ US$17–20（4090），兩個 pod 並行可對半時間。反事實預測（P9.128／P9.129′ 的 pred 欄）先在 Mac 由 D5／a2 的六個 none 權重算（`results/t3/counterfactual_*.csv`，`run_counterfactuals.sh`）。
