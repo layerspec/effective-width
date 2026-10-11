@@ -1,0 +1,7 @@
+plan 9.55 judgement (u = 4.5, guarantee 1 - 4/u^2 = 0.802); layers = 20 x families = 1
+tau=0.95: coverage 1.000 (20/20); MC-sd interval 1.000; lambda_1 interval 1.000; median halfwidth/r_max 0.073; non-degenerate 1.000 (lambda_1 version 1.000); median halfwidth/MC sd(k*) 5.93; n/d>=50 subset coverage 1.000
+   resnet18                         L= 20 coverage 1.000  median halfwidth/r_max 0.073  non-degenerate 1.00  median |measured - mc_mean| 0.8 ch
+tau=0.999: coverage 1.000 (20/20); MC-sd interval 1.000; lambda_1 interval 1.000; median halfwidth/r_max 0.020; non-degenerate 0.800 (lambda_1 version 0.200); median halfwidth/MC sd(k*) 8.08; n/d>=50 subset coverage 1.000
+   resnet18                         L= 20 coverage 1.000  median halfwidth/r_max 0.020  non-degenerate 0.80  median |measured - mc_mean| 0.1 ch
+P9.126 (coverage >= 0.80 at both tau): HOLDS
+P9.127 (tau=0.95: median halfwidth <= 0.10 r_max and k_plus < r_max in >= 80%): HOLDS

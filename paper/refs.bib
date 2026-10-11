@@ -1894,3 +1894,40 @@
   year    = {2017},
   doi     = {10.1038/s41598-017-11873-y}
 }
+
+@inproceedings{ye2020deconvolution,
+  author    = {Ye, Chengxi and Evanusa, Matthew and He, Hua and Mitrokhin, Anton and Goldstein, Tom and Yorke, James A. and Ferm{\"u}ller, Cornelia and Aloimonos, Yiannis},
+  title     = {Network Deconvolution},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2020},
+  note      = {arXiv:1905.11926},
+  annote    = {The whitening operator of the T3 arm (c): im2col patches, blocks of 64 channels, (Cov + 1e-5 I)^(-1/2) by five coupled Newton--Schulz steps, replaces BN, folded into the weights at the end. Proposition 3 there notes the optimum needs an orthogonal W but does not enforce it. Author list and venue verified 2026-10-12 against the arXiv API and the PDF first page (``Published as a conference paper at ICLR 2020'').},
+}
+
+@misc{belmekki2025featuremap,
+  author       = {Belmekki, Zakariae and Li, Jun and Reuter, Patrick and G{\'o}mez J{\'a}uregui, David Antonio and Jenkins, Karl},
+  title        = {Feature Map Similarity Reduction in Convolutional Neural Networks},
+  howpublished = {arXiv:2411.03226},
+  year         = {2024},
+  annote       = {v2 of 22 May 2025. One-dimensional derivation that the inner product of two feature maps is the kernel cross-correlation against the input autocorrelation (their Eq. 3): kernel orthogonality alone does not decorrelate features. Cited to place ``orthogonal is not decorrelated''. Title, author list and dates verified 2026-10-12 via the arXiv API and the PDF.},
+}
+
+@inproceedings{huang2018dbn,
+  author    = {Huang, Lei and Yang, Dawei and Lang, Bo and Deng, Jia},
+  title     = {Decorrelated Batch Normalization},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {791--800},
+  year      = {2018},
+  doi       = {10.1109/CVPR.2018.00089},
+  annote    = {Channel-side ZCA whitening in place of BN (the k = 1 case of network deconvolution). Verified 2026-10-12 via Crossref (DOI, author list, pages).},
+}
+
+@inproceedings{huang2019iternorm,
+  author    = {Huang, Lei and Zhou, Yi and Zhu, Fan and Liu, Li and Shao, Ling},
+  title     = {Iterative Normalization: Beyond Standardization Towards Efficient Whitening},
+  booktitle = {Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)},
+  pages     = {4869--4878},
+  year      = {2019},
+  doi       = {10.1109/CVPR.2019.00501},
+  annote    = {Newton-iteration whitening of the channel covariance (IterNorm); the iteration count bounds the gain on small eigenvalues, the same mechanism that keeps network deconvolution's five steps finite. Verified 2026-10-12 via Crossref (DOI, author list, pages).},
+}
