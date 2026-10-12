@@ -1,0 +1,21 @@
+=== vgg16_bn nd seed 0  Mon Oct 12 00:15:36 UTC 2026
+  [measure] epoch 100  test acc 94.03%  k*(.95)/C median 0.283  rho(depth) -0.65  (4s)
+done
+baked whitened kernels -> vgg16_bn_nd_cifar10_final.pt
+=== vgg16_bn nd seed 1  Mon Oct 12 01:09:37 UTC 2026
+  [measure] epoch 100  test acc 93.85%  k*(.95)/C median 0.279  rho(depth) -0.64  (4s)
+done
+baked whitened kernels -> vgg16_bn_nd_cifar10_final.pt
+=== vgg16_bn nd seed 2  Mon Oct 12 02:04:43 UTC 2026
+  [measure] epoch 100  test acc 94.15%  k*(.95)/C median 0.275  rho(depth) -0.66  (4s)
+done
+baked whitened kernels -> vgg16_bn_nd_cifar10_final.pt
+=== vgg16_bn wo seed 0  Mon Oct 12 03:02:38 UTC 2026
+  [measure] epoch 100  test acc 92.30%  k*(.95)/C median 0.812  rho(depth) -0.41  (6s)
+done
+baked whitened kernels -> vgg16_bn_wo_cifar10_final.pt
+=== vgg16_bn wo seed 1  Mon Oct 12 10:19:41 UTC 2026
+  [measure] epoch 100  test acc 91.76%  k*(.95)/C median 0.812  rho(depth) -0.40  (6s)
+done
+baked whitened kernels -> vgg16_bn_wo_cifar10_final.pt
+=== vgg16_bn wo seed 2  Mon Oct 12 18:28:29 UTC 2026

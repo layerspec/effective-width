@@ -3054,6 +3054,14 @@ CIFAR-10 最後三層 40 vs 168–347（下游不需要，所以縮到 40 沒掉
 - **9.56 補記 3（2026-10-11 12:58，跑正式實驗前）**：WO 的 NaN 第二個來源是程式錯誤，不是數學：`tensor.to("cpu", torch.float64)` 從 MPS 轉出來是垃圾（trace 0、特徵值 1e-313；MPS 無 float64，先轉型再搬），eigh 因此給 inf 的 D。改成 `.cpu().double()`（教訓寫進 CLAUDE.md）。修後 60 batch 煙霧：第 50 步 13 層同時開始白化，loss 10.3 → 2.5 回穩，D 的最大元素 0.18–1.43，烘焙成功。
   時間：WO 在 Mac 每輪 refresh（13 層 eigh，d 到 4608，CPU float64）約 90 s，每 50 步一輪 ⇒ 每 epoch 多約 12 分鐘 ⇒ 100 epoch 約 25 h／run；ND 2.25× ⇒ 13 h／run。**Mac 不實際，兩臂都上 pod**（CUDA 的 eigh 4608 約 1–2 s）。pod 估：VGG 六跑約 3 h、basic52 六跑約 20 h（ND 135 s/epoch、WO 約 100 s/epoch），合計約 23 GPU-h ≈ US$17–20（4090），兩個 pod 並行可對半時間。反事實預測（P9.128／P9.129′ 的 pred 欄）先在 Mac 由 D5／a2 的六個 none 權重算（`results/t3/counterfactual_*.csv`，`run_counterfactuals.sh`）。
 
+- **9.56 補記 4（2026-10-13 07:40，六個 VGG run 跑完五個、其餘改 Mac；只記執行與協定偏離，不含判定數字）**：
+  pod（RunPod 4090、無 Volume）10-12 00:15 UTC 起跑 `run_t3_pod.sh all`。VGG ND 三跑各約 55 分（30 s/epoch）；**VGG WO 每跑約 8 h（230–290 s/epoch）**——補記 3 的「CUDA eigh 4608 約 1–2 s」估錯：`sym_eigh` 一律在 CPU float64 做（為 MPS 寫的），pod 上 OMP 8 執行緒、13 層 d 到 4608、每 50 步一輪 ⇒ 每 epoch 多約 200 s，GPU 佔用 0–86% 間歇。沒改程式（改了 s2 要重來；basic52 的 d ≤ 576，eigh 不是瓶頸）。
+  23 h 後餘額由 US$22.26 到 0.93（約 US$0.93/h），**作者 10-13 定不加值**。完成並抓回 `results/round3/`：VGG nd s0–s2、wo s0–s1（final.pt、unbaked.pt、層表、log）；wo s2 到 epoch 70 的 `resume.pt`（1.1 GB）抓回，pod 剩餘時間繼續跑、每 8 分鐘再抓，pod 失聯時抓取迴圈寫 `results/t3/pod_gone`。
+  **改在 Mac 完成**（`results/mac_queue_t3.sh`，加進 `mac_queues_start.sh`；兩道閘：§9.57 跑完、`pod_gone`）：(i) wo s2 從 resume.pt 續跑 epoch 71–100——**協定偏離，寫進 §10.60**：前 70 epoch 在 CUDA＋AMP fp16、`--gpu-data`，後 30 在 MPS fp32、DataLoader；模型／優化器／排程／RNG 由 resume.pt 接續（與 p2j 的跨裝置先例同類，但發生在同一條軌跡內）；(ii) basic52 nd／wo × 3 種子全程 Mac（`--device mps --workers 2`，與 D5 Mac 側同配方）。
+  估時：wo s2 剩 30 epoch 依補記 3 的 Mac 數字約 7 h；basic52 六跑依補記 3 的 pod 數字乘 MPS 的 3–5 倍 ⇒ 每跑 8–14 h、共 2–3.5 天；第一個 basic52 run 跑出 epoch 時間後修正。
+  **量測裝置**：VGG nd s0–s2 的 `decompose_check` 在 pod 以 `--device cuda` 跑完（Mac 當時跑 §9.57、記憶體不夠）；wo s0／s1 的 decompose 與 `t3_postrelu` 看 pod 死前跑到哪，沒跑到的 Mac 隊列補（`--device mps`，與 D5 的 none／ONI 臂同裝置）。cuda 對 mps 的差只在 float32 卷積的捨入，k*/r_max 的差 10⁻³ 量級、門檻 0.10；§10.60 註明哪幾列是 cuda。
+  `t3_judge.py`（10-11 寫好）尚未在任何 nd／wo 資料上跑；五個 run 的 log 末行準確率只在 §10.60 讀。
+
 ### 9.57 定理 M.2 在激活步：一層多組權重直接量 sd(k*) 與 Poincaré 區間（2026-10-12 07:14 寫，資料未見；`proofs-2026-09-29.md` §M（引理 M.2.0、定理 M.2）；§10.59「激活步未核」；路線 1 的可選第二段；量測、Mac；`scripts/m2_activation_seeds.py`）
 
 - **對象**：timm `vgg16_bn.tv_in1k_random` seed 1（與 freeprob／apriori 同一組權重；Kaiming fan_out 高斯、bias ＝ 0、BN eval 恆等），ImageNet val 1,600 張 × 每層每張 32 個位置（n ＝ 51,200；n/C ≥ 100）。

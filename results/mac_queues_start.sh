@@ -46,3 +46,8 @@ if [ -f results/m2_activation/judgement.txt ]; then echo "m2_activation done"; e
   (cd code && nohup caffeinate -i ~/.venvs/effwidth/bin/python scripts/m2_activation_seeds.py --device mps --limit 1600 --positions 32 --draws 40 --resume >> ../results/m2_activation.log 2>&1 < /dev/null &)
   echo "started m2_activation (resume)"
 fi
+# 2026-10-13: plan 9.56 T3 arms moved to the Mac after the pod balance ran out; waits for m2_activation and for results/t3/pod_gone.
+if [ -f results/t3/judgement.txt ]; then echo "t3 queue done"; elif pgrep -f "results/mac_queue_t3\.sh" > /dev/null 2>&1; then echo "t3 queue already running"; else
+  nohup caffeinate -i results/mac_queue_t3.sh >> results/mac_queue_t3.log 2>&1 < /dev/null &
+  echo "started t3 queue"
+fi
