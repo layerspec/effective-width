@@ -313,6 +313,7 @@ def main(argv=None) -> int:
     ap.add_argument("--device", default="mps" if torch.backends.mps.is_available() else "cpu")
     ap.add_argument("--out", default=OUT)
     ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--resume", action="store_true", help="skip layers already present in <out>/rows.csv")
     a = ap.parse_args(argv)
     if a.smoke:
         a.limit, a.draws, a.positions = 20, 6, 8
@@ -326,6 +327,12 @@ def main(argv=None) -> int:
     idxs = a.layers or [i for i, m in enumerate(model.features) if isinstance(m, torch.nn.Conv2d)]
     rows_path = os.path.join(a.out, "rows.csv")
     all_rows = []
+    if a.resume and os.path.exists(rows_path):                              # layers already judged are kept and skipped
+        prev = pd.read_csv(rows_path)
+        done = set(prev.layer)
+        all_rows = prev.to_dict("records")
+        print(f"resume: {len(done)} layers already in {rows_path}: {sorted(done, key=lambda s: int(s.split('.')[1]))}", flush=True)
+        idxs = [i for i in idxs if f"features.{i}" not in done]
     for idx in idxs:
         layer = f"features.{idx}"
         t0 = time.time()

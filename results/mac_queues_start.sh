@@ -41,3 +41,8 @@ if pgrep -f "results/mac_queue_1005\.sh" > /dev/null 2>&1; then echo "queue_1005
   echo "started queue_1005"
 fi
 sleep 3; echo "queues alive: $(pgrep -f 'results/mac_queue_p2' | wc -l | tr -d ' ')"
+# 2026-10-12: plan 9.57 (Theorem M.2 on the activation step); resumes from results/m2_activation/rows.csv, skips finished layers.
+if [ -f results/m2_activation/judgement.txt ]; then echo "m2_activation done"; elif pgrep -f "m2_activation_se[e]ds" > /dev/null 2>&1; then echo "m2_activation already running"; else
+  (cd code && nohup caffeinate -i ~/.venvs/effwidth/bin/python scripts/m2_activation_seeds.py --device mps --limit 1600 --positions 32 --draws 40 --resume >> ../results/m2_activation.log 2>&1 < /dev/null &)
+  echo "started m2_activation (resume)"
+fi
