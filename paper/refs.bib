@@ -1922,6 +1922,16 @@
   annote    = {Channel-side ZCA whitening in place of BN (the k = 1 case of network deconvolution). Verified 2026-10-12 via Crossref (DOI, author list, pages).},
 }
 
+@inproceedings{cho2021convunit,
+  author    = {Cho, Yooshin and Cho, Hanbyel and Kim, Youngsoo and Kim, Junmo},
+  title     = {Improving Generalization of Batch Whitening by Convolutional Unit Optimization},
+  booktitle = {Proceedings of the IEEE/CVF International Conference on Computer Vision (ICCV)},
+  pages     = {5301--5309},
+  year      = {2021},
+  doi       = {10.1109/ICCV48922.2021.00527},
+  annote    = {Same premise as our T3 (the input of the linear layer should be whitened): channel whitening (IterNorm) moved in front of the convolution, affine transform removed; reports the rank over channel count of the whitening input (not full rank after the convolution, full rank after the activation; ResNet-56, CIFAR-100, their Fig. 3a). Channel side, no patch-level operator, no tau-width, no ceiling. Verified 2026-10-13 via Crossref (DOI, author list, pages); PDF in refs/T3.},
+}
+
 @inproceedings{huang2019iternorm,
   author    = {Huang, Lei and Zhou, Yi and Zhu, Fan and Liu, Li and Shao, Ling},
   title     = {Iterative Normalization: Beyond Standardization Towards Efficient Whitening},

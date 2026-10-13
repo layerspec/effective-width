@@ -35,3 +35,21 @@ features.40 4608    512     8.680556  0.039062     0.054688   0.068359    0.0683
 Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 25.2, max 3187.6;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
 wrote ../results/round3_decompose/a5_vgg16_bn_nd_s1_decompose.csv
 === decompose a5_vgg16_bn_nd_s2 Mon Oct 12 23:29:21 UTC 2026
+a5_vgg16_bn_nd_s2 (../results/round3/a5_vgg16_bn_nd_s2/vgg16_bn_nd_cifar10_final.pt): 13 dense conv layers, 364s
+      layer    d  C_out     n_over_d  out_0.95  kernel_0.95  data_0.95  ortho_0.95  kernel_erank_over_rmax
+ features.0   27     64 17777.777778  0.370370     0.518519   0.185185    0.185185                0.493857
+ features.3  576     64   833.333333  0.546875     0.812500   1.000000    0.703125                0.744921
+ features.7  576    128   833.333333  0.492188     0.781250   1.000000    0.750000                0.684631
+features.10 1152    128   416.666667  0.554688     0.851562   1.000000    0.765625                0.816160
+features.14 1152    256   416.666667  0.371094     0.757812   1.000000    0.695312                0.668422
+features.17 2304    256   208.333333  0.546875     0.835938   1.000000    0.773438                0.767834
+features.20 2304    256   208.333333  0.570312     0.847656   1.000000    0.804688                0.781749
+features.24 2304    512    69.444444  0.275391     0.685547   1.000000    0.722656                0.507646
+features.27 4608    512    34.722222  0.181641     0.638672   1.000000    0.638672                0.403176
+features.30 4608    512    34.722222  0.109375     0.531250   1.000000    0.410156                0.294455
+features.34 4608    512     8.680556  0.039062     0.072266   0.287109    0.126953                0.057942
+features.37 4608    512     8.680556  0.041016     0.062500   0.068359    0.068359                0.061232
+features.40 4608    512     8.680556  0.039062     0.050781   0.066406    0.064453                0.053480
+Proposition 1 check: Ostrowski ratios within [s_min^2, s_max^2] on 13/13 layers; k*_out(tau) <= k*_ortho(tau') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13;  kappa median 19.6, max 3272.4;  lower bound k*_out(tau) >= k*_ortho(tau'') on tau=0.9: 13/13, tau=0.95: 13/13, tau=0.99: 13/13, tau=0.999: 13/13
+wrote ../results/round3_decompose/a5_vgg16_bn_nd_s2_decompose.csv
+=== decompose a5_vgg16_bn_wo_s0 Mon Oct 12 23:38:18 UTC 2026

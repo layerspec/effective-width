@@ -2519,6 +2519,12 @@ ResNeXt 的分支能量只有流的 2–7%（grouped 分支＋BN 的尺度），
   補充表「四種維度在同一組層」照加（I2），欄：k*(0.95)/r_max、PR、erank、TwoNN(S1)、TwoNN(P)，三個訓練權重＋兩個隨機；每層抖動 ID(S1)_sd 0.1–1.0。
 - **措辭界線**：三條預測都錯，寫法是「the manifold dimension and the τ-width answer different questions; measured on the same layers they order the layers alike and differ in level by 4–5×」，不寫任何一方「低估」；位置相依的 ID 塌縮只作方法註與 B9 的旁證。
 
+- **10.52 附記（2026-10-13 08:10；描述性，不計入總數；pending I2′ 的表）**：`scripts/ruler_table.py`（4 測試）把七把尺讀在同一組層（§10.52 的 86＋33 層、同一個存量譜、同一批影像）→ `results/rulers/summary.txt`、`paper/table_rulers.tex`。
+  讀法（中位 ruler/r_max，訓練三權重）：k*(0.999) 0.93–0.97、NR（Masarczyk 1e-3）0.70–0.99、k*(0.95) 0.42–0.53、erank 0.22–0.33、PR 0.10–0.17、TwoNN(S1) 0.10–0.17、TwoNN(P) 0.06–0.11——秩型的尺貼著 r_max，變異加權與流形的尺低 3–10 倍。
+  隨機兩權重：k*(0.999) 仍 0.97 而 NR 掉到 0.38–0.69（門檻是對最大特徵值取，隨機網路譜頭重）；PR 0.02–0.03、erank 0.06–0.10。
+  排序（對 k*(0.95) 原值的 Spearman）：ResNet 兩個全部 ≥ 0.72；VGG-16 的 PR 0.37、其餘 ≥ 0.85；除以 r_max 後 PR／TwoNN 在 VGG 變負（深度趨勢被 r_max 拿掉，§10.52 同一件事）。
+  措辭：規則 4 的「四種維度」句用這張表；不寫任何尺「低估」。
+
 ### 10.50 §9.46 判定：basic block 的聯合層內律**成立**——P9.109(a) 23/24、(b) 23/24（2026-10-08 19:25；`addition_law.py --block basic --positions 64`；`results/addition_law/resnet{18,34}_tv_in1k_s1_blocks.csv`；npz 不進 git）
 
 ResNet-18（8 塊）＋ ResNet-34（16 塊）γ＝1 隨機 seed 1，layer1–4，n ＝ 409,600（layer4 313,600，7×7 只有 49 個位置），J 維度 640–5120（n/dim(J) ≥ 61）。
